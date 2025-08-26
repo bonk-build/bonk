@@ -13,6 +13,8 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	slogctx "github.com/veqryn/slog-context"
+
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
 )
 
@@ -48,14 +50,7 @@ func (stream *streamHandler) Handle(ctx context.Context, record slog.Record) err
 	record.Attrs(func(attr slog.Attr) bool {
 		protoValue, err := structpb.NewValue(attr.Value.Any())
 		if err != nil {
-			slog.WarnContext(
-				ctx,
-				"failed to convert attr, dropping",
-				"type",
-				attr.Value.Kind(),
-				"error",
-				err,
-			)
+			panic(err)
 		} else {
 			res.Attrs[attr.Key] = protoValue
 		}
@@ -86,13 +81,16 @@ func (s *grpcServer) StreamLogs(
 	slogDefault := slog.Default()
 
 	slog.SetDefault(slog.New(
-		&streamHandler{
-			HandlerOptions: slog.HandlerOptions{
-				Level:     slog.Level(req.GetLevel()),
-				AddSource: req.GetAddSource(),
+		slogctx.NewHandler(
+			&streamHandler{
+				HandlerOptions: slog.HandlerOptions{
+					Level:     slog.Level(req.GetLevel()),
+					AddSource: req.GetAddSource(),
+				},
+				sender: res,
 			},
-			sender: res,
-		},
+			nil,
+		),
 	))
 
 	// Sleep until the request is canceled

@@ -19,11 +19,16 @@ import (
 )
 
 type Plugin struct {
+	name     string
 	client   bonkv0.BonkPluginServiceClient
 	backends map[string]PluginBackend
 }
 
-func NewPlugin(ctx context.Context, client bonkv0.BonkPluginServiceClient) (*Plugin, error) {
+func NewPlugin(
+	ctx context.Context,
+	name string,
+	client bonkv0.BonkPluginServiceClient,
+) (*Plugin, error) {
 	configureCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	resp, err := client.ConfigurePlugin(configureCtx, &bonkv0.ConfigurePluginRequest{})
 	cancel()
@@ -32,6 +37,7 @@ func NewPlugin(ctx context.Context, client bonkv0.BonkPluginServiceClient) (*Plu
 	}
 
 	plugin := &Plugin{
+		name:     name,
 		client:   client,
 		backends: make(map[string]PluginBackend, len(resp.GetBackends())),
 	}
@@ -107,7 +113,7 @@ func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
 				})
 			}
 
-			slogHandler := slog.Default().Handler()
+			slogHandler := slog.Default().With("plugin", p.name).Handler()
 			if slogHandler.Enabled(recvCtx, record.Level) {
 				err = slogHandler.Handle(recvCtx, record)
 				if err != nil {

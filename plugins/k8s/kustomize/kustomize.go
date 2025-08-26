@@ -4,8 +4,8 @@
 package main // import "go.bonk.build/plugins/k8s/kustomize"
 
 import (
+	"context"
 	"fmt"
-	"log/slog"
 	"os"
 	"path"
 
@@ -24,7 +24,7 @@ type Params struct {
 	Kustomization types.Kustomization `json:"-"`
 }
 
-func kustomize(_ *slog.Logger, params *plugin.TaskParams[Params]) error {
+func kustomize(_ context.Context, params *plugin.TaskParams[Params]) error {
 	// Apply resources and any needed fixes
 	params.Params.Kustomization.Resources = params.Inputs
 	params.Params.Kustomization.FixKustomization()

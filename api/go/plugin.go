@@ -17,6 +17,7 @@ import (
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
+	slogctx "github.com/veqryn/slog-context"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
 )
@@ -35,14 +36,14 @@ type BonkBackend struct {
 	Name         string
 	Outputs      []string
 	ParamsSchema cue.Value
-	Exec         func(*slog.Logger, TaskParams[cue.Value]) error
+	Exec         func(context.Context, TaskParams[cue.Value]) error
 }
 
 // Factory to create a new task backend.
 func NewBackend[Params any](
 	name string,
 	outputs []string,
-	exec func(*slog.Logger, *TaskParams[Params]) error,
+	exec func(context.Context, *TaskParams[Params]) error,
 ) BonkBackend {
 	zero := new(Params)
 
@@ -55,7 +56,7 @@ func NewBackend[Params any](
 		Name:         name,
 		Outputs:      outputs,
 		ParamsSchema: schema,
-		Exec: func(logger *slog.Logger, paramsCue TaskParams[cue.Value]) error {
+		Exec: func(ctx context.Context, paramsCue TaskParams[cue.Value]) error {
 			params := new(TaskParams[Params])
 			params.Inputs = paramsCue.Inputs
 			params.OutDir = paramsCue.OutDir
@@ -64,7 +65,7 @@ func NewBackend[Params any](
 				return fmt.Errorf("failed to decode task parameters: %w", err)
 			}
 
-			return exec(logger, params)
+			return exec(ctx, params)
 		},
 	}
 }
@@ -171,7 +172,9 @@ func (s *grpcServer) PerformTask(
 		return nil, fmt.Errorf("failed to decode parameters: %w", err)
 	}
 
-	err = backend.Exec(slog.Default().With("backend", req.GetBackend()), params)
+	execCtx := slogctx.Append(ctx, "backend", req.GetBackend())
+
+	err = backend.Exec(execCtx, params)
 	if err != nil {
 		return nil, err
 	}

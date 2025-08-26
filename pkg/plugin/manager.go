@@ -70,7 +70,7 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 		return errors.New("got unexpected plugin client type")
 	}
 
-	plug, err := NewPlugin(ctx, bonkClient)
+	plug, err := NewPlugin(ctx, pluginName, bonkClient)
 	if err != nil {
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}
