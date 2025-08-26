@@ -171,7 +171,7 @@ func (s *grpcServer) PerformTask(
 		return nil, fmt.Errorf("failed to decode parameters: %w", err)
 	}
 
-	err = backend.Exec(slog.Default().With("source", "task"), params)
+	err = backend.Exec(slog.Default().With("backend", req.GetBackend()), params)
 	if err != nil {
 		return nil, err
 	}
