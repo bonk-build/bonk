@@ -19,7 +19,7 @@ func main() {
 			"Test",
 			[]string{},
 			func(log *slog.Logger, param *plugin.TaskParams[Params]) error {
-				log.Info("it's happening!")
+				log.Info("it's happening!", "thing", "value")
 
 				return nil
 			},

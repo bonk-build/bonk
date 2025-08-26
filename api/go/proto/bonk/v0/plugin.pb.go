@@ -179,7 +179,7 @@ func (b0 ConfigurePluginResponse_builder) Build() *ConfigurePluginResponse {
 
 type StreamLogsRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Level       int32                  `protobuf:"varint,1,opt,name=level"`
+	xxx_hidden_Level       int64                  `protobuf:"varint,1,opt,name=level"`
 	xxx_hidden_AddSource   bool                   `protobuf:"varint,2,opt,name=add_source,json=addSource"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -212,7 +212,7 @@ func (x *StreamLogsRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *StreamLogsRequest) GetLevel() int32 {
+func (x *StreamLogsRequest) GetLevel() int64 {
 	if x != nil {
 		return x.xxx_hidden_Level
 	}
@@ -226,7 +226,7 @@ func (x *StreamLogsRequest) GetAddSource() bool {
 	return false
 }
 
-func (x *StreamLogsRequest) SetLevel(v int32) {
+func (x *StreamLogsRequest) SetLevel(v int64) {
 	x.xxx_hidden_Level = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
 }
@@ -263,7 +263,7 @@ func (x *StreamLogsRequest) ClearAddSource() {
 type StreamLogsRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Level     *int32
+	Level     *int64
 	AddSource *bool
 }
 
@@ -287,7 +287,7 @@ type StreamLogsResponse struct {
 	state                  protoimpl.MessageState     `protogen:"opaque.v1"`
 	xxx_hidden_Time        *timestamppb.Timestamp     `protobuf:"bytes,1,opt,name=time"`
 	xxx_hidden_Message     *string                    `protobuf:"bytes,2,opt,name=message"`
-	xxx_hidden_Level       int32                      `protobuf:"varint,3,opt,name=level"`
+	xxx_hidden_Level       int64                      `protobuf:"varint,3,opt,name=level"`
 	xxx_hidden_Attrs       map[string]*structpb.Value `protobuf:"bytes,4,rep,name=attrs" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -337,7 +337,7 @@ func (x *StreamLogsResponse) GetMessage() string {
 	return ""
 }
 
-func (x *StreamLogsResponse) GetLevel() int32 {
+func (x *StreamLogsResponse) GetLevel() int64 {
 	if x != nil {
 		return x.xxx_hidden_Level
 	}
@@ -360,7 +360,7 @@ func (x *StreamLogsResponse) SetMessage(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
 }
 
-func (x *StreamLogsResponse) SetLevel(v int32) {
+func (x *StreamLogsResponse) SetLevel(v int64) {
 	x.xxx_hidden_Level = v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 4)
 }
@@ -409,7 +409,7 @@ type StreamLogsResponse_builder struct {
 
 	Time    *timestamppb.Timestamp
 	Message *string
-	Level   *int32
+	Level   *int64
 	Attrs   map[string]*structpb.Value
 }
 
@@ -698,13 +698,13 @@ const file_bonk_v0_plugin_proto_rawDesc = "" +
 	"\x19FEATURE_FLAGS_UNSPECIFIED\x10\x00\x12#\n" +
 	"\x1fFEATURE_FLAGS_STREAMING_LOGGING\x10\x01J\x04\b\x02\x10\x03R\tfrontends\"H\n" +
 	"\x11StreamLogsRequest\x12\x14\n" +
-	"\x05level\x18\x01 \x01(\x05R\x05level\x12\x1d\n" +
+	"\x05level\x18\x01 \x01(\x03R\x05level\x12\x1d\n" +
 	"\n" +
 	"add_source\x18\x02 \x01(\bR\taddSource\"\x84\x02\n" +
 	"\x12StreamLogsResponse\x12.\n" +
 	"\x04time\x18\x01 \x01(\v2\x1a.google.protobuf.TimestampR\x04time\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\x14\n" +
-	"\x05level\x18\x03 \x01(\x05R\x05level\x12<\n" +
+	"\x05level\x18\x03 \x01(\x03R\x05level\x12<\n" +
 	"\x05attrs\x18\x04 \x03(\v2&.bonk.v0.StreamLogsResponse.AttrsEntryR\x05attrs\x1aP\n" +
 	"\n" +
 	"AttrsEntry\x12\x10\n" +

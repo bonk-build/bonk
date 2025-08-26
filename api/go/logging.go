@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"runtime"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -25,8 +26,18 @@ func (stream *streamHandler) Enabled(_ context.Context, level slog.Level) bool {
 	return int(stream.Level.Level()) <= int(level)
 }
 
-func (stream *streamHandler) Handle(_ context.Context, record slog.Record) error {
-	level := int32(record.Level)
+func (stream *streamHandler) Handle(ctx context.Context, record slog.Record) error {
+	if stream.AddSource {
+		fs := runtime.CallersFrames([]uintptr{record.PC})
+		f, _ := fs.Next()
+		record.AddAttrs(slog.Any(slog.SourceKey, &slog.Source{
+			Function: f.Function,
+			File:     f.File,
+			Line:     f.Line,
+		}))
+	}
+
+	level := int64(record.Level)
 	res := bonkv0.StreamLogsResponse_builder{
 		Time:    timestamppb.New(record.Time),
 		Message: &record.Message,
@@ -34,10 +45,23 @@ func (stream *streamHandler) Handle(_ context.Context, record slog.Record) error
 		Attrs:   make(map[string]*structpb.Value, record.NumAttrs()),
 	}
 
-	// record.Attrs(func(attr slog.Attr) bool {
-	// 	res.Attrs[attr.Key] = attr.Value
-	// 	return true
-	// })
+	record.Attrs(func(attr slog.Attr) bool {
+		protoValue, err := structpb.NewValue(attr.Value.Any())
+		if err != nil {
+			slog.WarnContext(
+				ctx,
+				"failed to convert attr, dropping",
+				"type",
+				attr.Value.Kind(),
+				"error",
+				err,
+			)
+		} else {
+			res.Attrs[attr.Key] = protoValue
+		}
+
+		return true
+	})
 
 	err := stream.sender.Send(res.Build())
 	if err != nil {

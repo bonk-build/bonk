@@ -42,7 +42,7 @@ func NewPlugin(ctx context.Context, client bonkv0.BonkPluginServiceClient) (*Plu
 			// unsupported feature, ignore
 
 		case bonkv0.ConfigurePluginResponse_FEATURE_FLAGS_STREAMING_LOGGING:
-			err = plugin.HandleFeatureLogging(ctx)
+			err = plugin.handleFeatureLogging(ctx)
 			if err != nil {
 				slog.WarnContext(ctx, "failed to configure streaming logging for plugin", "error", err)
 			}
@@ -65,8 +65,8 @@ func NewPlugin(ctx context.Context, client bonkv0.BonkPluginServiceClient) (*Plu
 	return plugin, nil
 }
 
-func (p *Plugin) HandleFeatureLogging(ctx context.Context) error {
-	defaultLevel := int32(slog.LevelInfo)
+func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
+	defaultLevel := int64(slog.LevelInfo)
 	addSource := false
 
 	req := bonkv0.StreamLogsRequest_builder{
@@ -78,7 +78,7 @@ func (p *Plugin) HandleFeatureLogging(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to call client.StreamLogs: %w", err)
 	}
-	go func() {
+	go func() { //nolint: contextcheck
 		recvCtx := logStream.Context()
 		for {
 			msg, err := logStream.Recv()
@@ -100,14 +100,12 @@ func (p *Plugin) HandleFeatureLogging(ctx context.Context) error {
 				0,
 			)
 
-			record.Add("source", "plugin")
-
-			// for key, value := range msg.GetAttrs() {
-			// 	record.AddAttrs(slog.Attr{
-			// 		Key:   key,
-			// 		Value: value,
-			// 	})
-			// }
+			for key, value := range msg.GetAttrs() {
+				record.AddAttrs(slog.Attr{
+					Key:   key,
+					Value: slog.AnyValue(value.AsInterface()),
+				})
+			}
 
 			slogHandler := slog.Default().Handler()
 			if slogHandler.Enabled(recvCtx, record.Level) {
