@@ -37,7 +37,7 @@ var Handshake = goplugin.HandshakeConfig{
 ```
 
 <a name="Serve"></a>
-## func [Serve](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L74>)
+## func [Serve](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L74>)
 
 ```go
 func Serve(backends ...BonkBackend)
@@ -46,7 +46,7 @@ func Serve(backends ...BonkBackend)
 Call from main\(\) to start the plugin gRPC server.
 
 <a name="BonkBackend"></a>
-## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L35-L40>)
+## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L35-L40>)
 
 Represents a backend capable of performing tasks.
 
@@ -60,7 +60,7 @@ type BonkBackend struct {
 ```
 
 <a name="NewBackend"></a>
-### func [NewBackend](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L43-L47>)
+### func [NewBackend](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L43-L47>)
 
 ```go
 func NewBackend[Params any](name string, outputs []string, exec func(context.Context, *TaskParams[Params]) error) BonkBackend
@@ -69,7 +69,7 @@ func NewBackend[Params any](name string, outputs []string, exec func(context.Con
 Factory to create a new task backend.
 
 <a name="TaskParams"></a>
-## type [TaskParams](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L28-L32>)
+## type [TaskParams](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L28-L32>)
 
 The inputs passed to a task backend.
 
