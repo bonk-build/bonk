@@ -12,7 +12,7 @@ import "go.bonk.build/api/go"
 - [Variables](<#variables>)
 - [func Serve\(backends ...BonkBackend\)](<#Serve>)
 - [type BonkBackend](<#BonkBackend>)
-  - [func NewBackend\[Params any\]\(name string, outputs \[\]string, exec func\(\*slog.Logger, \*TaskParams\[Params\]\) error\) BonkBackend](<#NewBackend>)
+  - [func NewBackend\[Params any\]\(name string, outputs \[\]string, exec func\(context.Context, \*TaskParams\[Params\]\) error\) BonkBackend](<#NewBackend>)
 - [type TaskParams](<#TaskParams>)
 
 
@@ -37,7 +37,7 @@ var Handshake = goplugin.HandshakeConfig{
 ```
 
 <a name="Serve"></a>
-## func [Serve](<https://github.com/bonk-build/bonk/blob/7929245/api/go/plugin.go#L73>)
+## func [Serve](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L74>)
 
 ```go
 func Serve(backends ...BonkBackend)
@@ -46,7 +46,7 @@ func Serve(backends ...BonkBackend)
 Call from main\(\) to start the plugin gRPC server.
 
 <a name="BonkBackend"></a>
-## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/7929245/api/go/plugin.go#L34-L39>)
+## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L35-L40>)
 
 Represents a backend capable of performing tasks.
 
@@ -55,21 +55,21 @@ type BonkBackend struct {
     Name         string
     Outputs      []string
     ParamsSchema cue.Value
-    Exec         func(*slog.Logger, TaskParams[cue.Value]) error
+    Exec         func(context.Context, TaskParams[cue.Value]) error
 }
 ```
 
 <a name="NewBackend"></a>
-### func [NewBackend](<https://github.com/bonk-build/bonk/blob/7929245/api/go/plugin.go#L42-L46>)
+### func [NewBackend](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L43-L47>)
 
 ```go
-func NewBackend[Params any](name string, outputs []string, exec func(*slog.Logger, *TaskParams[Params]) error) BonkBackend
+func NewBackend[Params any](name string, outputs []string, exec func(context.Context, *TaskParams[Params]) error) BonkBackend
 ```
 
 Factory to create a new task backend.
 
 <a name="TaskParams"></a>
-## type [TaskParams](<https://github.com/bonk-build/bonk/blob/7929245/api/go/plugin.go#L27-L31>)
+## type [TaskParams](<https://github.com/bonk-build/bonk/blob/d7a8389/api/go/plugin.go#L28-L32>)
 
 The inputs passed to a task backend.
 
