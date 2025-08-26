@@ -4,6 +4,7 @@
 package main // import "go.bonk.build/plugins/k8s/resources"
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -21,7 +22,7 @@ type Params struct {
 	Resources cue.Value `cue:"[...]" json:"resources"`
 }
 
-func genResources(params *plugin.TaskParams[Params]) error {
+func genResources(_ context.Context, params *plugin.TaskParams[Params]) error {
 	if len(params.Inputs) > 0 {
 		return errors.New("resources task does not accept inputs")
 	}

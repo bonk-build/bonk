@@ -4,6 +4,9 @@
 package main // import "go.bonk.build/plugins/test"
 
 import (
+	"context"
+	"log/slog"
+
 	plugin "go.bonk.build/api/go"
 )
 
@@ -16,7 +19,9 @@ func main() {
 		plugin.NewBackend(
 			"Test",
 			[]string{},
-			func(param *plugin.TaskParams[Params]) error {
+			func(ctx context.Context, param *plugin.TaskParams[Params]) error {
+				slog.InfoContext(ctx, "it's happening!", "thing", "value")
+
 				return nil
 			},
 		),
