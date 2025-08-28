@@ -14,7 +14,7 @@ import (
 )
 
 type TaskSender interface {
-	SendTask(ctx context.Context, tsk task.Task) error
+	SendTask(ctx context.Context, tsk task.Task) ([]string, error)
 }
 
 type Scheduler struct {
@@ -42,7 +42,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 			return
 		}
 
-		err := s.executorManager.SendTask(context.Background(), tsk)
+		_, err := s.executorManager.SendTask(context.Background(), tsk)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 

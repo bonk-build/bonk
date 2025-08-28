@@ -25,7 +25,7 @@ type rpcExecutor struct {
 	client bonkv0.BonkPluginServiceClient
 }
 
-func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) error {
+func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) ([]string, error) {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
 		Executor:     &pb.name,
@@ -36,13 +36,13 @@ func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) error {
 
 	err := tsk.Params.Decode(taskReqBuilder.Parameters)
 	if err != nil {
-		return fmt.Errorf("failed to encode parameters as protobuf: %w", err)
+		return nil, fmt.Errorf("failed to encode parameters as protobuf: %w", err)
 	}
 
-	_, err = pb.client.PerformTask(ctx, taskReqBuilder.Build())
+	res, err := pb.client.PerformTask(ctx, taskReqBuilder.Build())
 	if err != nil {
-		return fmt.Errorf("failed to call perform task: %w", err)
+		return nil, fmt.Errorf("failed to call perform task: %w", err)
 	}
 
-	return nil
+	return res.GetOutput(), nil
 }

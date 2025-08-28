@@ -19,7 +19,7 @@ func Test_Plugin(t *testing.T) {
 		Executor_Test,
 	)
 
-	err := executors.SendTask(
+	_, err := executors.SendTask(
 		t.Context(),
 		task.New(Executor_Test.Name, "testing", cue.Value{}),
 	)

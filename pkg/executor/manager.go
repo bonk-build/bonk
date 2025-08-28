@@ -36,20 +36,20 @@ func (bm *ExecutorManager) UnregisterExecutor(name string) {
 	delete(bm.executors, name)
 }
 
-func (bm *ExecutorManager) SendTask(ctx context.Context, tsk task.Task) error {
+func (bm *ExecutorManager) SendTask(ctx context.Context, tsk task.Task) ([]string, error) {
 	executorName := tsk.Executor()
 
 	executor, ok := bm.executors[executorName]
 	if !ok {
-		return fmt.Errorf("Executor %s not found", executorName)
+		return nil, fmt.Errorf("Executor %s not found", executorName)
 	}
 
-	err := executor.Execute(ctx, tsk)
+	outputs, err := executor.Execute(ctx, tsk)
 	if err != nil {
-		return fmt.Errorf("failed to execute task: %w", err)
+		return nil, fmt.Errorf("failed to execute task: %w", err)
 	}
 
-	return nil
+	return outputs, nil
 }
 
 func (bm *ExecutorManager) Shutdown() {
