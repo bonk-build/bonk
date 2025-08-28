@@ -1,4 +1,4 @@
-# BONK
+# bonk the builder
 *Your favorite build system's favorite build system.*
 
 ---
