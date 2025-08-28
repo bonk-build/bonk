@@ -15,6 +15,7 @@ linters:
     - wsl_v5
 
     # TODO
+    - cyclop
     - funlen
     - gochecknoglobals
     - revive

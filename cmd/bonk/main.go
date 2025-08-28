@@ -90,8 +90,6 @@ var rootCmd = &cobra.Command{
 			),
 		)
 
-		sched.Run()
-
 		cobra.CheckErr(err)
 	},
 }

@@ -9,9 +9,10 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"reflect"
 	"time"
 
-	"google.golang.org/grpc"
+	"go.uber.org/multierr"
 
 	goplugin "github.com/hashicorp/go-plugin"
 
@@ -21,40 +22,46 @@ import (
 
 type Plugin struct {
 	name      string
-	client    bonkv0.BonkPluginServiceClient
 	executors map[string]executor.Executor
 }
 
-func NewPlugin(
+func (plugin *Plugin) Configure(ctx context.Context, client goplugin.ClientProtocol) error {
+	var err error
+
+	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, client))
+	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, client))
+
+	return err
+}
+
+func (plugin *Plugin) handleFeatureExecutor(
 	ctx context.Context,
-	name string,
-	client bonkv0.BonkPluginServiceClient,
-) (*Plugin, error) {
+	client goplugin.ClientProtocol,
+) error {
 	configureCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
-	resp, err := client.ConfigurePlugin(configureCtx, &bonkv0.ConfigurePluginRequest{})
-	cancel()
+	defer cancel()
+
+	executorPlugin, err := client.Dispense("executor")
 	if err != nil {
-		return nil, fmt.Errorf("failed to describe plugin: %w", err)
+		return fmt.Errorf("failed to dispense executor plugin: %w", err)
 	}
 
-	plugin := &Plugin{
-		name:      name,
-		client:    client,
-		executors: make(map[string]executor.Executor, len(resp.GetExecutors())),
+	executorClient, ok := executorPlugin.(bonkv0.ExecutorServiceClient)
+	if !ok {
+		panic(
+			fmt.Sprintf(
+				"plugin %s reports supporting executors but client returned was of the wrong type",
+				plugin.name,
+			),
+		)
 	}
 
-	for _, feature := range resp.GetFeatures() {
-		switch feature {
-		default:
-			// unsupported feature, ignore
-
-		case bonkv0.ConfigurePluginResponse_FEATURE_FLAGS_STREAMING_LOGGING:
-			err = plugin.handleFeatureLogging(ctx)
-			if err != nil {
-				slog.WarnContext(ctx, "failed to configure streaming logging for plugin", "error", err)
-			}
-		}
+	resp, err := executorClient.DescribeExecutors(configureCtx, &bonkv0.DescribeExecutorsRequest{})
+	if err != nil {
+		return fmt.Errorf("failed to describe plugin: %w", err)
 	}
+
+	plugin.executors = make(map[string]executor.Executor)
 
 	for name := range resp.GetExecutors() {
 		_, existed := plugin.executors[name]
@@ -62,13 +69,34 @@ func NewPlugin(
 			slog.WarnContext(ctx, "duplicate executor detected", "name", name)
 		}
 
-		plugin.executors[name] = executor.NewRPC(name, client)
+		plugin.executors[name] = executor.NewRPC(name, executorClient)
 	}
 
-	return plugin, nil
+	return nil
 }
 
-func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
+func (plugin *Plugin) handleFeatureLogStreaming(
+	ctx context.Context,
+	client goplugin.ClientProtocol,
+) error {
+	logStreamingPlugin, err := client.Dispense("log_streaming")
+	if err != nil {
+		slog.DebugContext(ctx, "plugin does not support log streaming, skipping", "plugin", plugin.name)
+
+		return nil //nolint: nilerr
+	}
+
+	logStreamingClient, ok := logStreamingPlugin.(bonkv0.LogStreamingServiceClient)
+	if !ok {
+		panic(
+			fmt.Sprintf(
+				"plugin %s reports supporting log streaming but client returned was of the wrong type: %s",
+				plugin.name,
+				reflect.TypeOf(logStreamingPlugin),
+			),
+		)
+	}
+
 	defaultLevel := int64(slog.LevelInfo)
 	addSource := false
 
@@ -77,10 +105,13 @@ func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
 		AddSource: &addSource,
 	}
 
-	logStream, err := p.client.StreamLogs(ctx, req.Build())
+	logStream, err := logStreamingClient.StreamLogs(ctx, req.Build())
 	if err != nil {
+		slog.ErrorContext(ctx, "failed to call client.StreamLogs", "error", err)
+
 		return fmt.Errorf("failed to call client.StreamLogs: %w", err)
 	}
+
 	go func() { //nolint: contextcheck
 		recvCtx := logStream.Context()
 		for {
@@ -110,7 +141,7 @@ func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
 				})
 			}
 
-			slogHandler := slog.Default().With("plugin", p.name).Handler()
+			slogHandler := slog.Default().With("plugin", plugin.name).Handler()
 			if slogHandler.Enabled(recvCtx, record.Level) {
 				err = slogHandler.Handle(recvCtx, record)
 				if err != nil {
@@ -121,22 +152,4 @@ func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
 	}()
 
 	return nil
-}
-
-// Plugin Client
-
-type bonkPluginClient struct {
-	goplugin.NetRPCUnsupportedPlugin
-}
-
-func (p *bonkPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
-	return errors.ErrUnsupported
-}
-
-func (p *bonkPluginClient) GRPCClient(
-	_ context.Context,
-	_ *goplugin.GRPCBroker,
-	c *grpc.ClientConn,
-) (any, error) {
-	return bonkv0.NewBonkPluginServiceClient(c), nil
 }

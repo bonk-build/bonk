@@ -13,6 +13,8 @@ import (
 
 	"go.uber.org/multierr"
 
+	"google.golang.org/grpc"
+
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -28,14 +30,14 @@ type ExecutorRegistrar interface {
 }
 
 type PluginManager struct {
-	plugins map[string]*Plugin
+	plugins map[string]Plugin
 
 	executor ExecutorRegistrar
 }
 
 func NewPluginManager(executor ExecutorRegistrar) *PluginManager {
 	pm := &PluginManager{}
-	pm.plugins = make(map[string]*Plugin)
+	pm.plugins = make(map[string]Plugin)
 	pm.executor = executor
 
 	return pm
@@ -47,7 +49,8 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	process := goplugin.NewClient(&goplugin.ClientConfig{
 		HandshakeConfig: plugin.Handshake,
 		Plugins: map[string]goplugin.Plugin{
-			plugin.PluginType: &bonkPluginClient{},
+			"executor":      &executorPluginClient{},
+			"log_streaming": &logStreamingPluginClient{},
 		},
 		Cmd:     exec.CommandContext(ctx, "go", "run", pluginPath),
 		Managed: true,
@@ -62,17 +65,10 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	pluginClient, err := rpcClient.Dispense(plugin.PluginType)
-	if err != nil {
-		return fmt.Errorf("failed to dispense bonk plugin: %w", err)
+	plug := Plugin{
+		name: pluginName,
 	}
-
-	bonkClient, ok := pluginClient.(bonkv0.BonkPluginServiceClient)
-	if !ok {
-		return errors.New("got unexpected plugin client type")
-	}
-
-	plug, err := NewPlugin(ctx, pluginName, bonkClient)
+	err = plug.Configure(ctx, rpcClient)
 	if err != nil {
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}
@@ -98,7 +94,41 @@ func (pm *PluginManager) Shutdown() {
 			pm.executor.UnregisterExecutor(fmt.Sprintf("%s:%s", pluginName, executorName))
 		}
 	}
-	pm.plugins = make(map[string]*Plugin)
+	pm.plugins = make(map[string]Plugin)
 
 	goplugin.CleanupClients()
+}
+
+// Plugin Client
+
+type executorPluginClient struct {
+	goplugin.NetRPCUnsupportedPlugin
+}
+
+func (p *executorPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
+	return errors.ErrUnsupported
+}
+
+func (p *executorPluginClient) GRPCClient(
+	_ context.Context,
+	_ *goplugin.GRPCBroker,
+	c *grpc.ClientConn,
+) (any, error) {
+	return bonkv0.NewExecutorServiceClient(c), nil
+}
+
+type logStreamingPluginClient struct {
+	goplugin.NetRPCUnsupportedPlugin
+}
+
+func (p *logStreamingPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
+	return errors.ErrUnsupported
+}
+
+func (p *logStreamingPluginClient) GRPCClient(
+	_ context.Context,
+	_ *goplugin.GRPCBroker,
+	c *grpc.ClientConn,
+) (any, error) {
+	return bonkv0.NewLogStreamingServiceClient(c), nil
 }

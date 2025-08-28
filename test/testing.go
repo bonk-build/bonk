@@ -23,7 +23,7 @@ func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) *executor.ExecutorM
 	}
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
-		bonk.PluginType: &bonk.BonkPluginServer{
+		"executor": &bonk.ExecutorServer{
 			Executors: executorMap,
 		},
 	})
@@ -37,12 +37,12 @@ func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) *executor.ExecutorM
 		server.Stop()
 	}()
 
-	raw, err := client.Dispense(bonk.PluginType)
+	raw, err := client.Dispense("executor")
 	if err != nil {
 		t.Fatal("failed to dispense plugin:", err)
 	}
 
-	bonkClient, ok := raw.(bonkv0.BonkPluginServiceClient)
+	bonkClient, ok := raw.(bonkv0.ExecutorServiceClient)
 	if !ok {
 		t.Fatal("plugin dispensed is of the wrong type")
 	}

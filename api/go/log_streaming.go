@@ -20,6 +20,7 @@ import (
 
 	"github.com/delicb/slogbuffer"
 
+	goplugin "github.com/hashicorp/go-plugin"
 	slogmulti "github.com/samber/slog-multi"
 	slogctx "github.com/veqryn/slog-context"
 
@@ -85,40 +86,6 @@ func (stream *streamHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 
 func (stream *streamHandler) WithGroup(name string) slog.Handler {
 	return stream
-}
-
-func (s *grpcServer) StreamLogs(
-	req *bonkv0.StreamLogsRequest,
-	res grpc.ServerStreamingServer[bonkv0.StreamLogsResponse],
-) error {
-	// Cancel the timeout now that a request has been received
-	cancelWaitForStreamingSetup <- struct{}{}
-
-	ctx := res.Context()
-
-	streamer := streamHandler{
-		HandlerOptions: slog.HandlerOptions{
-			Level:     slog.Level(req.GetLevel()),
-			AddSource: req.GetAddSource(),
-		},
-		sender: res,
-	}
-
-	err := bufferedHandler.SetRealHandler(ctx, &streamer)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
-	}
-
-	// Sleep until the request is canceled
-	<-ctx.Done()
-
-	// Once the stream is requested to be closed, forward logs to stdout.
-	err = bufferedHandler.SetRealHandler(ctx, slog.NewTextHandler(os.Stdout, nil))
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
-	}
-
-	return nil
 }
 
 func init() {
@@ -200,4 +167,61 @@ func getTaskLoggingContext(
 		slog.NewJSONHandler(logFileJSON, &config),
 		bufferedHandler,
 	))), cleanup, nil
+}
+
+type LogStreamingServer struct {
+	goplugin.NetRPCUnsupportedPlugin
+	goplugin.GRPCPlugin
+}
+
+func (p *LogStreamingServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
+	bonkv0.RegisterLogStreamingServiceServer(s, &logStreamingGRPCServer{})
+
+	return nil
+}
+
+func (p *LogStreamingServer) GRPCClient(
+	_ context.Context,
+	_ *goplugin.GRPCBroker,
+	c *grpc.ClientConn,
+) (any, error) {
+	return bonkv0.NewLogStreamingServiceClient(c), nil
+}
+
+type logStreamingGRPCServer struct {
+	bonkv0.UnimplementedLogStreamingServiceServer
+}
+
+func (s *logStreamingGRPCServer) StreamLogs(
+	req *bonkv0.StreamLogsRequest,
+	res grpc.ServerStreamingServer[bonkv0.StreamLogsResponse],
+) error {
+	// Cancel the timeout now that a request has been received
+	cancelWaitForStreamingSetup <- struct{}{}
+
+	ctx := res.Context()
+
+	streamer := streamHandler{
+		HandlerOptions: slog.HandlerOptions{
+			Level:     slog.Level(req.GetLevel()),
+			AddSource: req.GetAddSource(),
+		},
+		sender: res,
+	}
+
+	err := bufferedHandler.SetRealHandler(ctx, &streamer)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
+	}
+
+	// Sleep until the request is canceled
+	<-ctx.Done()
+
+	// Once the stream is requested to be closed, forward logs to stdout.
+	err = bufferedHandler.SetRealHandler(ctx, slog.NewTextHandler(os.Stdout, nil))
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
+	}
+
+	return nil
 }

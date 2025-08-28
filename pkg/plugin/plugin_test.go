@@ -7,4 +7,7 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 )
 
-var _ goplugin.GRPCPlugin = (*bonkPluginClient)(nil)
+var (
+	_ goplugin.GRPCPlugin = (*executorPluginClient)(nil)
+	_ goplugin.GRPCPlugin = (*logStreamingPluginClient)(nil)
+)
