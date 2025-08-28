@@ -8,6 +8,7 @@ go 1.24.5
 tool (
 	github.com/bufbuild/buf/cmd/buf
 	github.com/princjef/gomarkdoc/cmd/gomarkdoc
+	go.uber.org/mock/mockgen
 )
 
 require (
@@ -20,7 +21,9 @@ require (
 	github.com/samber/slog-multi v1.4.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
+	github.com/stretchr/testify v1.11.0
 	github.com/veqryn/slog-context v0.8.0
+	go.uber.org/mock v0.6.0
 	go.uber.org/multierr v1.11.0
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
@@ -126,6 +129,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/princjef/gomarkdoc v1.1.0 // indirect
 	github.com/princjef/mageutil v1.0.0 // indirect
 	github.com/princjef/termdiff v0.1.0 // indirect
@@ -164,7 +168,6 @@ require (
 	go.opentelemetry.io/otel v1.37.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0 // indirect
-	go.uber.org/mock v0.6.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
