@@ -10,18 +10,26 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+	"go.bonk.build/pkg/backend"
 	"go.bonk.build/pkg/task"
 )
 
-type PluginBackend struct {
-	Name   string
-	Client bonkv0.BonkPluginServiceClient
+func NewBackend(name string, client bonkv0.BonkPluginServiceClient) backend.Backend {
+	return &pluginBackend{
+		name:   name,
+		client: client,
+	}
 }
 
-func (pb *PluginBackend) Execute(ctx context.Context, tsk task.Task) error {
+type pluginBackend struct {
+	name   string
+	client bonkv0.BonkPluginServiceClient
+}
+
+func (pb *pluginBackend) Execute(ctx context.Context, tsk task.Task) error {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
-		Backend:      &pb.Name,
+		Backend:      &pb.name,
 		Inputs:       tsk.Inputs,
 		Parameters:   &structpb.Struct{},
 		OutDirectory: &outDir,
@@ -32,7 +40,7 @@ func (pb *PluginBackend) Execute(ctx context.Context, tsk task.Task) error {
 		return fmt.Errorf("failed to encode parameters as protobuf: %w", err)
 	}
 
-	_, err = pb.Client.PerformTask(ctx, taskReqBuilder.Build())
+	_, err = pb.client.PerformTask(ctx, taskReqBuilder.Build())
 	if err != nil {
 		return fmt.Errorf("failed to call perform task: %w", err)
 	}

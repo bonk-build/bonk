@@ -78,7 +78,7 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	pm.plugins[pluginName] = plug
 
 	for backendName, backend := range plug.backends {
-		err = pm.backend.RegisterBackend(fmt.Sprintf("%s:%s", pluginName, backendName), &backend)
+		err = pm.backend.RegisterBackend(fmt.Sprintf("%s:%s", pluginName, backendName), backend)
 		if err != nil {
 			return fmt.Errorf("failed to register plugin %s backend %s: %w", pluginName, backendName, err)
 		}

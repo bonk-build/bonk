@@ -51,10 +51,7 @@ func ServeTest(t *testing.T, backends ...bonk.BonkBackend) *backend.BackendManag
 	backendManager := backend.NewBackendManager()
 
 	for _, backend := range backends {
-		err = backendManager.RegisterBackend(backend.Name, &plugin.PluginBackend{
-			Name:   backend.Name,
-			Client: bonkClient,
-		})
+		err = backendManager.RegisterBackend(backend.Name, plugin.NewBackend(backend.Name, bonkClient))
 		if err == nil {
 			t.Fatal("failed to register backend:", backend.Name)
 		}

@@ -16,12 +16,13 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+	"go.bonk.build/pkg/backend"
 )
 
 type Plugin struct {
 	name     string
 	client   bonkv0.BonkPluginServiceClient
-	backends map[string]PluginBackend
+	backends map[string]backend.Backend
 }
 
 func NewPlugin(
@@ -39,7 +40,7 @@ func NewPlugin(
 	plugin := &Plugin{
 		name:     name,
 		client:   client,
-		backends: make(map[string]PluginBackend, len(resp.GetBackends())),
+		backends: make(map[string]backend.Backend, len(resp.GetBackends())),
 	}
 
 	for _, feature := range resp.GetFeatures() {
@@ -61,10 +62,7 @@ func NewPlugin(
 			slog.WarnContext(ctx, "duplicate backend detected", "name", name)
 		}
 
-		plugin.backends[name] = PluginBackend{
-			Name:   name,
-			Client: client,
-		}
+		plugin.backends[name] = NewBackend(name, client)
 	}
 
 	return plugin, nil
