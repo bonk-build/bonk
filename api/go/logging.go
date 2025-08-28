@@ -5,17 +5,28 @@ package bonk
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
 	"runtime"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	"github.com/delicb/slogbuffer"
+
+	slogmulti "github.com/samber/slog-multi"
 	slogctx "github.com/veqryn/slog-context"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+)
+
+var (
+	bufferedHandler             *slogbuffer.BufferLogHandler
+	cancelWaitForStreamingSetup chan struct{}
 )
 
 type streamHandler struct {
@@ -78,25 +89,110 @@ func (s *grpcServer) StreamLogs(
 	req *bonkv0.StreamLogsRequest,
 	res grpc.ServerStreamingServer[bonkv0.StreamLogsResponse],
 ) error {
-	slogDefault := slog.Default()
+	// Cancel the timeout now that a request has been received
+	cancelWaitForStreamingSetup <- struct{}{}
 
-	slog.SetDefault(slog.New(
-		slogctx.NewHandler(
-			&streamHandler{
-				HandlerOptions: slog.HandlerOptions{
-					Level:     slog.Level(req.GetLevel()),
-					AddSource: req.GetAddSource(),
-				},
-				sender: res,
-			},
-			nil,
-		),
-	))
+	ctx := res.Context()
+
+	streamer := streamHandler{
+		HandlerOptions: slog.HandlerOptions{
+			Level:     slog.Level(req.GetLevel()),
+			AddSource: req.GetAddSource(),
+		},
+		sender: res,
+	}
+
+	err := bufferedHandler.SetRealHandler(ctx, &streamer)
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
+	}
 
 	// Sleep until the request is canceled
-	<-res.Context().Done()
+	<-ctx.Done()
 
-	slog.SetDefault(slogDefault)
+	// Once the stream is requested to be closed, forward logs to stdout.
+	err = bufferedHandler.SetRealHandler(ctx, slog.NewTextHandler(os.Stdout, nil))
+	if err != nil {
+		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
+	}
 
 	return nil
+}
+
+func init() {
+	bufferedHandler = slogbuffer.NewBufferLogHandler(slog.LevelDebug)
+
+	// Install the default log handler
+	slog.SetDefault(slog.New(
+		slogmulti.Pipe(
+			// Append added context information
+			slogctx.NewMiddleware(nil),
+			// Check if the context has a logger in it, and use that if so
+			slogmulti.NewHandleInlineMiddleware(
+				func(ctx context.Context, record slog.Record, next func(context.Context, slog.Record) error) error {
+					if ctxLogger := slogctx.FromCtx(ctx); ctxLogger != slog.Default() &&
+						ctxLogger.Enabled(ctx, record.Level) {
+						return ctxLogger.Handler().Handle(ctx, record)
+					} else {
+						return next(ctx, record)
+					}
+				},
+			),
+			// Route to the buffered handler
+		).Handler(bufferedHandler),
+	))
+
+	// Start a timer to just use stdout after some time if streaming isn't configured
+	streamingSetupTimeout := time.NewTimer(1 * time.Second)
+	cancelWaitForStreamingSetup = make(chan struct{})
+	go func() {
+		select {
+		case <-streamingSetupTimeout.C:
+			err := bufferedHandler.SetRealHandler(
+				context.Background(),
+				slog.NewTextHandler(os.Stdout, nil),
+			)
+			if err != nil {
+				slog.Error("failed to flush buffered handler", "error", err)
+			} else {
+				slog.Debug("timed out waiting for streaming setup, switching to stdout")
+			}
+
+		case <-cancelWaitForStreamingSetup:
+			streamingSetupTimeout.Stop()
+		}
+	}()
+}
+
+func getTaskLoggingContext(
+	ctx context.Context,
+	root *os.Root,
+) (context.Context, func() error, error) {
+	// Open log txt and json files
+	logFileText, err := root.Create("log.txt")
+	if err != nil {
+		return nil, nil, errors.New("failed to open log txt file")
+	}
+	logFileJSON, err := root.Create("log.jsonl")
+	if err != nil {
+		return nil, nil, errors.New("failed to open log json file")
+	}
+
+	config := slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}
+
+	cleanup := func() error {
+		_ = logFileText.Close()
+		_ = logFileJSON.Close()
+
+		return nil
+	}
+
+	// Add logger which writes to the default handler, but also local files
+	return slogctx.NewCtx(ctx, slog.New(slogmulti.Fanout(
+		slog.NewTextHandler(logFileText, &config),
+		slog.NewJSONHandler(logFileJSON, &config),
+		bufferedHandler,
+	))), cleanup, nil
 }

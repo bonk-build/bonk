@@ -13,9 +13,11 @@ tool (
 require (
 	cuelang.org/go v0.14.1
 	github.com/ValerySidorin/shclog v0.0.1
+	github.com/delicb/slogbuffer v0.1.0
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/noneback/go-taskflow v1.1.3
 	github.com/pterm/pterm v0.12.81
+	github.com/samber/slog-multi v1.4.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/veqryn/slog-context v0.8.0
@@ -134,6 +136,8 @@ require (
 	github.com/rs/cors v1.11.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/sagikazarmark/locafero v0.10.0 // indirect
+	github.com/samber/lo v1.51.0 // indirect
+	github.com/samber/slog-common v0.19.0 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/segmentio/encoding v0.5.3 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
