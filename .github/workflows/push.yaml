@@ -31,7 +31,7 @@ jobs:
         env:
           SKIP: hawkeye-format-docker
 
-      - uses: korandoru/hawkeye@v6.2.0
+      - uses: korandoru/hawkeye@c3d9887d4b48e5b6c77306934606a4ff4623a2d3 # v6.2.0
         with:
           mode: format
 
