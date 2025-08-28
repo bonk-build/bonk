@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package plugin // import "go.bonk.build/pkg/plugin"
+package backend // import "go.bonk.build/pkg/backend"
 
 import (
 	"context"
@@ -10,23 +10,22 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
-	"go.bonk.build/pkg/backend"
 	"go.bonk.build/pkg/task"
 )
 
-func NewBackend(name string, client bonkv0.BonkPluginServiceClient) backend.Backend {
-	return &pluginBackend{
+func NewRPC(name string, client bonkv0.BonkPluginServiceClient) Backend {
+	return &rpcBackend{
 		name:   name,
 		client: client,
 	}
 }
 
-type pluginBackend struct {
+type rpcBackend struct {
 	name   string
 	client bonkv0.BonkPluginServiceClient
 }
 
-func (pb *pluginBackend) Execute(ctx context.Context, tsk task.Task) error {
+func (pb *rpcBackend) Execute(ctx context.Context, tsk task.Task) error {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
 		Backend:      &pb.name,

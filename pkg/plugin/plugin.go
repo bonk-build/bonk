@@ -62,7 +62,7 @@ func NewPlugin(
 			slog.WarnContext(ctx, "duplicate backend detected", "name", name)
 		}
 
-		plugin.backends[name] = NewBackend(name, client)
+		plugin.backends[name] = backend.NewRPC(name, client)
 	}
 
 	return plugin, nil

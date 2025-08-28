@@ -11,7 +11,6 @@ import (
 	bonk "go.bonk.build/api/go"
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
 	"go.bonk.build/pkg/backend"
-	"go.bonk.build/pkg/plugin"
 )
 
 // Call like you'd call Serve() but at the top of your test function.
@@ -19,8 +18,8 @@ func ServeTest(t *testing.T, backends ...bonk.BonkBackend) *backend.BackendManag
 	t.Helper()
 
 	backendMap := make(map[string]bonk.BonkBackend, len(backends))
-	for _, backend := range backends {
-		backendMap[backend.Name] = backend
+	for _, be := range backends {
+		backendMap[be.Name] = be
 	}
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
@@ -50,10 +49,10 @@ func ServeTest(t *testing.T, backends ...bonk.BonkBackend) *backend.BackendManag
 
 	backendManager := backend.NewBackendManager()
 
-	for _, backend := range backends {
-		err = backendManager.RegisterBackend(backend.Name, plugin.NewBackend(backend.Name, bonkClient))
-		if err == nil {
-			t.Fatal("failed to register backend:", backend.Name)
+	for _, be := range backends {
+		err = backendManager.RegisterBackend(be.Name, backend.NewRPC(be.Name, bonkClient))
+		if err != nil {
+			t.Fatal("failed to register backend:", be.Name)
 		}
 	}
 
