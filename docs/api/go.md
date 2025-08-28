@@ -40,7 +40,7 @@ var Handshake = goplugin.HandshakeConfig{
 ```
 
 <a name="Serve"></a>
-## func [Serve](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L75>)
+## func [Serve](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L75>)
 
 ```go
 func Serve(executors ...BonkExecutor)
@@ -49,7 +49,7 @@ func Serve(executors ...BonkExecutor)
 Call from main\(\) to start the plugin gRPC server.
 
 <a name="BonkExecutor"></a>
-## type [BonkExecutor](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L38-L43>)
+## type [BonkExecutor](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L38-L43>)
 
 Represents a executor capable of performing tasks.
 
@@ -63,7 +63,7 @@ type BonkExecutor struct {
 ```
 
 <a name="NewExecutor"></a>
-### func [NewExecutor](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L46-L49>)
+### func [NewExecutor](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L46-L49>)
 
 ```go
 func NewExecutor[Params any](name string, exec func(context.Context, *TaskParams[Params]) ([]string, error)) BonkExecutor
@@ -72,7 +72,7 @@ func NewExecutor[Params any](name string, exec func(context.Context, *TaskParams
 Factory to create a new task executor.
 
 <a name="BonkPluginServer"></a>
-## type [BonkPluginServer](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L101-L106>)
+## type [BonkPluginServer](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L101-L106>)
 
 
 
@@ -86,7 +86,7 @@ type BonkPluginServer struct {
 ```
 
 <a name="BonkPluginServer.GRPCClient"></a>
-### func \(\*BonkPluginServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L117-L121>)
+### func \(\*BonkPluginServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L117-L121>)
 
 ```go
 func (p *BonkPluginServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)
@@ -95,7 +95,7 @@ func (p *BonkPluginServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker,
 
 
 <a name="BonkPluginServer.GRPCServer"></a>
-### func \(\*BonkPluginServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L108>)
+### func \(\*BonkPluginServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L108>)
 
 ```go
 func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error
@@ -104,7 +104,7 @@ func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) er
 
 
 <a name="TaskParams"></a>
-## type [TaskParams](<https://github.com/bonk-build/bonk/blob/984393c/api/go/plugin.go#L31-L35>)
+## type [TaskParams](<https://github.com/bonk-build/bonk/blob/9e41682/api/go/plugin.go#L31-L35>)
 
 The inputs passed to a task executor.
 
