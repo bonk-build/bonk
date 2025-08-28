@@ -18,7 +18,6 @@ message ConfigurePluginResponse {
   }
 
   message ExecutorDescription {
-    repeated string outputs = 1;
   }
 
   // Prep for front end support
@@ -50,7 +49,9 @@ message PerformTaskRequest {
   string out_directory = 4;
 }
 
-message PerformTaskResponse {}
+message PerformTaskResponse {
+  repeated string output = 1;
+}
 
 service BonkPluginService {
   // General plugin support

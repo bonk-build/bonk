@@ -4,12 +4,9 @@
 package task // import "go.bonk.build/pkg/task"
 
 import (
-	"crypto/sha256"
-	"encoding/base64"
 	"fmt"
 	"os"
 	"path"
-	"reflect"
 
 	"cuelang.org/go/cue"
 )
@@ -27,22 +24,22 @@ func (id *TaskId) GetOutputDirectory() string {
 	return path.Join(".bonk", id.String())
 }
 
-func (id *TaskId) GetChecksumFile() string {
-	return path.Join(id.GetOutputDirectory(), ".checksum")
+func (id *TaskId) OpenRoot() (*os.Root, error) {
+	root, err := os.OpenRoot(id.GetOutputDirectory())
+	if err != nil {
+		return nil, fmt.Errorf("failed to open task output root: %w", err)
+	}
+
+	return root, nil
 }
 
-func (id *TaskId) LoadChecksum() ([]byte, error) {
-	checksumString, err := os.ReadFile(id.GetChecksumFile())
+func (id *TaskId) LoadStateFile() (*State, error) {
+	fs, err := id.OpenRoot()
 	if err != nil {
-		return nil, fmt.Errorf("failed to read checksum file: %w", err)
+		return nil, err
 	}
 
-	checksum, err := base64.StdEncoding.DecodeString(string(checksumString))
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode checksum base64: %w", err)
-	}
-
-	return checksum, nil
+	return LoadState(fs)
 }
 
 type Task struct {
@@ -51,7 +48,7 @@ type Task struct {
 	Inputs []string
 	Params cue.Value
 
-	checksum []byte
+	State *State
 }
 
 func New(executor, id string, params cue.Value, inputs ...string) Task {
@@ -73,70 +70,30 @@ func (t *Task) GetOutputDirectory() string {
 	return t.ID.GetOutputDirectory()
 }
 
-func (t *Task) GenerateChecksum() ([]byte, error) {
-	// Check the cached checksum
-	if t.checksum != nil {
-		return t.checksum, nil
-	}
-
-	hasher := sha256.New()
-
-	// Hash the executor name
-	hasher.Write([]byte(t.ID.executor))
-
-	// Hash the input files
-	for _, file := range t.Inputs {
-		fileBytes, err := os.ReadFile(file)
-		if err != nil {
-			return nil, fmt.Errorf("failed to hash input file %s: %w", file, err)
-		}
-
-		hasher.Write(fileBytes)
-	}
-
-	// Hash the parameters
-	paramsJSON, err := t.Params.MarshalJSON()
+func (t *Task) SaveState(outputs []string) error {
+	root, err := t.ID.OpenRoot()
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal task params: %w", err)
+		return err
 	}
-
-	hasher.Write(paramsJSON)
-
-	// Cache the checksum for next access
-	t.checksum = hasher.Sum(nil)
-
-	return t.checksum, nil
-}
-
-func (t *Task) SaveChecksum() error {
-	checksum, err := t.GenerateChecksum()
+	t.State, err = NewState(t.ID.executor, t.Params, root, t.Inputs, outputs)
 	if err != nil {
 		return err
 	}
 
-	checksumString := base64.StdEncoding.EncodeToString(checksum)
-
-	err = os.WriteFile(
-		t.ID.GetChecksumFile(),
-		[]byte(checksumString),
-		0o600,
-	)
-	if err != nil {
-		return fmt.Errorf("failed to write checksum file: %w", err)
-	}
-
-	return nil
+	return t.State.Save(root)
 }
 
-func (t *Task) CheckChecksum() bool {
-	savedChecksum, _ := t.ID.LoadChecksum()
-	if savedChecksum != nil {
-		newChecksum, _ := t.GenerateChecksum()
-
-		if reflect.DeepEqual(savedChecksum, newChecksum) {
-			return true
+func (t *Task) DetectStateMismatches() []string {
+	root, err := t.ID.OpenRoot()
+	if err != nil {
+		return []string{"<missing>"}
+	}
+	if t.State == nil {
+		t.State, err = LoadState(root)
+		if err != nil {
+			return []string{"<load failed>"}
 		}
 	}
 
-	return false
+	return t.State.DetectMismatches(t.ID.executor, t.Params, root, t.Inputs)
 }

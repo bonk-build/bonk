@@ -14,7 +14,7 @@ import (
 )
 
 type TaskSender interface {
-	SendTask(ctx context.Context, tsk task.Task) error
+	SendTask(ctx context.Context, tsk task.Task) ([]string, error)
 }
 
 type Scheduler struct {
@@ -36,24 +36,27 @@ func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 	taskName := tsk.ID.String()
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		if tsk.CheckChecksum() {
-			slog.Debug("checksums match, skipping task")
+		mismatches := tsk.DetectStateMismatches()
+		if mismatches == nil {
+			slog.Debug("states match, skipping task")
 
 			return
 		}
 
-		err := s.executorManager.SendTask(context.Background(), tsk)
+		slog.Debug("state mismatch, running task", "mismatches", mismatches)
+
+		outputs, err := s.executorManager.SendTask(context.Background(), tsk)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 
 			return
 		}
 
-		slog.Info("task succeeded, saving checksum")
+		slog.Info("task succeeded, saving state")
 
-		err = tsk.SaveChecksum()
+		err = tsk.SaveState(outputs)
 		if err != nil {
-			slog.Error("failed to checksum task", "error", err)
+			slog.Error("failed to save task state", "error", err)
 
 			return
 		}
