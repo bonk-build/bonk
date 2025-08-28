@@ -16,7 +16,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-//go:generate go tool mockgen -destination scheduler_mock_test.go -package scheduler -typed . TaskSender
+//go:generate go tool mockgen -destination scheduler_mock_test.go -package scheduler -copyright_file ../../license-header.txt -typed . TaskSender
 
 func Test_SenderIsCalled(t *testing.T) {
 	t.Parallel()

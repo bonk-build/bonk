@@ -1,10 +1,7 @@
 # Copyright © 2025 Colden Cullen
 # SPDX-License-Identifier: MIT
 
-inlineHeader = """
-Copyright © 2025 Colden Cullen
-SPDX-License-Identifier: MIT \
-"""
+headerPath = "license-header.txt"
 
 excludes = ["*.lock", "*.sum", "*.pb.go"]
 
