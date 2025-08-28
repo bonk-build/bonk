@@ -350,6 +350,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-addfollowup" class="md-nav__link">
+    <span class="md-ellipsis">
+      func AddFollowUp
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-addoutputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      func AddOutputs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-serve" class="md-nav__link">
     <span class="md-ellipsis">
       func Serve
@@ -609,6 +627,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#func-addfollowup" class="md-nav__link">
+    <span class="md-ellipsis">
+      func AddFollowUp
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#func-addoutputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      func AddOutputs
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#func-serve" class="md-nav__link">
     <span class="md-ellipsis">
       func Serve
@@ -743,9 +779,11 @@
 <h2 id="index">Index</h2>
 <ul>
 <li><a href="#variables">Variables</a></li>
+<li><a href="#AddFollowUp">func AddFollowUp[Params any](ctx context.Context, executor string, task TaskParams[Params])</a></li>
+<li><a href="#AddOutputs">func AddOutputs(ctx context.Context, outputs ...string)</a></li>
 <li><a href="#Serve">func Serve(executors ...BonkExecutor)</a></li>
 <li><a href="#BonkExecutor">type BonkExecutor</a></li>
-<li><a href="#NewExecutor">func NewExecutor[Params any](name string, exec func(context.Context, *TaskParams[Params]) ([]string, error)) BonkExecutor</a></li>
+<li><a href="#NewExecutor">func NewExecutor[Params any](name string, exec func(context.Context, *TaskParams[Params]) error) BonkExecutor</a></li>
 <li><a href="#ExecutorServer">type ExecutorServer</a></li>
 <li><a href="#ExecutorServer.GRPCClient">func (p *ExecutorServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)</a></li>
 <li><a href="#ExecutorServer.GRPCServer">func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error</a></li>
@@ -762,28 +800,36 @@
 <span class="w">    </span><span class="nx">MagicCookieValue</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;bonk the builder&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 </code></pre></div>
+<p><a name="AddFollowUp"></a></p>
+<h2 id="func-addfollowup">func <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L83">AddFollowUp</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">AddFollowUp</span><span class="p">[</span><span class="nx">Params</span><span class="w"> </span><span class="kt">any</span><span class="p">](</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">executor</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">task</span><span class="w"> </span><span class="nx">TaskParams</span><span class="p">[</span><span class="nx">Params</span><span class="p">])</span>
+</code></pre></div>
+<p><a name="AddOutputs"></a></p>
+<h2 id="func-addoutputs">func <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L76">AddOutputs</a></h2>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">AddOutputs</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">outputs</span><span class="w"> </span><span class="o">...</span><span class="kt">string</span><span class="p">)</span>
+</code></pre></div>
 <p><a name="Serve"></a></p>
-<h2 id="func-serve">func <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/plugin.go#L15">Serve</a></h2>
+<h2 id="func-serve">func <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/plugin.go#L15">Serve</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">Serve</span><span class="p">(</span><span class="nx">executors</span><span class="w"> </span><span class="o">...</span><span class="nx">BonkExecutor</span><span class="p">)</span>
 </code></pre></div>
 <p>Call from main() to start the plugin gRPC server.</p>
 <p><a name="BonkExecutor"></a></p>
-<h2 id="type-bonkexecutor">type <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/executor.go#L35-L40">BonkExecutor</a></h2>
+<h2 id="type-bonkexecutor">type <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L40-L45">BonkExecutor</a></h2>
 <p>Represents a executor capable of performing tasks.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">BonkExecutor</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">Name</span><span class="w">         </span><span class="kt">string</span>
 <span class="w">    </span><span class="nx">Outputs</span><span class="w">      </span><span class="p">[]</span><span class="kt">string</span>
 <span class="w">    </span><span class="nx">ParamsSchema</span><span class="w"> </span><span class="nx">cue</span><span class="p">.</span><span class="nx">Value</span>
-<span class="w">    </span><span class="nx">Exec</span><span class="w">         </span><span class="kd">func</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">TaskParams</span><span class="p">[</span><span class="nx">cue</span><span class="p">.</span><span class="nx">Value</span><span class="p">])</span><span class="w"> </span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Exec</span><span class="w">         </span><span class="kd">func</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">TaskParams</span><span class="p">[</span><span class="nx">cue</span><span class="p">.</span><span class="nx">Value</span><span class="p">])</span><span class="w"> </span><span class="kt">error</span>
 <span class="p">}</span>
 </code></pre></div>
 <p><a name="NewExecutor"></a></p>
-<h3 id="func-newexecutor">func <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/executor.go#L43-L46">NewExecutor</a></h3>
-<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">NewExecutor</span><span class="p">[</span><span class="nx">Params</span><span class="w"> </span><span class="kt">any</span><span class="p">](</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">exec</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">TaskParams</span><span class="p">[</span><span class="nx">Params</span><span class="p">])</span><span class="w"> </span><span class="p">([]</span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">))</span><span class="w"> </span><span class="nx">BonkExecutor</span>
+<h3 id="func-newexecutor">func <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L48-L51">NewExecutor</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">NewExecutor</span><span class="p">[</span><span class="nx">Params</span><span class="w"> </span><span class="kt">any</span><span class="p">](</span><span class="nx">name</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">exec</span><span class="w"> </span><span class="kd">func</span><span class="p">(</span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="nx">TaskParams</span><span class="p">[</span><span class="nx">Params</span><span class="p">])</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span><span class="w"> </span><span class="nx">BonkExecutor</span>
 </code></pre></div>
 <p>Factory to create a new task executor.</p>
 <p><a name="ExecutorServer"></a></p>
-<h2 id="type-executorserver">type <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/executor.go#L71-L76">ExecutorServer</a></h2>
+<h2 id="type-executorserver">type <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L109-L114">ExecutorServer</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">ExecutorServer</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">NetRPCUnsupportedPlugin</span>
 <span class="w">    </span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">GRPCPlugin</span>
@@ -792,30 +838,30 @@
 <span class="p">}</span>
 </code></pre></div>
 <p><a name="ExecutorServer.GRPCClient"></a></p>
-<h3 id="func-executorserver-grpcclient">func (*ExecutorServer) <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/executor.go#L87-L91">GRPCClient</a></h3>
+<h3 id="func-executorserver-grpcclient">func (*ExecutorServer) <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L125-L129">GRPCClient</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">*</span><span class="nx">ExecutorServer</span><span class="p">)</span><span class="w"> </span><span class="nx">GRPCClient</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">GRPCBroker</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">ClientConn</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
 </code></pre></div>
 <p><a name="ExecutorServer.GRPCServer"></a></p>
-<h3 id="func-executorserver-grpcserver">func (*ExecutorServer) <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/executor.go#L78">GRPCServer</a></h3>
+<h3 id="func-executorserver-grpcserver">func (*ExecutorServer) <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L116">GRPCServer</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">*</span><span class="nx">ExecutorServer</span><span class="p">)</span><span class="w"> </span><span class="nx">GRPCServer</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">GRPCBroker</span><span class="p">,</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">Server</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
 </code></pre></div>
 <p><a name="LogStreamingServer"></a></p>
-<h2 id="type-logstreamingserver">type <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/log_streaming.go#L172-L175">LogStreamingServer</a></h2>
+<h2 id="type-logstreamingserver">type <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/log_streaming.go#L172-L175">LogStreamingServer</a></h2>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">LogStreamingServer</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">NetRPCUnsupportedPlugin</span>
 <span class="w">    </span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">GRPCPlugin</span>
 <span class="p">}</span>
 </code></pre></div>
 <p><a name="LogStreamingServer.GRPCClient"></a></p>
-<h3 id="func-logstreamingserver-grpcclient">func (*LogStreamingServer) <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/log_streaming.go#L183-L187">GRPCClient</a></h3>
+<h3 id="func-logstreamingserver-grpcclient">func (*LogStreamingServer) <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/log_streaming.go#L183-L187">GRPCClient</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">*</span><span class="nx">LogStreamingServer</span><span class="p">)</span><span class="w"> </span><span class="nx">GRPCClient</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">GRPCBroker</span><span class="p">,</span><span class="w"> </span><span class="nx">c</span><span class="w"> </span><span class="o">*</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">ClientConn</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="kt">any</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
 </code></pre></div>
 <p><a name="LogStreamingServer.GRPCServer"></a></p>
-<h3 id="func-logstreamingserver-grpcserver">func (*LogStreamingServer) <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/log_streaming.go#L177">GRPCServer</a></h3>
+<h3 id="func-logstreamingserver-grpcserver">func (*LogStreamingServer) <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/log_streaming.go#L177">GRPCServer</a></h3>
 <div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">p</span><span class="w"> </span><span class="o">*</span><span class="nx">LogStreamingServer</span><span class="p">)</span><span class="w"> </span><span class="nx">GRPCServer</span><span class="p">(</span><span class="nx">_</span><span class="w"> </span><span class="o">*</span><span class="nx">goplugin</span><span class="p">.</span><span class="nx">GRPCBroker</span><span class="p">,</span><span class="w"> </span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">grpc</span><span class="p">.</span><span class="nx">Server</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
 </code></pre></div>
 <p><a name="TaskParams"></a></p>
-<h2 id="type-taskparams">type <a href="https://github.com/bonk-build/bonk/blob/1131c09/api/go/executor.go#L28-L32">TaskParams</a></h2>
+<h2 id="type-taskparams">type <a href="https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L33-L37">TaskParams</a></h2>
 <p>The inputs passed to a task executor.</p>
 <div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">TaskParams</span><span class="p">[</span><span class="nx">Params</span><span class="w"> </span><span class="kt">any</span><span class="p">]</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="nx">Inputs</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span>
