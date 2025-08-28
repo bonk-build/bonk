@@ -33,7 +33,7 @@ func (id *TaskId) OpenRoot() (*os.Root, error) {
 	return root, nil
 }
 
-func (id *TaskId) LoadStateFile() (*State, error) {
+func (id *TaskId) LoadStateFile() (*state, error) {
 	fs, err := id.OpenRoot()
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ type Task struct {
 	Inputs []string
 	Params cue.Value
 
-	State *State
+	State *state
 }
 
 func New(executor, id string, params cue.Value, inputs ...string) Task {

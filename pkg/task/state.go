@@ -20,7 +20,7 @@ import (
 
 const StateFile = "state.json"
 
-type State struct {
+type state struct {
 	// Cache provided executor & outputs
 	Executor string   `json:"executor,omitempty"`
 	Inputs   []string `json:"inputs,omitempty"`
@@ -36,9 +36,9 @@ func NewState(
 	params cue.Value,
 	root *os.Root,
 	inputs, outputs []string,
-) (*State, error) {
+) (*state, error) {
 	var err error
-	state := &State{}
+	state := &state{}
 	state.Executor = executor
 	state.Inputs = inputs
 	state.Outputs = outputs
@@ -66,14 +66,14 @@ func NewState(
 	return state, err
 }
 
-func LoadState(root *os.Root) (*State, error) {
+func LoadState(root *os.Root) (*state, error) {
 	file, err := root.Open(StateFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open state file %s: %w", StateFile, err)
 	}
 	encoder := json.NewDecoder(file)
 
-	state := &State{}
+	state := &state{}
 	err = encoder.Decode(state)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode state file %s: %w", StateFile, err)
@@ -82,7 +82,7 @@ func LoadState(root *os.Root) (*State, error) {
 	return state, nil
 }
 
-func (s *State) Save(root *os.Root) error {
+func (s *state) Save(root *os.Root) error {
 	file, err := root.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
@@ -97,7 +97,7 @@ func (s *State) Save(root *os.Root) error {
 	return nil
 }
 
-func (s *State) DetectMismatches(
+func (s *state) DetectMismatches(
 	executor string,
 	params cue.Value,
 	root *os.Root,
