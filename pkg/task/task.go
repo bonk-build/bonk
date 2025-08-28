@@ -32,7 +32,12 @@ func (id *TaskId) GetOutputDirectory() string {
 }
 
 func (id *TaskId) OpenRoot() (*os.Root, error) {
-	root, err := os.OpenRoot(id.GetOutputDirectory())
+	path := id.GetOutputDirectory()
+	err := os.MkdirAll(path, 0o750)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create task output dir %s: %w", path, err)
+	}
+	root, err := os.OpenRoot(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open task output root: %w", err)
 	}
