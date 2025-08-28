@@ -8,13 +8,15 @@ import (
 	"fmt"
 	"log/slog"
 
+	"go.uber.org/multierr"
+
 	gotaskflow "github.com/noneback/go-taskflow"
 
 	"go.bonk.build/pkg/task"
 )
 
 type TaskSender interface {
-	SendTask(ctx context.Context, tsk task.Task) ([]string, error)
+	SendTask(ctx context.Context, tsk task.Task) (*task.TaskResult, error)
 }
 
 type Scheduler struct {
@@ -45,7 +47,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 
 		slog.Debug("state mismatch, running task", "mismatches", mismatches)
 
-		outputs, err := s.executorManager.SendTask(context.Background(), tsk)
+		result, err := s.executorManager.SendTask(context.Background(), tsk)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 
@@ -54,7 +56,15 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 
 		slog.Info("task succeeded, saving state")
 
-		err = tsk.SaveState(outputs)
+		var followupErr error
+		for _, followup := range result.FollowupTasks {
+			multierr.AppendInto(&followupErr, s.AddTask(followup))
+		}
+		if followupErr != nil {
+			slog.Error("failed to schedule followup tasks", "error", followupErr)
+		}
+
+		err = tsk.SaveState(result)
 		if err != nil {
 			slog.Error("failed to save task state", "error", err)
 

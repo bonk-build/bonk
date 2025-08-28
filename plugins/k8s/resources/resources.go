@@ -13,7 +13,7 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/pkg/encoding/yaml"
 
-	plugin "go.bonk.build/api/go"
+	bonk "go.bonk.build/api/go"
 )
 
 const output = "resources.yaml"
@@ -22,27 +22,29 @@ type Params struct {
 	Resources cue.Value `cue:"[...]" json:"resources"`
 }
 
-func genResources(_ context.Context, params *plugin.TaskParams[Params]) ([]string, error) {
+func genResources(ctx context.Context, params *bonk.TaskParams[Params]) error {
 	if len(params.Inputs) > 0 {
-		return nil, errors.New("resources task does not accept inputs")
+		return errors.New("resources task does not accept inputs")
 	}
 
 	resourcesYaml, err := yaml.MarshalStream(params.Params.Resources)
 	if err != nil {
-		return nil, fmt.Errorf("failed to marshal resources into yaml: %w", err)
+		return fmt.Errorf("failed to marshal resources into yaml: %w", err)
 	}
 
 	err = os.WriteFile(path.Join(params.OutDir, output), []byte(resourcesYaml), 0o600)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write resources yaml to disk: %w", err)
+		return fmt.Errorf("failed to write resources yaml to disk: %w", err)
 	}
 
-	return []string{output}, nil
+	bonk.AddOutputs(ctx, output)
+
+	return nil
 }
 
 func main() {
-	plugin.Serve(
-		plugin.NewExecutor(
+	bonk.Serve(
+		bonk.NewExecutor(
 			"Resources",
 			genResources,
 		),

@@ -6,6 +6,7 @@ package bonk // import "go.bonk.build/api/go"
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"go.uber.org/multierr"
@@ -22,6 +23,10 @@ import (
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
 )
 
+type contextKey string
+
+const contextKeyResponse = contextKey("response")
+
 var cuectx = cuecontext.New()
 
 // The inputs passed to a task executor.
@@ -36,13 +41,13 @@ type BonkExecutor struct {
 	Name         string
 	Outputs      []string
 	ParamsSchema cue.Value
-	Exec         func(context.Context, TaskParams[cue.Value]) ([]string, error)
+	Exec         func(context.Context, TaskParams[cue.Value]) error
 }
 
 // Factory to create a new task executor.
 func NewExecutor[Params any](
 	name string,
-	exec func(context.Context, *TaskParams[Params]) ([]string, error),
+	exec func(context.Context, *TaskParams[Params]) error,
 ) BonkExecutor {
 	zero := new(Params)
 
@@ -54,19 +59,52 @@ func NewExecutor[Params any](
 	return BonkExecutor{
 		Name:         name,
 		ParamsSchema: schema,
-		Exec: func(ctx context.Context, paramsCue TaskParams[cue.Value]) ([]string, error) {
+		Exec: func(ctx context.Context, paramsCue TaskParams[cue.Value]) error {
 			params := new(TaskParams[Params])
 			params.Inputs = paramsCue.Inputs
 			params.OutDir = paramsCue.OutDir
 			err := paramsCue.Params.Decode(&params.Params)
 			if err != nil {
-				return nil, fmt.Errorf("failed to decode task parameters: %w", err)
+				return fmt.Errorf("failed to decode task parameters: %w", err)
 			}
 
 			return exec(ctx, params)
 		},
 	}
 }
+
+func AddOutputs(ctx context.Context, outputs ...string) {
+	res, ok := ctx.Value(contextKeyResponse).(*bonkv0.ExecuteTaskResponse_builder)
+	if ok {
+		res.Output = append(res.Output, outputs...)
+	}
+}
+
+func AddFollowUp[Params any](ctx context.Context, executor string, task TaskParams[Params]) {
+	res, ok := ctx.Value(contextKeyResponse).(*bonkv0.ExecuteTaskResponse_builder)
+	if ok {
+		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{}
+		taskProto.Executor = &executor
+		taskProto.Inputs = task.Inputs
+
+		paramsCue := cuectx.Encode(task.Params)
+		if paramsCue.Err() != nil {
+			slog.ErrorContext(ctx, "cannot enqueue followup task as params failed to encode to queue")
+
+			return
+		}
+		err := paramsCue.Decode(taskProto.Parameters)
+		if err != nil {
+			slog.ErrorContext(ctx, "cannot enqueue followup task as params cue failed to decode to proto")
+
+			return
+		}
+
+		res.FollowupTasks = append(res.FollowupTasks, taskProto.Build())
+	}
+}
+
+// PRIVATE
 
 type ExecutorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
@@ -91,8 +129,6 @@ func (p *ExecutorServer) GRPCClient(
 ) (any, error) {
 	return bonkv0.NewExecutorServiceClient(c), nil
 }
-
-// PRIVATE
 
 // Here is the gRPC server that GRPCClient talks to.
 type executorGRPCServer struct {
@@ -159,6 +195,8 @@ func (s *executorGRPCServer) ExecuteTask(
 		return nil, fmt.Errorf("failed to decode parameters: %w", err)
 	}
 
+	res := bonkv0.ExecuteTaskResponse_builder{}
+
 	execCtx, cleanup, err := getTaskLoggingContext(ctx, root)
 	if err != nil {
 		return nil, err
@@ -167,13 +205,14 @@ func (s *executorGRPCServer) ExecuteTask(
 	// Append executor information
 	execCtx = slogctx.Append(execCtx, "executor", req.GetExecutor())
 
-	outputs, err := executor.Exec(execCtx, params)
+	// Add the response to the context
+	execCtx = context.WithValue(execCtx, contextKeyResponse, &res)
+
+	err = executor.Exec(execCtx, params)
 	multierr.AppendFunc(&err, cleanup)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute task: %w", err)
 	}
 
-	return bonkv0.ExecuteTaskResponse_builder{
-		Output: outputs,
-	}.Build(), nil
+	return res.Build(), nil
 }

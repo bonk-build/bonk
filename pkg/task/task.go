@@ -20,6 +20,13 @@ func (id *TaskId) String() string {
 	return fmt.Sprintf("%s:%s", id.id, id.executor)
 }
 
+func (id *TaskId) GetChild(name, executor string) TaskId {
+	return TaskId{
+		executor: executor,
+		id:       fmt.Sprintf("%s:%s", id.id, name),
+	}
+}
+
 func (id *TaskId) GetOutputDirectory() string {
 	return path.Join(".bonk", id.String())
 }
@@ -43,12 +50,12 @@ func (id *TaskId) LoadStateFile() (*state, error) {
 }
 
 type Task struct {
-	ID TaskId
+	ID TaskId `json:"id"`
 
-	Inputs []string
-	Params cue.Value
+	Inputs []string  `json:"inputs,omitempty"`
+	Params cue.Value `json:"params,omitempty"`
 
-	State *state
+	state *state
 }
 
 func New(executor, id string, params cue.Value, inputs ...string) Task {
@@ -70,17 +77,17 @@ func (t *Task) GetOutputDirectory() string {
 	return t.ID.GetOutputDirectory()
 }
 
-func (t *Task) SaveState(outputs []string) error {
+func (t *Task) SaveState(result *TaskResult) error {
 	root, err := t.ID.OpenRoot()
 	if err != nil {
 		return err
 	}
-	t.State, err = NewState(t.ID.executor, t.Params, root, t.Inputs, outputs)
+	t.state, err = NewState(t.ID.executor, t.Params, root, t.Inputs, result)
 	if err != nil {
 		return err
 	}
 
-	return t.State.Save(root)
+	return t.state.Save(root)
 }
 
 func (t *Task) DetectStateMismatches() []string {
@@ -88,12 +95,17 @@ func (t *Task) DetectStateMismatches() []string {
 	if err != nil {
 		return []string{"<missing>"}
 	}
-	if t.State == nil {
-		t.State, err = LoadState(root)
+	if t.state == nil {
+		t.state, err = LoadState(root)
 		if err != nil {
 			return []string{"<load failed>"}
 		}
 	}
 
-	return t.State.DetectMismatches(t.ID.executor, t.Params, root, t.Inputs)
+	return t.state.DetectMismatches(t.ID.executor, t.Params, root, t.Inputs)
+}
+
+type TaskResult struct {
+	Outputs       []string `json:"outputs,omitempty"`
+	FollowupTasks []Task   `json:"followupTasks,omitempty"`
 }

@@ -10,5 +10,5 @@ import (
 )
 
 type Executor interface {
-	Execute(ctx context.Context, tsk task.Task) ([]string, error)
+	Execute(ctx context.Context, tsk task.Task) (*task.TaskResult, error)
 }

@@ -15,7 +15,7 @@ import (
 	"sigs.k8s.io/kustomize/kyaml/filesys"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
 
-	plugin "go.bonk.build/api/go"
+	bonk "go.bonk.build/api/go"
 )
 
 const output = "kustomized.yaml"
@@ -24,7 +24,7 @@ type Params struct {
 	Kustomization types.Kustomization `json:"-"`
 }
 
-func kustomize(_ context.Context, params *plugin.TaskParams[Params]) ([]string, error) {
+func kustomize(ctx context.Context, params *bonk.TaskParams[Params]) error {
 	// Apply resources and any needed fixes
 	params.Params.Kustomization.Resources = params.Inputs
 	params.Params.Kustomization.FixKustomization()
@@ -32,23 +32,23 @@ func kustomize(_ context.Context, params *plugin.TaskParams[Params]) ([]string, 
 	// Write out the kustomization.yaml file
 	outFile, err := os.Create(path.Join(params.OutDir, konfig.DefaultKustomizationFileName()))
 	if err != nil {
-		return nil, fmt.Errorf("failed to open kustomization file: %w", err)
+		return fmt.Errorf("failed to open kustomization file: %w", err)
 	}
 
 	enc := yaml.NewEncoder(outFile)
 
 	err = enc.Encode(params.Params.Kustomization)
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode kustomization file as yaml: %w", err)
+		return fmt.Errorf("failed to encode kustomization file as yaml: %w", err)
 	}
 
 	err = enc.Close()
 	if err != nil {
-		return nil, fmt.Errorf("failed to close yaml encoder: %w", err)
+		return fmt.Errorf("failed to close yaml encoder: %w", err)
 	}
 	err = outFile.Close()
 	if err != nil {
-		return nil, fmt.Errorf("failed to close yaml file writer: %w", err)
+		return fmt.Errorf("failed to close yaml file writer: %w", err)
 	}
 
 	// Perform the kustomization
@@ -58,26 +58,28 @@ func kustomize(_ context.Context, params *plugin.TaskParams[Params]) ([]string, 
 
 	res, err := kusty.Run(filesys.MakeFsOnDisk(), params.OutDir)
 	if err != nil {
-		return nil, fmt.Errorf("failed to perform kustomization: %w", err)
+		return fmt.Errorf("failed to perform kustomization: %w", err)
 	}
 
 	// Save the result
 	resYaml, err := res.AsYaml()
 	if err != nil {
-		return nil, fmt.Errorf("failed to encode kustomized content as yaml: %w", err)
+		return fmt.Errorf("failed to encode kustomized content as yaml: %w", err)
 	}
 
 	err = os.WriteFile(path.Join(params.OutDir, output), resYaml, 0o600)
 	if err != nil {
-		return nil, fmt.Errorf("failed to write kustomized content to file: %w", err)
+		return fmt.Errorf("failed to write kustomized content to file: %w", err)
 	}
 
-	return []string{output}, nil
+	bonk.AddOutputs(ctx, output)
+
+	return nil
 }
 
 func main() {
-	plugin.Serve(
-		plugin.NewExecutor(
+	bonk.Serve(
+		bonk.NewExecutor(
 			"Kustomize",
 			kustomize,
 		),
