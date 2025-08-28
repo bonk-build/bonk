@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 
 	"google.golang.org/grpc"
 
@@ -166,7 +167,17 @@ func (s *grpcServer) PerformTask(
 		OutDir: req.GetOutDirectory(),
 	}
 
-	err := s.decodeCodec.Validate(backend.ParamsSchema, req.GetParameters())
+	err := os.MkdirAll(req.GetOutDirectory(), 0o750)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create output directory: %w", err)
+	}
+
+	root, err := os.OpenRoot(req.GetOutDirectory())
+	if err != nil {
+		return nil, fmt.Errorf("failed to open fs root in output directory: %w", err)
+	}
+
+	err = s.decodeCodec.Validate(backend.ParamsSchema, req.GetParameters())
 	if err != nil {
 		return nil, fmt.Errorf(
 			"params %s don't match required schema %s",
@@ -180,9 +191,16 @@ func (s *grpcServer) PerformTask(
 		return nil, fmt.Errorf("failed to decode parameters: %w", err)
 	}
 
-	execCtx := slogctx.Append(ctx, "backend", req.GetBackend())
+	execCtx, cleanup, err := getTaskLoggingContext(ctx, root)
+	if err != nil {
+		return nil, err
+	}
+
+	// Append backend information
+	execCtx = slogctx.Append(execCtx, "backend", req.GetBackend())
 
 	err = backend.Exec(execCtx, params)
+	_ = cleanup()
 	if err != nil {
 		return nil, err
 	}
