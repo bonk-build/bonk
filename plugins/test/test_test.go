@@ -15,13 +15,13 @@ import (
 func Test_Plugin(t *testing.T) {
 	t.Parallel()
 
-	backends := test.ServeTest(t,
-		Backend_Test,
+	executors := test.ServeTest(t,
+		Executor_Test,
 	)
 
-	err := backends.SendTask(
+	err := executors.SendTask(
 		t.Context(),
-		task.New(Backend_Test.Name, "testing", cue.Value{}),
+		task.New(Executor_Test.Name, "testing", cue.Value{}),
 	)
 	if err != nil {
 		t.Fatal("failed call to PerformTask:", err)

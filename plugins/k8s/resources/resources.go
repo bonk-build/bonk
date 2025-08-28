@@ -42,7 +42,7 @@ func genResources(_ context.Context, params *plugin.TaskParams[Params]) error {
 
 func main() {
 	plugin.Serve(
-		plugin.NewBackend(
+		plugin.NewExecutor(
 			"Resources",
 			[]string{
 				output,

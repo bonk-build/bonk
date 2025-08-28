@@ -17,7 +17,7 @@ message ConfigurePluginResponse {
     FEATURE_FLAGS_STREAMING_LOGGING = 1;
   }
 
-  message BackendDescription {
+  message ExecutorDescription {
     repeated string outputs = 1;
   }
 
@@ -26,7 +26,7 @@ message ConfigurePluginResponse {
   reserved frontends;
 
   repeated FeatureFlags features = 1;
-  map<string, BackendDescription> backends = 3;
+  map<string, ExecutorDescription> executors = 3;
 }
 
 message StreamLogsRequest {
@@ -43,7 +43,7 @@ message StreamLogsResponse {
 }
 
 message PerformTaskRequest {
-  string backend = 1;
+  string executor = 1;
 
   repeated string inputs = 2;
   google.protobuf.Struct parameters = 3;
@@ -57,6 +57,6 @@ service BonkPluginService {
   rpc ConfigurePlugin(ConfigurePluginRequest) returns (ConfigurePluginResponse);
   rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse);
 
-  // Backend interface
+  // Executor interface
   rpc PerformTask(PerformTaskRequest) returns (PerformTaskResponse);
 }

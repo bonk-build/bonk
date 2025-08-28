@@ -10,21 +10,21 @@ import (
 
 	bonk "go.bonk.build/api/go"
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
-	"go.bonk.build/pkg/backend"
+	"go.bonk.build/pkg/executor"
 )
 
 // Call like you'd call Serve() but at the top of your test function.
-func ServeTest(t *testing.T, backends ...bonk.BonkBackend) *backend.BackendManager {
+func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) *executor.ExecutorManager {
 	t.Helper()
 
-	backendMap := make(map[string]bonk.BonkBackend, len(backends))
-	for _, be := range backends {
-		backendMap[be.Name] = be
+	executorMap := make(map[string]bonk.BonkExecutor, len(executors))
+	for _, be := range executors {
+		executorMap[be.Name] = be
 	}
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
 		bonk.PluginType: &bonk.BonkPluginServer{
-			Backends: backendMap,
+			Executors: executorMap,
 		},
 	})
 
@@ -47,14 +47,14 @@ func ServeTest(t *testing.T, backends ...bonk.BonkBackend) *backend.BackendManag
 		t.Fatal("plugin dispensed is of the wrong type")
 	}
 
-	backendManager := backend.NewBackendManager()
+	executorManager := executor.NewExecutorManager()
 
-	for _, be := range backends {
-		err = backendManager.RegisterBackend(be.Name, backend.NewRPC(be.Name, bonkClient))
+	for _, be := range executors {
+		err = executorManager.RegisterExecutor(be.Name, executor.NewRPC(be.Name, bonkClient))
 		if err != nil {
-			t.Fatal("failed to register backend:", be.Name)
+			t.Fatal("failed to register executor:", be.Name)
 		}
 	}
 
-	return backendManager
+	return executorManager
 }

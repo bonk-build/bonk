@@ -18,18 +18,18 @@ type TaskSender interface {
 }
 
 type Scheduler struct {
-	backendManager TaskSender
-	executor       gotaskflow.Executor
-	tasks          map[string]*gotaskflow.Task
-	rootFlow       *gotaskflow.TaskFlow
+	executorManager TaskSender
+	executor        gotaskflow.Executor
+	tasks           map[string]*gotaskflow.Task
+	rootFlow        *gotaskflow.TaskFlow
 }
 
-func NewScheduler(backendManager TaskSender, concurrency uint) *Scheduler {
+func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 	return &Scheduler{
-		backendManager: backendManager,
-		executor:       gotaskflow.NewExecutor(concurrency),
-		tasks:          make(map[string]*gotaskflow.Task),
-		rootFlow:       gotaskflow.NewTaskFlow("bonk"),
+		executorManager: executorManager,
+		executor:        gotaskflow.NewExecutor(concurrency),
+		tasks:           make(map[string]*gotaskflow.Task),
+		rootFlow:        gotaskflow.NewTaskFlow("bonk"),
 	}
 }
 
@@ -42,7 +42,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 			return
 		}
 
-		err := s.backendManager.SendTask(context.Background(), tsk)
+		err := s.executorManager.SendTask(context.Background(), tsk)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 

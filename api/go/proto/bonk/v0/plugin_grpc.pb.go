@@ -31,7 +31,7 @@ type BonkPluginServiceClient interface {
 	// General plugin support
 	ConfigurePlugin(ctx context.Context, in *ConfigurePluginRequest, opts ...grpc.CallOption) (*ConfigurePluginResponse, error)
 	StreamLogs(ctx context.Context, in *StreamLogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamLogsResponse], error)
-	// Backend interface
+	// Executor interface
 	PerformTask(ctx context.Context, in *PerformTaskRequest, opts ...grpc.CallOption) (*PerformTaskResponse, error)
 }
 
@@ -89,7 +89,7 @@ type BonkPluginServiceServer interface {
 	// General plugin support
 	ConfigurePlugin(context.Context, *ConfigurePluginRequest) (*ConfigurePluginResponse, error)
 	StreamLogs(*StreamLogsRequest, grpc.ServerStreamingServer[StreamLogsResponse]) error
-	// Backend interface
+	// Executor interface
 	PerformTask(context.Context, *PerformTaskRequest) (*PerformTaskResponse, error)
 	mustEmbedUnimplementedBonkPluginServiceServer()
 }

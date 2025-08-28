@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package backend // import "go.bonk.build/pkg/backend"
+package executor // import "go.bonk.build/pkg/executor"
 
 import (
 	"context"
@@ -9,6 +9,6 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-type Backend interface {
+type Executor interface {
 	Execute(ctx context.Context, tsk task.Task) error
 }
