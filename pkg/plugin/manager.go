@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"path"
 
+	"go.uber.org/multierr"
+
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -78,10 +80,13 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	pm.plugins[pluginName] = plug
 
 	for backendName, backend := range plug.backends {
-		err = pm.backend.RegisterBackend(fmt.Sprintf("%s:%s", pluginName, backendName), backend)
-		if err != nil {
-			return fmt.Errorf("failed to register plugin %s backend %s: %w", pluginName, backendName, err)
-		}
+		multierr.AppendInto(&err,
+			pm.backend.RegisterBackend(fmt.Sprintf("%s:%s", pluginName, backendName), backend),
+		)
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to register plugin %s backends: %w", pluginName, err)
 	}
 
 	return nil

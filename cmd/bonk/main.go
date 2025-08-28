@@ -8,6 +8,8 @@ import (
 	"os"
 	"path"
 
+	"go.uber.org/multierr"
+
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/cuecontext"
 
@@ -49,11 +51,15 @@ var rootCmd = &cobra.Command{
 			"go.bonk.build/plugins/k8s/kustomize",
 		}
 
+		var err error
 		for _, pluginPath := range plugins {
-			cobra.CheckErr(pum.StartPlugin(cmd.Context(), pluginPath))
+			multierr.AppendInto(&err, pum.StartPlugin(cmd.Context(), pluginPath))
 		}
+		cobra.CheckErr(err)
 
-		cobra.CheckErr(
+		cwd, _ := os.Getwd()
+
+		err = multierr.Combine(
 			sched.AddTask(
 				task.New(
 					"test:Test",
@@ -61,9 +67,6 @@ var rootCmd = &cobra.Command{
 					cuectx.CompileString(`value: 3`),
 				),
 			),
-		)
-
-		cobra.CheckErr(
 			sched.AddTask(
 				task.New(
 					"resources:Resources",
@@ -76,10 +79,6 @@ var rootCmd = &cobra.Command{
 					}]`),
 				),
 			),
-		)
-
-		cwd, _ := os.Getwd()
-		cobra.CheckErr(
 			sched.AddTask(
 				task.New(
 					"kustomize:Kustomize",
@@ -90,6 +89,10 @@ var rootCmd = &cobra.Command{
 				"Test.Resources:resources:Resources",
 			),
 		)
+
+		sched.Run()
+
+		cobra.CheckErr(err)
 	},
 }
 

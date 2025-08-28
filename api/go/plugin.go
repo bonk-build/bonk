@@ -9,6 +9,8 @@ import (
 	"log/slog"
 	"os"
 
+	"go.uber.org/multierr"
+
 	"google.golang.org/grpc"
 
 	"cuelang.org/go/cue"
@@ -199,10 +201,12 @@ func (s *grpcServer) PerformTask(
 	// Append backend information
 	execCtx = slogctx.Append(execCtx, "backend", req.GetBackend())
 
-	err = backend.Exec(execCtx, params)
-	_ = cleanup()
+	err = multierr.Combine(
+		backend.Exec(execCtx, params),
+		cleanup(),
+	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute task: %w", err)
 	}
 
 	return bonkv0.PerformTaskResponse_builder{}.Build(), nil
