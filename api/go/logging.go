@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"time"
 
+	"go.uber.org/multierr"
+
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -183,10 +185,10 @@ func getTaskLoggingContext(
 	}
 
 	cleanup := func() error {
-		_ = logFileText.Close()
-		_ = logFileJSON.Close()
-
-		return nil
+		return multierr.Combine(
+			logFileText.Close(),
+			logFileJSON.Close(),
+		)
 	}
 
 	// Add logger which writes to the default handler, but also local files
