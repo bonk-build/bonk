@@ -25,9 +25,15 @@ jobs:
           go-version-file: go.mod
       - uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
         with:
-          cue-version: v0.14.1
+          version: v0.14.1
 
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+        env:
+          SKIP: hawkeye-format-docker
+
+      - uses: korandoru/hawkeye@v6.2.0
+        with:
+          mode: format
 
       - name: commit changed files
         uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 # v6.0.1
