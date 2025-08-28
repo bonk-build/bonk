@@ -21,7 +21,7 @@ require (
 	github.com/samber/slog-multi v1.4.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
-	github.com/stretchr/testify v1.11.0
+	github.com/stretchr/testify v1.11.1
 	github.com/veqryn/slog-context v0.8.0
 	go.uber.org/mock v0.6.0
 	go.uber.org/multierr v1.11.0
