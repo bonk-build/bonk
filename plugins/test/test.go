@@ -16,10 +16,10 @@ type Params struct {
 
 var Executor_Test = plugin.NewExecutor(
 	"Test",
-	func(ctx context.Context, param *plugin.TaskParams[Params]) ([]string, error) {
+	func(ctx context.Context, param *plugin.TaskParams[Params]) error {
 		slog.InfoContext(ctx, "it's happening!", "thing", "value")
 
-		return nil, nil
+		return nil
 	},
 )
 

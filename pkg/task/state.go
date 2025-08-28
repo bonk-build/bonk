@@ -22,31 +22,32 @@ const StateFile = "state.json"
 
 type state struct {
 	// Cache provided executor & outputs
-	Executor string   `json:"executor,omitempty"`
-	Inputs   []string `json:"inputs,omitempty"`
-	Outputs  []string `json:"outputs,omitempty"`
+	Executor string      `json:"executor,omitempty"`
+	Inputs   []string    `json:"inputs,omitempty"`
+	Result   *TaskResult `json:"result,omitempty"`
 
-	ParamsChecksum  []byte `json:"paramsChecksum,omitempty"`
-	InputsChecksum  []byte `json:"inputChecksum,omitempty"`
-	OutputsChecksum []byte `json:"outputsChecksum,omitempty"`
+	ParamsChecksum []byte `json:"paramsChecksum,omitempty"`
+	InputsChecksum []byte `json:"inputChecksum,omitempty"`
+	ResultChecksum []byte `json:"resultChecksum,omitempty"`
 }
 
 func NewState(
 	executor string,
 	params cue.Value,
 	root *os.Root,
-	inputs, outputs []string,
+	inputs []string,
+	result *TaskResult,
 ) (*state, error) {
 	var err error
 	state := &state{}
 	state.Executor = executor
 	state.Inputs = inputs
-	state.Outputs = outputs
+	state.Result = result
 
 	hasher := sha256.New()
 
 	// Hash the parameters
-	state.ParamsChecksum, err = hashParams(hasher, params)
+	state.ParamsChecksum, err = hashCueValue(hasher, params)
 	if err != nil {
 		return state, err
 	}
@@ -58,7 +59,7 @@ func NewState(
 	}
 
 	// Hash the input files
-	state.OutputsChecksum, err = hashFiles(hasher, root, outputs)
+	state.ResultChecksum, err = hashResult(hasher, root, result)
 	if err != nil {
 		return state, err
 	}
@@ -110,10 +111,11 @@ func (s *state) DetectMismatches(
 		mismatches = append(mismatches, "executor")
 	}
 
-	paramsChecksum, err := hashParams(hasher, params)
+	paramsChecksum, err := hashCueValue(hasher, params)
 	if err != nil || !bytes.Equal(paramsChecksum, s.ParamsChecksum) {
 		mismatches = append(mismatches, "params-checksum")
 	}
+	hasher.Reset()
 
 	if !reflect.DeepEqual(inputs, s.Inputs) {
 		mismatches = append(mismatches, "inputs")
@@ -122,16 +124,18 @@ func (s *state) DetectMismatches(
 	if err != nil || !bytes.Equal(inputsChecksum, s.InputsChecksum) {
 		mismatches = append(mismatches, "inputs-checksum")
 	}
+	hasher.Reset()
 
-	outputsChecksum, err := hashFiles(hasher, root, s.Outputs)
-	if err != nil || !bytes.Equal(outputsChecksum, s.OutputsChecksum) {
-		mismatches = append(mismatches, "outputs-checksum")
+	resultChecksum, err := hashResult(hasher, root, s.Result)
+	if err != nil || !bytes.Equal(resultChecksum, s.ResultChecksum) {
+		mismatches = append(mismatches, "result-checksum")
 	}
+	hasher.Reset()
 
 	return mismatches
 }
 
-func hashParams(hasher hash.Hash, params cue.Value) ([]byte, error) {
+func hashCueValue(hasher hash.Hash, params cue.Value) ([]byte, error) {
 	paramsJSON, err := params.MarshalJSON()
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal params to json: %w", err)
@@ -161,7 +165,29 @@ func hashFiles(hasher hash.Hash, root *os.Root, files []string) ([]byte, error) 
 	}
 
 	result := hasher.Sum(nil)
-	hasher.Reset()
 
 	return result, err
+}
+
+func hashResult(hasher hash.Hash, root *os.Root, result *TaskResult) ([]byte, error) {
+	if result == nil {
+		return nil, nil
+	}
+
+	var err error
+
+	_, hashErr := hashFiles(hasher, root, result.Outputs)
+	multierr.AppendInto(&err, hashErr)
+
+	// Convert the followups to json for easy hashing
+	bytes, hashErr := json.Marshal(result.FollowupTasks)
+	if multierr.AppendInto(&err, hashErr) {
+		hasher.Write(bytes)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to hash task result: %w", err)
+	}
+
+	return hasher.Sum(nil), nil
 }

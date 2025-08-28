@@ -7,6 +7,8 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/multierr"
+
 	"google.golang.org/protobuf/types/known/structpb"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
@@ -25,7 +27,7 @@ type rpcExecutor struct {
 	client bonkv0.ExecutorServiceClient
 }
 
-func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) ([]string, error) {
+func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) (*task.TaskResult, error) {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
 		Executor:     &pb.name,
@@ -44,5 +46,21 @@ func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) ([]string, er
 		return nil, fmt.Errorf("failed to call perform task: %w", err)
 	}
 
-	return res.GetOutput(), nil
+	followups := make([]task.Task, len(res.GetFollowupTasks()))
+	for ii, followup := range res.GetFollowupTasks() {
+		followups[ii].ID = tsk.ID.GetChild(followup.GetName(), followup.GetExecutor())
+		followups[ii].Inputs = followup.GetInputs()
+
+		multierr.AppendInto(&err,
+			followups[ii].Params.Decode(followup.GetParameters()))
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to schedule followup tasks: %w", err)
+	}
+
+	return &task.TaskResult{
+		Outputs:       res.GetOutput(),
+		FollowupTasks: followups,
+	}, nil
 }
