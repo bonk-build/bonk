@@ -12,7 +12,7 @@ import "go.bonk.build/api/go"
 - [Variables](<#variables>)
 - [func Serve\(executors ...BonkExecutor\)](<#Serve>)
 - [type BonkExecutor](<#BonkExecutor>)
-  - [func NewExecutor\[Params any\]\(name string, outputs \[\]string, exec func\(context.Context, \*TaskParams\[Params\]\) error\) BonkExecutor](<#NewExecutor>)
+  - [func NewExecutor\[Params any\]\(name string, exec func\(context.Context, \*TaskParams\[Params\]\) \(\[\]string, error\)\) BonkExecutor](<#NewExecutor>)
 - [type BonkPluginServer](<#BonkPluginServer>)
   - [func \(p \*BonkPluginServer\) GRPCClient\(\_ context.Context, \_ \*goplugin.GRPCBroker, c \*grpc.ClientConn\) \(any, error\)](<#BonkPluginServer.GRPCClient>)
   - [func \(p \*BonkPluginServer\) GRPCServer\(\_ \*goplugin.GRPCBroker, s \*grpc.Server\) error](<#BonkPluginServer.GRPCServer>)
@@ -40,7 +40,7 @@ var Handshake = goplugin.HandshakeConfig{
 ```
 
 <a name="Serve"></a>
-## func [Serve](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L77>)
+## func [Serve](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L75>)
 
 ```go
 func Serve(executors ...BonkExecutor)
@@ -58,21 +58,21 @@ type BonkExecutor struct {
     Name         string
     Outputs      []string
     ParamsSchema cue.Value
-    Exec         func(context.Context, TaskParams[cue.Value]) error
+    Exec         func(context.Context, TaskParams[cue.Value]) ([]string, error)
 }
 ```
 
 <a name="NewExecutor"></a>
-### func [NewExecutor](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L46-L50>)
+### func [NewExecutor](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L46-L49>)
 
 ```go
-func NewExecutor[Params any](name string, outputs []string, exec func(context.Context, *TaskParams[Params]) error) BonkExecutor
+func NewExecutor[Params any](name string, exec func(context.Context, *TaskParams[Params]) ([]string, error)) BonkExecutor
 ```
 
 Factory to create a new task executor.
 
 <a name="BonkPluginServer"></a>
-## type [BonkPluginServer](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L103-L108>)
+## type [BonkPluginServer](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L101-L106>)
 
 
 
@@ -86,7 +86,7 @@ type BonkPluginServer struct {
 ```
 
 <a name="BonkPluginServer.GRPCClient"></a>
-### func \(\*BonkPluginServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L119-L123>)
+### func \(\*BonkPluginServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L117-L121>)
 
 ```go
 func (p *BonkPluginServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)
@@ -95,7 +95,7 @@ func (p *BonkPluginServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker,
 
 
 <a name="BonkPluginServer.GRPCServer"></a>
-### func \(\*BonkPluginServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L110>)
+### func \(\*BonkPluginServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/dd19c33/api/go/plugin.go#L108>)
 
 ```go
 func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error
@@ -110,8 +110,8 @@ The inputs passed to a task executor.
 
 ```go
 type TaskParams[Params any] struct {
-    Params Params
     Inputs []string
+    Params Params
     OutDir string
 }
 ```

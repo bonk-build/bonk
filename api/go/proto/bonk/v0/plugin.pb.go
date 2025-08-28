@@ -581,9 +581,10 @@ func (b0 PerformTaskRequest_builder) Build() *PerformTaskRequest {
 }
 
 type PerformTaskResponse struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state             protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_Output []string               `protobuf:"bytes,1,rep,name=output"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *PerformTaskResponse) Reset() {
@@ -611,23 +612,35 @@ func (x *PerformTaskResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+func (x *PerformTaskResponse) GetOutput() []string {
+	if x != nil {
+		return x.xxx_hidden_Output
+	}
+	return nil
+}
+
+func (x *PerformTaskResponse) SetOutput(v []string) {
+	x.xxx_hidden_Output = v
+}
+
 type PerformTaskResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	Output []string
 }
 
 func (b0 PerformTaskResponse_builder) Build() *PerformTaskResponse {
 	m0 := &PerformTaskResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
+	x.xxx_hidden_Output = b.Output
 	return m0
 }
 
 type ConfigurePluginResponse_ExecutorDescription struct {
-	state              protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Outputs []string               `protobuf:"bytes,1,rep,name=outputs"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"opaque.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConfigurePluginResponse_ExecutorDescription) Reset() {
@@ -655,28 +668,15 @@ func (x *ConfigurePluginResponse_ExecutorDescription) ProtoReflect() protoreflec
 	return mi.MessageOf(x)
 }
 
-func (x *ConfigurePluginResponse_ExecutorDescription) GetOutputs() []string {
-	if x != nil {
-		return x.xxx_hidden_Outputs
-	}
-	return nil
-}
-
-func (x *ConfigurePluginResponse_ExecutorDescription) SetOutputs(v []string) {
-	x.xxx_hidden_Outputs = v
-}
-
 type ConfigurePluginResponse_ExecutorDescription_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Outputs []string
 }
 
 func (b0 ConfigurePluginResponse_ExecutorDescription_builder) Build() *ConfigurePluginResponse_ExecutorDescription {
 	m0 := &ConfigurePluginResponse_ExecutorDescription{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Outputs = b.Outputs
 	return m0
 }
 
@@ -685,12 +685,11 @@ var File_bonk_v0_plugin_proto protoreflect.FileDescriptor
 const file_bonk_v0_plugin_proto_rawDesc = "" +
 	"\n" +
 	"\x14bonk/v0/plugin.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x18\n" +
-	"\x16ConfigurePluginRequest\"\xbd\x03\n" +
+	"\x16ConfigurePluginRequest\"\xa3\x03\n" +
 	"\x17ConfigurePluginResponse\x12I\n" +
 	"\bfeatures\x18\x01 \x03(\x0e2-.bonk.v0.ConfigurePluginResponse.FeatureFlagsR\bfeatures\x12M\n" +
-	"\texecutors\x18\x03 \x03(\v2/.bonk.v0.ConfigurePluginResponse.ExecutorsEntryR\texecutors\x1a/\n" +
-	"\x13ExecutorDescription\x12\x18\n" +
-	"\aoutputs\x18\x01 \x03(\tR\aoutputs\x1ar\n" +
+	"\texecutors\x18\x03 \x03(\v2/.bonk.v0.ConfigurePluginResponse.ExecutorsEntryR\texecutors\x1a\x15\n" +
+	"\x13ExecutorDescription\x1ar\n" +
 	"\x0eExecutorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12J\n" +
 	"\x05value\x18\x02 \x01(\v24.bonk.v0.ConfigurePluginResponse.ExecutorDescriptionR\x05value:\x028\x01\"R\n" +
@@ -716,8 +715,9 @@ const file_bonk_v0_plugin_proto_rawDesc = "" +
 	"\n" +
 	"parameters\x18\x03 \x01(\v2\x17.google.protobuf.StructR\n" +
 	"parameters\x12#\n" +
-	"\rout_directory\x18\x04 \x01(\tR\foutDirectory\"\x15\n" +
-	"\x13PerformTaskResponse2\xfc\x01\n" +
+	"\rout_directory\x18\x04 \x01(\tR\foutDirectory\"-\n" +
+	"\x13PerformTaskResponse\x12\x16\n" +
+	"\x06output\x18\x01 \x03(\tR\x06output2\xfc\x01\n" +
 	"\x11BonkPluginService\x12T\n" +
 	"\x0fConfigurePlugin\x12\x1f.bonk.v0.ConfigurePluginRequest\x1a .bonk.v0.ConfigurePluginResponse\x12G\n" +
 	"\n" +

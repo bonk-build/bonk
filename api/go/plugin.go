@@ -29,8 +29,8 @@ var cuectx = cuecontext.New()
 
 // The inputs passed to a task executor.
 type TaskParams[Params any] struct {
-	Params Params
 	Inputs []string
+	Params Params
 	OutDir string
 }
 
@@ -39,14 +39,13 @@ type BonkExecutor struct {
 	Name         string
 	Outputs      []string
 	ParamsSchema cue.Value
-	Exec         func(context.Context, TaskParams[cue.Value]) error
+	Exec         func(context.Context, TaskParams[cue.Value]) ([]string, error)
 }
 
 // Factory to create a new task executor.
 func NewExecutor[Params any](
 	name string,
-	outputs []string,
-	exec func(context.Context, *TaskParams[Params]) error,
+	exec func(context.Context, *TaskParams[Params]) ([]string, error),
 ) BonkExecutor {
 	zero := new(Params)
 
@@ -57,15 +56,14 @@ func NewExecutor[Params any](
 
 	return BonkExecutor{
 		Name:         name,
-		Outputs:      outputs,
 		ParamsSchema: schema,
-		Exec: func(ctx context.Context, paramsCue TaskParams[cue.Value]) error {
+		Exec: func(ctx context.Context, paramsCue TaskParams[cue.Value]) ([]string, error) {
 			params := new(TaskParams[Params])
 			params.Inputs = paramsCue.Inputs
 			params.OutDir = paramsCue.OutDir
 			err := paramsCue.Params.Decode(&params.Params)
 			if err != nil {
-				return fmt.Errorf("failed to decode task parameters: %w", err)
+				return nil, fmt.Errorf("failed to decode task parameters: %w", err)
 			}
 
 			return exec(ctx, params)
@@ -148,10 +146,8 @@ func (s *grpcServer) ConfigurePlugin(
 		),
 	}
 
-	for name, executor := range s.executors {
-		respBuilder.Executors[name] = bonkv0.ConfigurePluginResponse_ExecutorDescription_builder{
-			Outputs: executor.Outputs,
-		}.Build()
+	for name := range s.executors {
+		respBuilder.Executors[name] = bonkv0.ConfigurePluginResponse_ExecutorDescription_builder{}.Build()
 	}
 
 	return respBuilder.Build(), nil
@@ -204,13 +200,13 @@ func (s *grpcServer) PerformTask(
 	// Append executor information
 	execCtx = slogctx.Append(execCtx, "executor", req.GetExecutor())
 
-	err = multierr.Combine(
-		executor.Exec(execCtx, params),
-		cleanup(),
-	)
+	outputs, err := executor.Exec(execCtx, params)
+	multierr.AppendFunc(&err, cleanup)
 	if err != nil {
 		return nil, fmt.Errorf("failed to execute task: %w", err)
 	}
 
-	return bonkv0.PerformTaskResponse_builder{}.Build(), nil
+	return bonkv0.PerformTaskResponse_builder{
+		Output: outputs,
+	}.Build(), nil
 }
