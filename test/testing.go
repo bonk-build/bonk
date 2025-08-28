@@ -6,6 +6,8 @@ package test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonk "go.bonk.build/api/go"
@@ -28,14 +30,11 @@ func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) *executor.ExecutorM
 		},
 	})
 
-	go func() {
-		// Wait for the test to finish
-		<-t.Context().Done()
-
+	t.Cleanup(func() {
 		// Close the GRPC infrastructure
-		_ = client.Close()
+		require.NoError(t, client.Close())
 		server.Stop()
-	}()
+	})
 
 	raw, err := client.Dispense("executor")
 	if err != nil {
