@@ -132,9 +132,12 @@ func init() {
 			// Check if the context has a logger in it, and use that if so
 			slogmulti.NewHandleInlineMiddleware(
 				func(ctx context.Context, record slog.Record, next func(context.Context, slog.Record) error) error {
-					if ctxLogger := slogctx.FromCtx(ctx); ctxLogger != slog.Default() &&
-						ctxLogger.Enabled(ctx, record.Level) {
-						return ctxLogger.Handler().Handle(ctx, record)
+					if ctxLogger := slogctx.FromCtx(ctx); ctxLogger != slog.Default() {
+						if ctxLogger.Enabled(ctx, record.Level) {
+							return ctxLogger.Handler().Handle(ctx, record)
+						} else {
+							return nil
+						}
 					} else {
 						return next(ctx, record)
 					}
