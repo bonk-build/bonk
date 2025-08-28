@@ -13,7 +13,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func NewRPC(name string, client bonkv0.BonkPluginServiceClient) Executor {
+func NewRPC(name string, client bonkv0.ExecutorServiceClient) Executor {
 	return &rpcExecutor{
 		name:   name,
 		client: client,
@@ -22,12 +22,12 @@ func NewRPC(name string, client bonkv0.BonkPluginServiceClient) Executor {
 
 type rpcExecutor struct {
 	name   string
-	client bonkv0.BonkPluginServiceClient
+	client bonkv0.ExecutorServiceClient
 }
 
 func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) ([]string, error) {
 	outDir := tsk.GetOutputDirectory()
-	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
+	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
 		Executor:     &pb.name,
 		Inputs:       tsk.Inputs,
 		Parameters:   &structpb.Struct{},
@@ -39,7 +39,7 @@ func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) ([]string, er
 		return nil, fmt.Errorf("failed to encode parameters as protobuf: %w", err)
 	}
 
-	res, err := pb.client.PerformTask(ctx, taskReqBuilder.Build())
+	res, err := pb.client.ExecuteTask(ctx, taskReqBuilder.Build())
 	if err != nil {
 		return nil, fmt.Errorf("failed to call perform task: %w", err)
 	}

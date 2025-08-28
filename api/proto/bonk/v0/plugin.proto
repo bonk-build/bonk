@@ -5,43 +5,16 @@ edition = "2023";
 package bonk.v0;
 
 import "google/protobuf/struct.proto";
-import "google/protobuf/timestamp.proto";
 
-option features.field_presence = EXPLICIT;
+message DescribeExecutorsRequest {}
 
-message ConfigurePluginRequest {}
+message DescribeExecutorsResponse {
+  message ExecutorDescription {}
 
-message ConfigurePluginResponse {
-  enum FeatureFlags {
-    FEATURE_FLAGS_UNSPECIFIED = 0;
-    FEATURE_FLAGS_STREAMING_LOGGING = 1;
-  }
-
-  message ExecutorDescription {
-  }
-
-  // Prep for front end support
-  reserved 2;
-  reserved frontends;
-
-  repeated FeatureFlags features = 1;
-  map<string, ExecutorDescription> executors = 3;
+  map<string, ExecutorDescription> executors = 1;
 }
 
-message StreamLogsRequest {
-  int64 level = 1;
-  bool add_source = 2;
-}
-
-// This is meant to mirror [slog.Record](https://pkg.go.dev/log/slog#Record)
-message StreamLogsResponse {
-  google.protobuf.Timestamp time = 1;
-  string message = 2;
-  int64 level = 3;
-  map<string, google.protobuf.Value> attrs = 4;
-}
-
-message PerformTaskRequest {
+message ExecuteTaskRequest {
   string executor = 1;
 
   repeated string inputs = 2;
@@ -49,15 +22,14 @@ message PerformTaskRequest {
   string out_directory = 4;
 }
 
-message PerformTaskResponse {
+message ExecuteTaskResponse {
   repeated string output = 1;
 }
 
-service BonkPluginService {
+service ExecutorService {
   // General plugin support
-  rpc ConfigurePlugin(ConfigurePluginRequest) returns (ConfigurePluginResponse);
-  rpc StreamLogs(StreamLogsRequest) returns (stream StreamLogsResponse);
+  rpc DescribeExecutors(DescribeExecutorsRequest) returns (DescribeExecutorsResponse);
 
   // Executor interface
-  rpc PerformTask(PerformTaskRequest) returns (PerformTaskResponse);
+  rpc ExecuteTask(ExecuteTaskRequest) returns (ExecuteTaskResponse);
 }

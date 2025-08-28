@@ -19,187 +19,145 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	BonkPluginService_ConfigurePlugin_FullMethodName = "/bonk.v0.BonkPluginService/ConfigurePlugin"
-	BonkPluginService_StreamLogs_FullMethodName      = "/bonk.v0.BonkPluginService/StreamLogs"
-	BonkPluginService_PerformTask_FullMethodName     = "/bonk.v0.BonkPluginService/PerformTask"
+	ExecutorService_DescribeExecutors_FullMethodName = "/bonk.v0.ExecutorService/DescribeExecutors"
+	ExecutorService_ExecuteTask_FullMethodName       = "/bonk.v0.ExecutorService/ExecuteTask"
 )
 
-// BonkPluginServiceClient is the client API for BonkPluginService service.
+// ExecutorServiceClient is the client API for ExecutorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type BonkPluginServiceClient interface {
+type ExecutorServiceClient interface {
 	// General plugin support
-	ConfigurePlugin(ctx context.Context, in *ConfigurePluginRequest, opts ...grpc.CallOption) (*ConfigurePluginResponse, error)
-	StreamLogs(ctx context.Context, in *StreamLogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamLogsResponse], error)
+	DescribeExecutors(ctx context.Context, in *DescribeExecutorsRequest, opts ...grpc.CallOption) (*DescribeExecutorsResponse, error)
 	// Executor interface
-	PerformTask(ctx context.Context, in *PerformTaskRequest, opts ...grpc.CallOption) (*PerformTaskResponse, error)
+	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskResponse, error)
 }
 
-type bonkPluginServiceClient struct {
+type executorServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewBonkPluginServiceClient(cc grpc.ClientConnInterface) BonkPluginServiceClient {
-	return &bonkPluginServiceClient{cc}
+func NewExecutorServiceClient(cc grpc.ClientConnInterface) ExecutorServiceClient {
+	return &executorServiceClient{cc}
 }
 
-func (c *bonkPluginServiceClient) ConfigurePlugin(ctx context.Context, in *ConfigurePluginRequest, opts ...grpc.CallOption) (*ConfigurePluginResponse, error) {
+func (c *executorServiceClient) DescribeExecutors(ctx context.Context, in *DescribeExecutorsRequest, opts ...grpc.CallOption) (*DescribeExecutorsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ConfigurePluginResponse)
-	err := c.cc.Invoke(ctx, BonkPluginService_ConfigurePlugin_FullMethodName, in, out, cOpts...)
+	out := new(DescribeExecutorsResponse)
+	err := c.cc.Invoke(ctx, ExecutorService_DescribeExecutors_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *bonkPluginServiceClient) StreamLogs(ctx context.Context, in *StreamLogsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[StreamLogsResponse], error) {
+func (c *executorServiceClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &BonkPluginService_ServiceDesc.Streams[0], BonkPluginService_StreamLogs_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[StreamLogsRequest, StreamLogsResponse]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type BonkPluginService_StreamLogsClient = grpc.ServerStreamingClient[StreamLogsResponse]
-
-func (c *bonkPluginServiceClient) PerformTask(ctx context.Context, in *PerformTaskRequest, opts ...grpc.CallOption) (*PerformTaskResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(PerformTaskResponse)
-	err := c.cc.Invoke(ctx, BonkPluginService_PerformTask_FullMethodName, in, out, cOpts...)
+	out := new(ExecuteTaskResponse)
+	err := c.cc.Invoke(ctx, ExecutorService_ExecuteTask_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// BonkPluginServiceServer is the server API for BonkPluginService service.
-// All implementations must embed UnimplementedBonkPluginServiceServer
+// ExecutorServiceServer is the server API for ExecutorService service.
+// All implementations must embed UnimplementedExecutorServiceServer
 // for forward compatibility.
-type BonkPluginServiceServer interface {
+type ExecutorServiceServer interface {
 	// General plugin support
-	ConfigurePlugin(context.Context, *ConfigurePluginRequest) (*ConfigurePluginResponse, error)
-	StreamLogs(*StreamLogsRequest, grpc.ServerStreamingServer[StreamLogsResponse]) error
+	DescribeExecutors(context.Context, *DescribeExecutorsRequest) (*DescribeExecutorsResponse, error)
 	// Executor interface
-	PerformTask(context.Context, *PerformTaskRequest) (*PerformTaskResponse, error)
-	mustEmbedUnimplementedBonkPluginServiceServer()
+	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error)
+	mustEmbedUnimplementedExecutorServiceServer()
 }
 
-// UnimplementedBonkPluginServiceServer must be embedded to have
+// UnimplementedExecutorServiceServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedBonkPluginServiceServer struct{}
+type UnimplementedExecutorServiceServer struct{}
 
-func (UnimplementedBonkPluginServiceServer) ConfigurePlugin(context.Context, *ConfigurePluginRequest) (*ConfigurePluginResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ConfigurePlugin not implemented")
+func (UnimplementedExecutorServiceServer) DescribeExecutors(context.Context, *DescribeExecutorsRequest) (*DescribeExecutorsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DescribeExecutors not implemented")
 }
-func (UnimplementedBonkPluginServiceServer) StreamLogs(*StreamLogsRequest, grpc.ServerStreamingServer[StreamLogsResponse]) error {
-	return status.Errorf(codes.Unimplemented, "method StreamLogs not implemented")
+func (UnimplementedExecutorServiceServer) ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ExecuteTask not implemented")
 }
-func (UnimplementedBonkPluginServiceServer) PerformTask(context.Context, *PerformTaskRequest) (*PerformTaskResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PerformTask not implemented")
-}
-func (UnimplementedBonkPluginServiceServer) mustEmbedUnimplementedBonkPluginServiceServer() {}
-func (UnimplementedBonkPluginServiceServer) testEmbeddedByValue()                           {}
+func (UnimplementedExecutorServiceServer) mustEmbedUnimplementedExecutorServiceServer() {}
+func (UnimplementedExecutorServiceServer) testEmbeddedByValue()                         {}
 
-// UnsafeBonkPluginServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to BonkPluginServiceServer will
+// UnsafeExecutorServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to ExecutorServiceServer will
 // result in compilation errors.
-type UnsafeBonkPluginServiceServer interface {
-	mustEmbedUnimplementedBonkPluginServiceServer()
+type UnsafeExecutorServiceServer interface {
+	mustEmbedUnimplementedExecutorServiceServer()
 }
 
-func RegisterBonkPluginServiceServer(s grpc.ServiceRegistrar, srv BonkPluginServiceServer) {
-	// If the following call pancis, it indicates UnimplementedBonkPluginServiceServer was
+func RegisterExecutorServiceServer(s grpc.ServiceRegistrar, srv ExecutorServiceServer) {
+	// If the following call pancis, it indicates UnimplementedExecutorServiceServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&BonkPluginService_ServiceDesc, srv)
+	s.RegisterService(&ExecutorService_ServiceDesc, srv)
 }
 
-func _BonkPluginService_ConfigurePlugin_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ConfigurePluginRequest)
+func _ExecutorService_DescribeExecutors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DescribeExecutorsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BonkPluginServiceServer).ConfigurePlugin(ctx, in)
+		return srv.(ExecutorServiceServer).DescribeExecutors(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BonkPluginService_ConfigurePlugin_FullMethodName,
+		FullMethod: ExecutorService_DescribeExecutors_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BonkPluginServiceServer).ConfigurePlugin(ctx, req.(*ConfigurePluginRequest))
+		return srv.(ExecutorServiceServer).DescribeExecutors(ctx, req.(*DescribeExecutorsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _BonkPluginService_StreamLogs_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamLogsRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(BonkPluginServiceServer).StreamLogs(m, &grpc.GenericServerStream[StreamLogsRequest, StreamLogsResponse]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type BonkPluginService_StreamLogsServer = grpc.ServerStreamingServer[StreamLogsResponse]
-
-func _BonkPluginService_PerformTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(PerformTaskRequest)
+func _ExecutorService_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExecuteTaskRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(BonkPluginServiceServer).PerformTask(ctx, in)
+		return srv.(ExecutorServiceServer).ExecuteTask(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: BonkPluginService_PerformTask_FullMethodName,
+		FullMethod: ExecutorService_ExecuteTask_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BonkPluginServiceServer).PerformTask(ctx, req.(*PerformTaskRequest))
+		return srv.(ExecutorServiceServer).ExecuteTask(ctx, req.(*ExecuteTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// BonkPluginService_ServiceDesc is the grpc.ServiceDesc for BonkPluginService service.
+// ExecutorService_ServiceDesc is the grpc.ServiceDesc for ExecutorService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var BonkPluginService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "bonk.v0.BonkPluginService",
-	HandlerType: (*BonkPluginServiceServer)(nil),
+var ExecutorService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "bonk.v0.ExecutorService",
+	HandlerType: (*ExecutorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ConfigurePlugin",
-			Handler:    _BonkPluginService_ConfigurePlugin_Handler,
+			MethodName: "DescribeExecutors",
+			Handler:    _ExecutorService_DescribeExecutors_Handler,
 		},
 		{
-			MethodName: "PerformTask",
-			Handler:    _BonkPluginService_PerformTask_Handler,
+			MethodName: "ExecuteTask",
+			Handler:    _ExecutorService_ExecuteTask_Handler,
 		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "StreamLogs",
-			Handler:       _BonkPluginService_StreamLogs_Handler,
-			ServerStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "bonk/v0/plugin.proto",
 }
