@@ -9,26 +9,19 @@ import (
 
 	"google.golang.org/protobuf/types/known/structpb"
 
-	"cuelang.org/go/cue"
-
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
 	"go.bonk.build/pkg/task"
 )
 
 type PluginBackend struct {
-	plugin     *Plugin
-	name       string
-	descriptor *bonkv0.ConfigurePluginResponse_BackendDescription
+	Name   string
+	Client bonkv0.BonkPluginServiceClient
 }
 
-func (pb *PluginBackend) Outputs() []string {
-	return pb.descriptor.GetOutputs()
-}
-
-func (pb *PluginBackend) Execute(ctx context.Context, cuectx *cue.Context, tsk task.Task) error {
+func (pb *PluginBackend) Execute(ctx context.Context, tsk task.Task) error {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
-		Backend:      &pb.name,
+		Backend:      &pb.Name,
 		Inputs:       tsk.Inputs,
 		Parameters:   &structpb.Struct{},
 		OutDirectory: &outDir,
@@ -39,7 +32,7 @@ func (pb *PluginBackend) Execute(ctx context.Context, cuectx *cue.Context, tsk t
 		return fmt.Errorf("failed to encode parameters as protobuf: %w", err)
 	}
 
-	_, err = pb.plugin.client.PerformTask(ctx, taskReqBuilder.Build())
+	_, err = pb.Client.PerformTask(ctx, taskReqBuilder.Build())
 	if err != nil {
 		return fmt.Errorf("failed to call perform task: %w", err)
 	}

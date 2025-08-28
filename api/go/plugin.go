@@ -80,8 +80,8 @@ func Serve(backends ...BonkBackend) {
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: Handshake,
 		Plugins: map[string]goplugin.Plugin{
-			PluginType: &bonkPluginServer{
-				backends: backendMap,
+			PluginType: &BonkPluginServer{
+				Backends: backendMap,
 			},
 		},
 		GRPCServer: goplugin.DefaultGRPCServer,
@@ -97,23 +97,31 @@ var Handshake = goplugin.HandshakeConfig{
 
 const PluginType = "bonk"
 
-// PRIVATE
-
-type bonkPluginServer struct {
+type BonkPluginServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	goplugin.GRPCPlugin
 
-	backends map[string]BonkBackend
+	Backends map[string]BonkBackend
 }
 
-func (p *bonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
+func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
 	bonkv0.RegisterBonkPluginServiceServer(s, &grpcServer{
 		decodeCodec: gocodec.New(cuectx, &gocodec.Config{}),
-		backends:    p.backends,
+		backends:    p.Backends,
 	})
 
 	return nil
 }
+
+func (p *BonkPluginServer) GRPCClient(
+	_ context.Context,
+	_ *goplugin.GRPCBroker,
+	c *grpc.ClientConn,
+) (any, error) {
+	return bonkv0.NewBonkPluginServiceClient(c), nil
+}
+
+// PRIVATE
 
 // Here is the gRPC server that GRPCClient talks to.
 type grpcServer struct {

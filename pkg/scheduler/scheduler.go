@@ -4,6 +4,7 @@
 package scheduler // import "go.bonk.build/pkg/scheduler"
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 
@@ -13,7 +14,7 @@ import (
 )
 
 type TaskSender interface {
-	SendTask(tsk task.Task) error
+	SendTask(ctx context.Context, tsk task.Task) error
 }
 
 type Scheduler struct {
@@ -35,7 +36,7 @@ func NewScheduler(backendManager TaskSender, concurrency uint) *Scheduler {
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 	taskName := tsk.ID.String()
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		err := s.backendManager.SendTask(tsk)
+		err := s.backendManager.SendTask(context.Background(), tsk)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 		}

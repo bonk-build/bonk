@@ -55,16 +55,15 @@ func NewPlugin(
 		}
 	}
 
-	for name, backendDesc := range resp.GetBackends() {
+	for name := range resp.GetBackends() {
 		_, existed := plugin.backends[name]
 		if existed {
 			slog.WarnContext(ctx, "duplicate backend detected", "name", name)
 		}
 
 		plugin.backends[name] = PluginBackend{
-			name:       name,
-			plugin:     plugin,
-			descriptor: backendDesc,
+			Name:   name,
+			Client: client,
 		}
 	}
 
@@ -130,7 +129,6 @@ func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
 
 type bonkPluginClient struct {
 	goplugin.NetRPCUnsupportedPlugin
-	goplugin.GRPCPlugin
 }
 
 func (p *bonkPluginClient) GRPCClient(
