@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package plugin // import "go.bonk.build/pkg/plugin"
+package backend // import "go.bonk.build/pkg/backend"
 
 import (
 	"context"
@@ -9,23 +9,23 @@ import (
 
 	"google.golang.org/protobuf/types/known/structpb"
 
-	"cuelang.org/go/cue"
-
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
 	"go.bonk.build/pkg/task"
 )
 
-type PluginBackend struct {
-	plugin     *Plugin
-	name       string
-	descriptor *bonkv0.ConfigurePluginResponse_BackendDescription
+func NewRPC(name string, client bonkv0.BonkPluginServiceClient) Backend {
+	return &rpcBackend{
+		name:   name,
+		client: client,
+	}
 }
 
-func (pb *PluginBackend) Outputs() []string {
-	return pb.descriptor.GetOutputs()
+type rpcBackend struct {
+	name   string
+	client bonkv0.BonkPluginServiceClient
 }
 
-func (pb *PluginBackend) Execute(ctx context.Context, cuectx *cue.Context, tsk task.Task) error {
+func (pb *rpcBackend) Execute(ctx context.Context, tsk task.Task) error {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
 		Backend:      &pb.name,
@@ -39,14 +39,9 @@ func (pb *PluginBackend) Execute(ctx context.Context, cuectx *cue.Context, tsk t
 		return fmt.Errorf("failed to encode parameters as protobuf: %w", err)
 	}
 
-	_, err = pb.plugin.client.PerformTask(ctx, taskReqBuilder.Build())
+	_, err = pb.client.PerformTask(ctx, taskReqBuilder.Build())
 	if err != nil {
 		return fmt.Errorf("failed to call perform task: %w", err)
-	}
-
-	err = tsk.SaveChecksum()
-	if err != nil {
-		return fmt.Errorf("failed to checksum task: %w", err)
 	}
 
 	return nil

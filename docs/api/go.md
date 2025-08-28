@@ -13,6 +13,9 @@ import "go.bonk.build/api/go"
 - [func Serve\(backends ...BonkBackend\)](<#Serve>)
 - [type BonkBackend](<#BonkBackend>)
   - [func NewBackend\[Params any\]\(name string, outputs \[\]string, exec func\(context.Context, \*TaskParams\[Params\]\) error\) BonkBackend](<#NewBackend>)
+- [type BonkPluginServer](<#BonkPluginServer>)
+  - [func \(p \*BonkPluginServer\) GRPCClient\(\_ context.Context, \_ \*goplugin.GRPCBroker, c \*grpc.ClientConn\) \(any, error\)](<#BonkPluginServer.GRPCClient>)
+  - [func \(p \*BonkPluginServer\) GRPCServer\(\_ \*goplugin.GRPCBroker, s \*grpc.Server\) error](<#BonkPluginServer.GRPCServer>)
 - [type TaskParams](<#TaskParams>)
 
 
@@ -37,7 +40,7 @@ var Handshake = goplugin.HandshakeConfig{
 ```
 
 <a name="Serve"></a>
-## func [Serve](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L74>)
+## func [Serve](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L74>)
 
 ```go
 func Serve(backends ...BonkBackend)
@@ -46,7 +49,7 @@ func Serve(backends ...BonkBackend)
 Call from main\(\) to start the plugin gRPC server.
 
 <a name="BonkBackend"></a>
-## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L35-L40>)
+## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L35-L40>)
 
 Represents a backend capable of performing tasks.
 
@@ -60,7 +63,7 @@ type BonkBackend struct {
 ```
 
 <a name="NewBackend"></a>
-### func [NewBackend](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L43-L47>)
+### func [NewBackend](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L43-L47>)
 
 ```go
 func NewBackend[Params any](name string, outputs []string, exec func(context.Context, *TaskParams[Params]) error) BonkBackend
@@ -68,8 +71,40 @@ func NewBackend[Params any](name string, outputs []string, exec func(context.Con
 
 Factory to create a new task backend.
 
+<a name="BonkPluginServer"></a>
+## type [BonkPluginServer](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L100-L105>)
+
+
+
+```go
+type BonkPluginServer struct {
+    goplugin.NetRPCUnsupportedPlugin
+    goplugin.GRPCPlugin
+
+    Backends map[string]BonkBackend
+}
+```
+
+<a name="BonkPluginServer.GRPCClient"></a>
+### func \(\*BonkPluginServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L116-L120>)
+
+```go
+func (p *BonkPluginServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)
+```
+
+
+
+<a name="BonkPluginServer.GRPCServer"></a>
+### func \(\*BonkPluginServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L107>)
+
+```go
+func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error
+```
+
+
+
 <a name="TaskParams"></a>
-## type [TaskParams](<https://github.com/bonk-build/bonk/blob/00c4031/api/go/plugin.go#L28-L32>)
+## type [TaskParams](<https://github.com/bonk-build/bonk/blob/66adc6f/api/go/plugin.go#L28-L32>)
 
 The inputs passed to a task backend.
 

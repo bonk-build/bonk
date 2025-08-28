@@ -14,16 +14,18 @@ type Params struct {
 	Value int `json:"value"`
 }
 
+var Backend_Test = plugin.NewBackend(
+	"Test",
+	[]string{},
+	func(ctx context.Context, param *plugin.TaskParams[Params]) error {
+		slog.InfoContext(ctx, "it's happening!", "thing", "value")
+
+		return nil
+	},
+)
+
 func main() {
 	plugin.Serve(
-		plugin.NewBackend(
-			"Test",
-			[]string{},
-			func(ctx context.Context, param *plugin.TaskParams[Params]) error {
-				slog.InfoContext(ctx, "it's happening!", "thing", "value")
-
-				return nil
-			},
-		),
+		Backend_Test,
 	)
 }

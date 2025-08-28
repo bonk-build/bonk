@@ -6,23 +6,16 @@ package backend // import "go.bonk.build/pkg/backend"
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"os"
-
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
 
 	"go.bonk.build/pkg/task"
 )
 
 type BackendManager struct {
-	cuectx   *cue.Context
 	backends map[string]Backend
 }
 
 func NewBackendManager() *BackendManager {
 	bm := &BackendManager{}
-	bm.cuectx = cuecontext.New()
 	bm.backends = make(map[string]Backend)
 
 	return bm
@@ -43,7 +36,7 @@ func (bm *BackendManager) UnregisterBackend(name string) {
 	delete(bm.backends, name)
 }
 
-func (bm *BackendManager) SendTask(tsk task.Task) error {
+func (bm *BackendManager) SendTask(ctx context.Context, tsk task.Task) error {
 	backendName := tsk.Backend()
 
 	backend, ok := bm.backends[backendName]
@@ -51,29 +44,9 @@ func (bm *BackendManager) SendTask(tsk task.Task) error {
 		return fmt.Errorf("Backend %s not found", backendName)
 	}
 
-	outDir := tsk.GetOutputDirectory()
-	stat, err := os.Stat(outDir)
-	if err != nil || !stat.IsDir() {
-		err := os.MkdirAll(outDir, 0o750)
-		if err != nil {
-			return fmt.Errorf("failed to create temp directory: %w", err)
-		}
-	} else if tsk.CheckChecksum() {
-		slog.Debug("checksums match, skipping task")
-
-		return nil
-	}
-
-	err = backend.Execute(context.TODO(), bm.cuectx, tsk)
+	err := backend.Execute(ctx, tsk)
 	if err != nil {
 		return fmt.Errorf("failed to execute task: %w", err)
-	}
-
-	slog.Info("task succeeded, saving checksum")
-
-	err = tsk.SaveChecksum()
-	if err != nil {
-		return fmt.Errorf("failed to checksum task: %w", err)
 	}
 
 	return nil

@@ -4,8 +4,10 @@
 package scheduler // import "go.bonk.build/pkg/scheduler"
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
+	"os"
 
 	gotaskflow "github.com/noneback/go-taskflow"
 
@@ -13,7 +15,7 @@ import (
 )
 
 type TaskSender interface {
-	SendTask(tsk task.Task) error
+	SendTask(ctx context.Context, tsk task.Task) error
 }
 
 type Scheduler struct {
@@ -35,9 +37,35 @@ func NewScheduler(backendManager TaskSender, concurrency uint) *Scheduler {
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 	taskName := tsk.ID.String()
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		err := s.backendManager.SendTask(tsk)
+		outDir := tsk.GetOutputDirectory()
+		stat, err := os.Stat(outDir)
+		if err != nil || !stat.IsDir() {
+			err := os.MkdirAll(outDir, 0o750)
+			if err != nil {
+				slog.Error("failed to create temp directory", "error", err)
+
+				return
+			}
+		} else if tsk.CheckChecksum() {
+			slog.Debug("checksums match, skipping task")
+
+			return
+		}
+
+		err = s.backendManager.SendTask(context.Background(), tsk)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
+
+			return
+		}
+
+		slog.Info("task succeeded, saving checksum")
+
+		err = tsk.SaveChecksum()
+		if err != nil {
+			slog.Error("failed to checksum task", "error", err)
+
+			return
 		}
 	})
 

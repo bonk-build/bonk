@@ -16,12 +16,13 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+	"go.bonk.build/pkg/backend"
 )
 
 type Plugin struct {
 	name     string
 	client   bonkv0.BonkPluginServiceClient
-	backends map[string]PluginBackend
+	backends map[string]backend.Backend
 }
 
 func NewPlugin(
@@ -39,7 +40,7 @@ func NewPlugin(
 	plugin := &Plugin{
 		name:     name,
 		client:   client,
-		backends: make(map[string]PluginBackend, len(resp.GetBackends())),
+		backends: make(map[string]backend.Backend, len(resp.GetBackends())),
 	}
 
 	for _, feature := range resp.GetFeatures() {
@@ -55,17 +56,13 @@ func NewPlugin(
 		}
 	}
 
-	for name, backendDesc := range resp.GetBackends() {
+	for name := range resp.GetBackends() {
 		_, existed := plugin.backends[name]
 		if existed {
 			slog.WarnContext(ctx, "duplicate backend detected", "name", name)
 		}
 
-		plugin.backends[name] = PluginBackend{
-			name:       name,
-			plugin:     plugin,
-			descriptor: backendDesc,
-		}
+		plugin.backends[name] = backend.NewRPC(name, client)
 	}
 
 	return plugin, nil
@@ -130,7 +127,10 @@ func (p *Plugin) handleFeatureLogging(ctx context.Context) error {
 
 type bonkPluginClient struct {
 	goplugin.NetRPCUnsupportedPlugin
-	goplugin.GRPCPlugin
+}
+
+func (p *bonkPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
+	return errors.ErrUnsupported
 }
 
 func (p *bonkPluginClient) GRPCClient(

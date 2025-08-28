@@ -9,6 +9,8 @@ linters:
     - err113
     - exhaustruct
     - gochecknoinits
+    - ireturn
+    - testpackage
     - wsl
     - wsl_v5
 
@@ -44,6 +46,14 @@ linters:
               desc: use math/rand/v2
             - pkg: "github.com/pkg/errors"
               desc: Should be replaced by standard lib errors package
+
+        test:
+          list-mode: lax
+          files:
+            - "!$test"
+          deny:
+            - pkg: "go.bonk.build/test"
+              desc: only for use by tests
 
     exhaustive:
       # Program elements to check for exhaustiveness.
