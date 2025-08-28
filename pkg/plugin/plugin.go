@@ -129,6 +129,10 @@ type bonkPluginClient struct {
 	goplugin.NetRPCUnsupportedPlugin
 }
 
+func (p *bonkPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
+	return errors.ErrUnsupported
+}
+
 func (p *bonkPluginClient) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
