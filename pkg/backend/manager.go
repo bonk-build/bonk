@@ -6,8 +6,6 @@ package backend // import "go.bonk.build/pkg/backend"
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"os"
 
 	"go.bonk.build/pkg/task"
 )
@@ -46,29 +44,9 @@ func (bm *BackendManager) SendTask(ctx context.Context, tsk task.Task) error {
 		return fmt.Errorf("Backend %s not found", backendName)
 	}
 
-	outDir := tsk.GetOutputDirectory()
-	stat, err := os.Stat(outDir)
-	if err != nil || !stat.IsDir() {
-		err := os.MkdirAll(outDir, 0o750)
-		if err != nil {
-			return fmt.Errorf("failed to create temp directory: %w", err)
-		}
-	} else if tsk.CheckChecksum() {
-		slog.DebugContext(ctx, "checksums match, skipping task")
-
-		return nil
-	}
-
-	err = backend.Execute(ctx, tsk)
+	err := backend.Execute(ctx, tsk)
 	if err != nil {
 		return fmt.Errorf("failed to execute task: %w", err)
-	}
-
-	slog.InfoContext(ctx, "task succeeded, saving checksum")
-
-	err = tsk.SaveChecksum()
-	if err != nil {
-		return fmt.Errorf("failed to checksum task: %w", err)
 	}
 
 	return nil

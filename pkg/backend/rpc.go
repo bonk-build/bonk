@@ -44,10 +44,5 @@ func (pb *rpcBackend) Execute(ctx context.Context, tsk task.Task) error {
 		return fmt.Errorf("failed to call perform task: %w", err)
 	}
 
-	err = tsk.SaveChecksum()
-	if err != nil {
-		return fmt.Errorf("failed to checksum task: %w", err)
-	}
-
 	return nil
 }
