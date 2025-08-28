@@ -15,12 +15,12 @@ import (
 )
 
 type TaskId struct {
-	id      string
-	backend string
+	id       string
+	executor string
 }
 
 func (id *TaskId) String() string {
-	return fmt.Sprintf("%s:%s", id.id, id.backend)
+	return fmt.Sprintf("%s:%s", id.id, id.executor)
 }
 
 func (id *TaskId) GetOutputDirectory() string {
@@ -54,19 +54,19 @@ type Task struct {
 	checksum []byte
 }
 
-func New(backend, id string, params cue.Value, inputs ...string) Task {
+func New(executor, id string, params cue.Value, inputs ...string) Task {
 	return Task{
 		ID: TaskId{
-			backend: backend,
-			id:      id,
+			executor: executor,
+			id:       id,
 		},
 		Inputs: inputs,
 		Params: params,
 	}
 }
 
-func (t *Task) Backend() string {
-	return t.ID.backend
+func (t *Task) Executor() string {
+	return t.ID.executor
 }
 
 func (t *Task) GetOutputDirectory() string {
@@ -81,8 +81,8 @@ func (t *Task) GenerateChecksum() ([]byte, error) {
 
 	hasher := sha256.New()
 
-	// Hash the backend name
-	hasher.Write([]byte(t.ID.backend))
+	// Hash the executor name
+	hasher.Write([]byte(t.ID.executor))
 
 	// Hash the input files
 	for _, file := range t.Inputs {

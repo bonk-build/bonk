@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package backend // import "go.bonk.build/pkg/backend"
+package executor // import "go.bonk.build/pkg/executor"
 
 import (
 	"context"
@@ -13,22 +13,22 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func NewRPC(name string, client bonkv0.BonkPluginServiceClient) Backend {
-	return &rpcBackend{
+func NewRPC(name string, client bonkv0.BonkPluginServiceClient) Executor {
+	return &rpcExecutor{
 		name:   name,
 		client: client,
 	}
 }
 
-type rpcBackend struct {
+type rpcExecutor struct {
 	name   string
 	client bonkv0.BonkPluginServiceClient
 }
 
-func (pb *rpcBackend) Execute(ctx context.Context, tsk task.Task) error {
+func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task) error {
 	outDir := tsk.GetOutputDirectory()
 	taskReqBuilder := bonkv0.PerformTaskRequest_builder{
-		Backend:      &pb.name,
+		Executor:     &pb.name,
 		Inputs:       tsk.Inputs,
 		Parameters:   &structpb.Struct{},
 		OutDirectory: &outDir,

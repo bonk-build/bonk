@@ -27,27 +27,27 @@ import (
 
 var cuectx = cuecontext.New()
 
-// The inputs passed to a task backend.
+// The inputs passed to a task executor.
 type TaskParams[Params any] struct {
 	Params Params
 	Inputs []string
 	OutDir string
 }
 
-// Represents a backend capable of performing tasks.
-type BonkBackend struct {
+// Represents a executor capable of performing tasks.
+type BonkExecutor struct {
 	Name         string
 	Outputs      []string
 	ParamsSchema cue.Value
 	Exec         func(context.Context, TaskParams[cue.Value]) error
 }
 
-// Factory to create a new task backend.
-func NewBackend[Params any](
+// Factory to create a new task executor.
+func NewExecutor[Params any](
 	name string,
 	outputs []string,
 	exec func(context.Context, *TaskParams[Params]) error,
-) BonkBackend {
+) BonkExecutor {
 	zero := new(Params)
 
 	schema := cuectx.EncodeType(*zero)
@@ -55,7 +55,7 @@ func NewBackend[Params any](
 		panic(schema.Err())
 	}
 
-	return BonkBackend{
+	return BonkExecutor{
 		Name:         name,
 		Outputs:      outputs,
 		ParamsSchema: schema,
@@ -74,17 +74,17 @@ func NewBackend[Params any](
 }
 
 // Call from main() to start the plugin gRPC server.
-func Serve(backends ...BonkBackend) {
-	backendMap := make(map[string]BonkBackend, len(backends))
-	for _, backend := range backends {
-		backendMap[backend.Name] = backend
+func Serve(executors ...BonkExecutor) {
+	executorMap := make(map[string]BonkExecutor, len(executors))
+	for _, executor := range executors {
+		executorMap[executor.Name] = executor
 	}
 
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: Handshake,
 		Plugins: map[string]goplugin.Plugin{
 			PluginType: &BonkPluginServer{
-				Backends: backendMap,
+				Executors: executorMap,
 			},
 		},
 		GRPCServer: goplugin.DefaultGRPCServer,
@@ -95,7 +95,7 @@ func Serve(backends ...BonkBackend) {
 var Handshake = goplugin.HandshakeConfig{
 	ProtocolVersion:  0,
 	MagicCookieKey:   "BONK_PLUGIN",
-	MagicCookieValue: "backend",
+	MagicCookieValue: "executor",
 }
 
 const PluginType = "bonk"
@@ -104,13 +104,13 @@ type BonkPluginServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	goplugin.GRPCPlugin
 
-	Backends map[string]BonkBackend
+	Executors map[string]BonkExecutor
 }
 
 func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
 	bonkv0.RegisterBonkPluginServiceServer(s, &grpcServer{
 		decodeCodec: gocodec.New(cuectx, &gocodec.Config{}),
-		backends:    p.Backends,
+		executors:   p.Executors,
 	})
 
 	return nil
@@ -131,7 +131,7 @@ type grpcServer struct {
 	bonkv0.UnimplementedBonkPluginServiceServer
 
 	decodeCodec *gocodec.Codec
-	backends    map[string]BonkBackend
+	executors   map[string]BonkExecutor
 }
 
 func (s *grpcServer) ConfigurePlugin(
@@ -142,12 +142,15 @@ func (s *grpcServer) ConfigurePlugin(
 		Features: []bonkv0.ConfigurePluginResponse_FeatureFlags{
 			bonkv0.ConfigurePluginResponse_FEATURE_FLAGS_STREAMING_LOGGING,
 		},
-		Backends: make(map[string]*bonkv0.ConfigurePluginResponse_BackendDescription, len(s.backends)),
+		Executors: make(
+			map[string]*bonkv0.ConfigurePluginResponse_ExecutorDescription,
+			len(s.executors),
+		),
 	}
 
-	for name, backend := range s.backends {
-		respBuilder.Backends[name] = bonkv0.ConfigurePluginResponse_BackendDescription_builder{
-			Outputs: backend.Outputs,
+	for name, executor := range s.executors {
+		respBuilder.Executors[name] = bonkv0.ConfigurePluginResponse_ExecutorDescription_builder{
+			Outputs: executor.Outputs,
 		}.Build()
 	}
 
@@ -158,9 +161,9 @@ func (s *grpcServer) PerformTask(
 	ctx context.Context,
 	req *bonkv0.PerformTaskRequest,
 ) (*bonkv0.PerformTaskResponse, error) {
-	backend, ok := s.backends[req.GetBackend()]
+	executor, ok := s.executors[req.GetExecutor()]
 	if !ok {
-		return nil, fmt.Errorf("backend %s is not registered to this plugin", req.GetBackend())
+		return nil, fmt.Errorf("executor %s is not registered to this plugin", req.GetExecutor())
 	}
 
 	params := TaskParams[cue.Value]{
@@ -179,12 +182,12 @@ func (s *grpcServer) PerformTask(
 		return nil, fmt.Errorf("failed to open fs root in output directory: %w", err)
 	}
 
-	err = s.decodeCodec.Validate(backend.ParamsSchema, req.GetParameters())
+	err = s.decodeCodec.Validate(executor.ParamsSchema, req.GetParameters())
 	if err != nil {
 		return nil, fmt.Errorf(
 			"params %s don't match required schema %s",
 			req.GetParameters(),
-			backend.ParamsSchema,
+			executor.ParamsSchema,
 		)
 	}
 
@@ -198,11 +201,11 @@ func (s *grpcServer) PerformTask(
 		return nil, err
 	}
 
-	// Append backend information
-	execCtx = slogctx.Append(execCtx, "backend", req.GetBackend())
+	// Append executor information
+	execCtx = slogctx.Append(execCtx, "executor", req.GetExecutor())
 
 	err = multierr.Combine(
-		backend.Exec(execCtx, params),
+		executor.Exec(execCtx, params),
 		cleanup(),
 	)
 	if err != nil {

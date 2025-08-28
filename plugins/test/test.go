@@ -14,7 +14,7 @@ type Params struct {
 	Value int `json:"value"`
 }
 
-var Backend_Test = plugin.NewBackend(
+var Executor_Test = plugin.NewExecutor(
 	"Test",
 	[]string{},
 	func(ctx context.Context, param *plugin.TaskParams[Params]) error {
@@ -26,6 +26,6 @@ var Backend_Test = plugin.NewBackend(
 
 func main() {
 	plugin.Serve(
-		Backend_Test,
+		Executor_Test,
 	)
 }

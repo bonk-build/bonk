@@ -16,13 +16,13 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
-	"go.bonk.build/pkg/backend"
+	"go.bonk.build/pkg/executor"
 )
 
 type Plugin struct {
-	name     string
-	client   bonkv0.BonkPluginServiceClient
-	backends map[string]backend.Backend
+	name      string
+	client    bonkv0.BonkPluginServiceClient
+	executors map[string]executor.Executor
 }
 
 func NewPlugin(
@@ -38,9 +38,9 @@ func NewPlugin(
 	}
 
 	plugin := &Plugin{
-		name:     name,
-		client:   client,
-		backends: make(map[string]backend.Backend, len(resp.GetBackends())),
+		name:      name,
+		client:    client,
+		executors: make(map[string]executor.Executor, len(resp.GetExecutors())),
 	}
 
 	for _, feature := range resp.GetFeatures() {
@@ -56,13 +56,13 @@ func NewPlugin(
 		}
 	}
 
-	for name := range resp.GetBackends() {
-		_, existed := plugin.backends[name]
+	for name := range resp.GetExecutors() {
+		_, existed := plugin.executors[name]
 		if existed {
-			slog.WarnContext(ctx, "duplicate backend detected", "name", name)
+			slog.WarnContext(ctx, "duplicate executor detected", "name", name)
 		}
 
-		plugin.backends[name] = backend.NewRPC(name, client)
+		plugin.executors[name] = executor.NewRPC(name, client)
 	}
 
 	return plugin, nil

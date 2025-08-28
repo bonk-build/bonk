@@ -5,7 +5,7 @@
 
 Bonk is a build system _framework_, designed to be extensible and unopinionated.
 A complete bonk system consits of a plugin-provided front-end, the bonk task
-scheduler, and a series of plugin-provided backends. Conceptually, bonk could
+scheduler, and a series of plugin-provided executors. Conceptually, bonk could
 replace anything and everything from GNU make to package managers.
 
 ### How it works
@@ -17,7 +17,7 @@ Executing a bonk build takes the following steps:
 1. bonk sends your project configuration to configured front-end,
 which returns a series of tasks.
 1. bonk schedules the tasks according to dependencies, and skips any tasks that are up to date.
-1. bonk sends the tasks to the registered plugin-provided backends.
+1. bonk sends the tasks to the registered executors.
 
 ### How to use bonk
 

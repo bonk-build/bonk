@@ -19,24 +19,24 @@ import (
 
 	plugin "go.bonk.build/api/go"
 	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
-	"go.bonk.build/pkg/backend"
+	"go.bonk.build/pkg/executor"
 )
 
-type BackendRegistrar interface {
-	RegisterBackend(name string, impl backend.Backend) error
-	UnregisterBackend(name string)
+type ExecutorRegistrar interface {
+	RegisterExecutor(name string, impl executor.Executor) error
+	UnregisterExecutor(name string)
 }
 
 type PluginManager struct {
 	plugins map[string]*Plugin
 
-	backend BackendRegistrar
+	executor ExecutorRegistrar
 }
 
-func NewPluginManager(backend BackendRegistrar) *PluginManager {
+func NewPluginManager(executor ExecutorRegistrar) *PluginManager {
 	pm := &PluginManager{}
 	pm.plugins = make(map[string]*Plugin)
-	pm.backend = backend
+	pm.executor = executor
 
 	return pm
 }
@@ -79,14 +79,14 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 
 	pm.plugins[pluginName] = plug
 
-	for backendName, backend := range plug.backends {
+	for executorName, executor := range plug.executors {
 		multierr.AppendInto(&err,
-			pm.backend.RegisterBackend(fmt.Sprintf("%s:%s", pluginName, backendName), backend),
+			pm.executor.RegisterExecutor(fmt.Sprintf("%s:%s", pluginName, executorName), executor),
 		)
 	}
 
 	if err != nil {
-		return fmt.Errorf("failed to register plugin %s backends: %w", pluginName, err)
+		return fmt.Errorf("failed to register plugin %s executors: %w", pluginName, err)
 	}
 
 	return nil
@@ -94,8 +94,8 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 
 func (pm *PluginManager) Shutdown() {
 	for pluginName, plugin := range pm.plugins {
-		for backendName := range plugin.backends {
-			pm.backend.UnregisterBackend(fmt.Sprintf("%s:%s", pluginName, backendName))
+		for executorName := range plugin.executors {
+			pm.executor.UnregisterExecutor(fmt.Sprintf("%s:%s", pluginName, executorName))
 		}
 	}
 	pm.plugins = make(map[string]*Plugin)

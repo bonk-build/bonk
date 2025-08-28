@@ -10,9 +10,9 @@ import "go.bonk.build/api/go"
 
 - [Constants](<#constants>)
 - [Variables](<#variables>)
-- [func Serve\(backends ...BonkBackend\)](<#Serve>)
-- [type BonkBackend](<#BonkBackend>)
-  - [func NewBackend\[Params any\]\(name string, outputs \[\]string, exec func\(context.Context, \*TaskParams\[Params\]\) error\) BonkBackend](<#NewBackend>)
+- [func Serve\(executors ...BonkExecutor\)](<#Serve>)
+- [type BonkExecutor](<#BonkExecutor>)
+  - [func NewExecutor\[Params any\]\(name string, outputs \[\]string, exec func\(context.Context, \*TaskParams\[Params\]\) error\) BonkExecutor](<#NewExecutor>)
 - [type BonkPluginServer](<#BonkPluginServer>)
   - [func \(p \*BonkPluginServer\) GRPCClient\(\_ context.Context, \_ \*goplugin.GRPCBroker, c \*grpc.ClientConn\) \(any, error\)](<#BonkPluginServer.GRPCClient>)
   - [func \(p \*BonkPluginServer\) GRPCServer\(\_ \*goplugin.GRPCBroker, s \*grpc.Server\) error](<#BonkPluginServer.GRPCServer>)
@@ -35,7 +35,7 @@ const PluginType = "bonk"
 var Handshake = goplugin.HandshakeConfig{
     ProtocolVersion:  0,
     MagicCookieKey:   "BONK_PLUGIN",
-    MagicCookieValue: "backend",
+    MagicCookieValue: "executor",
 }
 ```
 
@@ -43,18 +43,18 @@ var Handshake = goplugin.HandshakeConfig{
 ## func [Serve](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L77>)
 
 ```go
-func Serve(backends ...BonkBackend)
+func Serve(executors ...BonkExecutor)
 ```
 
 Call from main\(\) to start the plugin gRPC server.
 
-<a name="BonkBackend"></a>
-## type [BonkBackend](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L38-L43>)
+<a name="BonkExecutor"></a>
+## type [BonkExecutor](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L38-L43>)
 
-Represents a backend capable of performing tasks.
+Represents a executor capable of performing tasks.
 
 ```go
-type BonkBackend struct {
+type BonkExecutor struct {
     Name         string
     Outputs      []string
     ParamsSchema cue.Value
@@ -62,14 +62,14 @@ type BonkBackend struct {
 }
 ```
 
-<a name="NewBackend"></a>
-### func [NewBackend](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L46-L50>)
+<a name="NewExecutor"></a>
+### func [NewExecutor](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L46-L50>)
 
 ```go
-func NewBackend[Params any](name string, outputs []string, exec func(context.Context, *TaskParams[Params]) error) BonkBackend
+func NewExecutor[Params any](name string, outputs []string, exec func(context.Context, *TaskParams[Params]) error) BonkExecutor
 ```
 
-Factory to create a new task backend.
+Factory to create a new task executor.
 
 <a name="BonkPluginServer"></a>
 ## type [BonkPluginServer](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L103-L108>)
@@ -81,7 +81,7 @@ type BonkPluginServer struct {
     goplugin.NetRPCUnsupportedPlugin
     goplugin.GRPCPlugin
 
-    Backends map[string]BonkBackend
+    Executors map[string]BonkExecutor
 }
 ```
 
@@ -106,7 +106,7 @@ func (p *BonkPluginServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) er
 <a name="TaskParams"></a>
 ## type [TaskParams](<https://github.com/bonk-build/bonk/blob/04ca814/api/go/plugin.go#L31-L35>)
 
-The inputs passed to a task backend.
+The inputs passed to a task executor.
 
 ```go
 type TaskParams[Params any] struct {
