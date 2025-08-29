@@ -5,10 +5,11 @@ package task // import "go.bonk.build/pkg/task"
 
 import (
 	"fmt"
-	"os"
 	"path"
 
 	"cuelang.org/go/cue"
+
+	"github.com/spf13/afero"
 )
 
 type TaskId struct {
@@ -31,22 +32,18 @@ func (id *TaskId) GetOutputDirectory() string {
 	return path.Join(".bonk", id.String())
 }
 
-func (id *TaskId) OpenRoot() (*os.Root, error) {
+func (id *TaskId) GetOutputFilesystem(project afero.Fs) (afero.Fs, error) {
 	path := id.GetOutputDirectory()
-	err := os.MkdirAll(path, 0o750)
+	err := project.MkdirAll(path, 0o750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create task output dir %s: %w", path, err)
 	}
-	root, err := os.OpenRoot(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open task output root: %w", err)
-	}
 
-	return root, nil
+	return afero.NewBasePathFs(project, path), nil
 }
 
-func (id *TaskId) LoadStateFile() (*state, error) {
-	fs, err := id.OpenRoot()
+func (id *TaskId) LoadStateFile(project afero.Fs) (*state, error) {
+	fs, err := id.GetOutputFilesystem(project)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +79,8 @@ func (t *Task) GetOutputDirectory() string {
 	return t.ID.GetOutputDirectory()
 }
 
-func (t *Task) SaveState(result *TaskResult) error {
-	root, err := t.ID.OpenRoot()
+func (t *Task) SaveState(project afero.Fs, result *TaskResult) error {
+	root, err := t.ID.GetOutputFilesystem(project)
 	if err != nil {
 		return err
 	}
@@ -95,8 +92,8 @@ func (t *Task) SaveState(result *TaskResult) error {
 	return t.state.Save(root)
 }
 
-func (t *Task) DetectStateMismatches() []string {
-	root, err := t.ID.OpenRoot()
+func (t *Task) DetectStateMismatches(project afero.Fs) []string {
+	root, err := t.ID.GetOutputFilesystem(project)
 	if err != nil {
 		return []string{"<missing>"}
 	}

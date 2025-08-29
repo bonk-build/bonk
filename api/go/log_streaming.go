@@ -19,6 +19,7 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	"github.com/delicb/slogbuffer"
+	"github.com/spf13/afero"
 
 	goplugin "github.com/hashicorp/go-plugin"
 	slogmulti "github.com/samber/slog-multi"
@@ -138,7 +139,7 @@ func init() {
 
 func getTaskLoggingContext(
 	ctx context.Context,
-	root *os.Root,
+	root afero.Fs,
 ) (context.Context, func() error, error) {
 	// Open log txt and json files
 	logFileText, err := root.Create("log.txt")

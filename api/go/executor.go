@@ -17,6 +17,8 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/encoding/gocode/gocodec"
 
+	"github.com/spf13/afero"
+
 	goplugin "github.com/hashicorp/go-plugin"
 	slogctx "github.com/veqryn/slog-context"
 
@@ -33,7 +35,9 @@ var cuectx = cuecontext.New()
 type TaskParams[Params any] struct {
 	Inputs []string
 	Params Params
-	OutDir string
+
+	ProjectFs afero.Fs
+	TaskFs    afero.Fs
 }
 
 // Represents a executor capable of performing tasks.
@@ -62,7 +66,8 @@ func NewExecutor[Params any](
 		Exec: func(ctx context.Context, paramsCue TaskParams[cue.Value]) error {
 			params := new(TaskParams[Params])
 			params.Inputs = paramsCue.Inputs
-			params.OutDir = paramsCue.OutDir
+			params.ProjectFs = paramsCue.ProjectFs
+			params.TaskFs = paramsCue.TaskFs
 			err := paramsCue.Params.Decode(&params.Params)
 			if err != nil {
 				return fmt.Errorf("failed to decode task parameters: %w", err)
@@ -114,7 +119,13 @@ type ExecutorServer struct {
 }
 
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current working directory: %w", err)
+	}
+
 	bonkv0.RegisterExecutorServiceServer(s, &executorGRPCServer{
+		project:     afero.NewBasePathFs(afero.NewOsFs(), cwd),
 		decodeCodec: gocodec.New(cuectx, &gocodec.Config{}),
 		executors:   p.Executors,
 	})
@@ -134,6 +145,7 @@ func (p *ExecutorServer) GRPCClient(
 type executorGRPCServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
+	project     afero.Fs
 	decodeCodec *gocodec.Codec
 	executors   map[string]BonkExecutor
 }
@@ -168,17 +180,14 @@ func (s *executorGRPCServer) ExecuteTask(
 	params := TaskParams[cue.Value]{
 		Params: cue.Value{},
 		Inputs: req.GetInputs(),
-		OutDir: req.GetOutDirectory(),
+
+		ProjectFs: afero.NewReadOnlyFs(s.project),
+		TaskFs:    afero.NewBasePathFs(s.project, req.GetOutDirectory()),
 	}
 
-	err := os.MkdirAll(req.GetOutDirectory(), 0o750)
+	err := s.project.MkdirAll(req.GetOutDirectory(), 0o750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
-	}
-
-	root, err := os.OpenRoot(req.GetOutDirectory())
-	if err != nil {
-		return nil, fmt.Errorf("failed to open fs root in output directory: %w", err)
 	}
 
 	err = s.decodeCodec.Validate(executor.ParamsSchema, req.GetParameters())
@@ -197,7 +206,7 @@ func (s *executorGRPCServer) ExecuteTask(
 
 	res := bonkv0.ExecuteTaskResponse_builder{}
 
-	execCtx, cleanup, err := getTaskLoggingContext(ctx, root)
+	execCtx, cleanup, err := getTaskLoggingContext(ctx, params.TaskFs)
 	if err != nil {
 		return nil, err
 	}

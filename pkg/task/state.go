@@ -10,12 +10,13 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"os"
 	"reflect"
 
 	"go.uber.org/multierr"
 
 	"cuelang.org/go/cue"
+
+	"github.com/spf13/afero"
 )
 
 const StateFile = "state.json"
@@ -34,7 +35,7 @@ type state struct {
 func NewState(
 	executor string,
 	params cue.Value,
-	root *os.Root,
+	root afero.Fs,
 	inputs []string,
 	result *TaskResult,
 ) (*state, error) {
@@ -67,8 +68,8 @@ func NewState(
 	return state, err
 }
 
-func LoadState(root *os.Root) (*state, error) {
-	file, err := root.Open(StateFile)
+func LoadState(task afero.Fs) (*state, error) {
+	file, err := task.Open(StateFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open state file %s: %w", StateFile, err)
 	}
@@ -83,7 +84,7 @@ func LoadState(root *os.Root) (*state, error) {
 	return state, nil
 }
 
-func (s *state) Save(root *os.Root) error {
+func (s *state) Save(root afero.Fs) error {
 	file, err := root.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
@@ -101,7 +102,7 @@ func (s *state) Save(root *os.Root) error {
 func (s *state) DetectMismatches(
 	executor string,
 	params cue.Value,
-	root *os.Root,
+	root afero.Fs,
 	inputs []string,
 ) []string {
 	var mismatches []string
@@ -144,16 +145,10 @@ func hashCueValue(hasher hash.Hash, params cue.Value) ([]byte, error) {
 	return hasher.Sum(paramsJSON), nil
 }
 
-func hashFiles(hasher hash.Hash, root *os.Root, files []string) ([]byte, error) {
+func hashFiles(hasher hash.Hash, root afero.Fs, files []string) ([]byte, error) {
 	var err error
 	for _, fileName := range files {
-		var file *os.File
-		var openErr error
-		if root != nil {
-			file, openErr = root.Open(fileName)
-		} else {
-			file, openErr = os.Open(fileName)
-		}
+		file, openErr := root.Open(fileName)
 		if multierr.AppendInto(&err, openErr) {
 			return nil, fmt.Errorf("failed to open input file %s: %w", fileName, err)
 		}
@@ -169,7 +164,7 @@ func hashFiles(hasher hash.Hash, root *os.Root, files []string) ([]byte, error) 
 	return result, err
 }
 
-func hashResult(hasher hash.Hash, root *os.Root, result *TaskResult) ([]byte, error) {
+func hashResult(hasher hash.Hash, root afero.Fs, result *TaskResult) ([]byte, error) {
 	if result == nil {
 		return nil, nil
 	}

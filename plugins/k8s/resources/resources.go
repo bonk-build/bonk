@@ -7,8 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"path"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/pkg/encoding/yaml"
@@ -32,7 +30,11 @@ func genResources(ctx context.Context, params *bonk.TaskParams[Params]) error {
 		return fmt.Errorf("failed to marshal resources into yaml: %w", err)
 	}
 
-	err = os.WriteFile(path.Join(params.OutDir, output), []byte(resourcesYaml), 0o600)
+	file, err := params.TaskFs.Create(output)
+	if err != nil {
+		return fmt.Errorf("failed to create resources yaml: %w", err)
+	}
+	_, err = file.WriteString(resourcesYaml)
 	if err != nil {
 		return fmt.Errorf("failed to write resources yaml to disk: %w", err)
 	}

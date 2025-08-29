@@ -11,6 +11,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -23,7 +24,7 @@ func identity(str string) string {
 	return str
 }
 
-func trimFileNewlines(waitGroup *sync.WaitGroup, root *os.Root, file string) {
+func trimFileNewlines(waitGroup *sync.WaitGroup, root afero.Fs, file string) {
 	stat, err := root.Stat(file)
 	cobra.CheckErr(err)
 

@@ -48,6 +48,15 @@ linters:
             - pkg: "github.com/pkg/errors"
               desc: Should be replaced by standard lib errors package
 
+        no-os:
+          list-mode: lax
+          files:
+            - pkg/
+            - plugins/
+          deny:
+            - pkg: "^os$"
+              desc: usage of os is disallowed in library code
+
         test:
           list-mode: lax
           files:
