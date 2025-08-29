@@ -18,7 +18,8 @@ require (
 	github.com/noneback/go-taskflow v1.1.3
 	github.com/pterm/pterm v0.12.81
 	github.com/samber/slog-multi v1.4.1
-	github.com/spf13/cobra v1.10.1
+	github.com/spf13/afero v1.14.0
+	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
 	github.com/stretchr/testify v1.11.1
 	github.com/veqryn/slog-context v0.8.0
@@ -132,7 +133,6 @@ require (
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/sourcegraph/conc v0.3.1-0.20240121214520-5f936abd7ae8 // indirect
-	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.9.2 // indirect
 	github.com/spf13/pflag v1.0.9 // indirect
 	github.com/stoewer/go-strcase v1.3.1 // indirect

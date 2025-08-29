@@ -7,8 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
-	"path"
 
 	"cuelang.org/go/cue"
 	"cuelang.org/go/pkg/encoding/yaml"
@@ -29,11 +27,6 @@ func (Executor_Resources) Execute(
 	task bonk.TypedTask[Params],
 	res *bonk.Result,
 ) error {
-	outDir, ok := ctx.Value("outDir").(string)
-	if !ok {
-		panic("no outdir!")
-	}
-
 	if len(task.Inputs) > 0 {
 		return errors.New("resources task does not accept inputs")
 	}
@@ -43,7 +36,11 @@ func (Executor_Resources) Execute(
 		return fmt.Errorf("failed to marshal resources into yaml: %w", err)
 	}
 
-	err = os.WriteFile(path.Join(outDir, output), []byte(resourcesYaml), 0o600)
+	file, err := task.OutputFs.Create(output)
+	if err != nil {
+		return fmt.Errorf("failed to create resources yaml: %w", err)
+	}
+	_, err = file.WriteString(resourcesYaml)
 	if err != nil {
 		return fmt.Errorf("failed to write resources yaml to disk: %w", err)
 	}

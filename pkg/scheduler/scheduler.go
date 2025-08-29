@@ -10,6 +10,8 @@ import (
 
 	"go.uber.org/multierr"
 
+	"github.com/spf13/afero"
+
 	gotaskflow "github.com/noneback/go-taskflow"
 
 	"go.bonk.build/pkg/task"
@@ -20,14 +22,17 @@ type TaskSender interface {
 }
 
 type Scheduler struct {
+	project afero.Fs
+
 	executorManager TaskSender
 	executor        gotaskflow.Executor
 	tasks           map[string]*gotaskflow.Task
 	rootFlow        *gotaskflow.TaskFlow
 }
 
-func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
+func NewScheduler(project afero.Fs, executorManager TaskSender, concurrency uint) *Scheduler {
 	return &Scheduler{
+		project:         project,
 		executorManager: executorManager,
 		executor:        gotaskflow.NewExecutor(concurrency),
 		tasks:           make(map[string]*gotaskflow.Task),
@@ -36,16 +41,18 @@ func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 }
 
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
+	var err error
+
+	// Setup the file systems
+	tsk.ProjectFs = afero.NewReadOnlyFs(s.project)
+	tsk.OutputFs, err = tsk.ID.GetOutputFilesystem(s.project)
+	if err != nil {
+		return fmt.Errorf("failed to initialize task filesystem: %w", err)
+	}
+
 	taskName := tsk.ID.String()
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		root, err := tsk.ID.OpenRoot()
-		if err != nil {
-			slog.Error("failed to open task root", "error", err)
-
-			return
-		}
-
-		mismatches := DetectStateMismatches(root, &tsk)
+		mismatches := DetectStateMismatches(&tsk)
 		if mismatches == nil {
 			slog.Debug("states match, skipping task")
 
@@ -55,7 +62,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 		slog.Debug("state mismatch, running task", "mismatches", mismatches)
 
 		var result task.Result
-		err = s.executorManager.Execute(context.Background(), tsk, &result)
+		err := s.executorManager.Execute(context.Background(), tsk, &result)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 
@@ -72,7 +79,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 			slog.Error("failed to schedule followup tasks", "error", followupErr)
 		}
 
-		err = SaveState(root, &tsk, &result)
+		err = SaveState(&tsk, &result)
 		if err != nil {
 			slog.Error("failed to save task state", "error", err)
 
