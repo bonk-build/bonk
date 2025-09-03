@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package task
+package scheduler
 
 import (
 	"bytes"
@@ -10,87 +10,64 @@ import (
 	"fmt"
 	"hash"
 	"io"
+	"log/slog"
 	"os"
 	"reflect"
 
 	"go.uber.org/multierr"
 
 	"cuelang.org/go/cue"
+
+	"go.bonk.build/pkg/task"
 )
 
 const StateFile = "state.json"
 
 type state struct {
 	// Cache provided executor & outputs
-	Executor string      `json:"executor,omitempty"`
-	Inputs   []string    `json:"inputs,omitempty"`
-	Result   *TaskResult `json:"result,omitempty"`
+	Executor string           `json:"executor,omitempty"`
+	Inputs   []string         `json:"inputs,omitempty"`
+	Result   *task.TaskResult `json:"result,omitempty"`
 
 	ParamsChecksum []byte `json:"paramsChecksum,omitempty"`
 	InputsChecksum []byte `json:"inputChecksum,omitempty"`
 	ResultChecksum []byte `json:"resultChecksum,omitempty"`
 }
 
-func NewState(
-	executor string,
-	params cue.Value,
-	root *os.Root,
-	inputs []string,
-	result *TaskResult,
-) (*state, error) {
-	var err error
-	state := &state{}
-	state.Executor = executor
-	state.Inputs = inputs
-	state.Result = result
-
-	hasher := sha256.New()
-
-	// Hash the parameters
-	state.ParamsChecksum, err = hashCueValue(hasher, params)
-	if err != nil {
-		return state, err
-	}
-
-	// Hash the input files
-	state.InputsChecksum, err = hashFiles(hasher, nil, inputs)
-	if err != nil {
-		return state, err
-	}
-
-	// Hash the input files
-	state.ResultChecksum, err = hashResult(hasher, root, result)
-	if err != nil {
-		return state, err
-	}
-
-	return state, err
-}
-
-func LoadState(root *os.Root) (*state, error) {
-	file, err := root.Open(StateFile)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open state file %s: %w", StateFile, err)
-	}
-	encoder := json.NewDecoder(file)
-
-	state := &state{}
-	err = encoder.Decode(state)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode state file %s: %w", StateFile, err)
-	}
-
-	return state, nil
-}
-
-func (s *state) Save(root *os.Root) error {
+func SaveState(root *os.Root, task *task.Task, result *task.TaskResult) error {
 	file, err := root.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
 	}
 	encoder := json.NewEncoder(file)
 
-	err = encoder.Encode(s)
+	state := state{
+		Executor: task.Executor(),
+		Inputs:   task.Inputs,
+		Result:   result,
+	}
+
+	hasher := sha256.New()
+
+	// Hash the parameters
+	state.ParamsChecksum, err = hashCueValue(hasher, task.Params)
+	if err != nil {
+		return err
+	}
+
+	// Hash the input files
+	state.InputsChecksum, err = hashFiles(hasher, nil, task.Inputs)
+	if err != nil {
+		return err
+	}
+
+	// Hash the input files
+	state.ResultChecksum, err = hashResult(hasher, root, result)
+	if err != nil {
+		return err
+	}
+
+	err = encoder.Encode(state)
 	if err != nil {
 		return fmt.Errorf("failed to encode state file %s: %w", StateFile, err)
 	}
@@ -98,36 +75,45 @@ func (s *state) Save(root *os.Root) error {
 	return nil
 }
 
-func (s *state) DetectMismatches(
-	executor string,
-	params cue.Value,
-	root *os.Root,
-	inputs []string,
-) []string {
+func DetectStateMismatches(root *os.Root, task *task.Task) []string {
+	file, err := root.Open(StateFile)
+	if err != nil {
+		return []string{"<state missing>"}
+	}
+	encoder := json.NewDecoder(file)
+
+	state := &state{}
+	err = encoder.Decode(state)
+	if err != nil {
+		slog.Error("failed to decode json state", "error", err)
+
+		return []string{"<state decode failed>"}
+	}
+
 	var mismatches []string
 	hasher := sha256.New()
 
-	if executor != s.Executor {
+	if task.Executor() != state.Executor {
 		mismatches = append(mismatches, "executor")
 	}
 
-	paramsChecksum, err := hashCueValue(hasher, params)
-	if err != nil || !bytes.Equal(paramsChecksum, s.ParamsChecksum) {
+	paramsChecksum, err := hashCueValue(hasher, task.Params)
+	if err != nil || !bytes.Equal(paramsChecksum, state.ParamsChecksum) {
 		mismatches = append(mismatches, "params-checksum")
 	}
 	hasher.Reset()
 
-	if !reflect.DeepEqual(inputs, s.Inputs) {
+	if !reflect.DeepEqual(task.Inputs, state.Inputs) {
 		mismatches = append(mismatches, "inputs")
 	}
-	inputsChecksum, err := hashFiles(hasher, nil, inputs)
-	if err != nil || !bytes.Equal(inputsChecksum, s.InputsChecksum) {
+	inputsChecksum, err := hashFiles(hasher, nil, task.Inputs)
+	if err != nil || !bytes.Equal(inputsChecksum, state.InputsChecksum) {
 		mismatches = append(mismatches, "inputs-checksum")
 	}
 	hasher.Reset()
 
-	resultChecksum, err := hashResult(hasher, root, s.Result)
-	if err != nil || !bytes.Equal(resultChecksum, s.ResultChecksum) {
+	resultChecksum, err := hashResult(hasher, root, state.Result)
+	if err != nil || !bytes.Equal(resultChecksum, state.ResultChecksum) {
 		mismatches = append(mismatches, "result-checksum")
 	}
 	hasher.Reset()
@@ -169,7 +155,7 @@ func hashFiles(hasher hash.Hash, root *os.Root, files []string) ([]byte, error) 
 	return result, err
 }
 
-func hashResult(hasher hash.Hash, root *os.Root, result *TaskResult) ([]byte, error) {
+func hashResult(hasher hash.Hash, root *os.Root, result *task.TaskResult) ([]byte, error) {
 	if result == nil {
 		return nil, nil
 	}

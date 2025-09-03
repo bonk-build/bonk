@@ -45,22 +45,11 @@ func (id *TaskId) OpenRoot() (*os.Root, error) {
 	return root, nil
 }
 
-func (id *TaskId) LoadStateFile() (*state, error) {
-	fs, err := id.OpenRoot()
-	if err != nil {
-		return nil, err
-	}
-
-	return LoadState(fs)
-}
-
 type Task struct {
 	ID TaskId `json:"id"`
 
 	Inputs []string  `json:"inputs,omitempty"`
 	Params cue.Value `json:"params,omitempty"`
-
-	state *state
 }
 
 func New(executor, id string, params cue.Value, inputs ...string) Task {
@@ -80,34 +69,6 @@ func (t *Task) Executor() string {
 
 func (t *Task) GetOutputDirectory() string {
 	return t.ID.GetOutputDirectory()
-}
-
-func (t *Task) SaveState(result *TaskResult) error {
-	root, err := t.ID.OpenRoot()
-	if err != nil {
-		return err
-	}
-	t.state, err = NewState(t.ID.executor, t.Params, root, t.Inputs, result)
-	if err != nil {
-		return err
-	}
-
-	return t.state.Save(root)
-}
-
-func (t *Task) DetectStateMismatches() []string {
-	root, err := t.ID.OpenRoot()
-	if err != nil {
-		return []string{"<missing>"}
-	}
-	if t.state == nil {
-		t.state, err = LoadState(root)
-		if err != nil {
-			return []string{"<load failed>"}
-		}
-	}
-
-	return t.state.DetectMismatches(t.ID.executor, t.Params, root, t.Inputs)
 }
 
 type TaskResult struct {
