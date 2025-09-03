@@ -16,9 +16,15 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
-	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor"
 )
+
+var Handshake = goplugin.HandshakeConfig{
+	ProtocolVersion:  0,
+	MagicCookieKey:   "BONK_PLUGIN",
+	MagicCookieValue: "bonk the builder",
+}
 
 type Plugin struct {
 	name      string

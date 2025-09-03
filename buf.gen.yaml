@@ -9,12 +9,12 @@ managed:
       value: go.bonk.build/api/go/proto
 plugins:
   - remote: buf.build/protocolbuffers/go
-    out: api/go/proto
+    out: api/proto
     opt:
       - paths=source_relative
       - default_api_level=API_OPAQUE
   - remote: buf.build/grpc/go
-    out: api/go/proto
+    out: api/proto
     opt:
       - paths=source_relative
 inputs:

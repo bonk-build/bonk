@@ -19,8 +19,7 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
-	plugin "go.bonk.build/api/go"
-	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor"
 )
 
@@ -47,7 +46,7 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	pluginName := path.Base(pluginPath)
 
 	process := goplugin.NewClient(&goplugin.ClientConfig{
-		HandshakeConfig: plugin.Handshake,
+		HandshakeConfig: Handshake,
 		Plugins: map[string]goplugin.Plugin{
 			"executor":      &executorPluginClient{},
 			"log_streaming": &logStreamingPluginClient{},

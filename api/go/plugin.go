@@ -15,6 +15,7 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/plugin"
 )
 
 type Plugin struct {
@@ -40,30 +41,24 @@ func NewPlugin(initializer func(plugin *Plugin) error) *Plugin {
 }
 
 // Call from main() to start the plugin gRPC server.
-func (plugin *Plugin) Serve() {
+func (p *Plugin) Serve() {
 	const defaultPluginMapSize = 2
 	pluginMap := make(map[string]goplugin.Plugin, defaultPluginMapSize)
 
-	if plugin.GetNumExecutors() != 0 {
+	if p.GetNumExecutors() != 0 {
 		pluginMap["executor"] = &ExecutorServer{
-			Executors: &plugin.ExecutorManager,
+			Executors: &p.ExecutorManager,
 		}
 	}
 
-	if plugin.EnableLogStreaming {
+	if p.EnableLogStreaming {
 		pluginMap["log_streaming"] = &LogStreamingServer{}
 	}
 
 	goplugin.Serve(&goplugin.ServeConfig{
-		HandshakeConfig: Handshake,
+		HandshakeConfig: plugin.Handshake,
 		Plugins:         pluginMap,
 		GRPCServer:      goplugin.DefaultGRPCServer,
 		Logger:          shclog.New(slog.Default()),
 	})
-}
-
-var Handshake = goplugin.HandshakeConfig{
-	ProtocolVersion:  0,
-	MagicCookieKey:   "BONK_PLUGIN",
-	MagicCookieValue: "bonk the builder",
 }
