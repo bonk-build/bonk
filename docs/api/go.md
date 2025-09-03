@@ -39,7 +39,7 @@ var Handshake = goplugin.HandshakeConfig{
 ```
 
 <a name="Executor"></a>
-## type [Executor](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L33>)
+## type [Executor](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L33>)
 
 Re\-exports for cleanliness.
 
@@ -48,7 +48,7 @@ type Executor = executor.Executor
 ```
 
 <a name="WrapTypedExecutor"></a>
-### func [WrapTypedExecutor](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L37-L40>)
+### func [WrapTypedExecutor](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L37-L40>)
 
 ```go
 func WrapTypedExecutor[Params any](cuectx cue.Context, impl TypedExecutor[Params]) Executor
@@ -57,7 +57,7 @@ func WrapTypedExecutor[Params any](cuectx cue.Context, impl TypedExecutor[Params
 
 
 <a name="ExecutorServer"></a>
-## type [ExecutorServer](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L48-L53>)
+## type [ExecutorServer](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L48-L53>)
 
 
 
@@ -71,7 +71,7 @@ type ExecutorServer struct {
 ```
 
 <a name="ExecutorServer.GRPCClient"></a>
-### func \(\*ExecutorServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L64-L68>)
+### func \(\*ExecutorServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L64-L68>)
 
 ```go
 func (p *ExecutorServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)
@@ -80,7 +80,7 @@ func (p *ExecutorServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c
 
 
 <a name="ExecutorServer.GRPCServer"></a>
-### func \(\*ExecutorServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L55>)
+### func \(\*ExecutorServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L55>)
 
 ```go
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error
@@ -89,7 +89,7 @@ func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) erro
 
 
 <a name="LogStreamingServer"></a>
-## type [LogStreamingServer](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/log_streaming.go#L172-L175>)
+## type [LogStreamingServer](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/log_streaming.go#L172-L175>)
 
 
 
@@ -101,7 +101,7 @@ type LogStreamingServer struct {
 ```
 
 <a name="LogStreamingServer.GRPCClient"></a>
-### func \(\*LogStreamingServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/log_streaming.go#L183-L187>)
+### func \(\*LogStreamingServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/log_streaming.go#L183-L187>)
 
 ```go
 func (p *LogStreamingServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)
@@ -110,7 +110,7 @@ func (p *LogStreamingServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroke
 
 
 <a name="LogStreamingServer.GRPCServer"></a>
-### func \(\*LogStreamingServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/log_streaming.go#L177>)
+### func \(\*LogStreamingServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/log_streaming.go#L177>)
 
 ```go
 func (p *LogStreamingServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error
@@ -119,7 +119,7 @@ func (p *LogStreamingServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) 
 
 
 <a name="Plugin"></a>
-## type [Plugin](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/plugin.go#L20-L25>)
+## type [Plugin](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/plugin.go#L20-L25>)
 
 
 
@@ -133,7 +133,7 @@ type Plugin struct {
 ```
 
 <a name="NewPlugin"></a>
-### func [NewPlugin](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/plugin.go#L27>)
+### func [NewPlugin](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/plugin.go#L27>)
 
 ```go
 func NewPlugin(initializer func(plugin *Plugin) error) *Plugin
@@ -142,7 +142,7 @@ func NewPlugin(initializer func(plugin *Plugin) error) *Plugin
 
 
 <a name="Plugin.Serve"></a>
-### func \(\*Plugin\) [Serve](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/plugin.go#L43>)
+### func \(\*Plugin\) [Serve](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/plugin.go#L43>)
 
 ```go
 func (plugin *Plugin) Serve()
@@ -151,7 +151,7 @@ func (plugin *Plugin) Serve()
 Call from main\(\) to start the plugin gRPC server.
 
 <a name="Result"></a>
-## type [Result](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L32>)
+## type [Result](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L32>)
 
 Re\-exports for cleanliness.
 
@@ -160,7 +160,7 @@ type Result = task.Result
 ```
 
 <a name="Task"></a>
-## type [Task](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L30>)
+## type [Task](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L30>)
 
 Re\-exports for cleanliness.
 
@@ -169,7 +169,7 @@ type Task = task.Task
 ```
 
 <a name="TypedExecutor"></a>
-## type [TypedExecutor](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L34>)
+## type [TypedExecutor](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L34>)
 
 Re\-exports for cleanliness.
 
@@ -178,7 +178,7 @@ type TypedExecutor[Params any] = executor.TypedExecutor[Params]
 ```
 
 <a name="TypedTask"></a>
-## type [TypedTask](<https://github.com/bonk-build/bonk/blob/2c4de83/api/go/executor.go#L31>)
+## type [TypedTask](<https://github.com/bonk-build/bonk/blob/15a9ed1/api/go/executor.go#L31>)
 
 Re\-exports for cleanliness.
 
