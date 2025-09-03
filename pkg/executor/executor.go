@@ -28,7 +28,6 @@ var _ Executor = (*wrappedExecutor)(nil)
 func WrapTypedExecutor[Params any](
 	cuectx cue.Context,
 	impl TypedExecutor[Params],
-	result *task.Result,
 ) Executor {
 	return wrappedExecutor{
 		thunk: func(ctx context.Context, tsk task.Task, result *task.Result) error {

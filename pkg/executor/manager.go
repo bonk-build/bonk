@@ -59,6 +59,16 @@ func (bm *ExecutorManager) Execute(
 	return nil
 }
 
+func (bm *ExecutorManager) GetNumExecutors() int {
+	return len(bm.executors)
+}
+
+func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec Executor)) {
+	for name, exec := range bm.executors {
+		fun(name, exec)
+	}
+}
+
 func (bm *ExecutorManager) Shutdown() {
 	bm.executors = make(map[string]Executor)
 }

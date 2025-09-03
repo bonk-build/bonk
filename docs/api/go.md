@@ -9,18 +9,21 @@ import "go.bonk.build/api/go"
 ## Index
 
 - [Variables](<#variables>)
-- [func AddFollowUp\[Params any\]\(ctx context.Context, executor string, task TaskParams\[Params\]\)](<#AddFollowUp>)
-- [func AddOutputs\(ctx context.Context, outputs ...string\)](<#AddOutputs>)
-- [func Serve\(executors ...BonkExecutor\)](<#Serve>)
-- [type BonkExecutor](<#BonkExecutor>)
-  - [func NewExecutor\[Params any\]\(name string, exec func\(context.Context, \*TaskParams\[Params\]\) error\) BonkExecutor](<#NewExecutor>)
+- [type Executor](<#Executor>)
+  - [func WrapTypedExecutor\[Params any\]\(cuectx cue.Context, impl TypedExecutor\[Params\]\) Executor](<#WrapTypedExecutor>)
 - [type ExecutorServer](<#ExecutorServer>)
   - [func \(p \*ExecutorServer\) GRPCClient\(\_ context.Context, \_ \*goplugin.GRPCBroker, c \*grpc.ClientConn\) \(any, error\)](<#ExecutorServer.GRPCClient>)
   - [func \(p \*ExecutorServer\) GRPCServer\(\_ \*goplugin.GRPCBroker, s \*grpc.Server\) error](<#ExecutorServer.GRPCServer>)
 - [type LogStreamingServer](<#LogStreamingServer>)
   - [func \(p \*LogStreamingServer\) GRPCClient\(\_ context.Context, \_ \*goplugin.GRPCBroker, c \*grpc.ClientConn\) \(any, error\)](<#LogStreamingServer.GRPCClient>)
   - [func \(p \*LogStreamingServer\) GRPCServer\(\_ \*goplugin.GRPCBroker, s \*grpc.Server\) error](<#LogStreamingServer.GRPCServer>)
-- [type TaskParams](<#TaskParams>)
+- [type Plugin](<#Plugin>)
+  - [func NewPlugin\(initializer func\(plugin \*Plugin\) error\) \*Plugin](<#NewPlugin>)
+  - [func \(plugin \*Plugin\) Serve\(\)](<#Plugin.Serve>)
+- [type Result](<#Result>)
+- [type Task](<#Task>)
+- [type TypedExecutor](<#TypedExecutor>)
+- [type TypedTask](<#TypedTask>)
 
 
 ## Variables
@@ -35,58 +38,26 @@ var Handshake = goplugin.HandshakeConfig{
 }
 ```
 
-<a name="AddFollowUp"></a>
-## func [AddFollowUp](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L83>)
+<a name="Executor"></a>
+## type [Executor](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L33>)
+
+Re\-exports for cleanliness.
 
 ```go
-func AddFollowUp[Params any](ctx context.Context, executor string, task TaskParams[Params])
+type Executor = executor.Executor
+```
+
+<a name="WrapTypedExecutor"></a>
+### func [WrapTypedExecutor](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L37-L40>)
+
+```go
+func WrapTypedExecutor[Params any](cuectx cue.Context, impl TypedExecutor[Params]) Executor
 ```
 
 
-
-<a name="AddOutputs"></a>
-## func [AddOutputs](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L76>)
-
-```go
-func AddOutputs(ctx context.Context, outputs ...string)
-```
-
-
-
-<a name="Serve"></a>
-## func [Serve](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/plugin.go#L15>)
-
-```go
-func Serve(executors ...BonkExecutor)
-```
-
-Call from main\(\) to start the plugin gRPC server.
-
-<a name="BonkExecutor"></a>
-## type [BonkExecutor](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L40-L45>)
-
-Represents a executor capable of performing tasks.
-
-```go
-type BonkExecutor struct {
-    Name         string
-    Outputs      []string
-    ParamsSchema cue.Value
-    Exec         func(context.Context, TaskParams[cue.Value]) error
-}
-```
-
-<a name="NewExecutor"></a>
-### func [NewExecutor](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L48-L51>)
-
-```go
-func NewExecutor[Params any](name string, exec func(context.Context, *TaskParams[Params]) error) BonkExecutor
-```
-
-Factory to create a new task executor.
 
 <a name="ExecutorServer"></a>
-## type [ExecutorServer](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L109-L114>)
+## type [ExecutorServer](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L48-L53>)
 
 
 
@@ -95,12 +66,12 @@ type ExecutorServer struct {
     goplugin.NetRPCUnsupportedPlugin
     goplugin.GRPCPlugin
 
-    Executors map[string]BonkExecutor
+    Executors *executor.ExecutorManager
 }
 ```
 
 <a name="ExecutorServer.GRPCClient"></a>
-### func \(\*ExecutorServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L125-L129>)
+### func \(\*ExecutorServer\) [GRPCClient](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L64-L68>)
 
 ```go
 func (p *ExecutorServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c *grpc.ClientConn) (any, error)
@@ -109,7 +80,7 @@ func (p *ExecutorServer) GRPCClient(_ context.Context, _ *goplugin.GRPCBroker, c
 
 
 <a name="ExecutorServer.GRPCServer"></a>
-### func \(\*ExecutorServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L116>)
+### func \(\*ExecutorServer\) [GRPCServer](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L55>)
 
 ```go
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error
@@ -147,17 +118,72 @@ func (p *LogStreamingServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) 
 
 
 
-<a name="TaskParams"></a>
-## type [TaskParams](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L33-L37>)
+<a name="Plugin"></a>
+## type [Plugin](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/plugin.go#L20-L25>)
 
-The inputs passed to a task executor.
+
 
 ```go
-type TaskParams[Params any] struct {
-    Inputs []string
-    Params Params
-    OutDir string
+type Plugin struct {
+    executor.ExecutorManager
+
+    EnableLogStreaming bool
+    Cuectx             *cue.Context
 }
+```
+
+<a name="NewPlugin"></a>
+### func [NewPlugin](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/plugin.go#L27>)
+
+```go
+func NewPlugin(initializer func(plugin *Plugin) error) *Plugin
+```
+
+
+
+<a name="Plugin.Serve"></a>
+### func \(\*Plugin\) [Serve](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/plugin.go#L43>)
+
+```go
+func (plugin *Plugin) Serve()
+```
+
+Call from main\(\) to start the plugin gRPC server.
+
+<a name="Result"></a>
+## type [Result](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L32>)
+
+Re\-exports for cleanliness.
+
+```go
+type Result = task.Result
+```
+
+<a name="Task"></a>
+## type [Task](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L30>)
+
+Re\-exports for cleanliness.
+
+```go
+type Task = task.Task
+```
+
+<a name="TypedExecutor"></a>
+## type [TypedExecutor](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L34>)
+
+Re\-exports for cleanliness.
+
+```go
+type TypedExecutor[Params any] = executor.TypedExecutor[Params]
+```
+
+<a name="TypedTask"></a>
+## type [TypedTask](<https://github.com/bonk-build/bonk/blob/5092a33/api/go/executor.go#L31>)
+
+Re\-exports for cleanliness.
+
+```go
+type TypedTask[Params any] = task.TypedTask[Params]
 ```
 
 Generated by [gomarkdoc](<https://github.com/princjef/gomarkdoc>)

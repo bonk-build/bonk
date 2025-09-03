@@ -15,14 +15,12 @@ import (
 func Test_Plugin(t *testing.T) {
 	t.Parallel()
 
-	executors := test.ServeTest(t,
-		Executor_Test,
-	)
+	executors := test.ServeTest(t, Plugin)
 
 	var result task.Result
 	err := executors.Execute(
 		t.Context(),
-		task.New(Executor_Test.Name, "testing", cue.Value{}),
+		task.New("Test", "testing", cue.Value{}),
 		&result,
 	)
 	if err != nil {

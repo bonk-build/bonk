@@ -15,10 +15,11 @@ message DescribeExecutorsResponse {
 }
 
 message ExecuteTaskRequest {
-  string executor = 1;
-  repeated string inputs = 2;
-  google.protobuf.Struct parameters = 3;
-  string out_directory = 4;
+  string name = 1;
+  string executor = 2;
+  repeated string inputs = 3;
+  google.protobuf.Struct parameters = 4;
+  string out_directory = 5;
 }
 
 message ExecuteTaskResponse {

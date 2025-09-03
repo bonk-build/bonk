@@ -30,6 +30,7 @@ type rpcExecutor struct {
 func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
 	outDir := tsk.ID.GetOutputDirectory()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
+		Name:         &tsk.ID.Name,
 		Executor:     &pb.name,
 		Inputs:       tsk.Inputs,
 		Parameters:   &structpb.Struct{},

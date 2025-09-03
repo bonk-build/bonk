@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: bonk/v0/plugin.proto
+// source: bonk/v0/executor.proto
 
 package v0
 
@@ -159,5 +159,5 @@ var ExecutorService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "bonk/v0/plugin.proto",
+	Metadata: "bonk/v0/executor.proto",
 }
