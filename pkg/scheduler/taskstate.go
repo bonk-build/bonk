@@ -7,16 +7,16 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"hash"
 	"io"
 	"log/slog"
-	"os"
 	"reflect"
 
-	"go.uber.org/multierr"
-
 	"cuelang.org/go/cue"
+
+	"github.com/spf13/afero"
 
 	"go.bonk.build/pkg/task"
 )
@@ -34,8 +34,8 @@ type state struct {
 	ResultChecksum []byte `json:"resultChecksum,omitempty"`
 }
 
-func SaveState(root *os.Root, task *task.Task, result *task.Result) error {
-	file, err := root.Create(StateFile)
+func SaveState(task *task.Task, result *task.Result) error {
+	file, err := task.OutputFs.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
 	}
@@ -54,18 +54,21 @@ func SaveState(root *os.Root, task *task.Task, result *task.Result) error {
 	if err != nil {
 		return err
 	}
+	hasher.Reset()
 
 	// Hash the input files
-	state.InputsChecksum, err = hashFiles(hasher, nil, task.Inputs)
+	state.InputsChecksum, err = hashFiles(hasher, task.ProjectFs, task.Inputs)
 	if err != nil {
 		return err
 	}
+	hasher.Reset()
 
-	// Hash the input files
-	state.ResultChecksum, err = hashResult(hasher, root, result)
+	// Hash the result
+	state.ResultChecksum, err = hashResult(hasher, task.OutputFs, result)
 	if err != nil {
 		return err
 	}
+	hasher.Reset()
 
 	err = encoder.Encode(state)
 	if err != nil {
@@ -75,8 +78,8 @@ func SaveState(root *os.Root, task *task.Task, result *task.Result) error {
 	return nil
 }
 
-func DetectStateMismatches(root *os.Root, task *task.Task) []string {
-	file, err := root.Open(StateFile)
+func DetectStateMismatches(task *task.Task) []string {
+	file, err := task.OutputFs.Open(StateFile)
 	if err != nil {
 		return []string{"<state missing>"}
 	}
@@ -106,14 +109,16 @@ func DetectStateMismatches(root *os.Root, task *task.Task) []string {
 	if !reflect.DeepEqual(task.Inputs, state.Inputs) {
 		mismatches = append(mismatches, "inputs")
 	}
-	inputsChecksum, err := hashFiles(hasher, nil, task.Inputs)
+	inputsChecksum, err := hashFiles(hasher, task.ProjectFs, task.Inputs)
 	if err != nil || !bytes.Equal(inputsChecksum, state.InputsChecksum) {
 		mismatches = append(mismatches, "inputs-checksum")
 	}
 	hasher.Reset()
 
-	resultChecksum, err := hashResult(hasher, root, state.Result)
-	if err != nil || !bytes.Equal(resultChecksum, state.ResultChecksum) {
+	resultChecksum, err := hashResult(hasher, task.OutputFs, state.Result)
+	if err != nil {
+		mismatches = append(mismatches, "!result-checksum-failed!")
+	} else if !bytes.Equal(resultChecksum, state.ResultChecksum) {
 		mismatches = append(mismatches, "result-checksum")
 	}
 	hasher.Reset()
@@ -130,50 +135,36 @@ func hashCueValue(hasher hash.Hash, params cue.Value) ([]byte, error) {
 	return hasher.Sum(paramsJSON), nil
 }
 
-func hashFiles(hasher hash.Hash, root *os.Root, files []string) ([]byte, error) {
-	var err error
+func hashFiles(hasher hash.Hash, root afero.Fs, files []string) ([]byte, error) {
 	for _, fileName := range files {
-		var file *os.File
-		var openErr error
-		if root != nil {
-			file, openErr = root.Open(fileName)
-		} else {
-			file, openErr = os.Open(fileName)
-		}
-		if multierr.AppendInto(&err, openErr) {
+		file, err := root.Open(fileName)
+		if err != nil {
 			return nil, fmt.Errorf("failed to open input file %s: %w", fileName, err)
 		}
 
-		_, hashErr := io.Copy(hasher, file)
-		if multierr.AppendInto(&err, hashErr) {
+		_, err = io.Copy(hasher, file)
+		if err != nil {
 			return nil, fmt.Errorf("failed to hash input file %s: %w", fileName, err)
 		}
 	}
 
 	result := hasher.Sum(nil)
 
-	return result, err
+	return result, nil
 }
 
-func hashResult(hasher hash.Hash, root *os.Root, result *task.Result) ([]byte, error) {
-	if result == nil {
-		return nil, nil
+func hashResult(hasher hash.Hash, root afero.Fs, result *task.Result) ([]byte, error) {
+	_, err := hashFiles(hasher, root, result.Outputs)
+	if err != nil {
+		return nil, errors.New("failed to hash output files")
 	}
-
-	var err error
-
-	_, hashErr := hashFiles(hasher, root, result.Outputs)
-	multierr.AppendInto(&err, hashErr)
 
 	// Convert the followups to json for easy hashing
-	bytes, hashErr := json.Marshal(result.FollowupTasks)
-	if multierr.AppendInto(&err, hashErr) {
-		hasher.Write(bytes)
-	}
-
+	bytes, err := json.Marshal(result.FollowupTasks)
 	if err != nil {
-		return nil, fmt.Errorf("failed to hash task result: %w", err)
+		return nil, errors.New("failed to hash followup tasks")
 	}
+	hasher.Write(bytes)
 
 	return hasher.Sum(nil), nil
 }

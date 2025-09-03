@@ -6,7 +6,6 @@ package main
 import (
 	"log/slog"
 	"os"
-	"path"
 
 	"go.uber.org/multierr"
 
@@ -14,6 +13,7 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 
 	"github.com/pterm/pterm"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -34,6 +34,9 @@ var rootCmd = &cobra.Command{
 	Short: "A cue-based configuration build system.",
 
 	Run: func(cmd *cobra.Command, args []string) {
+		cwd, _ := os.Getwd()
+		project := afero.NewBasePathFs(afero.NewOsFs(), cwd)
+
 		cuectx := cuecontext.New()
 
 		bem := executor.NewExecutorManager()
@@ -42,7 +45,7 @@ var rootCmd = &cobra.Command{
 		pum := plugin.NewPluginManager(&bem)
 		defer pum.Shutdown()
 
-		sched := scheduler.NewScheduler(&bem, concurrency)
+		sched := scheduler.NewScheduler(project, &bem, concurrency)
 		defer sched.Run()
 
 		plugins := []string{
@@ -56,8 +59,6 @@ var rootCmd = &cobra.Command{
 			multierr.AppendInto(&err, pum.StartPlugin(cmd.Context(), pluginPath))
 		}
 		cobra.CheckErr(err)
-
-		cwd, _ := os.Getwd()
 
 		err = multierr.Combine(
 			sched.AddTask(
@@ -84,7 +85,7 @@ var rootCmd = &cobra.Command{
 					"kustomize:Kustomize",
 					"Test.Kustomize",
 					cuectx.BuildExpr(ast.NewStruct()),
-					path.Join(cwd, ".bonk/Test.Resources:resources:Resources/resources.yaml"),
+					".bonk/Test.Resources:resources:Resources/resources.yaml",
 				),
 				"Test.Resources:resources:Resources",
 			),

@@ -5,10 +5,11 @@ package task // import "go.bonk.build/pkg/task"
 
 import (
 	"fmt"
-	"os"
 	"path"
 
 	"cuelang.org/go/cue"
+
+	"github.com/spf13/afero"
 )
 
 type TaskId struct {
@@ -31,25 +32,24 @@ func (id *TaskId) GetOutputDirectory() string {
 	return path.Join(".bonk", id.String())
 }
 
-func (id *TaskId) OpenRoot() (*os.Root, error) {
+func (id *TaskId) GetOutputFilesystem(project afero.Fs) (afero.Fs, error) {
 	path := id.GetOutputDirectory()
-	err := os.MkdirAll(path, 0o750)
+	err := project.MkdirAll(path, 0o750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create task output dir %s: %w", path, err)
 	}
-	root, err := os.OpenRoot(path)
-	if err != nil {
-		return nil, fmt.Errorf("failed to open task output root: %w", err)
-	}
 
-	return root, nil
+	return afero.NewBasePathFs(project, path), nil
 }
 
 type Task struct {
 	ID TaskId `json:"id"`
 
 	Inputs []string  `json:"inputs,omitempty"`
-	Params cue.Value `json:"params,omitempty"`
+	Params cue.Value `json:"params"`
+
+	ProjectFs afero.Fs `json:"-"`
+	OutputFs  afero.Fs `json:"-"`
 }
 
 func New(executor, name string, params cue.Value, inputs ...string) Task {

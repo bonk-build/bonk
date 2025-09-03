@@ -6,14 +6,13 @@ package main // import "go.bonk.build/plugins/k8s/kustomize"
 import (
 	"context"
 	"fmt"
-	"os"
-	"path"
 
 	"sigs.k8s.io/kustomize/api/konfig"
 	"sigs.k8s.io/kustomize/api/krusty"
 	"sigs.k8s.io/kustomize/api/types"
-	"sigs.k8s.io/kustomize/kyaml/filesys"
 	"sigs.k8s.io/kustomize/kyaml/yaml"
+
+	"github.com/spf13/afero"
 
 	bonk "go.bonk.build/api/go"
 )
@@ -31,22 +30,19 @@ func (Executor_Kustomize) Execute(
 	task bonk.TypedTask[Params],
 	res *bonk.Result,
 ) error {
-	outDir, ok := ctx.Value("outDir").(string)
-	if !ok {
-		panic("no outdir!")
-	}
-
 	// Apply resources and any needed fixes
 	task.Args.Kustomization.Resources = task.Inputs
 	task.Args.Kustomization.FixKustomization()
 
+	kustomFs := afero.NewCopyOnWriteFs(task.ProjectFs, afero.NewMemMapFs())
+
 	// Write out the kustomization.yaml file
-	outFile, err := os.Create(path.Join(outDir, konfig.DefaultKustomizationFileName()))
+	kustFile, err := kustomFs.Create("/" + konfig.DefaultKustomizationFileName())
 	if err != nil {
 		return fmt.Errorf("failed to open kustomization file: %w", err)
 	}
 
-	enc := yaml.NewEncoder(outFile)
+	enc := yaml.NewEncoder(kustFile)
 
 	err = enc.Encode(task.Args.Kustomization)
 	if err != nil {
@@ -57,7 +53,7 @@ func (Executor_Kustomize) Execute(
 	if err != nil {
 		return fmt.Errorf("failed to close yaml encoder: %w", err)
 	}
-	err = outFile.Close()
+	err = kustFile.Close()
 	if err != nil {
 		return fmt.Errorf("failed to close yaml file writer: %w", err)
 	}
@@ -67,7 +63,7 @@ func (Executor_Kustomize) Execute(
 	options.LoadRestrictions = types.LoadRestrictionsNone
 	kusty := krusty.MakeKustomizer(options)
 
-	resMap, err := kusty.Run(filesys.MakeFsOnDisk(), outDir)
+	resMap, err := kusty.Run(KyamlFilesys{kustomFs}, "/")
 	if err != nil {
 		return fmt.Errorf("failed to perform kustomization: %w", err)
 	}
@@ -78,7 +74,11 @@ func (Executor_Kustomize) Execute(
 		return fmt.Errorf("failed to encode kustomized content as yaml: %w", err)
 	}
 
-	err = os.WriteFile(path.Join(outDir, output), resYaml, 0o600)
+	outFile, err := task.OutputFs.Create(output)
+	if err != nil {
+		return fmt.Errorf("failed to create kustomized file: %w", err)
+	}
+	_, err = outFile.Write(resYaml)
 	if err != nil {
 		return fmt.Errorf("failed to write kustomized content to file: %w", err)
 	}

@@ -4,13 +4,13 @@
 package scheduler
 
 import (
-	"os"
 	"testing"
 
 	"go.uber.org/mock/gomock"
 
 	"cuelang.org/go/cue"
 
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/task"
@@ -21,12 +21,8 @@ import (
 func Test_SenderIsCalled(t *testing.T) {
 	t.Parallel()
 
-	// Make sure this doesn't persist to other tests
-	t.Cleanup(func() {
-		require.NoError(t, os.RemoveAll(".bonk"))
-	})
-
 	mock := gomock.NewController(t)
+	project := afero.NewMemMapFs()
 
 	sender := NewMockTaskSender(mock)
 	sender.EXPECT().
@@ -34,7 +30,7 @@ func Test_SenderIsCalled(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	scheduler := NewScheduler(sender, 1)
+	scheduler := NewScheduler(project, sender, 1)
 
 	require.NoError(t, scheduler.AddTask(task.New("test", "task1", cue.Value{})))
 

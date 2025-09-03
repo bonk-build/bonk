@@ -17,6 +17,8 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/encoding/gocode/gocodec"
 
+	"github.com/spf13/afero"
+
 	goplugin "github.com/hashicorp/go-plugin"
 	slogctx "github.com/veqryn/slog-context"
 
@@ -52,8 +54,14 @@ type ExecutorServer struct {
 	Executors *executor.ExecutorManager
 }
 
-func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
-	bonkv0.RegisterExecutorServiceServer(s, &executorGRPCServer{
+func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("failed to get current working directory: %w", err)
+	}
+
+	bonkv0.RegisterExecutorServiceServer(server, &executorGRPCServer{
+		project:     afero.NewBasePathFs(afero.NewOsFs(), cwd),
 		decodeCodec: gocodec.New(cuectx, &gocodec.Config{}),
 		executors:   p.Executors,
 	})
@@ -73,6 +81,7 @@ func (p *ExecutorServer) GRPCClient(
 type executorGRPCServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
+	project     afero.Fs
 	decodeCodec *gocodec.Codec
 	executors   *executor.ExecutorManager
 }
@@ -99,12 +108,11 @@ func (s *executorGRPCServer) ExecuteTask(
 	ctx context.Context,
 	req *bonkv0.ExecuteTaskRequest,
 ) (*bonkv0.ExecuteTaskResponse, error) {
-	err := os.MkdirAll(req.GetOutDirectory(), 0o750)
+	err := s.project.MkdirAll(req.GetOutDirectory(), 0o750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
 
-	root, err := os.OpenRoot(req.GetOutDirectory())
 	if err != nil {
 		return nil, fmt.Errorf("failed to open fs root in output directory: %w", err)
 	}
@@ -115,6 +123,9 @@ func (s *executorGRPCServer) ExecuteTask(
 			Executor: req.GetExecutor(),
 		},
 		Inputs: req.GetInputs(),
+
+		ProjectFs: afero.NewReadOnlyFs(s.project),
+		OutputFs:  afero.NewBasePathFs(s.project, req.GetOutDirectory()),
 	}
 
 	// err = s.decodeCodec.Validate(executor.ParamsSchema, req.GetParameters())
@@ -131,16 +142,13 @@ func (s *executorGRPCServer) ExecuteTask(
 		return nil, fmt.Errorf("failed to decode parameters: %w", err)
 	}
 
-	execCtx, cleanup, err := getTaskLoggingContext(ctx, root)
+	execCtx, cleanup, err := getTaskLoggingContext(ctx, tsk.OutputFs)
 	if err != nil {
 		return nil, err
 	}
 
 	// Append executor information
 	execCtx = slogctx.Append(execCtx, "executor", req.GetExecutor())
-
-	// TEMP: until the filesystem refactor goes in
-	execCtx = context.WithValue(execCtx, "outDir", req.GetOutDirectory()) //nolint:staticcheck
 
 	var response task.Result
 	multierr.AppendInto(&err, s.executors.Execute(execCtx, tsk, &response))

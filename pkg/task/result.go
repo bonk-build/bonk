@@ -4,6 +4,6 @@
 package task
 
 type Result struct {
-	Outputs       []string `json:"outputs,omitempty"`
-	FollowupTasks []Task   `json:"followupTasks,omitempty"`
+	Outputs       []string `json:"outputs"`
+	FollowupTasks []Task   `json:"followupTasks"`
 }
