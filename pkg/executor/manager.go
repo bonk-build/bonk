@@ -14,8 +14,11 @@ type ExecutorManager struct {
 	executors map[string]Executor
 }
 
-func NewExecutorManager() *ExecutorManager {
-	bm := &ExecutorManager{}
+// Note that ExecutorManager is itself an executor.
+var _ Executor = (*ExecutorManager)(nil)
+
+func NewExecutorManager() ExecutorManager {
+	bm := ExecutorManager{}
 	bm.executors = make(map[string]Executor)
 
 	return bm
@@ -36,7 +39,7 @@ func (bm *ExecutorManager) UnregisterExecutor(name string) {
 	delete(bm.executors, name)
 }
 
-func (bm *ExecutorManager) SendTask(ctx context.Context, tsk task.Task) (*task.TaskResult, error) {
+func (bm *ExecutorManager) Execute(ctx context.Context, tsk task.Task) (*task.TaskResult, error) {
 	executorName := tsk.Executor()
 
 	executor, ok := bm.executors[executorName]

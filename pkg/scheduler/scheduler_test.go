@@ -32,7 +32,7 @@ func Test_SenderIsCalled(t *testing.T) {
 
 	sender := NewMockTaskSender(mock)
 	sender.EXPECT().
-		SendTask(gomock.Any(), gomock.Any()).
+		Execute(gomock.Any(), gomock.Any()).
 		Times(1).
 		Return(&result, nil)
 

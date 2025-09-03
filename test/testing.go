@@ -16,7 +16,7 @@ import (
 )
 
 // Call like you'd call Serve() but at the top of your test function.
-func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) *executor.ExecutorManager {
+func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) executor.ExecutorManager {
 	t.Helper()
 
 	executorMap := make(map[string]bonk.BonkExecutor, len(executors))
