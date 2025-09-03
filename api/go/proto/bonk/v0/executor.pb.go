@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.8
 // 	protoc        (unknown)
-// source: bonk/v0/plugin.proto
+// source: bonk/v0/executor.proto
 
 package v0
 
@@ -29,7 +29,7 @@ type DescribeExecutorsRequest struct {
 
 func (x *DescribeExecutorsRequest) Reset() {
 	*x = DescribeExecutorsRequest{}
-	mi := &file_bonk_v0_plugin_proto_msgTypes[0]
+	mi := &file_bonk_v0_executor_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -41,7 +41,7 @@ func (x *DescribeExecutorsRequest) String() string {
 func (*DescribeExecutorsRequest) ProtoMessage() {}
 
 func (x *DescribeExecutorsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_plugin_proto_msgTypes[0]
+	mi := &file_bonk_v0_executor_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -73,7 +73,7 @@ type DescribeExecutorsResponse struct {
 
 func (x *DescribeExecutorsResponse) Reset() {
 	*x = DescribeExecutorsResponse{}
-	mi := &file_bonk_v0_plugin_proto_msgTypes[1]
+	mi := &file_bonk_v0_executor_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -85,7 +85,7 @@ func (x *DescribeExecutorsResponse) String() string {
 func (*DescribeExecutorsResponse) ProtoMessage() {}
 
 func (x *DescribeExecutorsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_plugin_proto_msgTypes[1]
+	mi := &file_bonk_v0_executor_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -123,10 +123,11 @@ func (b0 DescribeExecutorsResponse_builder) Build() *DescribeExecutorsResponse {
 
 type ExecuteTaskRequest struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Executor     *string                `protobuf:"bytes,1,opt,name=executor"`
-	xxx_hidden_Inputs       []string               `protobuf:"bytes,2,rep,name=inputs"`
-	xxx_hidden_Parameters   *structpb.Struct       `protobuf:"bytes,3,opt,name=parameters"`
-	xxx_hidden_OutDirectory *string                `protobuf:"bytes,4,opt,name=out_directory,json=outDirectory"`
+	xxx_hidden_Name         *string                `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Executor     *string                `protobuf:"bytes,2,opt,name=executor"`
+	xxx_hidden_Inputs       []string               `protobuf:"bytes,3,rep,name=inputs"`
+	xxx_hidden_Parameters   *structpb.Struct       `protobuf:"bytes,4,opt,name=parameters"`
+	xxx_hidden_OutDirectory *string                `protobuf:"bytes,5,opt,name=out_directory,json=outDirectory"`
 	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
 	XXX_presence            [1]uint32
 	unknownFields           protoimpl.UnknownFields
@@ -135,7 +136,7 @@ type ExecuteTaskRequest struct {
 
 func (x *ExecuteTaskRequest) Reset() {
 	*x = ExecuteTaskRequest{}
-	mi := &file_bonk_v0_plugin_proto_msgTypes[2]
+	mi := &file_bonk_v0_executor_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +148,7 @@ func (x *ExecuteTaskRequest) String() string {
 func (*ExecuteTaskRequest) ProtoMessage() {}
 
 func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_plugin_proto_msgTypes[2]
+	mi := &file_bonk_v0_executor_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -156,6 +157,16 @@ func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message {
 		return ms
 	}
 	return mi.MessageOf(x)
+}
+
+func (x *ExecuteTaskRequest) GetName() string {
+	if x != nil {
+		if x.xxx_hidden_Name != nil {
+			return *x.xxx_hidden_Name
+		}
+		return ""
+	}
+	return ""
 }
 
 func (x *ExecuteTaskRequest) GetExecutor() string {
@@ -192,9 +203,14 @@ func (x *ExecuteTaskRequest) GetOutDirectory() string {
 	return ""
 }
 
+func (x *ExecuteTaskRequest) SetName(v string) {
+	x.xxx_hidden_Name = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+}
+
 func (x *ExecuteTaskRequest) SetExecutor(v string) {
 	x.xxx_hidden_Executor = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *ExecuteTaskRequest) SetInputs(v []string) {
@@ -207,14 +223,21 @@ func (x *ExecuteTaskRequest) SetParameters(v *structpb.Struct) {
 
 func (x *ExecuteTaskRequest) SetOutDirectory(v string) {
 	x.xxx_hidden_OutDirectory = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 3, 4)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+}
+
+func (x *ExecuteTaskRequest) HasName() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
 func (x *ExecuteTaskRequest) HasExecutor() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
 func (x *ExecuteTaskRequest) HasParameters() bool {
@@ -228,11 +251,16 @@ func (x *ExecuteTaskRequest) HasOutDirectory() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 3)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+}
+
+func (x *ExecuteTaskRequest) ClearName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Name = nil
 }
 
 func (x *ExecuteTaskRequest) ClearExecutor() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Executor = nil
 }
 
@@ -241,13 +269,14 @@ func (x *ExecuteTaskRequest) ClearParameters() {
 }
 
 func (x *ExecuteTaskRequest) ClearOutDirectory() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 3)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
 	x.xxx_hidden_OutDirectory = nil
 }
 
 type ExecuteTaskRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	Name         *string
 	Executor     *string
 	Inputs       []string
 	Parameters   *structpb.Struct
@@ -258,14 +287,18 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
 	m0 := &ExecuteTaskRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.Name != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		x.xxx_hidden_Name = b.Name
+	}
 	if b.Executor != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Executor = b.Executor
 	}
 	x.xxx_hidden_Inputs = b.Inputs
 	x.xxx_hidden_Parameters = b.Parameters
 	if b.OutDirectory != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 3, 4)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
 		x.xxx_hidden_OutDirectory = b.OutDirectory
 	}
 	return m0
@@ -281,7 +314,7 @@ type ExecuteTaskResponse struct {
 
 func (x *ExecuteTaskResponse) Reset() {
 	*x = ExecuteTaskResponse{}
-	mi := &file_bonk_v0_plugin_proto_msgTypes[3]
+	mi := &file_bonk_v0_executor_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -293,7 +326,7 @@ func (x *ExecuteTaskResponse) String() string {
 func (*ExecuteTaskResponse) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_plugin_proto_msgTypes[3]
+	mi := &file_bonk_v0_executor_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -352,7 +385,7 @@ type DescribeExecutorsResponse_ExecutorDescription struct {
 
 func (x *DescribeExecutorsResponse_ExecutorDescription) Reset() {
 	*x = DescribeExecutorsResponse_ExecutorDescription{}
-	mi := &file_bonk_v0_plugin_proto_msgTypes[4]
+	mi := &file_bonk_v0_executor_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -364,7 +397,7 @@ func (x *DescribeExecutorsResponse_ExecutorDescription) String() string {
 func (*DescribeExecutorsResponse_ExecutorDescription) ProtoMessage() {}
 
 func (x *DescribeExecutorsResponse_ExecutorDescription) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_plugin_proto_msgTypes[4]
+	mi := &file_bonk_v0_executor_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +434,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 
 func (x *ExecuteTaskResponse_FollowupTask) Reset() {
 	*x = ExecuteTaskResponse_FollowupTask{}
-	mi := &file_bonk_v0_plugin_proto_msgTypes[6]
+	mi := &file_bonk_v0_executor_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -413,7 +446,7 @@ func (x *ExecuteTaskResponse_FollowupTask) String() string {
 func (*ExecuteTaskResponse_FollowupTask) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_plugin_proto_msgTypes[6]
+	mi := &file_bonk_v0_executor_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -537,25 +570,26 @@ func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_
 	return m0
 }
 
-var File_bonk_v0_plugin_proto protoreflect.FileDescriptor
+var File_bonk_v0_executor_proto protoreflect.FileDescriptor
 
-const file_bonk_v0_plugin_proto_rawDesc = "" +
+const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\n" +
-	"\x14bonk/v0/plugin.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\"\x1a\n" +
+	"\x16bonk/v0/executor.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\"\x1a\n" +
 	"\x18DescribeExecutorsRequest\"\xf9\x01\n" +
 	"\x19DescribeExecutorsResponse\x12O\n" +
 	"\texecutors\x18\x01 \x03(\v21.bonk.v0.DescribeExecutorsResponse.ExecutorsEntryR\texecutors\x1a\x15\n" +
 	"\x13ExecutorDescription\x1at\n" +
 	"\x0eExecutorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12L\n" +
-	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"\xa6\x01\n" +
-	"\x12ExecuteTaskRequest\x12\x1a\n" +
-	"\bexecutor\x18\x01 \x01(\tR\bexecutor\x12\x16\n" +
-	"\x06inputs\x18\x02 \x03(\tR\x06inputs\x127\n" +
+	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"\xba\x01\n" +
+	"\x12ExecuteTaskRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\bexecutor\x18\x02 \x01(\tR\bexecutor\x12\x16\n" +
+	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x127\n" +
 	"\n" +
-	"parameters\x18\x03 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"parameters\x18\x04 \x01(\v2\x17.google.protobuf.StructR\n" +
 	"parameters\x12#\n" +
-	"\rout_directory\x18\x04 \x01(\tR\foutDirectory\"\x91\x02\n" +
+	"\rout_directory\x18\x05 \x01(\tR\foutDirectory\"\x91\x02\n" +
 	"\x13ExecuteTaskResponse\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12P\n" +
 	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x8f\x01\n" +
@@ -568,11 +602,11 @@ const file_bonk_v0_plugin_proto_rawDesc = "" +
 	"parameters2\xb7\x01\n" +
 	"\x0fExecutorService\x12Z\n" +
 	"\x11DescribeExecutors\x12!.bonk.v0.DescribeExecutorsRequest\x1a\".bonk.v0.DescribeExecutorsResponse\x12H\n" +
-	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseB{\n" +
-	"\vcom.bonk.v0B\vPluginProtoP\x01Z\"go.bonk.build/api/go/proto/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
+	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseB}\n" +
+	"\vcom.bonk.v0B\rExecutorProtoP\x01Z\"go.bonk.build/api/go/proto/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
 
-var file_bonk_v0_plugin_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
-var file_bonk_v0_plugin_proto_goTypes = []any{
+var file_bonk_v0_executor_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_bonk_v0_executor_proto_goTypes = []any{
 	(*DescribeExecutorsRequest)(nil),                      // 0: bonk.v0.DescribeExecutorsRequest
 	(*DescribeExecutorsResponse)(nil),                     // 1: bonk.v0.DescribeExecutorsResponse
 	(*ExecuteTaskRequest)(nil),                            // 2: bonk.v0.ExecuteTaskRequest
@@ -582,7 +616,7 @@ var file_bonk_v0_plugin_proto_goTypes = []any{
 	(*ExecuteTaskResponse_FollowupTask)(nil), // 6: bonk.v0.ExecuteTaskResponse.FollowupTask
 	(*structpb.Struct)(nil),                  // 7: google.protobuf.Struct
 }
-var file_bonk_v0_plugin_proto_depIdxs = []int32{
+var file_bonk_v0_executor_proto_depIdxs = []int32{
 	5, // 0: bonk.v0.DescribeExecutorsResponse.executors:type_name -> bonk.v0.DescribeExecutorsResponse.ExecutorsEntry
 	7, // 1: bonk.v0.ExecuteTaskRequest.parameters:type_name -> google.protobuf.Struct
 	6, // 2: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
@@ -599,26 +633,26 @@ var file_bonk_v0_plugin_proto_depIdxs = []int32{
 	0, // [0:5] is the sub-list for field type_name
 }
 
-func init() { file_bonk_v0_plugin_proto_init() }
-func file_bonk_v0_plugin_proto_init() {
-	if File_bonk_v0_plugin_proto != nil {
+func init() { file_bonk_v0_executor_proto_init() }
+func file_bonk_v0_executor_proto_init() {
+	if File_bonk_v0_executor_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bonk_v0_plugin_proto_rawDesc), len(file_bonk_v0_plugin_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bonk_v0_executor_proto_rawDesc), len(file_bonk_v0_executor_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_bonk_v0_plugin_proto_goTypes,
-		DependencyIndexes: file_bonk_v0_plugin_proto_depIdxs,
-		MessageInfos:      file_bonk_v0_plugin_proto_msgTypes,
+		GoTypes:           file_bonk_v0_executor_proto_goTypes,
+		DependencyIndexes: file_bonk_v0_executor_proto_depIdxs,
+		MessageInfos:      file_bonk_v0_executor_proto_msgTypes,
 	}.Build()
-	File_bonk_v0_plugin_proto = out.File
-	file_bonk_v0_plugin_proto_goTypes = nil
-	file_bonk_v0_plugin_proto_depIdxs = nil
+	File_bonk_v0_executor_proto = out.File
+	file_bonk_v0_executor_proto_goTypes = nil
+	file_bonk_v0_executor_proto_depIdxs = nil
 }

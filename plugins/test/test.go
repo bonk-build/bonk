@@ -5,26 +5,37 @@ package main // import "go.bonk.build/plugins/test"
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
-	plugin "go.bonk.build/api/go"
+	bonk "go.bonk.build/api/go"
 )
 
 type Params struct {
 	Value int `json:"value"`
 }
 
-var Executor_Test = plugin.NewExecutor(
-	"Test",
-	func(ctx context.Context, param *plugin.TaskParams[Params]) error {
-		slog.InfoContext(ctx, "it's happening!", "thing", "value")
+type Executor_Test struct{}
 
-		return nil
-	},
-)
+func (Executor_Test) Execute(
+	ctx context.Context,
+	task bonk.TypedTask[Params],
+	res *bonk.Result,
+) error {
+	slog.InfoContext(ctx, "it's happening!", "thing", task.Args.Value)
+
+	return nil
+}
+
+var Plugin = bonk.NewPlugin(func(plugin *bonk.Plugin) error {
+	err := plugin.RegisterExecutor("Test", bonk.WrapTypedExecutor(*plugin.Cuectx, Executor_Test{}))
+	if err != nil {
+		return fmt.Errorf("failed to register Test executor: %w", err)
+	}
+
+	return nil
+})
 
 func main() {
-	plugin.Serve(
-		Executor_Test,
-	)
+	Plugin.Serve()
 }

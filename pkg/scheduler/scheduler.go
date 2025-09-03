@@ -16,7 +16,7 @@ import (
 )
 
 type TaskSender interface {
-	Execute(ctx context.Context, tsk task.Task) (*task.TaskResult, error)
+	Execute(ctx context.Context, tsk task.Task, result *task.Result) error
 }
 
 type Scheduler struct {
@@ -54,7 +54,8 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 
 		slog.Debug("state mismatch, running task", "mismatches", mismatches)
 
-		result, err := s.executorManager.Execute(context.Background(), tsk)
+		var result task.Result
+		err = s.executorManager.Execute(context.Background(), tsk, &result)
 		if err != nil {
 			slog.Error("error executing task", "task", taskName, "error", err)
 
@@ -71,7 +72,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 			slog.Error("failed to schedule followup tasks", "error", followupErr)
 		}
 
-		err = SaveState(root, &tsk, result)
+		err = SaveState(root, &tsk, &result)
 		if err != nil {
 			slog.Error("failed to save task state", "error", err)
 

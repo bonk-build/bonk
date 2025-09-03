@@ -25,16 +25,16 @@ const StateFile = "state.json"
 
 type state struct {
 	// Cache provided executor & outputs
-	Executor string           `json:"executor,omitempty"`
-	Inputs   []string         `json:"inputs,omitempty"`
-	Result   *task.TaskResult `json:"result,omitempty"`
+	Executor string       `json:"executor,omitempty"`
+	Inputs   []string     `json:"inputs,omitempty"`
+	Result   *task.Result `json:"result,omitempty"`
 
 	ParamsChecksum []byte `json:"paramsChecksum,omitempty"`
 	InputsChecksum []byte `json:"inputChecksum,omitempty"`
 	ResultChecksum []byte `json:"resultChecksum,omitempty"`
 }
 
-func SaveState(root *os.Root, task *task.Task, result *task.TaskResult) error {
+func SaveState(root *os.Root, task *task.Task, result *task.Result) error {
 	file, err := root.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
@@ -155,7 +155,7 @@ func hashFiles(hasher hash.Hash, root *os.Root, files []string) ([]byte, error) 
 	return result, err
 }
 
-func hashResult(hasher hash.Hash, root *os.Root, result *task.TaskResult) ([]byte, error) {
+func hashResult(hasher hash.Hash, root *os.Root, result *task.Result) ([]byte, error) {
 	if result == nil {
 		return nil, nil
 	}

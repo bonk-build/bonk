@@ -16,17 +16,12 @@ import (
 )
 
 // Call like you'd call Serve() but at the top of your test function.
-func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) executor.ExecutorManager {
+func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.ExecutorManager {
 	t.Helper()
-
-	executorMap := make(map[string]bonk.BonkExecutor, len(executors))
-	for _, be := range executors {
-		executorMap[be.Name] = be
-	}
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
 		"executor": &bonk.ExecutorServer{
-			Executors: executorMap,
+			Executors: &plugin.ExecutorManager,
 		},
 	})
 
@@ -48,12 +43,12 @@ func ServeTest(t *testing.T, executors ...bonk.BonkExecutor) executor.ExecutorMa
 
 	executorManager := executor.NewExecutorManager()
 
-	for _, be := range executors {
-		err = executorManager.RegisterExecutor(be.Name, executor.NewRPC(be.Name, bonkClient))
+	plugin.ForEachExecutor(func(name string, _ executor.Executor) {
+		err = executorManager.RegisterExecutor(name, executor.NewRPC(name, bonkClient))
 		if err != nil {
-			t.Fatal("failed to register executor:", be.Name)
+			t.Fatal("failed to register executor:", name)
 		}
-	}
+	})
 
 	return executorManager
 }

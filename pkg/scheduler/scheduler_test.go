@@ -28,13 +28,11 @@ func Test_SenderIsCalled(t *testing.T) {
 
 	mock := gomock.NewController(t)
 
-	result := task.TaskResult{}
-
 	sender := NewMockTaskSender(mock)
 	sender.EXPECT().
-		Execute(gomock.Any(), gomock.Any()).
+		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
-		Return(&result, nil)
+		Return(nil)
 
 	scheduler := NewScheduler(sender, 1)
 

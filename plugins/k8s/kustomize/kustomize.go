@@ -24,20 +24,31 @@ type Params struct {
 	Kustomization types.Kustomization `json:"-"`
 }
 
-func kustomize(ctx context.Context, params *bonk.TaskParams[Params]) error {
+type Executor_Kustomize struct{}
+
+func (Executor_Kustomize) Execute(
+	ctx context.Context,
+	task bonk.TypedTask[Params],
+	res *bonk.Result,
+) error {
+	outDir, ok := ctx.Value("outDir").(string)
+	if !ok {
+		panic("no outdir!")
+	}
+
 	// Apply resources and any needed fixes
-	params.Params.Kustomization.Resources = params.Inputs
-	params.Params.Kustomization.FixKustomization()
+	task.Args.Kustomization.Resources = task.Inputs
+	task.Args.Kustomization.FixKustomization()
 
 	// Write out the kustomization.yaml file
-	outFile, err := os.Create(path.Join(params.OutDir, konfig.DefaultKustomizationFileName()))
+	outFile, err := os.Create(path.Join(outDir, konfig.DefaultKustomizationFileName()))
 	if err != nil {
 		return fmt.Errorf("failed to open kustomization file: %w", err)
 	}
 
 	enc := yaml.NewEncoder(outFile)
 
-	err = enc.Encode(params.Params.Kustomization)
+	err = enc.Encode(task.Args.Kustomization)
 	if err != nil {
 		return fmt.Errorf("failed to encode kustomization file as yaml: %w", err)
 	}
@@ -56,32 +67,39 @@ func kustomize(ctx context.Context, params *bonk.TaskParams[Params]) error {
 	options.LoadRestrictions = types.LoadRestrictionsNone
 	kusty := krusty.MakeKustomizer(options)
 
-	res, err := kusty.Run(filesys.MakeFsOnDisk(), params.OutDir)
+	resMap, err := kusty.Run(filesys.MakeFsOnDisk(), outDir)
 	if err != nil {
 		return fmt.Errorf("failed to perform kustomization: %w", err)
 	}
 
 	// Save the result
-	resYaml, err := res.AsYaml()
+	resYaml, err := resMap.AsYaml()
 	if err != nil {
 		return fmt.Errorf("failed to encode kustomized content as yaml: %w", err)
 	}
 
-	err = os.WriteFile(path.Join(params.OutDir, output), resYaml, 0o600)
+	err = os.WriteFile(path.Join(outDir, output), resYaml, 0o600)
 	if err != nil {
 		return fmt.Errorf("failed to write kustomized content to file: %w", err)
 	}
 
-	bonk.AddOutputs(ctx, output)
+	res.Outputs = []string{output}
 
 	return nil
 }
 
-func main() {
-	bonk.Serve(
-		bonk.NewExecutor(
-			"Kustomize",
-			kustomize,
-		),
+var Plugin = bonk.NewPlugin(func(plugin *bonk.Plugin) error {
+	err := plugin.RegisterExecutor(
+		"Kustomize",
+		bonk.WrapTypedExecutor(*plugin.Cuectx, Executor_Kustomize{}),
 	)
+	if err != nil {
+		return fmt.Errorf("failed to register Test executor: %w", err)
+	}
+
+	return nil
+})
+
+func main() {
+	Plugin.Serve()
 }

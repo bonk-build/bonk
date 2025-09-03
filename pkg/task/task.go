@@ -12,18 +12,18 @@ import (
 )
 
 type TaskId struct {
-	id       string
-	executor string
+	Name     string `json:"name"`
+	Executor string `json:"executor"`
 }
 
 func (id *TaskId) String() string {
-	return fmt.Sprintf("%s:%s", id.id, id.executor)
+	return fmt.Sprintf("%s:%s", id.Name, id.Executor)
 }
 
 func (id *TaskId) GetChild(name, executor string) TaskId {
 	return TaskId{
-		executor: executor,
-		id:       fmt.Sprintf("%s:%s", id.id, name),
+		Executor: executor,
+		Name:     fmt.Sprintf("%s.%s", id.Name, name),
 	}
 }
 
@@ -52,11 +52,11 @@ type Task struct {
 	Params cue.Value `json:"params,omitempty"`
 }
 
-func New(executor, id string, params cue.Value, inputs ...string) Task {
+func New(executor, name string, params cue.Value, inputs ...string) Task {
 	return Task{
 		ID: TaskId{
-			executor: executor,
-			id:       id,
+			Executor: executor,
+			Name:     name,
 		},
 		Inputs: inputs,
 		Params: params,
@@ -64,14 +64,5 @@ func New(executor, id string, params cue.Value, inputs ...string) Task {
 }
 
 func (t *Task) Executor() string {
-	return t.ID.executor
-}
-
-func (t *Task) GetOutputDirectory() string {
-	return t.ID.GetOutputDirectory()
-}
-
-type TaskResult struct {
-	Outputs       []string `json:"outputs,omitempty"`
-	FollowupTasks []Task   `json:"followupTasks,omitempty"`
+	return t.ID.Executor
 }

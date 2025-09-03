@@ -45,18 +45,17 @@ func (m *MockTaskSender) EXPECT() *MockTaskSenderMockRecorder {
 }
 
 // Execute mocks base method.
-func (m *MockTaskSender) Execute(ctx context.Context, tsk task.Task) (*task.TaskResult, error) {
+func (m *MockTaskSender) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Execute", ctx, tsk)
-	ret0, _ := ret[0].(*task.TaskResult)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret := m.ctrl.Call(m, "Execute", ctx, tsk, result)
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // Execute indicates an expected call of Execute.
-func (mr *MockTaskSenderMockRecorder) Execute(ctx, tsk any) *MockTaskSenderExecuteCall {
+func (mr *MockTaskSenderMockRecorder) Execute(ctx, tsk, result any) *MockTaskSenderExecuteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockTaskSender)(nil).Execute), ctx, tsk)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockTaskSender)(nil).Execute), ctx, tsk, result)
 	return &MockTaskSenderExecuteCall{Call: call}
 }
 
@@ -66,19 +65,19 @@ type MockTaskSenderExecuteCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockTaskSenderExecuteCall) Return(arg0 *task.TaskResult, arg1 error) *MockTaskSenderExecuteCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockTaskSenderExecuteCall) Return(arg0 error) *MockTaskSenderExecuteCall {
+	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTaskSenderExecuteCall) Do(f func(context.Context, task.Task) (*task.TaskResult, error)) *MockTaskSenderExecuteCall {
+func (c *MockTaskSenderExecuteCall) Do(f func(context.Context, task.Task, *task.Result) error) *MockTaskSenderExecuteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTaskSenderExecuteCall) DoAndReturn(f func(context.Context, task.Task) (*task.TaskResult, error)) *MockTaskSenderExecuteCall {
+func (c *MockTaskSenderExecuteCall) DoAndReturn(f func(context.Context, task.Task, *task.Result) error) *MockTaskSenderExecuteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
