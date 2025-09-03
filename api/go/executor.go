@@ -37,7 +37,7 @@ type (
 )
 
 func WrapTypedExecutor[Params any](
-	cuectx cue.Context,
+	cuectx *cue.Context,
 	impl TypedExecutor[Params],
 ) Executor {
 	return executor.WrapTypedExecutor(cuectx, impl)

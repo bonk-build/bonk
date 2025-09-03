@@ -26,7 +26,7 @@ type wrappedExecutor struct {
 var _ Executor = (*wrappedExecutor)(nil)
 
 func WrapTypedExecutor[Params any](
-	cuectx cue.Context,
+	cuectx *cue.Context,
 	impl TypedExecutor[Params],
 ) Executor {
 	return wrappedExecutor{
