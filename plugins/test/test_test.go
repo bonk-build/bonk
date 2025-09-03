@@ -19,9 +19,11 @@ func Test_Plugin(t *testing.T) {
 		Executor_Test,
 	)
 
-	_, err := executors.Execute(
+	var result task.TaskResult
+	err := executors.Execute(
 		t.Context(),
 		task.New(Executor_Test.Name, "testing", cue.Value{}),
+		&result,
 	)
 	if err != nil {
 		t.Fatal("failed call to PerformTask:", err)

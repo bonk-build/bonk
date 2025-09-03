@@ -12,23 +12,27 @@ import (
 )
 
 type Executor interface {
-	Execute(ctx context.Context, tsk task.Task) (*task.TaskResult, error)
+	Execute(ctx context.Context, tsk task.Task, result *task.TaskResult) error
 }
 
 type TypedExecutor[Params any] interface {
-	Execute(ctx context.Context, tsk task.TypedTask[Params]) (*task.TaskResult, error)
+	Execute(ctx context.Context, tsk task.TypedTask[Params], result *task.TaskResult) error
 }
 
 type wrappedExecutor struct {
-	thunk func(ctx context.Context, tsk task.Task) (*task.TaskResult, error)
+	thunk func(ctx context.Context, tsk task.Task, result *task.TaskResult) error
 }
 
 var _ Executor = (*wrappedExecutor)(nil)
 
-func WrapTypedExecutor[Params any](cuectx cue.Context, impl TypedExecutor[Params]) Executor {
+func WrapTypedExecutor[Params any](
+	cuectx cue.Context,
+	impl TypedExecutor[Params],
+	result *task.TaskResult,
+) Executor {
 	return wrappedExecutor{
-		thunk: func(ctx context.Context, tsk task.Task) (*task.TaskResult, error) {
-			return impl.Execute(ctx, task.Wrap[Params](cuectx, tsk))
+		thunk: func(ctx context.Context, tsk task.Task, result *task.TaskResult) error {
+			return impl.Execute(ctx, task.Wrap[Params](cuectx, tsk), result)
 		},
 	}
 }
@@ -36,6 +40,7 @@ func WrapTypedExecutor[Params any](cuectx cue.Context, impl TypedExecutor[Params
 func (wrapped wrappedExecutor) Execute(
 	ctx context.Context,
 	tsk task.Task,
-) (*task.TaskResult, error) {
-	return wrapped.thunk(ctx, tsk)
+	result *task.TaskResult,
+) error {
+	return wrapped.thunk(ctx, tsk, result)
 }
