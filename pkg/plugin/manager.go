@@ -105,6 +105,8 @@ type executorPluginClient struct {
 	goplugin.NetRPCUnsupportedPlugin
 }
 
+var _ goplugin.GRPCPlugin = (*executorPluginClient)(nil)
+
 func (p *executorPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
 	return errors.ErrUnsupported
 }
@@ -120,6 +122,8 @@ func (p *executorPluginClient) GRPCClient(
 type logStreamingPluginClient struct {
 	goplugin.NetRPCUnsupportedPlugin
 }
+
+var _ goplugin.GRPCPlugin = (*logStreamingPluginClient)(nil)
 
 func (p *logStreamingPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
 	return errors.ErrUnsupported
