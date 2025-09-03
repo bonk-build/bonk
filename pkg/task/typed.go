@@ -17,7 +17,7 @@ type TypedTask[Params any] struct {
 
 func NewTyped[Params any](
 	executor, name string,
-	cuectx cue.Context,
+	cuectx *cue.Context,
 	params Params,
 	inputs ...string,
 ) TypedTask[Params] {
@@ -34,7 +34,7 @@ func NewTyped[Params any](
 	}
 }
 
-func Wrap[Params any](cuectx cue.Context, tsk Task) TypedTask[Params] {
+func Wrap[Params any](cuectx *cue.Context, tsk Task) TypedTask[Params] {
 	result := TypedTask[Params]{
 		Task: tsk,
 	}
