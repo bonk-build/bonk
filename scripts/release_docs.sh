@@ -15,8 +15,5 @@ set -e
 # CZ_PRE_INCREMENT            Whether this is a MAJOR, MINOR or PATH release
 # CZ_PRE_CHANGELOG_FILE_NAME  Path to the changelog file, if available
 
-# Generate the API docs
-./scripts/gomarkdoc.sh $CZ_PRE_NEW_TAG_VERSION
-
 # Publish the docs via mike
 mike deploy --push --update-aliases $CZ_PRE_NEW_TAG_VERSION latest

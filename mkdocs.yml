@@ -6,6 +6,14 @@ site_url: https://bonk.build/
 repo_url: https://github.com/bonk-build/bonk
 repo_name: bonk-build/bonk
 
+nav:
+  - README.md
+  - API:
+    - Go: https://pkg.go.dev/go.bonk.build/api/go
+  - Command Line:
+    - cmd/bonk.md
+    - cmd/bonk_build.md
+
 theme:
   name: material
   logo: assets/bonk.png
