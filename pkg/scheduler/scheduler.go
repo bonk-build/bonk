@@ -38,7 +38,14 @@ func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 	taskName := tsk.ID.String()
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		mismatches := tsk.DetectStateMismatches()
+		root, err := tsk.ID.OpenRoot()
+		if err != nil {
+			slog.Error("failed to open task root", "error", err)
+
+			return
+		}
+
+		mismatches := DetectStateMismatches(root, &tsk)
 		if mismatches == nil {
 			slog.Debug("states match, skipping task")
 
@@ -64,7 +71,7 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 			slog.Error("failed to schedule followup tasks", "error", followupErr)
 		}
 
-		err = tsk.SaveState(result)
+		err = SaveState(root, &tsk, result)
 		if err != nil {
 			slog.Error("failed to save task state", "error", err)
 
