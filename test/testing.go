@@ -11,7 +11,7 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonk "go.bonk.build/api/go"
-	bonkv0 "go.bonk.build/api/go/proto/bonk/v0"
+	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor"
 )
 

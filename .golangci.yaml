@@ -48,6 +48,14 @@ linters:
             - pkg: "github.com/pkg/errors"
               desc: Should be replaced by standard lib errors package
 
+        api:
+          list-mode: lax
+          files:
+            - "**/pkg/**/*.go"
+          deny:
+            - pkg: "go.bonk.build/api/go"
+              desc: only for use by plugins
+
         test:
           list-mode: lax
           files:
