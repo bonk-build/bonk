@@ -17,8 +17,8 @@ type ExecutorManager struct {
 // Note that ExecutorManager is itself an executor.
 var _ Executor = (*ExecutorManager)(nil)
 
-func NewExecutorManager() *ExecutorManager {
-	bm := &ExecutorManager{}
+func NewExecutorManager() ExecutorManager {
+	bm := ExecutorManager{}
 	bm.executors = make(map[string]Executor)
 
 	return bm
