@@ -66,8 +66,3 @@ func New(executor, name string, params cue.Value, inputs ...string) Task {
 func (t *Task) Executor() string {
 	return t.ID.Executor
 }
-
-type TaskResult struct {
-	Outputs       []string `json:"outputs,omitempty"`
-	FollowupTasks []Task   `json:"followupTasks,omitempty"`
-}

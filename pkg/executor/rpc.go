@@ -27,7 +27,7 @@ type rpcExecutor struct {
 	client bonkv0.ExecutorServiceClient
 }
 
-func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.TaskResult) error {
+func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
 	outDir := tsk.ID.GetOutputDirectory()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
 		Executor:     &pb.name,

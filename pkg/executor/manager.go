@@ -42,7 +42,7 @@ func (bm *ExecutorManager) UnregisterExecutor(name string) {
 func (bm *ExecutorManager) Execute(
 	ctx context.Context,
 	tsk task.Task,
-	result *task.TaskResult,
+	result *task.Result,
 ) error {
 	executorName := tsk.Executor()
 
