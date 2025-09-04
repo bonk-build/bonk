@@ -17,6 +17,7 @@ import (
 	"cuelang.org/go/cue/cuecontext"
 	"cuelang.org/go/encoding/gocode/gocodec"
 
+	"github.com/google/uuid"
 	"github.com/spf13/afero"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -119,6 +120,7 @@ func (s *executorGRPCServer) ExecuteTask(
 
 	tsk := task.Task{
 		ID: task.TaskId{
+			Session:  uuid.MustParse(req.GetSession()),
 			Name:     req.GetName(),
 			Executor: req.GetExecutor(),
 		},

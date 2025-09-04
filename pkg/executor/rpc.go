@@ -28,8 +28,10 @@ type rpcExecutor struct {
 }
 
 func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
+	session := tsk.ID.Session.String()
 	outDir := tsk.ID.GetOutputDirectory()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
+		Session:      &session,
 		Name:         &tsk.ID.Name,
 		Executor:     &pb.name,
 		Inputs:       tsk.Inputs,

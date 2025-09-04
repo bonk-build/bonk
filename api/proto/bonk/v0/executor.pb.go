@@ -123,11 +123,12 @@ func (b0 DescribeExecutorsResponse_builder) Build() *DescribeExecutorsResponse {
 
 type ExecuteTaskRequest struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name         *string                `protobuf:"bytes,1,opt,name=name"`
-	xxx_hidden_Executor     *string                `protobuf:"bytes,2,opt,name=executor"`
-	xxx_hidden_Inputs       []string               `protobuf:"bytes,3,rep,name=inputs"`
-	xxx_hidden_Parameters   *structpb.Struct       `protobuf:"bytes,4,opt,name=parameters"`
-	xxx_hidden_OutDirectory *string                `protobuf:"bytes,5,opt,name=out_directory,json=outDirectory"`
+	xxx_hidden_Session      *string                `protobuf:"bytes,1,opt,name=session"`
+	xxx_hidden_Name         *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Executor     *string                `protobuf:"bytes,3,opt,name=executor"`
+	xxx_hidden_Inputs       []string               `protobuf:"bytes,4,rep,name=inputs"`
+	xxx_hidden_Parameters   *structpb.Struct       `protobuf:"bytes,5,opt,name=parameters"`
+	xxx_hidden_OutDirectory *string                `protobuf:"bytes,6,opt,name=out_directory,json=outDirectory"`
 	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
 	XXX_presence            [1]uint32
 	unknownFields           protoimpl.UnknownFields
@@ -157,6 +158,16 @@ func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message {
 		return ms
 	}
 	return mi.MessageOf(x)
+}
+
+func (x *ExecuteTaskRequest) GetSession() string {
+	if x != nil {
+		if x.xxx_hidden_Session != nil {
+			return *x.xxx_hidden_Session
+		}
+		return ""
+	}
+	return ""
 }
 
 func (x *ExecuteTaskRequest) GetName() string {
@@ -203,14 +214,19 @@ func (x *ExecuteTaskRequest) GetOutDirectory() string {
 	return ""
 }
 
+func (x *ExecuteTaskRequest) SetSession(v string) {
+	x.xxx_hidden_Session = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+}
+
 func (x *ExecuteTaskRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
 }
 
 func (x *ExecuteTaskRequest) SetExecutor(v string) {
 	x.xxx_hidden_Executor = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
 }
 
 func (x *ExecuteTaskRequest) SetInputs(v []string) {
@@ -223,21 +239,28 @@ func (x *ExecuteTaskRequest) SetParameters(v *structpb.Struct) {
 
 func (x *ExecuteTaskRequest) SetOutDirectory(v string) {
 	x.xxx_hidden_OutDirectory = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 4, 5)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
-func (x *ExecuteTaskRequest) HasName() bool {
+func (x *ExecuteTaskRequest) HasSession() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *ExecuteTaskRequest) HasExecutor() bool {
+func (x *ExecuteTaskRequest) HasName() bool {
 	if x == nil {
 		return false
 	}
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *ExecuteTaskRequest) HasExecutor() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
 func (x *ExecuteTaskRequest) HasParameters() bool {
@@ -251,16 +274,21 @@ func (x *ExecuteTaskRequest) HasOutDirectory() bool {
 	if x == nil {
 		return false
 	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 4)
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
+}
+
+func (x *ExecuteTaskRequest) ClearSession() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_Session = nil
 }
 
 func (x *ExecuteTaskRequest) ClearName() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
 	x.xxx_hidden_Name = nil
 }
 
 func (x *ExecuteTaskRequest) ClearExecutor() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 2)
 	x.xxx_hidden_Executor = nil
 }
 
@@ -269,13 +297,14 @@ func (x *ExecuteTaskRequest) ClearParameters() {
 }
 
 func (x *ExecuteTaskRequest) ClearOutDirectory() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 4)
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
 	x.xxx_hidden_OutDirectory = nil
 }
 
 type ExecuteTaskRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
+	Session      *string
 	Name         *string
 	Executor     *string
 	Inputs       []string
@@ -287,18 +316,22 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
 	m0 := &ExecuteTaskRequest{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.Session != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		x.xxx_hidden_Session = b.Session
+	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Executor != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
 		x.xxx_hidden_Executor = b.Executor
 	}
 	x.xxx_hidden_Inputs = b.Inputs
 	x.xxx_hidden_Parameters = b.Parameters
 	if b.OutDirectory != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 4, 5)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
 		x.xxx_hidden_OutDirectory = b.OutDirectory
 	}
 	return m0
@@ -581,15 +614,16 @@ const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\x13ExecutorDescription\x1at\n" +
 	"\x0eExecutorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12L\n" +
-	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"\xba\x01\n" +
-	"\x12ExecuteTaskRequest\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
-	"\bexecutor\x18\x02 \x01(\tR\bexecutor\x12\x16\n" +
-	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x127\n" +
+	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"\xd4\x01\n" +
+	"\x12ExecuteTaskRequest\x12\x18\n" +
+	"\asession\x18\x01 \x01(\tR\asession\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"\bexecutor\x18\x03 \x01(\tR\bexecutor\x12\x16\n" +
+	"\x06inputs\x18\x04 \x03(\tR\x06inputs\x127\n" +
 	"\n" +
-	"parameters\x18\x04 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"parameters\x18\x05 \x01(\v2\x17.google.protobuf.StructR\n" +
 	"parameters\x12#\n" +
-	"\rout_directory\x18\x05 \x01(\tR\foutDirectory\"\x91\x02\n" +
+	"\rout_directory\x18\x06 \x01(\tR\foutDirectory\"\x91\x02\n" +
 	"\x13ExecuteTaskResponse\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12P\n" +
 	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x8f\x01\n" +

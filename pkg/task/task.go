@@ -9,12 +9,14 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/google/uuid"
 	"github.com/spf13/afero"
 )
 
 type TaskId struct {
-	Name     string `json:"name"`
-	Executor string `json:"executor"`
+	Session  uuid.UUID `json:"session"`
+	Name     string    `json:"name"`
+	Executor string    `json:"executor"`
 }
 
 func (id *TaskId) String() string {
