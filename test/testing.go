@@ -6,6 +6,8 @@ package test
 import (
 	"testing"
 
+	"cuelang.org/go/cue/cuecontext"
+
 	"github.com/stretchr/testify/require"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -21,6 +23,7 @@ func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.ExecutorManager {
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
 		"executor": &bonk.ExecutorServer{
+			Cuectx:    cuecontext.New(),
 			Executors: &plugin.ExecutorManager,
 		},
 	})

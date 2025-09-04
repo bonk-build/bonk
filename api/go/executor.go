@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc"
 
 	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
-	"cuelang.org/go/encoding/gocode/gocodec"
 
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
@@ -46,12 +44,11 @@ func WrapTypedExecutor[Params any](
 
 // PRIVATE
 
-var cuectx = cuecontext.New()
-
 type ExecutorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	goplugin.GRPCPlugin
 
+	Cuectx    *cue.Context
 	Executors *executor.ExecutorManager
 }
 
@@ -62,9 +59,9 @@ func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server)
 	}
 
 	bonkv0.RegisterExecutorServiceServer(server, &executorGRPCServer{
-		project:     afero.NewBasePathFs(afero.NewOsFs(), cwd),
-		decodeCodec: gocodec.New(cuectx, &gocodec.Config{}),
-		executors:   p.Executors,
+		project:   afero.NewBasePathFs(afero.NewOsFs(), cwd),
+		cuectx:    p.Cuectx,
+		executors: p.Executors,
 	})
 
 	return nil
@@ -82,9 +79,9 @@ func (p *ExecutorServer) GRPCClient(
 type executorGRPCServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
-	project     afero.Fs
-	decodeCodec *gocodec.Codec
-	executors   *executor.ExecutorManager
+	project   afero.Fs
+	cuectx    *cue.Context
+	executors *executor.ExecutorManager
 }
 
 func (s *executorGRPCServer) DescribeExecutors(
@@ -144,17 +141,8 @@ func (s *executorGRPCServer) ExecuteTask(
 		OutputFs:  afero.NewBasePathFs(s.project, req.GetOutDirectory()),
 	}
 
-	// err = s.decodeCodec.Validate(executor.ParamsSchema, req.GetParameters())
-	// if err != nil {
-	// 	return nil, fmt.Errorf(
-	// 		"params %s don't match required schema %s",
-	// 		req.GetParameters(),
-	// 		executor.ParamsSchema,
-	// 	)
-	// }
-
-	tsk.Params, err = s.decodeCodec.Decode(req.GetParameters())
-	if err != nil {
+	tsk.Params = s.cuectx.Encode(req.GetParameters())
+	if tsk.Params.Err() != nil {
 		return nil, fmt.Errorf("failed to decode parameters: %w", err)
 	}
 
