@@ -48,6 +48,7 @@ func (p *Plugin) Serve() {
 	if p.GetNumExecutors() != 0 {
 		pluginMap["executor"] = &ExecutorServer{
 			Executors: &p.ExecutorManager,
+			Cuectx:    p.Cuectx,
 		}
 	}
 
