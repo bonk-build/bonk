@@ -45,8 +45,7 @@ var rootCmd = &cobra.Command{
 		pum := plugin.NewPluginManager(&bem)
 		defer pum.Shutdown()
 
-		sched := scheduler.NewScheduler(project, &bem, concurrency)
-		defer sched.Run()
+		sched := scheduler.NewScheduler(project, &bem, pum, concurrency)
 
 		plugins := []string{
 			"go.bonk.build/plugins/test",
@@ -60,7 +59,7 @@ var rootCmd = &cobra.Command{
 		}
 		cobra.CheckErr(err)
 
-		err = multierr.Combine(
+		cobra.CheckErr(multierr.Combine(
 			sched.AddTask(
 				task.New(
 					"test:Test",
@@ -89,8 +88,9 @@ var rootCmd = &cobra.Command{
 				),
 				"Test.Resources:resources:Resources",
 			),
-		)
+		))
 
+		err = sched.Run(cmd.Context())
 		cobra.CheckErr(err)
 	},
 }

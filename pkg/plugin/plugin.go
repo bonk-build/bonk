@@ -27,8 +27,9 @@ var Handshake = goplugin.HandshakeConfig{
 }
 
 type Plugin struct {
-	name      string
-	executors map[string]executor.Executor
+	name           string
+	executorClient bonkv0.ExecutorServiceClient
+	executors      map[string]executor.Executor
 }
 
 func (plugin *Plugin) Configure(ctx context.Context, client goplugin.ClientProtocol) error {
@@ -52,7 +53,8 @@ func (plugin *Plugin) handleFeatureExecutor(
 		return fmt.Errorf("failed to dispense executor plugin: %w", err)
 	}
 
-	executorClient, ok := executorPlugin.(bonkv0.ExecutorServiceClient)
+	var ok bool
+	plugin.executorClient, ok = executorPlugin.(bonkv0.ExecutorServiceClient)
 	if !ok {
 		panic(
 			fmt.Sprintf(
@@ -62,7 +64,10 @@ func (plugin *Plugin) handleFeatureExecutor(
 		)
 	}
 
-	resp, err := executorClient.DescribeExecutors(configureCtx, &bonkv0.DescribeExecutorsRequest{})
+	resp, err := plugin.executorClient.DescribeExecutors(
+		configureCtx,
+		&bonkv0.DescribeExecutorsRequest{},
+	)
 	if err != nil {
 		return fmt.Errorf("failed to describe plugin: %w", err)
 	}
@@ -75,7 +80,7 @@ func (plugin *Plugin) handleFeatureExecutor(
 			slog.WarnContext(ctx, "duplicate executor detected", "name", name)
 		}
 
-		plugin.executors[name] = executor.NewRPC(name, executorClient)
+		plugin.executors[name] = executor.NewRPC(name, plugin.executorClient)
 	}
 
 	return nil

@@ -10,6 +10,7 @@ import (
 
 	"go.uber.org/multierr"
 
+	"github.com/google/uuid"
 	"github.com/spf13/afero"
 
 	gotaskflow "github.com/noneback/go-taskflow"
@@ -21,19 +22,33 @@ type TaskSender interface {
 	Execute(ctx context.Context, tsk task.Task, result *task.Result) error
 }
 
+type SessionManager interface {
+	OpenSession(ctx context.Context, sessionId uuid.UUID) error
+	CloseSession(ctx context.Context, sessionId uuid.UUID)
+}
+
 type Scheduler struct {
 	project afero.Fs
 
 	executorManager TaskSender
+	sessionManager  SessionManager
 	executor        gotaskflow.Executor
 	tasks           map[string]*gotaskflow.Task
 	rootFlow        *gotaskflow.TaskFlow
+
+	sessionId uuid.UUID
 }
 
-func NewScheduler(project afero.Fs, executorManager TaskSender, concurrency uint) *Scheduler {
+func NewScheduler(
+	project afero.Fs,
+	executorManager TaskSender,
+	sessionManager SessionManager,
+	concurrency uint,
+) *Scheduler {
 	return &Scheduler{
 		project:         project,
 		executorManager: executorManager,
+		sessionManager:  sessionManager,
 		executor:        gotaskflow.NewExecutor(concurrency),
 		tasks:           make(map[string]*gotaskflow.Task),
 		rootFlow:        gotaskflow.NewTaskFlow("bonk"),
@@ -101,6 +116,19 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 	return nil
 }
 
-func (s *Scheduler) Run() {
+func (s *Scheduler) Run(ctx context.Context) error {
+	s.sessionId = uuid.Must(uuid.NewV7())
+
+	if s.sessionManager != nil {
+		err := s.sessionManager.OpenSession(ctx, s.sessionId)
+		if err != nil {
+			return fmt.Errorf("failed to open task schedule: %w", err)
+		}
+
+		defer s.sessionManager.CloseSession(ctx, s.sessionId)
+	}
+
 	s.executor.Run(s.rootFlow).Wait()
+
+	return nil
 }

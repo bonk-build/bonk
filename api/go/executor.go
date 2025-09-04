@@ -105,6 +105,20 @@ func (s *executorGRPCServer) DescribeExecutors(
 	return respBuilder.Build(), nil
 }
 
+func (s *executorGRPCServer) OpenSession(
+	ctx context.Context,
+	req *bonkv0.OpenSessionRequest,
+) (*bonkv0.OpenSessionResponse, error) {
+	return bonkv0.OpenSessionResponse_builder{}.Build(), nil
+}
+
+func (s *executorGRPCServer) CloseSession(
+	ctx context.Context,
+	req *bonkv0.CloseSessionRequest,
+) (*bonkv0.CloseSessionResponse, error) {
+	return bonkv0.CloseSessionResponse_builder{}.Build(), nil
+}
+
 func (s *executorGRPCServer) ExecuteTask(
 	ctx context.Context,
 	req *bonkv0.ExecuteTaskRequest,
@@ -120,7 +134,7 @@ func (s *executorGRPCServer) ExecuteTask(
 
 	tsk := task.Task{
 		ID: task.TaskId{
-			Session:  uuid.MustParse(req.GetSession()),
+			Session:  uuid.MustParse(req.GetSessionId()),
 			Name:     req.GetName(),
 			Executor: req.GetExecutor(),
 		},

@@ -30,9 +30,11 @@ func Test_SenderIsCalled(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	scheduler := NewScheduler(project, sender, 1)
+	scheduler := NewScheduler(project, sender, nil, 1)
 
-	require.NoError(t, scheduler.AddTask(task.New("test", "task1", cue.Value{})))
+	err := scheduler.AddTask(task.New("test", "task1", cue.Value{}))
+	require.NoError(t, err)
 
-	scheduler.Run()
+	err = scheduler.Run(t.Context())
+	require.NoError(t, err)
 }
