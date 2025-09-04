@@ -24,7 +24,6 @@
   "go.alternateTools": {
     "customFormatter": "golangci-lint-v2",
     "go": "${workspaceFolder}/.vscode/mise-tools/go",
-    "dlv": "${workspaceFolder}/.vscode/mise-tools/dlv",
     "gopls": "${workspaceFolder}/.vscode/mise-tools/gopls"
   },
   "go.formatFlags": [
