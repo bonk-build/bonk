@@ -25,6 +25,7 @@ func (id *TaskId) String() string {
 
 func (id *TaskId) GetChild(name, executor string) TaskId {
 	return TaskId{
+		Session:  id.Session,
 		Executor: executor,
 		Name:     fmt.Sprintf("%s.%s", id.Name, name),
 	}
