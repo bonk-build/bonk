@@ -8,6 +8,8 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/google/uuid"
+
 	"go.bonk.build/pkg/task"
 	"go.bonk.build/test"
 )
@@ -20,7 +22,7 @@ func Test_Plugin(t *testing.T) {
 	var result task.Result
 	err := executors.Execute(
 		t.Context(),
-		task.New("Test", "testing", cue.Value{}),
+		task.New(uuid.Nil, "Test", "testing", cue.Value{}),
 		&result,
 	)
 	if err != nil {

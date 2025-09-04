@@ -6,10 +6,13 @@ package executor // import "go.bonk.build/pkg/executor"
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"go.uber.org/multierr"
 
 	"google.golang.org/protobuf/types/known/structpb"
+
+	"github.com/google/uuid"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/task"
@@ -27,9 +30,42 @@ type rpcExecutor struct {
 	client bonkv0.ExecutorServiceClient
 }
 
+var (
+	_ Executor       = (*rpcExecutor)(nil)
+	_ SessionManager = (*rpcExecutor)(nil)
+)
+
+func (pb *rpcExecutor) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
+	sessionIdString := sessionId.String()
+	_, err := pb.client.OpenSession(ctx, bonkv0.OpenSessionRequest_builder{
+		SessionId: &sessionIdString,
+	}.Build())
+
+	return fmt.Errorf("failed to open session with executor: %w", err)
+}
+
+func (pb *rpcExecutor) CloseSession(ctx context.Context, sessionId uuid.UUID) {
+	sessionIdString := sessionId.String()
+	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
+		SessionId: &sessionIdString,
+	}.Build())
+	if err != nil {
+		slog.WarnContext(
+			ctx,
+			"error returned when closing session",
+			"plugin",
+			pb.name,
+			"session",
+			sessionId.String(),
+		)
+	}
+}
+
 func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
+	sessionIdStr := tsk.ID.Session.String()
 	outDir := tsk.ID.GetOutputDirectory()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
+		SessionId:    &sessionIdStr,
 		Name:         &tsk.ID.Name,
 		Executor:     &pb.name,
 		Inputs:       tsk.Inputs,

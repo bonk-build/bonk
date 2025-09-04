@@ -9,12 +9,14 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/google/uuid"
 	"github.com/spf13/afero"
 )
 
 type TaskId struct {
-	Name     string `json:"name"`
-	Executor string `json:"executor"`
+	Session  uuid.UUID `json:"-"`
+	Name     string    `json:"name"`
+	Executor string    `json:"executor"`
 }
 
 func (id *TaskId) String() string {
@@ -23,6 +25,7 @@ func (id *TaskId) String() string {
 
 func (id *TaskId) GetChild(name, executor string) TaskId {
 	return TaskId{
+		Session:  id.Session,
 		Executor: executor,
 		Name:     fmt.Sprintf("%s.%s", id.Name, name),
 	}
@@ -52,9 +55,10 @@ type Task struct {
 	OutputFs  afero.Fs `json:"-"`
 }
 
-func New(executor, name string, params cue.Value, inputs ...string) Task {
+func New(session uuid.UUID, executor, name string, params cue.Value, inputs ...string) Task {
 	return Task{
 		ID: TaskId{
+			Session:  session,
 			Executor: executor,
 			Name:     name,
 		},

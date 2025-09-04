@@ -25,12 +25,6 @@ func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.ExecutorManager {
 		},
 	})
 
-	t.Cleanup(func() {
-		// Close the GRPC infrastructure
-		require.NoError(t, client.Close())
-		server.Stop()
-	})
-
 	raw, err := client.Dispense("executor")
 	if err != nil {
 		t.Fatal("failed to dispense plugin:", err)
@@ -48,6 +42,12 @@ func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.ExecutorManager {
 		if err != nil {
 			t.Fatal("failed to register executor:", name)
 		}
+	})
+
+	t.Cleanup(func() {
+		// Close the GRPC infrastructure
+		require.NoError(t, client.Close())
+		server.Stop()
 	})
 
 	return executorManager

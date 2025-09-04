@@ -12,6 +12,7 @@ import (
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/cuecontext"
 
+	"github.com/google/uuid"
 	"github.com/pterm/pterm"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -46,7 +47,6 @@ var rootCmd = &cobra.Command{
 		defer pum.Shutdown()
 
 		sched := scheduler.NewScheduler(project, &bem, concurrency)
-		defer sched.Run()
 
 		plugins := []string{
 			"go.bonk.build/plugins/test",
@@ -60,9 +60,16 @@ var rootCmd = &cobra.Command{
 		}
 		cobra.CheckErr(err)
 
-		err = multierr.Combine(
+		session := uuid.Must(uuid.NewV7())
+
+		err = bem.OpenSession(cmd.Context(), session)
+		defer bem.CloseSession(cmd.Context(), session)
+		cobra.CheckErr(err)
+
+		cobra.CheckErr(multierr.Combine(
 			sched.AddTask(
 				task.New(
+					session,
 					"test:Test",
 					"Test.Test",
 					cuectx.CompileString(`value: 3`),
@@ -70,6 +77,7 @@ var rootCmd = &cobra.Command{
 			),
 			sched.AddTask(
 				task.New(
+					session,
 					"resources:Resources",
 					"Test.Resources",
 					cuectx.CompileString(`
@@ -82,6 +90,7 @@ var rootCmd = &cobra.Command{
 			),
 			sched.AddTask(
 				task.New(
+					session,
 					"kustomize:Kustomize",
 					"Test.Kustomize",
 					cuectx.BuildExpr(ast.NewStruct()),
@@ -89,9 +98,9 @@ var rootCmd = &cobra.Command{
 				),
 				"Test.Resources:resources:Resources",
 			),
-		)
+		))
 
-		cobra.CheckErr(err)
+		sched.Run()
 	},
 }
 

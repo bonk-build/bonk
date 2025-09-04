@@ -20,6 +20,8 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ExecutorService_DescribeExecutors_FullMethodName = "/bonk.v0.ExecutorService/DescribeExecutors"
+	ExecutorService_OpenSession_FullMethodName       = "/bonk.v0.ExecutorService/OpenSession"
+	ExecutorService_CloseSession_FullMethodName      = "/bonk.v0.ExecutorService/CloseSession"
 	ExecutorService_ExecuteTask_FullMethodName       = "/bonk.v0.ExecutorService/ExecuteTask"
 )
 
@@ -29,6 +31,9 @@ const (
 type ExecutorServiceClient interface {
 	// General plugin support
 	DescribeExecutors(ctx context.Context, in *DescribeExecutorsRequest, opts ...grpc.CallOption) (*DescribeExecutorsResponse, error)
+	// Used for opening & closing sessions
+	OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error)
+	CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...grpc.CallOption) (*CloseSessionResponse, error)
 	// Executor interface
 	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskResponse, error)
 }
@@ -51,6 +56,26 @@ func (c *executorServiceClient) DescribeExecutors(ctx context.Context, in *Descr
 	return out, nil
 }
 
+func (c *executorServiceClient) OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(OpenSessionResponse)
+	err := c.cc.Invoke(ctx, ExecutorService_OpenSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *executorServiceClient) CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...grpc.CallOption) (*CloseSessionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CloseSessionResponse)
+	err := c.cc.Invoke(ctx, ExecutorService_CloseSession_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *executorServiceClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(ExecuteTaskResponse)
@@ -67,6 +92,9 @@ func (c *executorServiceClient) ExecuteTask(ctx context.Context, in *ExecuteTask
 type ExecutorServiceServer interface {
 	// General plugin support
 	DescribeExecutors(context.Context, *DescribeExecutorsRequest) (*DescribeExecutorsResponse, error)
+	// Used for opening & closing sessions
+	OpenSession(context.Context, *OpenSessionRequest) (*OpenSessionResponse, error)
+	CloseSession(context.Context, *CloseSessionRequest) (*CloseSessionResponse, error)
 	// Executor interface
 	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error)
 	mustEmbedUnimplementedExecutorServiceServer()
@@ -81,6 +109,12 @@ type UnimplementedExecutorServiceServer struct{}
 
 func (UnimplementedExecutorServiceServer) DescribeExecutors(context.Context, *DescribeExecutorsRequest) (*DescribeExecutorsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DescribeExecutors not implemented")
+}
+func (UnimplementedExecutorServiceServer) OpenSession(context.Context, *OpenSessionRequest) (*OpenSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OpenSession not implemented")
+}
+func (UnimplementedExecutorServiceServer) CloseSession(context.Context, *CloseSessionRequest) (*CloseSessionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CloseSession not implemented")
 }
 func (UnimplementedExecutorServiceServer) ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteTask not implemented")
@@ -124,6 +158,42 @@ func _ExecutorService_DescribeExecutors_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ExecutorService_OpenSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OpenSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExecutorServiceServer).OpenSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExecutorService_OpenSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExecutorServiceServer).OpenSession(ctx, req.(*OpenSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ExecutorService_CloseSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CloseSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ExecutorServiceServer).CloseSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ExecutorService_CloseSession_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ExecutorServiceServer).CloseSession(ctx, req.(*CloseSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ExecutorService_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExecuteTaskRequest)
 	if err := dec(in); err != nil {
@@ -152,6 +222,14 @@ var ExecutorService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "DescribeExecutors",
 			Handler:    _ExecutorService_DescribeExecutors_Handler,
+		},
+		{
+			MethodName: "OpenSession",
+			Handler:    _ExecutorService_OpenSession_Handler,
+		},
+		{
+			MethodName: "CloseSession",
+			Handler:    _ExecutorService_CloseSession_Handler,
 		},
 		{
 			MethodName: "ExecuteTask",

@@ -14,6 +14,7 @@ require (
 	cuelang.org/go v0.14.1
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/delicb/slogbuffer v0.1.0
+	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/noneback/go-taskflow v1.1.3
 	github.com/pterm/pterm v0.12.81
@@ -90,7 +91,6 @@ require (
 	github.com/google/cel-go v0.26.0 // indirect
 	github.com/google/gnostic-models v0.7.0 // indirect
 	github.com/google/go-containerregistry v0.20.6 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/gookit/color v1.5.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.1 // indirect
 	github.com/hashicorp/go-hclog v1.6.3 // indirect
