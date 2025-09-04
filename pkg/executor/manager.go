@@ -7,6 +7,10 @@ import (
 	"context"
 	"fmt"
 
+	"go.uber.org/multierr"
+
+	"github.com/google/uuid"
+
 	"go.bonk.build/pkg/task"
 )
 
@@ -15,7 +19,10 @@ type ExecutorManager struct {
 }
 
 // Note that ExecutorManager is itself an executor.
-var _ Executor = (*ExecutorManager)(nil)
+var (
+	_ Executor       = (*ExecutorManager)(nil)
+	_ SessionManager = (*ExecutorManager)(nil)
+)
 
 func NewExecutorManager() ExecutorManager {
 	bm := ExecutorManager{}
@@ -37,6 +44,25 @@ func (bm *ExecutorManager) RegisterExecutor(name string, impl Executor) error {
 
 func (bm *ExecutorManager) UnregisterExecutor(name string) {
 	delete(bm.executors, name)
+}
+
+func (bm *ExecutorManager) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
+	var err error
+	bm.ForEachExecutor(func(_ string, exec Executor) {
+		if sm, ok := exec.(SessionManager); ok {
+			multierr.AppendInto(&err, sm.OpenSession(ctx, sessionId))
+		}
+	})
+
+	return err
+}
+
+func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId uuid.UUID) {
+	bm.ForEachExecutor(func(_ string, exec Executor) {
+		if sm, ok := exec.(SessionManager); ok {
+			sm.CloseSession(ctx, sessionId)
+		}
+	})
 }
 
 func (bm *ExecutorManager) Execute(

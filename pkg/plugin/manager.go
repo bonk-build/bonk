@@ -101,25 +101,6 @@ func (pm *PluginManager) OpenSession(ctx context.Context, sessionId uuid.UUID) e
 	return err
 }
 
-func (pm *PluginManager) CloseSession(ctx context.Context, sessionId uuid.UUID) {
-	sessionIdString := sessionId.String()
-	for name, plugin := range pm.plugins {
-		_, err := plugin.executorClient.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
-			SessionId: &sessionIdString,
-		}.Build())
-		if err != nil {
-			slog.WarnContext(
-				ctx,
-				"error returned when closing session",
-				"plugin",
-				name,
-				"session",
-				sessionId.String(),
-			)
-		}
-	}
-}
-
 func (pm *PluginManager) Shutdown() {
 	for pluginName, plugin := range pm.plugins {
 		for executorName := range plugin.executors {

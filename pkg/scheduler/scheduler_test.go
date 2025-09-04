@@ -10,6 +10,7 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/google/uuid"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
@@ -30,11 +31,9 @@ func Test_SenderIsCalled(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	scheduler := NewScheduler(project, sender, nil, 1)
+	scheduler := NewScheduler(project, sender, 1)
 
-	err := scheduler.AddTask(task.New("test", "task1", cue.Value{}))
-	require.NoError(t, err)
+	require.NoError(t, scheduler.AddTask(task.New(uuid.Nil, "test", "task1", cue.Value{})))
 
-	err = scheduler.Run(t.Context())
-	require.NoError(t, err)
+	scheduler.Run()
 }

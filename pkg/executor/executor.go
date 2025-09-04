@@ -8,8 +8,16 @@ import (
 
 	"cuelang.org/go/cue"
 
+	"github.com/google/uuid"
+
 	"go.bonk.build/pkg/task"
 )
+
+// Executors may optionally implement this interface to be alerted when session statuses change.
+type SessionManager interface {
+	OpenSession(ctx context.Context, sessionId uuid.UUID) error
+	CloseSession(ctx context.Context, sessionId uuid.UUID)
+}
 
 type Executor interface {
 	Execute(ctx context.Context, tsk task.Task, result *task.Result) error
@@ -20,19 +28,45 @@ type TypedExecutor[Params any] interface {
 }
 
 type wrappedExecutor struct {
-	thunk func(ctx context.Context, tsk task.Task, result *task.Result) error
+	openSession  func(ctx context.Context, sessionId uuid.UUID) error
+	closeSession func(ctx context.Context, sessionId uuid.UUID)
+	execute      func(ctx context.Context, tsk task.Task, result *task.Result) error
 }
 
-var _ Executor = (*wrappedExecutor)(nil)
+var (
+	_ Executor       = (*wrappedExecutor)(nil)
+	_ SessionManager = (*wrappedExecutor)(nil)
+)
 
 func WrapTypedExecutor[Params any](
 	cuectx *cue.Context,
 	impl TypedExecutor[Params],
 ) Executor {
-	return wrappedExecutor{
-		thunk: func(ctx context.Context, tsk task.Task, result *task.Result) error {
+	result := wrappedExecutor{
+		execute: func(ctx context.Context, tsk task.Task, result *task.Result) error {
 			return impl.Execute(ctx, task.Wrap[Params](cuectx, tsk), result)
 		},
+	}
+
+	if sm, ok := impl.(SessionManager); ok {
+		result.openSession = sm.OpenSession
+		result.closeSession = sm.CloseSession
+	}
+
+	return result
+}
+
+func (wrapped wrappedExecutor) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
+	if wrapped.openSession != nil {
+		return wrapped.openSession(ctx, sessionId)
+	}
+
+	return nil
+}
+
+func (wrapped wrappedExecutor) CloseSession(ctx context.Context, sessionId uuid.UUID) {
+	if wrapped.closeSession != nil {
+		wrapped.closeSession(ctx, sessionId)
 	}
 }
 
@@ -41,5 +75,5 @@ func (wrapped wrappedExecutor) Execute(
 	tsk task.Task,
 	result *task.Result,
 ) error {
-	return wrapped.thunk(ctx, tsk, result)
+	return wrapped.execute(ctx, tsk, result)
 }

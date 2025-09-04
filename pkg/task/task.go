@@ -55,9 +55,10 @@ type Task struct {
 	OutputFs  afero.Fs `json:"-"`
 }
 
-func New(executor, name string, params cue.Value, inputs ...string) Task {
+func New(session uuid.UUID, executor, name string, params cue.Value, inputs ...string) Task {
 	return Task{
 		ID: TaskId{
+			Session:  session,
 			Executor: executor,
 			Name:     name,
 		},
