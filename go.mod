@@ -17,7 +17,7 @@ require (
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/noneback/go-taskflow v1.1.3
 	github.com/pterm/pterm v0.12.81
-	github.com/samber/slog-multi v1.4.1
+	github.com/samber/slog-multi v1.5.0
 	github.com/spf13/afero v1.14.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
