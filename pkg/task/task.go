@@ -14,7 +14,7 @@ import (
 )
 
 type TaskId struct {
-	Session  uuid.UUID `json:"session"`
+	Session  uuid.UUID `json:"-"`
 	Name     string    `json:"name"`
 	Executor string    `json:"executor"`
 }
