@@ -40,8 +40,11 @@ func (pb *rpcExecutor) OpenSession(ctx context.Context, sessionId uuid.UUID) err
 	_, err := pb.client.OpenSession(ctx, bonkv0.OpenSessionRequest_builder{
 		SessionId: &sessionIdString,
 	}.Build())
+	if err != nil {
+		return fmt.Errorf("failed to open session with executor: %w", err)
+	}
 
-	return fmt.Errorf("failed to open session with executor: %w", err)
+	return nil
 }
 
 func (pb *rpcExecutor) CloseSession(ctx context.Context, sessionId uuid.UUID) {
@@ -67,7 +70,7 @@ func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
 		SessionId:    &sessionIdStr,
 		Name:         &tsk.ID.Name,
-		Executor:     &pb.name,
+		Executor:     &tsk.ID.Executor,
 		Inputs:       tsk.Inputs,
 		Parameters:   &structpb.Struct{},
 		OutDirectory: &outDir,

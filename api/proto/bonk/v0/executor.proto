@@ -11,7 +11,8 @@ message DescribeExecutorsRequest {}
 message DescribeExecutorsResponse {
   message ExecutorDescription {}
 
-  map<string, ExecutorDescription> executors = 1;
+  string plugin_name = 1;
+  map<string, ExecutorDescription> executors = 2;
 }
 
 message OpenSessionRequest {

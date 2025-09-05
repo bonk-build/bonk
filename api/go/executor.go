@@ -48,6 +48,7 @@ type ExecutorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	goplugin.GRPCPlugin
 
+	Name      string
 	Cuectx    *cue.Context
 	Executors *executor.ExecutorManager
 }
@@ -59,6 +60,7 @@ func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server)
 	}
 
 	bonkv0.RegisterExecutorServiceServer(server, &executorGRPCServer{
+		name:      p.Name,
 		project:   afero.NewBasePathFs(afero.NewOsFs(), cwd),
 		cuectx:    p.Cuectx,
 		executors: p.Executors,
@@ -79,6 +81,7 @@ func (p *ExecutorServer) GRPCClient(
 type executorGRPCServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
+	name      string
 	project   afero.Fs
 	cuectx    *cue.Context
 	executors *executor.ExecutorManager
@@ -88,7 +91,10 @@ func (s *executorGRPCServer) DescribeExecutors(
 	ctx context.Context,
 	req *bonkv0.DescribeExecutorsRequest,
 ) (*bonkv0.DescribeExecutorsResponse, error) {
+	slog.DebugContext(ctx, "configuring plugin")
+
 	respBuilder := bonkv0.DescribeExecutorsResponse_builder{
+		PluginName: &s.name,
 		Executors: make(
 			map[string]*bonkv0.DescribeExecutorsResponse_ExecutorDescription,
 			s.executors.GetNumExecutors(),
@@ -106,6 +112,8 @@ func (s *executorGRPCServer) OpenSession(
 	ctx context.Context,
 	req *bonkv0.OpenSessionRequest,
 ) (*bonkv0.OpenSessionResponse, error) {
+	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
+
 	return bonkv0.OpenSessionResponse_builder{}.Build(), nil
 }
 
@@ -113,6 +121,8 @@ func (s *executorGRPCServer) CloseSession(
 	ctx context.Context,
 	req *bonkv0.CloseSessionRequest,
 ) (*bonkv0.CloseSessionResponse, error) {
+	slog.DebugContext(ctx, "closing session", "session", req.GetSessionId())
+
 	return bonkv0.CloseSessionResponse_builder{}.Build(), nil
 }
 

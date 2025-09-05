@@ -50,7 +50,7 @@ func (Executor_Resources) Execute(
 	return nil
 }
 
-var Plugin = bonk.NewPlugin(func(plugin *bonk.Plugin) error {
+var Plugin = bonk.NewPlugin("resources", func(plugin *bonk.Plugin) error {
 	err := plugin.RegisterExecutor(
 		"Resources",
 		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Resources{}),

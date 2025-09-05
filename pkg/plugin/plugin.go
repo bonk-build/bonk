@@ -29,13 +29,16 @@ var Handshake = goplugin.HandshakeConfig{
 type Plugin struct {
 	name           string
 	executorClient bonkv0.ExecutorServiceClient
-	executors      map[string]executor.Executor
 }
 
-func (plugin *Plugin) Configure(ctx context.Context, client goplugin.ClientProtocol) error {
+func (plugin *Plugin) Configure(
+	ctx context.Context,
+	client goplugin.ClientProtocol,
+	execRegistrar ExecutorRegistrar,
+) error {
 	var err error
 
-	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, client))
+	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, client, execRegistrar))
 	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, client))
 
 	return err
@@ -44,6 +47,7 @@ func (plugin *Plugin) Configure(ctx context.Context, client goplugin.ClientProto
 func (plugin *Plugin) handleFeatureExecutor(
 	ctx context.Context,
 	client goplugin.ClientProtocol,
+	execRegistrar ExecutorRegistrar,
 ) error {
 	configureCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
@@ -72,15 +76,16 @@ func (plugin *Plugin) handleFeatureExecutor(
 		return fmt.Errorf("failed to describe plugin: %w", err)
 	}
 
-	plugin.executors = make(map[string]executor.Executor)
+	if plugin.name != resp.GetPluginName() {
+		return fmt.Errorf("plugins names didn't match: %s, %s", plugin.name, resp.GetPluginName())
+	}
 
-	for name := range resp.GetExecutors() {
-		_, existed := plugin.executors[name]
-		if existed {
-			slog.WarnContext(ctx, "duplicate executor detected", "name", name)
-		}
-
-		plugin.executors[name] = executor.NewRPC(name, plugin.executorClient)
+	err = execRegistrar.RegisterExecutor(
+		plugin.name,
+		executor.NewRPC(plugin.name, plugin.executorClient),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to register plugin %s executors: %w", plugin.name, err)
 	}
 
 	return nil

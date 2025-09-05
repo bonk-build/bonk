@@ -65,10 +65,13 @@ func (b0 DescribeExecutorsRequest_builder) Build() *DescribeExecutorsRequest {
 }
 
 type DescribeExecutorsResponse struct {
-	state                protoimpl.MessageState                                    `protogen:"opaque.v1"`
-	xxx_hidden_Executors map[string]*DescribeExecutorsResponse_ExecutorDescription `protobuf:"bytes,1,rep,name=executors" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                  protoimpl.MessageState                                    `protogen:"opaque.v1"`
+	xxx_hidden_PluginName  *string                                                   `protobuf:"bytes,1,opt,name=plugin_name,json=pluginName"`
+	xxx_hidden_Executors   map[string]*DescribeExecutorsResponse_ExecutorDescription `protobuf:"bytes,2,rep,name=executors" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *DescribeExecutorsResponse) Reset() {
@@ -96,6 +99,16 @@ func (x *DescribeExecutorsResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
+func (x *DescribeExecutorsResponse) GetPluginName() string {
+	if x != nil {
+		if x.xxx_hidden_PluginName != nil {
+			return *x.xxx_hidden_PluginName
+		}
+		return ""
+	}
+	return ""
+}
+
 func (x *DescribeExecutorsResponse) GetExecutors() map[string]*DescribeExecutorsResponse_ExecutorDescription {
 	if x != nil {
 		return x.xxx_hidden_Executors
@@ -103,20 +116,42 @@ func (x *DescribeExecutorsResponse) GetExecutors() map[string]*DescribeExecutors
 	return nil
 }
 
+func (x *DescribeExecutorsResponse) SetPluginName(v string) {
+	x.xxx_hidden_PluginName = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
 func (x *DescribeExecutorsResponse) SetExecutors(v map[string]*DescribeExecutorsResponse_ExecutorDescription) {
 	x.xxx_hidden_Executors = v
+}
+
+func (x *DescribeExecutorsResponse) HasPluginName() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *DescribeExecutorsResponse) ClearPluginName() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_PluginName = nil
 }
 
 type DescribeExecutorsResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Executors map[string]*DescribeExecutorsResponse_ExecutorDescription
+	PluginName *string
+	Executors  map[string]*DescribeExecutorsResponse_ExecutorDescription
 }
 
 func (b0 DescribeExecutorsResponse_builder) Build() *DescribeExecutorsResponse {
 	m0 := &DescribeExecutorsResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
+	if b.PluginName != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		x.xxx_hidden_PluginName = b.PluginName
+	}
 	x.xxx_hidden_Executors = b.Executors
 	return m0
 }
@@ -850,9 +885,11 @@ var File_bonk_v0_executor_proto protoreflect.FileDescriptor
 const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\n" +
 	"\x16bonk/v0/executor.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\"\x1a\n" +
-	"\x18DescribeExecutorsRequest\"\xf9\x01\n" +
-	"\x19DescribeExecutorsResponse\x12O\n" +
-	"\texecutors\x18\x01 \x03(\v21.bonk.v0.DescribeExecutorsResponse.ExecutorsEntryR\texecutors\x1a\x15\n" +
+	"\x18DescribeExecutorsRequest\"\x9a\x02\n" +
+	"\x19DescribeExecutorsResponse\x12\x1f\n" +
+	"\vplugin_name\x18\x01 \x01(\tR\n" +
+	"pluginName\x12O\n" +
+	"\texecutors\x18\x02 \x03(\v21.bonk.v0.DescribeExecutorsResponse.ExecutorsEntryR\texecutors\x1a\x15\n" +
 	"\x13ExecutorDescription\x1at\n" +
 	"\x0eExecutorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12L\n" +

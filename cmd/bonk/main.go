@@ -70,7 +70,7 @@ var rootCmd = &cobra.Command{
 			sched.AddTask(
 				task.New(
 					session,
-					"test:Test",
+					"test.Test",
 					"Test.Test",
 					cuectx.CompileString(`value: 3`),
 				),
@@ -78,7 +78,7 @@ var rootCmd = &cobra.Command{
 			sched.AddTask(
 				task.New(
 					session,
-					"resources:Resources",
+					"resources.Resources",
 					"Test.Resources",
 					cuectx.CompileString(`
 					resources: [{
@@ -91,12 +91,12 @@ var rootCmd = &cobra.Command{
 			sched.AddTask(
 				task.New(
 					session,
-					"kustomize:Kustomize",
+					"kustomize.Kustomize",
 					"Test.Kustomize",
 					cuectx.BuildExpr(ast.NewStruct()),
-					".bonk/Test.Resources:resources:Resources/resources.yaml",
+					".bonk/Test.Resources/resources.yaml",
 				),
-				"Test.Resources:resources:Resources",
+				"Test.Resources",
 			),
 		))
 
