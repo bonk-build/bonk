@@ -141,15 +141,22 @@ func hashCueValue(hasher hash.Hash, params cue.Value) ([]byte, error) {
 }
 
 func hashFiles(hasher hash.Hash, root afero.Fs, files []string) ([]byte, error) {
-	for _, fileName := range files {
-		file, err := root.Open(fileName)
+	for _, pattern := range files {
+		matches, err := afero.Glob(root, pattern)
 		if err != nil {
-			return nil, fmt.Errorf("failed to open input file %s: %w", fileName, err)
+			return nil, fmt.Errorf("failed to expand glob '%s': %w", pattern, err)
 		}
 
-		_, err = io.Copy(hasher, file)
-		if err != nil {
-			return nil, fmt.Errorf("failed to hash input file %s: %w", fileName, err)
+		for _, fileName := range matches {
+			file, err := root.Open(fileName)
+			if err != nil {
+				return nil, fmt.Errorf("failed to open input file %s: %w", fileName, err)
+			}
+
+			_, err = io.Copy(hasher, file)
+			if err != nil {
+				return nil, fmt.Errorf("failed to hash input file %s: %w", fileName, err)
+			}
 		}
 	}
 
