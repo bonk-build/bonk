@@ -11,12 +11,9 @@ import (
 	"os/exec"
 	"path"
 
-	"go.uber.org/multierr"
-
 	"google.golang.org/grpc"
 
 	"github.com/ValerySidorin/shclog"
-	"github.com/google/uuid"
 
 	goplugin "github.com/hashicorp/go-plugin"
 
@@ -76,19 +73,6 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	pm.plugins[pluginName] = plug
 
 	return nil
-}
-
-func (pm *PluginManager) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
-	var err error
-	sessionIdString := sessionId.String()
-	for _, plugin := range pm.plugins {
-		_, openErr := plugin.executorClient.OpenSession(ctx, bonkv0.OpenSessionRequest_builder{
-			SessionId: &sessionIdString,
-		}.Build())
-		multierr.AppendInto(&err, openErr)
-	}
-
-	return err
 }
 
 func (pm *PluginManager) Shutdown() {
