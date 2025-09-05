@@ -61,15 +61,10 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 		Logger: shclog.New(slog.Default()),
 	})
 
-	rpcClient, err := process.Client()
-	if err != nil {
-		return fmt.Errorf("failed to create client: %w", err)
-	}
-
 	plug := Plugin{
 		name: pluginName,
 	}
-	err = plug.Configure(ctx, rpcClient, pm.executor)
+	err := plug.Configure(ctx, process, pm.executor)
 	if err != nil {
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}
@@ -114,10 +109,11 @@ func (pm *PluginManager) Shutdown() {
 	pm.mu.RUnlock()
 
 	pm.mu.Lock()
+	for _, plugin := range pm.plugins {
+		plugin.pluginClient.Kill()
+	}
 	pm.plugins = make(map[string]Plugin)
 	pm.mu.Unlock()
-
-	goplugin.CleanupClients()
 }
 
 // Plugin Client
