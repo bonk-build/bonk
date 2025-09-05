@@ -6,8 +6,12 @@ package test
 import (
 	"testing"
 
+	"github.com/google/uuid"
+	"github.com/spf13/afero"
+
 	bonk "go.bonk.build/api/go"
 	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/task"
 )
 
 // Call like you'd call Serve() but at the top of your test function.
@@ -52,4 +56,22 @@ func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.Executor {
 	// })
 
 	return &executorManager
+}
+
+type testSession struct {
+	memmapFs afero.MemMapFs
+}
+
+func NewTestSession() task.Session {
+	return &testSession{
+		memmapFs: afero.MemMapFs{},
+	}
+}
+
+func (ts *testSession) ID() uuid.UUID {
+	return uuid.Nil
+}
+
+func (ts *testSession) FS() afero.Fs {
+	return &ts.memmapFs
 }

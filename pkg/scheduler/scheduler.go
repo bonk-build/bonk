@@ -10,8 +10,6 @@ import (
 
 	"go.uber.org/multierr"
 
-	"github.com/spf13/afero"
-
 	gotaskflow "github.com/noneback/go-taskflow"
 
 	"go.bonk.build/pkg/task"
@@ -22,17 +20,14 @@ type TaskSender interface {
 }
 
 type Scheduler struct {
-	project afero.Fs
-
 	executorManager TaskSender
 	executor        gotaskflow.Executor
 	tasks           map[string]*gotaskflow.Task
 	rootFlow        *gotaskflow.TaskFlow
 }
 
-func NewScheduler(project afero.Fs, executorManager TaskSender, concurrency uint) *Scheduler {
+func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 	return &Scheduler{
-		project:         project,
 		executorManager: executorManager,
 		executor:        gotaskflow.NewExecutor(concurrency),
 		tasks:           make(map[string]*gotaskflow.Task),
@@ -41,15 +36,6 @@ func NewScheduler(project afero.Fs, executorManager TaskSender, concurrency uint
 }
 
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
-	var err error
-
-	// Setup the file systems
-	tsk.ProjectFs = afero.NewReadOnlyFs(s.project)
-	tsk.OutputFs, err = tsk.ID.GetOutputFilesystem(s.project)
-	if err != nil {
-		return fmt.Errorf("failed to initialize task filesystem: %w", err)
-	}
-
 	taskName := tsk.ID.String()
 	newTask := s.rootFlow.NewTask(taskName, func() {
 		mismatches := DetectStateMismatches(&tsk)

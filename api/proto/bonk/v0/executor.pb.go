@@ -157,12 +157,13 @@ func (b0 DescribeExecutorsResponse_builder) Build() *DescribeExecutorsResponse {
 }
 
 type OpenSessionRequest struct {
-	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_SessionId   *string                `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
+	state                           protoimpl.MessageState                    `protogen:"opaque.v1"`
+	xxx_hidden_SessionId            *string                                   `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
+	xxx_hidden_WorkspaceDescription isOpenSessionRequest_WorkspaceDescription `protobuf_oneof:"workspace_description"`
+	XXX_raceDetectHookData          protoimpl.RaceDetectHookData
+	XXX_presence                    [1]uint32
+	unknownFields                   protoimpl.UnknownFields
+	sizeCache                       protoimpl.SizeCache
 }
 
 func (x *OpenSessionRequest) Reset() {
@@ -200,9 +201,26 @@ func (x *OpenSessionRequest) GetSessionId() string {
 	return ""
 }
 
+func (x *OpenSessionRequest) GetLocal() *OpenSessionRequest_WorkspaceDescriptionLocal {
+	if x != nil {
+		if x, ok := x.xxx_hidden_WorkspaceDescription.(*openSessionRequest_Local); ok {
+			return x.Local
+		}
+	}
+	return nil
+}
+
 func (x *OpenSessionRequest) SetSessionId(v string) {
 	x.xxx_hidden_SessionId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *OpenSessionRequest) SetLocal(v *OpenSessionRequest_WorkspaceDescriptionLocal) {
+	if v == nil {
+		x.xxx_hidden_WorkspaceDescription = nil
+		return
+	}
+	x.xxx_hidden_WorkspaceDescription = &openSessionRequest_Local{v}
 }
 
 func (x *OpenSessionRequest) HasSessionId() bool {
@@ -212,15 +230,58 @@ func (x *OpenSessionRequest) HasSessionId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
+func (x *OpenSessionRequest) HasWorkspaceDescription() bool {
+	if x == nil {
+		return false
+	}
+	return x.xxx_hidden_WorkspaceDescription != nil
+}
+
+func (x *OpenSessionRequest) HasLocal() bool {
+	if x == nil {
+		return false
+	}
+	_, ok := x.xxx_hidden_WorkspaceDescription.(*openSessionRequest_Local)
+	return ok
+}
+
 func (x *OpenSessionRequest) ClearSessionId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_SessionId = nil
+}
+
+func (x *OpenSessionRequest) ClearWorkspaceDescription() {
+	x.xxx_hidden_WorkspaceDescription = nil
+}
+
+func (x *OpenSessionRequest) ClearLocal() {
+	if _, ok := x.xxx_hidden_WorkspaceDescription.(*openSessionRequest_Local); ok {
+		x.xxx_hidden_WorkspaceDescription = nil
+	}
+}
+
+const OpenSessionRequest_WorkspaceDescription_not_set_case case_OpenSessionRequest_WorkspaceDescription = 0
+const OpenSessionRequest_Local_case case_OpenSessionRequest_WorkspaceDescription = 2
+
+func (x *OpenSessionRequest) WhichWorkspaceDescription() case_OpenSessionRequest_WorkspaceDescription {
+	if x == nil {
+		return OpenSessionRequest_WorkspaceDescription_not_set_case
+	}
+	switch x.xxx_hidden_WorkspaceDescription.(type) {
+	case *openSessionRequest_Local:
+		return OpenSessionRequest_Local_case
+	default:
+		return OpenSessionRequest_WorkspaceDescription_not_set_case
+	}
 }
 
 type OpenSessionRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	SessionId *string
+	// Fields of oneof xxx_hidden_WorkspaceDescription:
+	Local *OpenSessionRequest_WorkspaceDescriptionLocal
+	// -- end of xxx_hidden_WorkspaceDescription
 }
 
 func (b0 OpenSessionRequest_builder) Build() *OpenSessionRequest {
@@ -228,11 +289,34 @@ func (b0 OpenSessionRequest_builder) Build() *OpenSessionRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.SessionId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
 		x.xxx_hidden_SessionId = b.SessionId
+	}
+	if b.Local != nil {
+		x.xxx_hidden_WorkspaceDescription = &openSessionRequest_Local{b.Local}
 	}
 	return m0
 }
+
+type case_OpenSessionRequest_WorkspaceDescription protoreflect.FieldNumber
+
+func (x case_OpenSessionRequest_WorkspaceDescription) String() string {
+	md := file_bonk_v0_executor_proto_msgTypes[2].Descriptor()
+	if x == 0 {
+		return "not set"
+	}
+	return protoimpl.X.MessageFieldStringOf(md, protoreflect.FieldNumber(x))
+}
+
+type isOpenSessionRequest_WorkspaceDescription interface {
+	isOpenSessionRequest_WorkspaceDescription()
+}
+
+type openSessionRequest_Local struct {
+	Local *OpenSessionRequest_WorkspaceDescriptionLocal `protobuf:"bytes,2,opt,name=local,oneof"`
+}
+
+func (*openSessionRequest_Local) isOpenSessionRequest_WorkspaceDescription() {}
 
 type OpenSessionResponse struct {
 	state         protoimpl.MessageState `protogen:"opaque.v1"`
@@ -399,17 +483,16 @@ func (b0 CloseSessionResponse_builder) Build() *CloseSessionResponse {
 }
 
 type ExecuteTaskRequest struct {
-	state                   protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_SessionId    *string                `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
-	xxx_hidden_Name         *string                `protobuf:"bytes,2,opt,name=name"`
-	xxx_hidden_Executor     *string                `protobuf:"bytes,3,opt,name=executor"`
-	xxx_hidden_Inputs       []string               `protobuf:"bytes,4,rep,name=inputs"`
-	xxx_hidden_Parameters   *structpb.Struct       `protobuf:"bytes,5,opt,name=parameters"`
-	xxx_hidden_OutDirectory *string                `protobuf:"bytes,6,opt,name=out_directory,json=outDirectory"`
-	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
-	XXX_presence            [1]uint32
-	unknownFields           protoimpl.UnknownFields
-	sizeCache               protoimpl.SizeCache
+	state                  protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_SessionId   *string                `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
+	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Executor    *string                `protobuf:"bytes,3,opt,name=executor"`
+	xxx_hidden_Inputs      []string               `protobuf:"bytes,4,rep,name=inputs"`
+	xxx_hidden_Parameters  *structpb.Struct       `protobuf:"bytes,5,opt,name=parameters"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
 }
 
 func (x *ExecuteTaskRequest) Reset() {
@@ -481,29 +564,19 @@ func (x *ExecuteTaskRequest) GetParameters() *structpb.Struct {
 	return nil
 }
 
-func (x *ExecuteTaskRequest) GetOutDirectory() string {
-	if x != nil {
-		if x.xxx_hidden_OutDirectory != nil {
-			return *x.xxx_hidden_OutDirectory
-		}
-		return ""
-	}
-	return ""
-}
-
 func (x *ExecuteTaskRequest) SetSessionId(v string) {
 	x.xxx_hidden_SessionId = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
 func (x *ExecuteTaskRequest) SetName(v string) {
 	x.xxx_hidden_Name = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
 func (x *ExecuteTaskRequest) SetExecutor(v string) {
 	x.xxx_hidden_Executor = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 6)
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
 func (x *ExecuteTaskRequest) SetInputs(v []string) {
@@ -512,11 +585,6 @@ func (x *ExecuteTaskRequest) SetInputs(v []string) {
 
 func (x *ExecuteTaskRequest) SetParameters(v *structpb.Struct) {
 	x.xxx_hidden_Parameters = v
-}
-
-func (x *ExecuteTaskRequest) SetOutDirectory(v string) {
-	x.xxx_hidden_OutDirectory = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 5, 6)
 }
 
 func (x *ExecuteTaskRequest) HasSessionId() bool {
@@ -547,13 +615,6 @@ func (x *ExecuteTaskRequest) HasParameters() bool {
 	return x.xxx_hidden_Parameters != nil
 }
 
-func (x *ExecuteTaskRequest) HasOutDirectory() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 5)
-}
-
 func (x *ExecuteTaskRequest) ClearSessionId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
 	x.xxx_hidden_SessionId = nil
@@ -573,20 +634,14 @@ func (x *ExecuteTaskRequest) ClearParameters() {
 	x.xxx_hidden_Parameters = nil
 }
 
-func (x *ExecuteTaskRequest) ClearOutDirectory() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 5)
-	x.xxx_hidden_OutDirectory = nil
-}
-
 type ExecuteTaskRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	SessionId    *string
-	Name         *string
-	Executor     *string
-	Inputs       []string
-	Parameters   *structpb.Struct
-	OutDirectory *string
+	SessionId  *string
+	Name       *string
+	Executor   *string
+	Inputs     []string
+	Parameters *structpb.Struct
 }
 
 func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
@@ -594,23 +649,19 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
 	b, x := &b0, m0
 	_, _ = b, x
 	if b.SessionId != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
 		x.xxx_hidden_SessionId = b.SessionId
 	}
 	if b.Name != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
 		x.xxx_hidden_Name = b.Name
 	}
 	if b.Executor != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 6)
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Executor = b.Executor
 	}
 	x.xxx_hidden_Inputs = b.Inputs
 	x.xxx_hidden_Parameters = b.Parameters
-	if b.OutDirectory != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 5, 6)
-		x.xxx_hidden_OutDirectory = b.OutDirectory
-	}
 	return m0
 }
 
@@ -730,6 +781,84 @@ func (b0 DescribeExecutorsResponse_ExecutorDescription_builder) Build() *Describ
 	return m0
 }
 
+type OpenSessionRequest_WorkspaceDescriptionLocal struct {
+	state                   protoimpl.MessageState `protogen:"opaque.v1"`
+	xxx_hidden_AbsolutePath *string                `protobuf:"bytes,1,opt,name=absolute_path,json=absolutePath"`
+	XXX_raceDetectHookData  protoimpl.RaceDetectHookData
+	XXX_presence            [1]uint32
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) Reset() {
+	*x = OpenSessionRequest_WorkspaceDescriptionLocal{}
+	mi := &file_bonk_v0_executor_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OpenSessionRequest_WorkspaceDescriptionLocal) ProtoMessage() {}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ProtoReflect() protoreflect.Message {
+	mi := &file_bonk_v0_executor_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) GetAbsolutePath() string {
+	if x != nil {
+		if x.xxx_hidden_AbsolutePath != nil {
+			return *x.xxx_hidden_AbsolutePath
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) SetAbsolutePath(v string) {
+	x.xxx_hidden_AbsolutePath = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 1)
+}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) HasAbsolutePath() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ClearAbsolutePath() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_AbsolutePath = nil
+}
+
+type OpenSessionRequest_WorkspaceDescriptionLocal_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	AbsolutePath *string
+}
+
+func (b0 OpenSessionRequest_WorkspaceDescriptionLocal_builder) Build() *OpenSessionRequest_WorkspaceDescriptionLocal {
+	m0 := &OpenSessionRequest_WorkspaceDescriptionLocal{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.AbsolutePath != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 1)
+		x.xxx_hidden_AbsolutePath = b.AbsolutePath
+	}
+	return m0
+}
+
 type ExecuteTaskResponse_FollowupTask struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
@@ -744,7 +873,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 
 func (x *ExecuteTaskResponse_FollowupTask) Reset() {
 	*x = ExecuteTaskResponse_FollowupTask{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[10]
+	mi := &file_bonk_v0_executor_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -756,7 +885,7 @@ func (x *ExecuteTaskResponse_FollowupTask) String() string {
 func (*ExecuteTaskResponse_FollowupTask) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[10]
+	mi := &file_bonk_v0_executor_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -893,15 +1022,19 @@ const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\x13ExecutorDescription\x1at\n" +
 	"\x0eExecutorsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12L\n" +
-	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"3\n" +
+	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"\xdd\x01\n" +
 	"\x12OpenSessionRequest\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"\x15\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\x12M\n" +
+	"\x05local\x18\x02 \x01(\v25.bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocalH\x00R\x05local\x1a@\n" +
+	"\x19WorkspaceDescriptionLocal\x12#\n" +
+	"\rabsolute_path\x18\x01 \x01(\tR\fabsolutePathB\x17\n" +
+	"\x15workspace_description\"\x15\n" +
 	"\x13OpenSessionResponse\"4\n" +
 	"\x13CloseSessionRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"\x16\n" +
-	"\x14CloseSessionResponse\"\xd9\x01\n" +
+	"\x14CloseSessionResponse\"\xb4\x01\n" +
 	"\x12ExecuteTaskRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x12\n" +
@@ -910,8 +1043,7 @@ const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\x06inputs\x18\x04 \x03(\tR\x06inputs\x127\n" +
 	"\n" +
 	"parameters\x18\x05 \x01(\v2\x17.google.protobuf.StructR\n" +
-	"parameters\x12#\n" +
-	"\rout_directory\x18\x06 \x01(\tR\foutDirectory\"\x91\x02\n" +
+	"parameters\"\x91\x02\n" +
 	"\x13ExecuteTaskResponse\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12P\n" +
 	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x8f\x01\n" +
@@ -929,7 +1061,7 @@ const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseB}\n" +
 	"\vcom.bonk.v0B\rExecutorProtoP\x01Z\"go.bonk.build/api/go/proto/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
 
-var file_bonk_v0_executor_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_bonk_v0_executor_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_bonk_v0_executor_proto_goTypes = []any{
 	(*DescribeExecutorsRequest)(nil),                      // 0: bonk.v0.DescribeExecutorsRequest
 	(*DescribeExecutorsResponse)(nil),                     // 1: bonk.v0.DescribeExecutorsResponse
@@ -940,29 +1072,31 @@ var file_bonk_v0_executor_proto_goTypes = []any{
 	(*ExecuteTaskRequest)(nil),                            // 6: bonk.v0.ExecuteTaskRequest
 	(*ExecuteTaskResponse)(nil),                           // 7: bonk.v0.ExecuteTaskResponse
 	(*DescribeExecutorsResponse_ExecutorDescription)(nil), // 8: bonk.v0.DescribeExecutorsResponse.ExecutorDescription
-	nil,                                      // 9: bonk.v0.DescribeExecutorsResponse.ExecutorsEntry
-	(*ExecuteTaskResponse_FollowupTask)(nil), // 10: bonk.v0.ExecuteTaskResponse.FollowupTask
-	(*structpb.Struct)(nil),                  // 11: google.protobuf.Struct
+	nil, // 9: bonk.v0.DescribeExecutorsResponse.ExecutorsEntry
+	(*OpenSessionRequest_WorkspaceDescriptionLocal)(nil), // 10: bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
+	(*ExecuteTaskResponse_FollowupTask)(nil),             // 11: bonk.v0.ExecuteTaskResponse.FollowupTask
+	(*structpb.Struct)(nil),                              // 12: google.protobuf.Struct
 }
 var file_bonk_v0_executor_proto_depIdxs = []int32{
 	9,  // 0: bonk.v0.DescribeExecutorsResponse.executors:type_name -> bonk.v0.DescribeExecutorsResponse.ExecutorsEntry
-	11, // 1: bonk.v0.ExecuteTaskRequest.parameters:type_name -> google.protobuf.Struct
-	10, // 2: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
-	8,  // 3: bonk.v0.DescribeExecutorsResponse.ExecutorsEntry.value:type_name -> bonk.v0.DescribeExecutorsResponse.ExecutorDescription
-	11, // 4: bonk.v0.ExecuteTaskResponse.FollowupTask.parameters:type_name -> google.protobuf.Struct
-	0,  // 5: bonk.v0.ExecutorService.DescribeExecutors:input_type -> bonk.v0.DescribeExecutorsRequest
-	2,  // 6: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
-	4,  // 7: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
-	6,  // 8: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest
-	1,  // 9: bonk.v0.ExecutorService.DescribeExecutors:output_type -> bonk.v0.DescribeExecutorsResponse
-	3,  // 10: bonk.v0.ExecutorService.OpenSession:output_type -> bonk.v0.OpenSessionResponse
-	5,  // 11: bonk.v0.ExecutorService.CloseSession:output_type -> bonk.v0.CloseSessionResponse
-	7,  // 12: bonk.v0.ExecutorService.ExecuteTask:output_type -> bonk.v0.ExecuteTaskResponse
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	10, // 1: bonk.v0.OpenSessionRequest.local:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
+	12, // 2: bonk.v0.ExecuteTaskRequest.parameters:type_name -> google.protobuf.Struct
+	11, // 3: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
+	8,  // 4: bonk.v0.DescribeExecutorsResponse.ExecutorsEntry.value:type_name -> bonk.v0.DescribeExecutorsResponse.ExecutorDescription
+	12, // 5: bonk.v0.ExecuteTaskResponse.FollowupTask.parameters:type_name -> google.protobuf.Struct
+	0,  // 6: bonk.v0.ExecutorService.DescribeExecutors:input_type -> bonk.v0.DescribeExecutorsRequest
+	2,  // 7: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
+	4,  // 8: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
+	6,  // 9: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest
+	1,  // 10: bonk.v0.ExecutorService.DescribeExecutors:output_type -> bonk.v0.DescribeExecutorsResponse
+	3,  // 11: bonk.v0.ExecutorService.OpenSession:output_type -> bonk.v0.OpenSessionResponse
+	5,  // 12: bonk.v0.ExecutorService.CloseSession:output_type -> bonk.v0.CloseSessionResponse
+	7,  // 13: bonk.v0.ExecutorService.ExecuteTask:output_type -> bonk.v0.ExecuteTaskResponse
+	10, // [10:14] is the sub-list for method output_type
+	6,  // [6:10] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_bonk_v0_executor_proto_init() }
@@ -970,13 +1104,16 @@ func file_bonk_v0_executor_proto_init() {
 	if File_bonk_v0_executor_proto != nil {
 		return
 	}
+	file_bonk_v0_executor_proto_msgTypes[2].OneofWrappers = []any{
+		(*openSessionRequest_Local)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bonk_v0_executor_proto_rawDesc), len(file_bonk_v0_executor_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

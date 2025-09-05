@@ -35,11 +35,18 @@ var (
 	_ SessionManager = (*rpcExecutor)(nil)
 )
 
-func (pb *rpcExecutor) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
-	sessionIdString := sessionId.String()
-	_, err := pb.client.OpenSession(ctx, bonkv0.OpenSessionRequest_builder{
+func (pb *rpcExecutor) OpenSession(ctx context.Context, session task.Session) error {
+	sessionIdString := session.ID().String()
+	openSessionRequest := bonkv0.OpenSessionRequest_builder{
 		SessionId: &sessionIdString,
-	}.Build())
+	}
+	if localSession, ok := session.(task.LocalSession); ok {
+		localPath := localSession.LocalPath()
+		openSessionRequest.Local = bonkv0.OpenSessionRequest_WorkspaceDescriptionLocal_builder{
+			AbsolutePath: &localPath,
+		}.Build()
+	}
+	_, err := pb.client.OpenSession(ctx, openSessionRequest.Build())
 	if err != nil {
 		return fmt.Errorf("failed to open session with executor: %w", err)
 	}
@@ -65,15 +72,13 @@ func (pb *rpcExecutor) CloseSession(ctx context.Context, sessionId uuid.UUID) {
 }
 
 func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
-	sessionIdStr := tsk.ID.Session.String()
-	outDir := tsk.ID.GetOutputDirectory()
+	sessionIdStr := tsk.Session.ID().String()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
-		SessionId:    &sessionIdStr,
-		Name:         &tsk.ID.Name,
-		Executor:     &tsk.ID.Executor,
-		Inputs:       tsk.Inputs,
-		Parameters:   &structpb.Struct{},
-		OutDirectory: &outDir,
+		SessionId:  &sessionIdStr,
+		Name:       &tsk.ID.Name,
+		Executor:   &tsk.ID.Executor,
+		Inputs:     tsk.Inputs,
+		Parameters: &structpb.Struct{},
 	}
 
 	err := tsk.Params.Decode(taskReqBuilder.Parameters)
@@ -89,11 +94,13 @@ func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.
 	result.Outputs = res.GetOutput()
 	result.FollowupTasks = make([]task.Task, len(res.GetFollowupTasks()))
 	for ii, followup := range res.GetFollowupTasks() {
-		result.FollowupTasks[ii].ID = tsk.ID.GetChild(followup.GetName(), followup.GetExecutor())
-		result.FollowupTasks[ii].Inputs = followup.GetInputs()
+		newTask := &result.FollowupTasks[ii]
+		newTask.ID = tsk.ID.GetChild(followup.GetName(), followup.GetExecutor())
+		newTask.Session = tsk.Session
+		newTask.Inputs = followup.GetInputs()
 
 		multierr.AppendInto(&err,
-			result.FollowupTasks[ii].Params.Decode(followup.GetParameters()))
+			newTask.Params.Decode(followup.GetParameters()))
 	}
 
 	if err != nil {

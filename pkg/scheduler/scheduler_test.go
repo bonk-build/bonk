@@ -10,11 +10,10 @@ import (
 
 	"cuelang.org/go/cue"
 
-	"github.com/google/uuid"
-	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/task"
+	"go.bonk.build/test"
 )
 
 //go:generate go tool mockgen -destination scheduler_mock_test.go -package scheduler -copyright_file ../../license-header.txt -typed . TaskSender
@@ -23,7 +22,7 @@ func Test_SenderIsCalled(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	project := afero.NewMemMapFs()
+	session := test.NewTestSession()
 
 	sender := NewMockTaskSender(mock)
 	sender.EXPECT().
@@ -31,9 +30,9 @@ func Test_SenderIsCalled(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	scheduler := NewScheduler(project, sender, 1)
+	scheduler := NewScheduler(sender, 1)
 
-	require.NoError(t, scheduler.AddTask(task.New(uuid.Nil, "test", "task1", cue.Value{})))
+	require.NoError(t, scheduler.AddTask(task.New(session, "test", "task1", cue.Value{})))
 
 	scheduler.Run()
 }

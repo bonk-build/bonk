@@ -9,14 +9,12 @@ import (
 
 	"cuelang.org/go/cue"
 
-	"github.com/google/uuid"
 	"github.com/spf13/afero"
 )
 
 type TaskId struct {
-	Session  uuid.UUID `json:"-"`
-	Name     string    `json:"name"`
-	Executor string    `json:"executor"`
+	Name     string `json:"name"`
+	Executor string `json:"executor"`
 }
 
 func (id *TaskId) String() string {
@@ -25,45 +23,38 @@ func (id *TaskId) String() string {
 
 func (id *TaskId) GetChild(name, executor string) TaskId {
 	return TaskId{
-		Session:  id.Session,
 		Executor: executor,
 		Name:     fmt.Sprintf("%s.%s", id.Name, name),
 	}
 }
 
-func (id *TaskId) GetOutputDirectory() string {
-	return path.Join(".bonk", id.String())
-}
-
-func (id *TaskId) GetOutputFilesystem(project afero.Fs) (afero.Fs, error) {
-	path := id.GetOutputDirectory()
-	err := project.MkdirAll(path, 0o750)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create task output dir %s: %w", path, err)
-	}
-
-	return afero.NewBasePathFs(project, path), nil
+func (id *TaskId) GetOutDirectory() string {
+	return path.Join(".bonk", id.Name)
 }
 
 type Task struct {
-	ID TaskId `json:"id"`
+	ID      TaskId  `json:"id"`
+	Session Session `json:"-"`
 
 	Inputs []string  `json:"inputs,omitempty"`
 	Params cue.Value `json:"params"`
 
-	ProjectFs afero.Fs `json:"-"`
-	OutputFs  afero.Fs `json:"-"`
+	OutputFs afero.Fs `json:"-"`
 }
 
-func New(session uuid.UUID, executor, name string, params cue.Value, inputs ...string) Task {
+func New(session Session, executor, name string, params cue.Value, inputs ...string) Task {
+	tskId := TaskId{
+		Executor: executor,
+		Name:     name,
+	}
+
 	return Task{
-		ID: TaskId{
-			Session:  session,
-			Executor: executor,
-			Name:     name,
-		},
-		Inputs: inputs,
-		Params: params,
+		ID:      tskId,
+		Session: session,
+		Inputs:  inputs,
+		Params:  params,
+
+		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
 	}
 }
 

@@ -34,7 +34,7 @@ func (Executor_Kustomize) Execute(
 	task.Args.Kustomization.Resources = task.Inputs
 	task.Args.Kustomization.FixKustomization()
 
-	kustomFs := afero.NewCopyOnWriteFs(task.ProjectFs, afero.NewMemMapFs())
+	kustomFs := afero.NewCopyOnWriteFs(task.Session.FS(), afero.NewMemMapFs())
 
 	// Write out the kustomization.yaml file
 	kustFile, err := kustomFs.Create("/" + konfig.DefaultKustomizationFileName())
