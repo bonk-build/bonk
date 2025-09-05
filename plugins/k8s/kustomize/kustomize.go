@@ -88,7 +88,7 @@ func (Executor_Kustomize) Execute(
 	return nil
 }
 
-var Plugin = bonk.NewPlugin(func(plugin *bonk.Plugin) error {
+var Plugin = bonk.NewPlugin("kustomize", func(plugin *bonk.Plugin) error {
 	err := plugin.RegisterExecutor(
 		"Kustomize",
 		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Kustomize{}),

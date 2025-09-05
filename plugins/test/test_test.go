@@ -22,7 +22,7 @@ func Test_Plugin(t *testing.T) {
 	var result task.Result
 	err := executors.Execute(
 		t.Context(),
-		task.New(uuid.Nil, "Test", "testing", cue.Value{}),
+		task.New(uuid.Nil, "test.Test", "testing", cue.Value{}),
 		&result,
 	)
 	if err != nil {

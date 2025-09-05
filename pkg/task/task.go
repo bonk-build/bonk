@@ -20,7 +20,7 @@ type TaskId struct {
 }
 
 func (id *TaskId) String() string {
-	return fmt.Sprintf("%s:%s", id.Name, id.Executor)
+	return id.Name
 }
 
 func (id *TaskId) GetChild(name, executor string) TaskId {

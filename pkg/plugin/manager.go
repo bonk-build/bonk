@@ -68,22 +68,12 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	plug := Plugin{
 		name: pluginName,
 	}
-	err = plug.Configure(ctx, rpcClient)
+	err = plug.Configure(ctx, rpcClient, pm.executor)
 	if err != nil {
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}
 
 	pm.plugins[pluginName] = plug
-
-	for executorName, executor := range plug.executors {
-		multierr.AppendInto(&err,
-			pm.executor.RegisterExecutor(fmt.Sprintf("%s:%s", pluginName, executorName), executor),
-		)
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to register plugin %s executors: %w", pluginName, err)
-	}
 
 	return nil
 }
@@ -102,10 +92,8 @@ func (pm *PluginManager) OpenSession(ctx context.Context, sessionId uuid.UUID) e
 }
 
 func (pm *PluginManager) Shutdown() {
-	for pluginName, plugin := range pm.plugins {
-		for executorName := range plugin.executors {
-			pm.executor.UnregisterExecutor(fmt.Sprintf("%s:%s", pluginName, executorName))
-		}
+	for pluginName := range pm.plugins {
+		pm.executor.UnregisterExecutor(pluginName)
 	}
 	pm.plugins = make(map[string]Plugin)
 
