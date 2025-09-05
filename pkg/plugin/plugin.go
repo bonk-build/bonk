@@ -28,20 +28,28 @@ var Handshake = goplugin.HandshakeConfig{
 
 type Plugin struct {
 	name           string
+	pluginClient   *goplugin.Client
 	executorClient bonkv0.ExecutorServiceClient
 }
 
 func (plugin *Plugin) Configure(
 	ctx context.Context,
-	client goplugin.ClientProtocol,
+	client *goplugin.Client,
 	execRegistrar ExecutorRegistrar,
 ) error {
 	var err error
 
-	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, client, execRegistrar))
-	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, client))
+	plugin.pluginClient = client
 
-	return err
+	rpcClient, err := client.Client()
+	if err != nil {
+		return fmt.Errorf("failed to create client: %w", err)
+	}
+
+	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, rpcClient, execRegistrar))
+	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, rpcClient))
+
+	return fmt.Errorf("failed to initialize plugin: %w", err)
 }
 
 func (plugin *Plugin) handleFeatureExecutor(
@@ -54,18 +62,16 @@ func (plugin *Plugin) handleFeatureExecutor(
 
 	executorPlugin, err := client.Dispense("executor")
 	if err != nil {
-		return fmt.Errorf("failed to dispense executor plugin: %w", err)
+		panic(fmt.Errorf("failed to dispense executor plugin: %w", err))
 	}
 
 	var ok bool
 	plugin.executorClient, ok = executorPlugin.(bonkv0.ExecutorServiceClient)
 	if !ok {
-		panic(
-			fmt.Sprintf(
-				"plugin %s reports supporting executors but client returned was of the wrong type",
-				plugin.name,
-			),
-		)
+		panic(fmt.Errorf(
+			"plugin %s reports supporting executors but client returned was of the wrong type",
+			plugin.name,
+		))
 	}
 
 	resp, err := plugin.executorClient.DescribeExecutors(
