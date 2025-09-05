@@ -10,6 +10,9 @@ import (
 	"log/slog"
 	"os/exec"
 	"path"
+	"sync"
+
+	"go.uber.org/multierr"
 
 	"google.golang.org/grpc"
 
@@ -27,6 +30,7 @@ type ExecutorRegistrar interface {
 }
 
 type PluginManager struct {
+	mu      sync.RWMutex
 	plugins map[string]Plugin
 
 	executor ExecutorRegistrar
@@ -70,16 +74,48 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}
 
+	pm.mu.Lock()
 	pm.plugins[pluginName] = plug
+	pm.mu.Unlock()
 
 	return nil
 }
 
+func (pm *PluginManager) StartPlugins(ctx context.Context, pluginPath ...string) error {
+	var (
+		pluginWaiter sync.WaitGroup
+		allErrs      error
+		errMu        sync.Mutex
+	)
+
+	for _, plugin := range pluginPath {
+		pluginWaiter.Add(1)
+		go func() {
+			err := pm.StartPlugin(ctx, plugin)
+
+			errMu.Lock()
+			multierr.AppendInto(&allErrs, err)
+			errMu.Unlock()
+
+			pluginWaiter.Done()
+		}()
+	}
+
+	pluginWaiter.Wait()
+
+	return allErrs
+}
+
 func (pm *PluginManager) Shutdown() {
+	pm.mu.RLock()
 	for pluginName := range pm.plugins {
 		pm.executor.UnregisterExecutor(pluginName)
 	}
+	pm.mu.RUnlock()
+
+	pm.mu.Lock()
 	pm.plugins = make(map[string]Plugin)
+	pm.mu.Unlock()
 
 	goplugin.CleanupClients()
 }
