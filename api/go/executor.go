@@ -5,9 +5,9 @@ package bonk // import "go.bonk.build/api/go"
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
-	"os"
 
 	"go.uber.org/multierr"
 
@@ -54,16 +54,11 @@ type ExecutorServer struct {
 }
 
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return fmt.Errorf("failed to get current working directory: %w", err)
-	}
-
 	bonkv0.RegisterExecutorServiceServer(server, &executorGRPCServer{
 		name:      p.Name,
-		project:   afero.NewBasePathFs(afero.NewOsFs(), cwd),
 		cuectx:    p.Cuectx,
 		executors: p.Executors,
+		sessions:  make(map[uuid.UUID]task.DefaultSession),
 	})
 
 	return nil
@@ -82,9 +77,10 @@ type executorGRPCServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
 	name      string
-	project   afero.Fs
 	cuectx    *cue.Context
 	executors *executor.ExecutorManager
+
+	sessions map[uuid.UUID]task.DefaultSession
 }
 
 func (s *executorGRPCServer) DescribeExecutors(
@@ -114,6 +110,22 @@ func (s *executorGRPCServer) OpenSession(
 ) (*bonkv0.OpenSessionResponse, error) {
 	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
 
+	sessionId := uuid.MustParse(req.GetSessionId())
+	var sessionFs afero.Fs
+
+	switch req.WhichWorkspaceDescription() {
+	case bonkv0.OpenSessionRequest_Local_case:
+		sessionFs = afero.NewBasePathFs(afero.NewOsFs(), req.GetLocal().GetAbsolutePath())
+
+	default:
+		return nil, errors.New("unsupported workspace type")
+	}
+
+	s.sessions[sessionId] = task.DefaultSession{
+		Id: sessionId,
+		Fs: sessionFs,
+	}
+
 	return bonkv0.OpenSessionResponse_builder{}.Build(), nil
 }
 
@@ -123,6 +135,9 @@ func (s *executorGRPCServer) CloseSession(
 ) (*bonkv0.CloseSessionResponse, error) {
 	slog.DebugContext(ctx, "closing session", "session", req.GetSessionId())
 
+	sessionId := uuid.MustParse(req.GetSessionId())
+	delete(s.sessions, sessionId)
+
 	return bonkv0.CloseSessionResponse_builder{}.Build(), nil
 }
 
@@ -130,25 +145,28 @@ func (s *executorGRPCServer) ExecuteTask(
 	ctx context.Context,
 	req *bonkv0.ExecuteTaskRequest,
 ) (*bonkv0.ExecuteTaskResponse, error) {
-	err := s.project.MkdirAll(req.GetOutDirectory(), 0o750)
+	// Find the relevant session
+	sessionId := uuid.MustParse(req.GetSessionId())
+	session, ok := s.sessions[sessionId]
+	if !ok {
+		return nil, fmt.Errorf("unopened session id: %s", sessionId.String())
+	}
+
+	tskId := task.TaskId{
+		Name:     req.GetName(),
+		Executor: req.GetExecutor(),
+	}
+	tsk := task.Task{
+		ID:      tskId,
+		Session: &session,
+		Inputs:  req.GetInputs(),
+
+		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
+	}
+
+	err := tsk.OutputFs.MkdirAll("", 0o750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
-	}
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to open fs root in output directory: %w", err)
-	}
-
-	tsk := task.Task{
-		ID: task.TaskId{
-			Session:  uuid.MustParse(req.GetSessionId()),
-			Name:     req.GetName(),
-			Executor: req.GetExecutor(),
-		},
-		Inputs: req.GetInputs(),
-
-		ProjectFs: afero.NewReadOnlyFs(s.project),
-		OutputFs:  afero.NewBasePathFs(s.project, req.GetOutDirectory()),
 	}
 
 	tsk.Params = s.cuectx.Encode(req.GetParameters())

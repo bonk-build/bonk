@@ -6,15 +6,14 @@ package main
 import (
 	"log/slog"
 	"os"
+	"path"
 
 	"go.uber.org/multierr"
 
 	"cuelang.org/go/cue/ast"
 	"cuelang.org/go/cue/cuecontext"
 
-	"github.com/google/uuid"
 	"github.com/pterm/pterm"
-	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -35,9 +34,6 @@ var rootCmd = &cobra.Command{
 	Short: "A cue-based configuration build system.",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cwd, _ := os.Getwd()
-		project := afero.NewBasePathFs(afero.NewOsFs(), cwd)
-
 		cuectx := cuecontext.New()
 
 		bem := executor.NewExecutorManager()
@@ -46,7 +42,7 @@ var rootCmd = &cobra.Command{
 		pum := plugin.NewPluginManager(&bem)
 		defer pum.Shutdown()
 
-		sched := scheduler.NewScheduler(project, &bem, concurrency)
+		sched := scheduler.NewScheduler(&bem, concurrency)
 
 		plugins := []string{
 			"go.bonk.build/plugins/test",
@@ -60,10 +56,11 @@ var rootCmd = &cobra.Command{
 		}
 		cobra.CheckErr(err)
 
-		session := uuid.Must(uuid.NewV7())
+		cwd, _ := os.Getwd()
+		session := task.NewLocalSession(path.Join(cwd, "testdata"))
 
 		err = bem.OpenSession(cmd.Context(), session)
-		defer bem.CloseSession(cmd.Context(), session)
+		defer bem.CloseSession(cmd.Context(), session.ID())
 		cobra.CheckErr(err)
 
 		cobra.CheckErr(multierr.Combine(

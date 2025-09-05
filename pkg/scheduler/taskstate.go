@@ -35,6 +35,11 @@ type state struct {
 }
 
 func SaveState(task *task.Task, result *task.Result) error {
+	err := task.OutputFs.MkdirAll("", 0o750)
+	if err != nil {
+		return fmt.Errorf("failed to create task directory: %w", err)
+	}
+
 	file, err := task.OutputFs.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
@@ -57,7 +62,7 @@ func SaveState(task *task.Task, result *task.Result) error {
 	hasher.Reset()
 
 	// Hash the input files
-	state.InputsChecksum, err = hashFiles(hasher, task.ProjectFs, task.Inputs)
+	state.InputsChecksum, err = hashFiles(hasher, task.Session.FS(), task.Inputs)
 	if err != nil {
 		return err
 	}
@@ -109,7 +114,7 @@ func DetectStateMismatches(task *task.Task) []string {
 	if !reflect.DeepEqual(task.Inputs, state.Inputs) {
 		mismatches = append(mismatches, "inputs")
 	}
-	inputsChecksum, err := hashFiles(hasher, task.ProjectFs, task.Inputs)
+	inputsChecksum, err := hashFiles(hasher, task.Session.FS(), task.Inputs)
 	if err != nil || !bytes.Equal(inputsChecksum, state.InputsChecksum) {
 		mismatches = append(mismatches, "inputs-checksum")
 	}

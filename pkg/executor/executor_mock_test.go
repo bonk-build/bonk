@@ -144,17 +144,17 @@ func (c *MockSessionManagerCloseSessionCall) DoAndReturn(f func(context.Context,
 }
 
 // OpenSession mocks base method.
-func (m *MockSessionManager) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
+func (m *MockSessionManager) OpenSession(ctx context.Context, session task.Session) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OpenSession", ctx, sessionId)
+	ret := m.ctrl.Call(m, "OpenSession", ctx, session)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // OpenSession indicates an expected call of OpenSession.
-func (mr *MockSessionManagerMockRecorder) OpenSession(ctx, sessionId any) *MockSessionManagerOpenSessionCall {
+func (mr *MockSessionManagerMockRecorder) OpenSession(ctx, session any) *MockSessionManagerOpenSessionCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenSession", reflect.TypeOf((*MockSessionManager)(nil).OpenSession), ctx, sessionId)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenSession", reflect.TypeOf((*MockSessionManager)(nil).OpenSession), ctx, session)
 	return &MockSessionManagerOpenSessionCall{Call: call}
 }
 
@@ -170,13 +170,13 @@ func (c *MockSessionManagerOpenSessionCall) Return(arg0 error) *MockSessionManag
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockSessionManagerOpenSessionCall) Do(f func(context.Context, uuid.UUID) error) *MockSessionManagerOpenSessionCall {
+func (c *MockSessionManagerOpenSessionCall) Do(f func(context.Context, task.Session) error) *MockSessionManagerOpenSessionCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockSessionManagerOpenSessionCall) DoAndReturn(f func(context.Context, uuid.UUID) error) *MockSessionManagerOpenSessionCall {
+func (c *MockSessionManagerOpenSessionCall) DoAndReturn(f func(context.Context, task.Session) error) *MockSessionManagerOpenSessionCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

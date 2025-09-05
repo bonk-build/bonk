@@ -7,8 +7,6 @@ import (
 	"fmt"
 
 	"cuelang.org/go/cue"
-
-	"github.com/google/uuid"
 )
 
 type TypedTask[Params any] struct {
@@ -18,7 +16,7 @@ type TypedTask[Params any] struct {
 }
 
 func NewTyped[Params any](
-	session uuid.UUID,
+	session Session,
 	executor, name string,
 	cuectx *cue.Context,
 	params Params,
@@ -27,12 +25,12 @@ func NewTyped[Params any](
 	return TypedTask[Params]{
 		Task: Task{
 			ID: TaskId{
-				Session:  session,
 				Executor: executor,
 				Name:     name,
 			},
-			Inputs: inputs,
-			Params: cuectx.Encode(params),
+			Session: session,
+			Inputs:  inputs,
+			Params:  cuectx.Encode(params),
 		},
 		Args: params,
 	}

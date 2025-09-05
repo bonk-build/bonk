@@ -15,7 +15,7 @@ import (
 
 // Executors may optionally implement this interface to be alerted when session statuses change.
 type SessionManager interface {
-	OpenSession(ctx context.Context, sessionId uuid.UUID) error
+	OpenSession(ctx context.Context, session task.Session) error
 	CloseSession(ctx context.Context, sessionId uuid.UUID)
 }
 
@@ -28,7 +28,7 @@ type TypedExecutor[Params any] interface {
 }
 
 type wrappedExecutor struct {
-	openSession  func(ctx context.Context, sessionId uuid.UUID) error
+	openSession  func(ctx context.Context, session task.Session) error
 	closeSession func(ctx context.Context, sessionId uuid.UUID)
 	execute      func(ctx context.Context, tsk task.Task, result *task.Result) error
 }
@@ -56,9 +56,9 @@ func WrapTypedExecutor[Params any](
 	return result
 }
 
-func (wrapped wrappedExecutor) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
+func (wrapped wrappedExecutor) OpenSession(ctx context.Context, session task.Session) error {
 	if wrapped.openSession != nil {
-		return wrapped.openSession(ctx, sessionId)
+		return wrapped.openSession(ctx, session)
 	}
 
 	return nil

@@ -84,11 +84,11 @@ func (bm *ExecutorManager) UnregisterExecutor(name string) {
 	}
 }
 
-func (bm *ExecutorManager) OpenSession(ctx context.Context, sessionId uuid.UUID) error {
+func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session) error {
 	var err error
 	bm.ForEachExecutor(func(_ string, exec Executor) {
 		if sm, ok := exec.(SessionManager); ok {
-			multierr.AppendInto(&err, sm.OpenSession(ctx, sessionId))
+			multierr.AppendInto(&err, sm.OpenSession(ctx, session))
 		}
 	})
 
