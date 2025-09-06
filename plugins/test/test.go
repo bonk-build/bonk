@@ -32,7 +32,9 @@ func (Executor_Test) Execute(
 }
 
 var Plugin = bonk.NewPlugin("test", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutor(bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Test{}))
+	err := plugin.RegisterExecutors(
+		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Test{}),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}

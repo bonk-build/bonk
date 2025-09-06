@@ -37,7 +37,7 @@ func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.Executor {
 
 	executorManager := executor.NewExecutorManager(plugin.Name())
 
-	err := executorManager.RegisterExecutor(&plugin.ExecutorManager)
+	err := executorManager.RegisterExecutors(&plugin.ExecutorManager)
 	if err != nil {
 		t.Fatal("failed to register executor:", plugin.Name())
 	}

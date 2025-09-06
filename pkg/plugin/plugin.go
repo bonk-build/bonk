@@ -94,7 +94,9 @@ func (plugin *Plugin) handleFeatureExecutor(
 		return fmt.Errorf("plugins names didn't match: %s, %s", plugin.name, resp.GetPluginName())
 	}
 
-	err = execRegistrar.RegisterExecutor(executor.NewRPC(plugin.name, cuectx, plugin.executorClient))
+	err = execRegistrar.RegisterExecutors(
+		executor.NewRPC(plugin.name, cuectx, plugin.executorClient),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to register plugin %s executors: %w", plugin.name, err)
 	}

@@ -43,7 +43,7 @@ func (bm *ExecutorManager) Name() string {
 	return bm.name
 }
 
-func (bm *ExecutorManager) RegisterExecutor(impl Executor) error {
+func (bm *ExecutorManager) RegisterExecutors(execs ...Executor) error {
 	var registerImpl func(manager *ExecutorManager, name string, impl Executor) error
 	registerImpl = func(manager *ExecutorManager, name string, impl Executor) error {
 		before, after, needsManager := strings.Cut(name, ExecPathSep)
@@ -83,10 +83,15 @@ func (bm *ExecutorManager) RegisterExecutor(impl Executor) error {
 		}
 	}
 
-	return registerImpl(bm, impl.Name(), impl)
+	var err error
+	for _, exec := range execs {
+		multierr.AppendInto(&err, registerImpl(bm, exec.Name(), exec))
+	}
+
+	return err
 }
 
-func (bm *ExecutorManager) UnregisterExecutor(name string) {
+func (bm *ExecutorManager) UnregisterExecutors(names ...string) {
 	var unregisterImpl func(manager *ExecutorManager, name string)
 	unregisterImpl = func(manager *ExecutorManager, name string) {
 		before, after, hasChild := strings.Cut(name, ExecPathSep)
@@ -106,7 +111,9 @@ func (bm *ExecutorManager) UnregisterExecutor(name string) {
 		}
 	}
 
-	unregisterImpl(bm, name)
+	for _, name := range names {
+		unregisterImpl(bm, name)
+	}
 }
 
 func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session) error {

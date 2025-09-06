@@ -32,7 +32,7 @@ func Test_Add(t *testing.T) {
 
 	manager := executor.NewExecutorManager("")
 
-	err := manager.RegisterExecutor(exec)
+	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
 	require.Equal(t, 1, manager.GetNumExecutors())
@@ -59,7 +59,7 @@ func Test_Call(t *testing.T) {
 
 	manager := executor.NewExecutorManager("")
 
-	err := manager.RegisterExecutor(exec)
+	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
 	err = manager.Execute(t.Context(), task.Task{
@@ -79,10 +79,10 @@ func Test_Remove(t *testing.T) {
 	exec.EXPECT().Name().Return(execName)
 	manager := executor.NewExecutorManager("")
 
-	err := manager.RegisterExecutor(exec)
+	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
-	manager.UnregisterExecutor(execName)
+	manager.UnregisterExecutors(execName)
 
 	require.Equal(t, 0, manager.GetNumExecutors())
 
@@ -108,7 +108,7 @@ func Test_Add_Overlap(t *testing.T) {
 		exec := NewMockExecutor(mock)
 		exec.EXPECT().Name().Return(execName)
 
-		err := manager.RegisterExecutor(exec)
+		err := manager.RegisterExecutors(exec)
 		require.NoError(t, err)
 	}
 
