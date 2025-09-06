@@ -23,11 +23,11 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/task"
 )
 
 type ExecutorRegistrar interface {
-	RegisterExecutors(execs ...executor.Executor) error
+	RegisterExecutors(execs ...task.Executor) error
 	UnregisterExecutors(names ...string)
 }
 

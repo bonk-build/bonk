@@ -16,6 +16,7 @@ import (
 
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/plugin"
+	"go.bonk.build/pkg/task"
 )
 
 type Plugin struct {
@@ -26,8 +27,8 @@ type Plugin struct {
 }
 
 var (
-	_ executor.Executor       = (*Plugin)(nil)
-	_ executor.SessionManager = (*Plugin)(nil)
+	_ task.Executor       = (*Plugin)(nil)
+	_ task.SessionManager = (*Plugin)(nil)
 )
 
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {

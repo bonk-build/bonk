@@ -12,6 +12,7 @@ import (
 
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
+	"go.bonk.build/test"
 )
 
 var mock *gomock.Controller
@@ -27,7 +28,7 @@ func Test_Add(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := NewMockExecutor(mock)
+	exec := test.NewMockExecutor(mock)
 	exec.EXPECT().Name().Return(execName)
 
 	manager := executor.NewExecutorManager("")
@@ -39,7 +40,7 @@ func Test_Add(t *testing.T) {
 
 	var foundName string
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec executor.Executor) {
+	manager.ForEachExecutor(func(name string, exec task.Executor) {
 		foundName = name
 		calls++
 	})
@@ -53,7 +54,7 @@ func Test_Call(t *testing.T) {
 	const execName = "testing.child.abc"
 	var result task.Result
 
-	exec := NewMockExecutor(mock)
+	exec := test.NewMockExecutor(mock)
 	exec.EXPECT().Name().Return(execName)
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
 
@@ -75,7 +76,7 @@ func Test_Remove(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := NewMockExecutor(mock)
+	exec := test.NewMockExecutor(mock)
 	exec.EXPECT().Name().Return(execName)
 	manager := executor.NewExecutorManager("")
 
@@ -87,7 +88,7 @@ func Test_Remove(t *testing.T) {
 	require.Equal(t, 0, manager.GetNumExecutors())
 
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec executor.Executor) {
+	manager.ForEachExecutor(func(name string, exec task.Executor) {
 		calls++
 	})
 	require.Equal(t, 0, calls)
@@ -105,7 +106,7 @@ func Test_Add_Overlap(t *testing.T) {
 	manager := executor.NewExecutorManager("")
 
 	for _, execName := range execNames {
-		exec := NewMockExecutor(mock)
+		exec := test.NewMockExecutor(mock)
 		exec.EXPECT().Name().Return(execName)
 
 		err := manager.RegisterExecutors(exec)
@@ -113,7 +114,7 @@ func Test_Add_Overlap(t *testing.T) {
 	}
 
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec executor.Executor) {
+	manager.ForEachExecutor(func(name string, exec task.Executor) {
 		calls++
 	})
 	require.Equal(t, 2, calls)

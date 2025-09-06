@@ -11,8 +11,6 @@ import (
 
 	"go.uber.org/multierr"
 
-	"github.com/google/uuid"
-
 	"go.bonk.build/pkg/task"
 )
 
@@ -20,13 +18,13 @@ import (
 type ExecutorManager struct {
 	name string
 
-	children map[string]Executor
+	children map[string]task.Executor
 }
 
 // Note that ExecutorManager is itself an executor.
 var (
-	_ Executor       = (*ExecutorManager)(nil)
-	_ SessionManager = (*ExecutorManager)(nil)
+	_ task.Executor       = (*ExecutorManager)(nil)
+	_ task.SessionManager = (*ExecutorManager)(nil)
 )
 var ErrNoExecutorFound = errors.New("no executor found")
 
@@ -35,7 +33,7 @@ const ExecPathSep = "."
 func NewExecutorManager(name string) ExecutorManager {
 	return ExecutorManager{
 		name:     name,
-		children: make(map[string]Executor),
+		children: make(map[string]task.Executor),
 	}
 }
 
@@ -43,9 +41,9 @@ func (bm *ExecutorManager) Name() string {
 	return bm.name
 }
 
-func (bm *ExecutorManager) RegisterExecutors(execs ...Executor) error {
-	var registerImpl func(manager *ExecutorManager, name string, impl Executor) error
-	registerImpl = func(manager *ExecutorManager, name string, impl Executor) error {
+func (bm *ExecutorManager) RegisterExecutors(execs ...task.Executor) error {
+	var registerImpl func(manager *ExecutorManager, name string, impl task.Executor) error
+	registerImpl = func(manager *ExecutorManager, name string, impl task.Executor) error {
 		before, after, needsManager := strings.Cut(name, ExecPathSep)
 		child, hasChild := manager.children[before]
 
@@ -63,7 +61,7 @@ func (bm *ExecutorManager) RegisterExecutors(execs ...Executor) error {
 		case needsManager && !hasChild:
 			manager.children[before] = &ExecutorManager{
 				name:     before,
-				children: make(map[string]Executor, 1),
+				children: make(map[string]task.Executor, 1),
 			}
 
 			return registerImpl(manager, name, impl)
@@ -118,8 +116,8 @@ func (bm *ExecutorManager) UnregisterExecutors(names ...string) {
 
 func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session) error {
 	var err error
-	bm.ForEachExecutor(func(_ string, exec Executor) {
-		if sm, ok := exec.(SessionManager); ok {
+	bm.ForEachExecutor(func(_ string, exec task.Executor) {
+		if sm, ok := exec.(task.SessionManager); ok {
 			multierr.AppendInto(&err, sm.OpenSession(ctx, session))
 		}
 	})
@@ -127,9 +125,9 @@ func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session
 	return err
 }
 
-func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId uuid.UUID) {
-	bm.ForEachExecutor(func(_ string, exec Executor) {
-		if sm, ok := exec.(SessionManager); ok {
+func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId task.SessionId) {
+	bm.ForEachExecutor(func(_ string, exec task.Executor) {
+		if sm, ok := exec.(task.SessionManager); ok {
 			sm.CloseSession(ctx, sessionId)
 		}
 	})
@@ -155,16 +153,16 @@ func (bm *ExecutorManager) Execute(
 
 func (bm *ExecutorManager) GetNumExecutors() int {
 	result := 0
-	bm.ForEachExecutor(func(string, Executor) {
+	bm.ForEachExecutor(func(string, task.Executor) {
 		result++
 	})
 
 	return result
 }
 
-func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec Executor)) {
-	var forEachImpl func(name string, appendName bool, child Executor)
-	forEachImpl = func(name string, appendName bool, child Executor) {
+func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec task.Executor)) {
+	var forEachImpl func(name string, appendName bool, child task.Executor)
+	forEachImpl = func(name string, appendName bool, child task.Executor) {
 		if childManager, ok := child.(*ExecutorManager); ok {
 			for childName, childExec := range childManager.children {
 				var pathParts []string
@@ -185,5 +183,5 @@ func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec Executor))
 }
 
 func (bm *ExecutorManager) Shutdown() {
-	bm.children = make(map[string]Executor)
+	bm.children = make(map[string]task.Executor)
 }
