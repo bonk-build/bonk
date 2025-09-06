@@ -16,6 +16,8 @@ import (
 
 	"google.golang.org/grpc"
 
+	"cuelang.org/go/cue"
+
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -33,15 +35,16 @@ type PluginManager struct {
 	mu      sync.RWMutex
 	plugins map[string]Plugin
 
+	cuectx   *cue.Context
 	executor ExecutorRegistrar
 }
 
-func NewPluginManager(executor ExecutorRegistrar) *PluginManager {
-	pm := &PluginManager{}
-	pm.plugins = make(map[string]Plugin)
-	pm.executor = executor
-
-	return pm
+func NewPluginManager(cuectx *cue.Context, executor ExecutorRegistrar) *PluginManager {
+	return &PluginManager{
+		plugins:  make(map[string]Plugin),
+		cuectx:   cuectx,
+		executor: executor,
+	}
 }
 
 func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) error {
@@ -64,7 +67,7 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	plug := Plugin{
 		name: pluginName,
 	}
-	err := plug.Configure(ctx, process, pm.executor)
+	err := plug.Configure(ctx, pm.cuectx, process, pm.executor)
 	if err != nil {
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}

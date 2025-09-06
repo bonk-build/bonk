@@ -14,6 +14,8 @@ import (
 
 	"go.uber.org/multierr"
 
+	"cuelang.org/go/cue"
+
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
@@ -34,6 +36,7 @@ type Plugin struct {
 
 func (plugin *Plugin) Configure(
 	ctx context.Context,
+	cuectx *cue.Context,
 	client *goplugin.Client,
 	execRegistrar ExecutorRegistrar,
 ) error {
@@ -46,14 +49,19 @@ func (plugin *Plugin) Configure(
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, rpcClient, execRegistrar))
+	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, cuectx, rpcClient, execRegistrar))
 	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, rpcClient))
 
-	return fmt.Errorf("failed to initialize plugin: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to initialize plugin: %w", err)
+	}
+
+	return nil
 }
 
 func (plugin *Plugin) handleFeatureExecutor(
 	ctx context.Context,
+	cuectx *cue.Context,
 	client goplugin.ClientProtocol,
 	execRegistrar ExecutorRegistrar,
 ) error {
@@ -88,7 +96,7 @@ func (plugin *Plugin) handleFeatureExecutor(
 
 	err = execRegistrar.RegisterExecutor(
 		plugin.name,
-		executor.NewRPC(plugin.name, plugin.executorClient),
+		executor.NewRPC(plugin.name, cuectx, plugin.executorClient),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to register plugin %s executors: %w", plugin.name, err)
