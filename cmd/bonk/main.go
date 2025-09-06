@@ -36,7 +36,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		cuectx := cuecontext.New()
 
-		bem := executor.NewExecutorManager()
+		bem := executor.NewExecutorManager("")
 		defer bem.Shutdown()
 
 		pum := plugin.NewPluginManager(cuectx, &bem)

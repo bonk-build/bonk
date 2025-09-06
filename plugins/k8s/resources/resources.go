@@ -22,6 +22,10 @@ type Params struct {
 
 type Executor_Resources struct{}
 
+func (Executor_Resources) Name() string {
+	return "Resources"
+}
+
 func (Executor_Resources) Execute(
 	ctx context.Context,
 	task bonk.TypedTask[Params],
@@ -51,10 +55,7 @@ func (Executor_Resources) Execute(
 }
 
 var Plugin = bonk.NewPlugin("resources", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutor(
-		"Resources",
-		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Resources{}),
-	)
+	err := plugin.RegisterExecutor(bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Resources{}))
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}

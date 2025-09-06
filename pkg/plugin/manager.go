@@ -27,7 +27,7 @@ import (
 )
 
 type ExecutorRegistrar interface {
-	RegisterExecutor(name string, impl executor.Executor) error
+	RegisterExecutor(impl executor.Executor) error
 	UnregisterExecutor(name string)
 }
 

@@ -35,11 +35,11 @@ func ServeTest(t *testing.T, plugin *bonk.Plugin) executor.Executor {
 	// 	t.Fatal("plugin dispensed is of the wrong type")
 	// }
 
-	executorManager := executor.NewExecutorManager()
+	executorManager := executor.NewExecutorManager(plugin.Name())
 
-	err := executorManager.RegisterExecutor(plugin.Name, &plugin.ExecutorManager)
+	err := executorManager.RegisterExecutor(&plugin.ExecutorManager)
 	if err != nil {
-		t.Fatal("failed to register executor:", plugin.Name)
+		t.Fatal("failed to register executor:", plugin.Name())
 	}
 
 	// plugin.ForEachExecutor(func(name string, _ executor.Executor) {

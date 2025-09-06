@@ -20,14 +20,17 @@ type SessionManager interface {
 }
 
 type Executor interface {
+	Name() string
 	Execute(ctx context.Context, tsk task.Task, result *task.Result) error
 }
 
 type TypedExecutor[Params any] interface {
+	Name() string
 	Execute(ctx context.Context, tsk task.TypedTask[Params], result *task.Result) error
 }
 
 type wrappedExecutor struct {
+	name         string
 	openSession  func(ctx context.Context, session task.Session) error
 	closeSession func(ctx context.Context, sessionId uuid.UUID)
 	execute      func(ctx context.Context, tsk task.Task, result *task.Result) error
@@ -43,6 +46,7 @@ func WrapTypedExecutor[Params any](
 	impl TypedExecutor[Params],
 ) Executor {
 	result := wrappedExecutor{
+		name: impl.Name(),
 		execute: func(ctx context.Context, tsk task.Task, result *task.Result) error {
 			return impl.Execute(ctx, task.Wrap[Params](cuectx, tsk), result)
 		},
@@ -54,6 +58,10 @@ func WrapTypedExecutor[Params any](
 	}
 
 	return result
+}
+
+func (wrapped wrappedExecutor) Name() string {
+	return wrapped.name
 }
 
 func (wrapped wrappedExecutor) OpenSession(ctx context.Context, session task.Session) error {

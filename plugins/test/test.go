@@ -17,6 +17,10 @@ type Params struct {
 
 type Executor_Test struct{}
 
+func (Executor_Test) Name() string {
+	return "Test"
+}
+
 func (Executor_Test) Execute(
 	ctx context.Context,
 	task bonk.TypedTask[Params],
@@ -28,7 +32,7 @@ func (Executor_Test) Execute(
 }
 
 var Plugin = bonk.NewPlugin("test", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutor("Test", bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Test{}))
+	err := plugin.RegisterExecutor(bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Test{}))
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}
