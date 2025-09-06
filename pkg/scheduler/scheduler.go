@@ -23,7 +23,9 @@ type Scheduler struct {
 	executorManager TaskSender
 	executor        gotaskflow.Executor
 	tasks           map[string]*gotaskflow.Task
-	rootFlow        *gotaskflow.TaskFlow
+
+	flowHasTasks bool
+	rootFlow     *gotaskflow.TaskFlow
 }
 
 func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
@@ -31,12 +33,15 @@ func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 		executorManager: executorManager,
 		executor:        gotaskflow.NewExecutor(concurrency),
 		tasks:           make(map[string]*gotaskflow.Task),
-		rootFlow:        gotaskflow.NewTaskFlow("bonk"),
+
+		flowHasTasks: false,
+		rootFlow:     gotaskflow.NewTaskFlow("bonk"),
 	}
 }
 
 func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 	taskName := tsk.ID.String()
+	s.flowHasTasks = true
 	newTask := s.rootFlow.NewTask(taskName, func() {
 		mismatches := DetectStateMismatches(&tsk)
 		if mismatches == nil {
@@ -50,24 +55,24 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 		var result task.Result
 		err := s.executorManager.Execute(context.Background(), tsk, &result)
 		if err != nil {
-			slog.Error("error executing task", "task", taskName, "error", err)
+			slog.Error("error executing task", "task", taskName, "executor", tsk.Executor(), "error", err)
 
 			return
 		}
 
-		slog.Info("task succeeded, saving state")
+		slog.Info("task succeeded, saving state", "task", taskName)
 
 		var followupErr error
 		for _, followup := range result.FollowupTasks {
 			multierr.AppendInto(&followupErr, s.AddTask(followup))
 		}
 		if followupErr != nil {
-			slog.Error("failed to schedule followup tasks", "error", followupErr)
+			slog.Error("failed to schedule followup tasks", "task", taskName, "error", followupErr)
 		}
 
 		err = SaveState(&tsk, &result)
 		if err != nil {
-			slog.Error("failed to save task state", "error", err)
+			slog.Error("failed to save task state", "task", taskName, "error", err)
 
 			return
 		}
@@ -88,5 +93,12 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 }
 
 func (s *Scheduler) Run() {
-	s.executor.Run(s.rootFlow).Wait()
+	for s.flowHasTasks {
+		existingFlow := s.rootFlow
+
+		s.flowHasTasks = false
+		s.rootFlow = gotaskflow.NewTaskFlow("bonk")
+
+		s.executor.Run(existingFlow).Wait()
+	}
 }

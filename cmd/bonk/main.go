@@ -39,7 +39,7 @@ var rootCmd = &cobra.Command{
 		bem := executor.NewExecutorManager()
 		defer bem.Shutdown()
 
-		pum := plugin.NewPluginManager(&bem)
+		pum := plugin.NewPluginManager(cuectx, &bem)
 		defer pum.Shutdown()
 
 		sched := scheduler.NewScheduler(&bem, concurrency)

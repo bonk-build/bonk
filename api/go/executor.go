@@ -12,6 +12,7 @@ import (
 	"go.uber.org/multierr"
 
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/structpb"
 
 	"cuelang.org/go/cue"
 
@@ -195,13 +196,15 @@ func (s *executorGRPCServer) ExecuteTask(
 	}
 
 	for idx, followup := range response.FollowupTasks {
-		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{}
+		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
+			Name:       &followup.ID.Name,
+			Parameters: &structpb.Struct{},
+		}
 		taskProto.Executor = &followup.ID.Executor
 		taskProto.Inputs = followup.Inputs
-		err := followup.Params.Decode(taskProto.Parameters)
-		if err != nil {
-			slog.ErrorContext(ctx, "cannot enqueue followup task as params cue failed to decode to proto")
+		decodeErr := followup.Params.Decode(taskProto.Parameters)
 
+		if multierr.AppendInto(&err, decodeErr) {
 			continue
 		}
 

@@ -12,21 +12,25 @@ import (
 
 	"google.golang.org/protobuf/types/known/structpb"
 
+	"cuelang.org/go/cue"
+
 	"github.com/google/uuid"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/task"
 )
 
-func NewRPC(name string, client bonkv0.ExecutorServiceClient) Executor {
+func NewRPC(name string, cuectx *cue.Context, client bonkv0.ExecutorServiceClient) Executor {
 	return &rpcExecutor{
 		name:   name,
+		cuectx: cuectx,
 		client: client,
 	}
 }
 
 type rpcExecutor struct {
 	name   string
+	cuectx *cue.Context
 	client bonkv0.ExecutorServiceClient
 }
 
@@ -94,13 +98,18 @@ func (pb *rpcExecutor) Execute(ctx context.Context, tsk task.Task, result *task.
 	result.Outputs = res.GetOutput()
 	result.FollowupTasks = make([]task.Task, len(res.GetFollowupTasks()))
 	for ii, followup := range res.GetFollowupTasks() {
-		newTask := &result.FollowupTasks[ii]
-		newTask.ID = tsk.ID.GetChild(followup.GetName(), followup.GetExecutor())
-		newTask.Session = tsk.Session
-		newTask.Inputs = followup.GetInputs()
-
-		multierr.AppendInto(&err,
-			newTask.Params.Decode(followup.GetParameters()))
+		// Attmpt to decode the event params
+		params := pb.cuectx.Encode(followup.GetParameters())
+		if !multierr.AppendInto(&err, params.Err()) {
+			// Create the new task and append it
+			result.FollowupTasks[ii] = task.New(
+				tsk.Session,
+				followup.GetExecutor(),
+				fmt.Sprintf("%s.%s", tsk.ID.Name, followup.GetName()),
+				params,
+				followup.GetInputs()...,
+			)
+		}
 	}
 
 	if err != nil {
