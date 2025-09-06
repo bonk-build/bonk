@@ -56,16 +56,15 @@ type TypedExecutor[Params any] interface {
 	Execute(ctx context.Context, tsk TypedTask[Params], result *Result) error
 }
 
-type wrappedExecutor struct {
-	name         string
-	openSession  func(ctx context.Context, session Session) error
-	closeSession func(ctx context.Context, sessionId SessionId)
-	execute      func(ctx context.Context, tsk Task, result *Result) error
+type wrappedExecutor[Params any] struct {
+	TypedExecutor[Params]
+
+	cuectx *cue.Context
 }
 
 var (
-	_ Executor       = (*wrappedExecutor)(nil)
-	_ SessionManager = (*wrappedExecutor)(nil)
+	_ Executor       = (*wrappedExecutor[any])(nil)
+	_ SessionManager = (*wrappedExecutor[any])(nil)
 )
 
 // WrapTypedExecutor accepts a TypedExecutor and wraps it into an untyped Executor.
@@ -73,43 +72,34 @@ func WrapTypedExecutor[Params any](
 	cuectx *cue.Context,
 	impl TypedExecutor[Params],
 ) Executor {
-	result := wrappedExecutor{
-		name: impl.Name(),
-		execute: func(ctx context.Context, tsk Task, result *Result) error {
-			return impl.Execute(ctx, Wrap[Params](cuectx, tsk), result)
-		},
+	return wrappedExecutor[Params]{
+		TypedExecutor: impl,
+		cuectx:        cuectx,
 	}
-
-	if sm, ok := impl.(SessionManager); ok {
-		result.openSession = sm.OpenSession
-		result.closeSession = sm.CloseSession
-	}
-
-	return result
 }
 
-func (wrapped wrappedExecutor) Name() string {
-	return wrapped.name
-}
-
-func (wrapped wrappedExecutor) OpenSession(ctx context.Context, session Session) error {
-	if wrapped.openSession != nil {
-		return wrapped.openSession(ctx, session)
+func (wrapped wrappedExecutor[Params]) OpenSession(ctx context.Context, session Session) error {
+	if ssm, ok := wrapped.TypedExecutor.(SessionManager); ok {
+		return ssm.OpenSession(ctx, session) //nolint:wrapcheck
 	}
 
 	return nil
 }
 
-func (wrapped wrappedExecutor) CloseSession(ctx context.Context, sessionId SessionId) {
-	if wrapped.closeSession != nil {
-		wrapped.closeSession(ctx, sessionId)
+func (wrapped wrappedExecutor[Params]) CloseSession(ctx context.Context, sessionId SessionId) {
+	if ssm, ok := wrapped.TypedExecutor.(SessionManager); ok {
+		ssm.CloseSession(ctx, sessionId)
 	}
 }
 
-func (wrapped wrappedExecutor) Execute(
+func (wrapped wrappedExecutor[Params]) Execute(
 	ctx context.Context,
 	tsk Task,
 	result *Result,
 ) error {
-	return wrapped.execute(ctx, tsk, result)
+	return wrapped.TypedExecutor.Execute( //nolint:wrapcheck
+		ctx,
+		Wrap[Params](wrapped.cuectx, tsk),
+		result,
+	)
 }
