@@ -83,6 +83,44 @@ func (c *MockExecutorExecuteCall) DoAndReturn(f func(context.Context, task.Task,
 	return c
 }
 
+// Name mocks base method.
+func (m *MockExecutor) Name() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Name")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// Name indicates an expected call of Name.
+func (mr *MockExecutorMockRecorder) Name() *MockExecutorNameCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockExecutor)(nil).Name))
+	return &MockExecutorNameCall{Call: call}
+}
+
+// MockExecutorNameCall wrap *gomock.Call
+type MockExecutorNameCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockExecutorNameCall) Return(arg0 string) *MockExecutorNameCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockExecutorNameCall) Do(f func() string) *MockExecutorNameCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockExecutorNameCall) DoAndReturn(f func() string) *MockExecutorNameCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // MockSessionManager is a mock of SessionManager interface.
 type MockSessionManager struct {
 	ctrl     *gomock.Controller

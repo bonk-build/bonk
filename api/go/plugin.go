@@ -21,15 +21,18 @@ import (
 type Plugin struct {
 	executor.ExecutorManager
 
-	Name               string
 	EnableLogStreaming bool
 	Cuectx             *cue.Context
 }
 
+var (
+	_ executor.Executor       = (*Plugin)(nil)
+	_ executor.SessionManager = (*Plugin)(nil)
+)
+
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 	plugin := &Plugin{
-		Name:               name,
-		ExecutorManager:    executor.NewExecutorManager(),
+		ExecutorManager:    executor.NewExecutorManager(name),
 		EnableLogStreaming: true,
 		Cuectx:             cuecontext.New(),
 	}
@@ -49,7 +52,7 @@ func (p *Plugin) Serve() {
 
 	if p.GetNumExecutors() != 0 {
 		pluginMap["executor"] = &ExecutorServer{
-			Name:      p.Name,
+			Name:      p.Name(),
 			Executors: &p.ExecutorManager,
 			Cuectx:    p.Cuectx,
 		}

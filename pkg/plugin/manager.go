@@ -27,8 +27,8 @@ import (
 )
 
 type ExecutorRegistrar interface {
-	RegisterExecutor(name string, impl executor.Executor) error
-	UnregisterExecutor(name string)
+	RegisterExecutors(execs ...executor.Executor) error
+	UnregisterExecutors(names ...string)
 }
 
 type PluginManager struct {
@@ -107,7 +107,7 @@ func (pm *PluginManager) StartPlugins(ctx context.Context, pluginPath ...string)
 func (pm *PluginManager) Shutdown() {
 	pm.mu.RLock()
 	for pluginName := range pm.plugins {
-		pm.executor.UnregisterExecutor(pluginName)
+		pm.executor.UnregisterExecutors(pluginName)
 	}
 	pm.mu.RUnlock()
 

@@ -28,9 +28,11 @@ func Test_Add(t *testing.T) {
 	const execName = "testing.child.abc"
 
 	exec := NewMockExecutor(mock)
-	manager := executor.NewExecutorManager()
+	exec.EXPECT().Name().Return(execName)
 
-	err := manager.RegisterExecutor(execName, exec)
+	manager := executor.NewExecutorManager("")
+
+	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
 	require.Equal(t, 1, manager.GetNumExecutors())
@@ -52,11 +54,12 @@ func Test_Call(t *testing.T) {
 	var result task.Result
 
 	exec := NewMockExecutor(mock)
+	exec.EXPECT().Name().Return(execName)
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
 
-	manager := executor.NewExecutorManager()
+	manager := executor.NewExecutorManager("")
 
-	err := manager.RegisterExecutor(execName, exec)
+	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
 	err = manager.Execute(t.Context(), task.Task{
@@ -73,12 +76,13 @@ func Test_Remove(t *testing.T) {
 	const execName = "testing.child.abc"
 
 	exec := NewMockExecutor(mock)
-	manager := executor.NewExecutorManager()
+	exec.EXPECT().Name().Return(execName)
+	manager := executor.NewExecutorManager("")
 
-	err := manager.RegisterExecutor(execName, exec)
+	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
-	manager.UnregisterExecutor(execName)
+	manager.UnregisterExecutors(execName)
 
 	require.Equal(t, 0, manager.GetNumExecutors())
 
@@ -95,14 +99,16 @@ func Test_Add_Overlap(t *testing.T) {
 
 	execNames := []string{
 		"testing.child.abc",
-		"testing",
+		"testing.sibling",
 	}
 
-	exec := NewMockExecutor(mock)
-	manager := executor.NewExecutorManager()
+	manager := executor.NewExecutorManager("")
 
 	for _, execName := range execNames {
-		err := manager.RegisterExecutor(execName, exec)
+		exec := NewMockExecutor(mock)
+		exec.EXPECT().Name().Return(execName)
+
+		err := manager.RegisterExecutors(exec)
 		require.NoError(t, err)
 	}
 
@@ -111,47 +117,4 @@ func Test_Add_Overlap(t *testing.T) {
 		calls++
 	})
 	require.Equal(t, 2, calls)
-}
-
-func Test_Call_Overlap(t *testing.T) {
-	t.Parallel()
-	testSetup(t)
-
-	var result task.Result
-
-	execNames := []string{
-		"testing.child.abc",
-		"testing",
-	}
-
-	abc := NewMockExecutor(mock)
-	abc.EXPECT().Execute(t.Context(), gomock.Any(), &result).Times(1)
-
-	testing := NewMockExecutor(mock)
-	testing.EXPECT().Execute(t.Context(), gomock.Any(), &result).Times(2)
-
-	manager := executor.NewExecutorManager()
-
-	err := manager.RegisterExecutor(execNames[0], abc)
-	require.NoError(t, err)
-	err = manager.RegisterExecutor(execNames[1], testing)
-	require.NoError(t, err)
-
-	tsk := task.Task{}
-
-	tsk.ID.Executor = execNames[0]
-	err = manager.Execute(t.Context(), tsk, &result)
-	require.NoError(t, err)
-
-	tsk.ID.Executor = "testing.child"
-	err = manager.Execute(t.Context(), tsk, &result)
-	require.NoError(t, err)
-
-	tsk.ID.Executor = "testing"
-	err = manager.Execute(t.Context(), tsk, &result)
-	require.NoError(t, err)
-
-	tsk.ID.Executor = ""
-	err = manager.Execute(t.Context(), tsk, &result)
-	require.ErrorIs(t, err, executor.ErrNoExecutorFound)
 }

@@ -18,9 +18,9 @@ import (
 
 // ExecutorManager is a tree of Executors.
 type ExecutorManager struct {
-	executors map[string]*ExecutorManager
+	name string
 
-	executor Executor
+	children map[string]Executor
 }
 
 // Note that ExecutorManager is itself an executor.
@@ -32,55 +32,87 @@ var ErrNoExecutorFound = errors.New("no executor found")
 
 const ExecPathSep = "."
 
-func NewExecutorManager() ExecutorManager {
+func NewExecutorManager(name string) ExecutorManager {
 	return ExecutorManager{
-		executors: make(map[string]*ExecutorManager),
+		name:     name,
+		children: make(map[string]Executor),
 	}
 }
 
-func (bm *ExecutorManager) RegisterExecutor(name string, impl Executor) error {
-	// At leaf, just register the executor
-	if name == "" {
-		if bm.executor != nil {
-			return fmt.Errorf("duplicate executor name: %s", name)
-		}
-
-		bm.executor = impl
-
-		return nil
-	}
-
-	before, after, _ := strings.Cut(name, ExecPathSep)
-	child, ok := bm.executors[before]
-
-	if !ok {
-		bm.executors[before] = &ExecutorManager{
-			executors: make(map[string]*ExecutorManager),
-		}
-		child = bm.executors[before]
-	}
-
-	return child.RegisterExecutor(after, impl)
+func (bm *ExecutorManager) Name() string {
+	return bm.name
 }
 
-func (bm *ExecutorManager) UnregisterExecutor(name string) {
-	// At leaf, just disengage the
-	if name == "" {
-		bm.executor = nil
+func (bm *ExecutorManager) RegisterExecutors(execs ...Executor) error {
+	var registerImpl func(manager *ExecutorManager, name string, impl Executor) error
+	registerImpl = func(manager *ExecutorManager, name string, impl Executor) error {
+		before, after, needsManager := strings.Cut(name, ExecPathSep)
+		child, hasChild := manager.children[before]
 
-		return
+		switch {
+		// Needs & has manager, just recurse
+		case needsManager && hasChild:
+			childManager, ok := child.(*ExecutorManager)
+			if !ok {
+				return fmt.Errorf("duplicate executor name: %s", before)
+			}
+
+			return registerImpl(childManager, after, impl)
+
+		// Needs & doesn't have manager, add manager and retry
+		case needsManager && !hasChild:
+			manager.children[before] = &ExecutorManager{
+				name:     before,
+				children: make(map[string]Executor, 1),
+			}
+
+			return registerImpl(manager, name, impl)
+
+		// Doesn't need more manager tree but already has a child, error
+		case !needsManager && hasChild:
+			return fmt.Errorf("duplicate executor name: %s", before)
+
+		// Best case, doesn't need more tree, just register
+		case !needsManager && !hasChild:
+			manager.children[before] = impl
+
+			return nil
+
+		default:
+			panic("unreachable")
+		}
 	}
 
-	before, after, _ := strings.Cut(name, ExecPathSep)
-	child, ok := bm.executors[before]
+	var err error
+	for _, exec := range execs {
+		multierr.AppendInto(&err, registerImpl(bm, exec.Name(), exec))
+	}
 
-	if ok {
-		child.UnregisterExecutor(after)
+	return err
+}
 
-		// If the child node is now empty, remove it
-		if child.executor == nil && len(child.executors) == 0 {
-			delete(bm.executors, before)
+func (bm *ExecutorManager) UnregisterExecutors(names ...string) {
+	var unregisterImpl func(manager *ExecutorManager, name string)
+	unregisterImpl = func(manager *ExecutorManager, name string) {
+		before, after, hasChild := strings.Cut(name, ExecPathSep)
+		child, ok := manager.children[before]
+
+		switch {
+		case !ok:
+			return
+
+		case hasChild:
+			if childManager, ok := child.(*ExecutorManager); ok {
+				unregisterImpl(childManager, after)
+			}
+
+		default:
+			delete(manager.children, name)
 		}
+	}
+
+	for _, name := range names {
+		unregisterImpl(bm, name)
 	}
 }
 
@@ -108,60 +140,50 @@ func (bm *ExecutorManager) Execute(
 	tsk task.Task,
 	result *task.Result,
 ) error {
-	err := ErrNoExecutorFound
-
 	before, after, _ := strings.Cut(tsk.Executor(), ExecPathSep)
-	child, ok := bm.executors[before]
+	child, ok := bm.children[before]
 
-	shouldExec := !ok
 	if ok {
 		copyForChild := tsk
 		copyForChild.ID.Executor = after
-		err = child.Execute(ctx, copyForChild, result)
 
-		// If the child didn't find an executor, try this node's
-		if errors.Is(err, ErrNoExecutorFound) {
-			shouldExec = true
-		}
+		return child.Execute(ctx, copyForChild, result) //nolint:wrapcheck
+	} else {
+		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor())
 	}
-
-	if shouldExec && bm.executor != nil {
-		err = bm.executor.Execute(ctx, tsk, result)
-		if err != nil {
-			return fmt.Errorf("failed to execute task: %w", err)
-		}
-
-		return nil
-	}
-
-	return err //nolint:wrapcheck
 }
 
 func (bm *ExecutorManager) GetNumExecutors() int {
-	return len(bm.executors)
+	result := 0
+	bm.ForEachExecutor(func(string, Executor) {
+		result++
+	})
+
+	return result
 }
 
 func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec Executor)) {
-	var processor func(name string, appendName bool, child *ExecutorManager)
-	processor = func(name string, appendName bool, child *ExecutorManager) {
-		if child.executor != nil {
-			fun(name, child.executor)
-		}
-		for childName, childExec := range child.executors {
-			var pathParts []string
-			if appendName {
-				pathParts = []string{name, childName}
-			} else {
-				pathParts = []string{childName}
-			}
+	var forEachImpl func(name string, appendName bool, child Executor)
+	forEachImpl = func(name string, appendName bool, child Executor) {
+		if childManager, ok := child.(*ExecutorManager); ok {
+			for childName, childExec := range childManager.children {
+				var pathParts []string
+				if appendName {
+					pathParts = []string{name, childName}
+				} else {
+					pathParts = []string{childName}
+				}
 
-			processor(strings.Join(pathParts, ExecPathSep), true, childExec)
+				forEachImpl(strings.Join(pathParts, ExecPathSep), true, childExec)
+			}
+		} else {
+			fun(name, child)
 		}
 	}
-	processor("", false, bm)
+
+	forEachImpl(bm.Name(), false, bm)
 }
 
 func (bm *ExecutorManager) Shutdown() {
-	bm.executor = nil
-	bm.executors = make(map[string]*ExecutorManager)
+	bm.children = make(map[string]Executor)
 }

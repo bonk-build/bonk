@@ -10,6 +10,7 @@ linters:
     - exhaustruct
     - gochecknoinits
     - ireturn
+    - nestif
     - testpackage
     - wsl
     - wsl_v5

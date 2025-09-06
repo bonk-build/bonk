@@ -25,6 +25,10 @@ type Params struct {
 
 type Executor_Kustomize struct{}
 
+func (Executor_Kustomize) Name() string {
+	return "Kustomize"
+}
+
 func (Executor_Kustomize) Execute(
 	ctx context.Context,
 	task bonk.TypedTask[Params],
@@ -89,8 +93,7 @@ func (Executor_Kustomize) Execute(
 }
 
 var Plugin = bonk.NewPlugin("kustomize", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutor(
-		"Kustomize",
+	err := plugin.RegisterExecutors(
 		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Kustomize{}),
 	)
 	if err != nil {

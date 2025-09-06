@@ -39,6 +39,10 @@ var (
 	_ SessionManager = (*rpcExecutor)(nil)
 )
 
+func (pb *rpcExecutor) Name() string {
+	return pb.name
+}
+
 func (pb *rpcExecutor) OpenSession(ctx context.Context, session task.Session) error {
 	sessionIdString := session.ID().String()
 	openSessionRequest := bonkv0.OpenSessionRequest_builder{

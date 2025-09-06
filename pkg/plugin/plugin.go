@@ -94,8 +94,7 @@ func (plugin *Plugin) handleFeatureExecutor(
 		return fmt.Errorf("plugins names didn't match: %s, %s", plugin.name, resp.GetPluginName())
 	}
 
-	err = execRegistrar.RegisterExecutor(
-		plugin.name,
+	err = execRegistrar.RegisterExecutors(
 		executor.NewRPC(plugin.name, cuectx, plugin.executorClient),
 	)
 	if err != nil {
