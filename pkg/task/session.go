@@ -4,28 +4,39 @@
 package task
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
 )
 
+// SessionId is a unique identifier per-session.
+type SessionId = uuid.UUID
+
+// A session defines a context in which tasks are invoked.
 type Session interface {
-	ID() uuid.UUID
+	// ID() returns a unique identifier per-session.
+	ID() SessionId
+	// FS() returns a filesystem describing the root of the project consumed by the session.
 	FS() afero.Fs
 }
 
+// LocalSession is a session that is being executed on the local machine.
 type LocalSession interface {
 	Session
 
+	// LocalPath() returns the absolute path to the root of the project on disk.
 	LocalPath() string
 }
 
+// DefaultSession is a default implementation of Session that stores its parameters in members.
 type DefaultSession struct {
-	Id uuid.UUID
+	Id SessionId
 	Fs afero.Fs
 }
 
 type localSession struct {
-	id        uuid.UUID
+	id        SessionId
 	localPath string
 }
 
@@ -34,7 +45,7 @@ var (
 	_ LocalSession = (*localSession)(nil)
 )
 
-func (ds *DefaultSession) ID() uuid.UUID {
+func (ds *DefaultSession) ID() SessionId {
 	return ds.Id
 }
 
@@ -49,7 +60,7 @@ func NewLocalSession(localPath string) LocalSession {
 	}
 }
 
-func (ls *localSession) ID() uuid.UUID {
+func (ls *localSession) ID() SessionId {
 	return ls.id
 }
 
@@ -59,4 +70,10 @@ func (ls *localSession) FS() afero.Fs {
 
 func (ls *localSession) LocalPath() string {
 	return ls.localPath
+}
+
+// Executors may optionally implement this interface to be alerted when session statuses change.
+type SessionManager interface {
+	OpenSession(ctx context.Context, session Session) error
+	CloseSession(ctx context.Context, sessionId SessionId)
 }

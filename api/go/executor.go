@@ -32,15 +32,15 @@ type (
 	Task                      = task.Task
 	TypedTask[Params any]     = task.TypedTask[Params]
 	Result                    = task.Result
-	Executor                  = executor.Executor
-	TypedExecutor[Params any] = executor.TypedExecutor[Params]
+	Executor                  = task.Executor
+	TypedExecutor[Params any] = task.TypedExecutor[Params]
 )
 
 func WrapTypedExecutor[Params any](
 	cuectx *cue.Context,
 	impl TypedExecutor[Params],
 ) Executor {
-	return executor.WrapTypedExecutor(cuectx, impl)
+	return task.WrapTypedExecutor(cuectx, impl)
 }
 
 // PRIVATE
@@ -59,7 +59,7 @@ func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server)
 		name:      p.Name,
 		cuectx:    p.Cuectx,
 		executors: p.Executors,
-		sessions:  make(map[uuid.UUID]task.DefaultSession),
+		sessions:  make(map[task.SessionId]task.DefaultSession),
 	})
 
 	return nil
@@ -81,7 +81,7 @@ type executorGRPCServer struct {
 	cuectx    *cue.Context
 	executors *executor.ExecutorManager
 
-	sessions map[uuid.UUID]task.DefaultSession
+	sessions map[task.SessionId]task.DefaultSession
 }
 
 func (s *executorGRPCServer) DescribeExecutors(
@@ -98,7 +98,7 @@ func (s *executorGRPCServer) DescribeExecutors(
 		),
 	}
 
-	s.executors.ForEachExecutor(func(name string, _ executor.Executor) {
+	s.executors.ForEachExecutor(func(name string, _ task.Executor) {
 		respBuilder.Executors[name] = bonkv0.DescribeExecutorsResponse_ExecutorDescription_builder{}.Build()
 	})
 

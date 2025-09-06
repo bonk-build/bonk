@@ -4,6 +4,7 @@
 package task // import "go.bonk.build/pkg/task"
 
 import (
+	"context"
 	"fmt"
 	"path"
 
@@ -60,4 +61,10 @@ func New(session Session, executor, name string, params cue.Value, inputs ...str
 
 func (t *Task) Executor() string {
 	return t.ID.Executor
+}
+
+// Executor is the interface required to execute tasks.
+type Executor interface {
+	Name() string
+	Execute(ctx context.Context, tsk Task, result *Result) error
 }

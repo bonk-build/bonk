@@ -14,13 +14,11 @@ import (
 
 	"cuelang.org/go/cue"
 
-	"github.com/google/uuid"
-
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/task"
 )
 
-func NewRPC(name string, cuectx *cue.Context, client bonkv0.ExecutorServiceClient) Executor {
+func NewRPC(name string, cuectx *cue.Context, client bonkv0.ExecutorServiceClient) task.Executor {
 	return &rpcExecutor{
 		name:   name,
 		cuectx: cuectx,
@@ -35,8 +33,8 @@ type rpcExecutor struct {
 }
 
 var (
-	_ Executor       = (*rpcExecutor)(nil)
-	_ SessionManager = (*rpcExecutor)(nil)
+	_ task.Executor       = (*rpcExecutor)(nil)
+	_ task.SessionManager = (*rpcExecutor)(nil)
 )
 
 func (pb *rpcExecutor) Name() string {
@@ -62,7 +60,7 @@ func (pb *rpcExecutor) OpenSession(ctx context.Context, session task.Session) er
 	return nil
 }
 
-func (pb *rpcExecutor) CloseSession(ctx context.Context, sessionId uuid.UUID) {
+func (pb *rpcExecutor) CloseSession(ctx context.Context, sessionId task.SessionId) {
 	sessionIdString := sessionId.String()
 	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
 		SessionId: &sessionIdString,
