@@ -19,18 +19,15 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExecutorService_DescribeExecutors_FullMethodName = "/bonk.v0.ExecutorService/DescribeExecutors"
-	ExecutorService_OpenSession_FullMethodName       = "/bonk.v0.ExecutorService/OpenSession"
-	ExecutorService_CloseSession_FullMethodName      = "/bonk.v0.ExecutorService/CloseSession"
-	ExecutorService_ExecuteTask_FullMethodName       = "/bonk.v0.ExecutorService/ExecuteTask"
+	ExecutorService_OpenSession_FullMethodName  = "/bonk.v0.ExecutorService/OpenSession"
+	ExecutorService_CloseSession_FullMethodName = "/bonk.v0.ExecutorService/CloseSession"
+	ExecutorService_ExecuteTask_FullMethodName  = "/bonk.v0.ExecutorService/ExecuteTask"
 )
 
 // ExecutorServiceClient is the client API for ExecutorService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ExecutorServiceClient interface {
-	// General plugin support
-	DescribeExecutors(ctx context.Context, in *DescribeExecutorsRequest, opts ...grpc.CallOption) (*DescribeExecutorsResponse, error)
 	// Used for opening & closing sessions
 	OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error)
 	CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...grpc.CallOption) (*CloseSessionResponse, error)
@@ -44,16 +41,6 @@ type executorServiceClient struct {
 
 func NewExecutorServiceClient(cc grpc.ClientConnInterface) ExecutorServiceClient {
 	return &executorServiceClient{cc}
-}
-
-func (c *executorServiceClient) DescribeExecutors(ctx context.Context, in *DescribeExecutorsRequest, opts ...grpc.CallOption) (*DescribeExecutorsResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(DescribeExecutorsResponse)
-	err := c.cc.Invoke(ctx, ExecutorService_DescribeExecutors_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *executorServiceClient) OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error) {
@@ -90,8 +77,6 @@ func (c *executorServiceClient) ExecuteTask(ctx context.Context, in *ExecuteTask
 // All implementations must embed UnimplementedExecutorServiceServer
 // for forward compatibility.
 type ExecutorServiceServer interface {
-	// General plugin support
-	DescribeExecutors(context.Context, *DescribeExecutorsRequest) (*DescribeExecutorsResponse, error)
 	// Used for opening & closing sessions
 	OpenSession(context.Context, *OpenSessionRequest) (*OpenSessionResponse, error)
 	CloseSession(context.Context, *CloseSessionRequest) (*CloseSessionResponse, error)
@@ -107,9 +92,6 @@ type ExecutorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedExecutorServiceServer struct{}
 
-func (UnimplementedExecutorServiceServer) DescribeExecutors(context.Context, *DescribeExecutorsRequest) (*DescribeExecutorsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DescribeExecutors not implemented")
-}
 func (UnimplementedExecutorServiceServer) OpenSession(context.Context, *OpenSessionRequest) (*OpenSessionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OpenSession not implemented")
 }
@@ -138,24 +120,6 @@ func RegisterExecutorServiceServer(s grpc.ServiceRegistrar, srv ExecutorServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&ExecutorService_ServiceDesc, srv)
-}
-
-func _ExecutorService_DescribeExecutors_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DescribeExecutorsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExecutorServiceServer).DescribeExecutors(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExecutorService_DescribeExecutors_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExecutorServiceServer).DescribeExecutors(ctx, req.(*DescribeExecutorsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _ExecutorService_OpenSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -219,10 +183,6 @@ var ExecutorService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "bonk.v0.ExecutorService",
 	HandlerType: (*ExecutorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "DescribeExecutors",
-			Handler:    _ExecutorService_DescribeExecutors_Handler,
-		},
 		{
 			MethodName: "OpenSession",
 			Handler:    _ExecutorService_OpenSession_Handler,

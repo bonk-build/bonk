@@ -5,7 +5,6 @@ package plugin // import "go.bonk.build/pkg/plugin"
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os/exec"
@@ -14,15 +13,12 @@ import (
 
 	"go.uber.org/multierr"
 
-	"google.golang.org/grpc"
-
 	"cuelang.org/go/cue"
 
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
 
-	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/task"
 )
 
@@ -53,11 +49,10 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	process := goplugin.NewClient(&goplugin.ClientConfig{
 		HandshakeConfig: Handshake,
 		Plugins: map[string]goplugin.Plugin{
-			"executor":      &executorPluginClient{},
+			"executor":      &executorPlugin{},
 			"log_streaming": &logStreamingPluginClient{},
 		},
-		Cmd:     exec.CommandContext(ctx, "go", "run", pluginPath),
-		Managed: true,
+		Cmd: exec.CommandContext(ctx, "go", "run", pluginPath),
 		AllowedProtocols: []goplugin.Protocol{
 			goplugin.ProtocolGRPC,
 		},
@@ -117,42 +112,4 @@ func (pm *PluginManager) Shutdown() {
 	}
 	pm.plugins = make(map[string]Plugin)
 	pm.mu.Unlock()
-}
-
-// Plugin Client
-
-type executorPluginClient struct {
-	goplugin.NetRPCUnsupportedPlugin
-}
-
-var _ goplugin.GRPCPlugin = (*executorPluginClient)(nil)
-
-func (p *executorPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
-	return errors.ErrUnsupported
-}
-
-func (p *executorPluginClient) GRPCClient(
-	_ context.Context,
-	_ *goplugin.GRPCBroker,
-	c *grpc.ClientConn,
-) (any, error) {
-	return bonkv0.NewExecutorServiceClient(c), nil
-}
-
-type logStreamingPluginClient struct {
-	goplugin.NetRPCUnsupportedPlugin
-}
-
-var _ goplugin.GRPCPlugin = (*logStreamingPluginClient)(nil)
-
-func (p *logStreamingPluginClient) GRPCServer(*goplugin.GRPCBroker, *grpc.Server) error {
-	return errors.ErrUnsupported
-}
-
-func (p *logStreamingPluginClient) GRPCClient(
-	_ context.Context,
-	_ *goplugin.GRPCBroker,
-	c *grpc.ClientConn,
-) (any, error) {
-	return bonkv0.NewLogStreamingServiceClient(c), nil
 }

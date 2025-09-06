@@ -5,19 +5,12 @@ package bonk // import "go.bonk.build/api/go"
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"log/slog"
 
 	"go.uber.org/multierr"
 
 	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/structpb"
 
 	"cuelang.org/go/cue"
-
-	"github.com/google/uuid"
-	"github.com/spf13/afero"
 
 	goplugin "github.com/hashicorp/go-plugin"
 	slogctx "github.com/veqryn/slog-context"
@@ -43,9 +36,7 @@ func WrapTypedExecutor[Params any](
 	return task.WrapTypedExecutor(cuectx, impl)
 }
 
-// PRIVATE
-
-type ExecutorServer struct {
+type executorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	goplugin.GRPCPlugin
 
@@ -54,18 +45,19 @@ type ExecutorServer struct {
 	Executors *executor.ExecutorManager
 }
 
-func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
-	bonkv0.RegisterExecutorServiceServer(server, &executorGRPCServer{
-		name:      p.Name,
-		cuectx:    p.Cuectx,
-		executors: p.Executors,
-		sessions:  make(map[task.SessionId]task.DefaultSession),
-	})
+func (p *executorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
+	bonkv0.RegisterExecutorServiceServer(server, executor.NewGRPCServer(
+		p.Name,
+		p.Cuectx,
+		pluginExecutor{
+			ExecutorManager: p.Executors,
+		},
+	))
 
 	return nil
 }
 
-func (p *ExecutorServer) GRPCClient(
+func (p *executorServer) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
 	c *grpc.ClientConn,
@@ -73,143 +65,27 @@ func (p *ExecutorServer) GRPCClient(
 	return bonkv0.NewExecutorServiceClient(c), nil
 }
 
-// Here is the gRPC server that GRPCClient talks to.
-type executorGRPCServer struct {
-	bonkv0.UnimplementedExecutorServiceServer
-
-	name      string
-	cuectx    *cue.Context
-	executors *executor.ExecutorManager
-
-	sessions map[task.SessionId]task.DefaultSession
+type pluginExecutor struct {
+	*executor.ExecutorManager
 }
 
-func (s *executorGRPCServer) DescribeExecutors(
-	ctx context.Context,
-	req *bonkv0.DescribeExecutorsRequest,
-) (*bonkv0.DescribeExecutorsResponse, error) {
-	slog.DebugContext(ctx, "configuring plugin")
+var (
+	_ task.Executor       = pluginExecutor{}
+	_ task.SessionManager = pluginExecutor{}
+)
 
-	respBuilder := bonkv0.DescribeExecutorsResponse_builder{
-		PluginName: &s.name,
-		Executors: make(
-			map[string]*bonkv0.DescribeExecutorsResponse_ExecutorDescription,
-			s.executors.GetNumExecutors(),
-		),
-	}
-
-	s.executors.ForEachExecutor(func(name string, _ task.Executor) {
-		respBuilder.Executors[name] = bonkv0.DescribeExecutorsResponse_ExecutorDescription_builder{}.Build()
-	})
-
-	return respBuilder.Build(), nil
-}
-
-func (s *executorGRPCServer) OpenSession(
-	ctx context.Context,
-	req *bonkv0.OpenSessionRequest,
-) (*bonkv0.OpenSessionResponse, error) {
-	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
-
-	sessionId := uuid.MustParse(req.GetSessionId())
-	var sessionFs afero.Fs
-
-	switch req.WhichWorkspaceDescription() {
-	case bonkv0.OpenSessionRequest_Local_case:
-		sessionFs = afero.NewBasePathFs(afero.NewOsFs(), req.GetLocal().GetAbsolutePath())
-
-	default:
-		return nil, errors.New("unsupported workspace type")
-	}
-
-	s.sessions[sessionId] = task.DefaultSession{
-		Id: sessionId,
-		Fs: sessionFs,
-	}
-
-	return bonkv0.OpenSessionResponse_builder{}.Build(), nil
-}
-
-func (s *executorGRPCServer) CloseSession(
-	ctx context.Context,
-	req *bonkv0.CloseSessionRequest,
-) (*bonkv0.CloseSessionResponse, error) {
-	slog.DebugContext(ctx, "closing session", "session", req.GetSessionId())
-
-	sessionId := uuid.MustParse(req.GetSessionId())
-	delete(s.sessions, sessionId)
-
-	return bonkv0.CloseSessionResponse_builder{}.Build(), nil
-}
-
-func (s *executorGRPCServer) ExecuteTask(
-	ctx context.Context,
-	req *bonkv0.ExecuteTaskRequest,
-) (*bonkv0.ExecuteTaskResponse, error) {
-	// Find the relevant session
-	sessionId := uuid.MustParse(req.GetSessionId())
-	session, ok := s.sessions[sessionId]
-	if !ok {
-		return nil, fmt.Errorf("unopened session id: %s", sessionId.String())
-	}
-
-	tskId := task.TaskId{
-		Name:     req.GetName(),
-		Executor: req.GetExecutor(),
-	}
-	tsk := task.Task{
-		ID:      tskId,
-		Session: &session,
-		Inputs:  req.GetInputs(),
-
-		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
-	}
-
-	err := tsk.OutputFs.MkdirAll("", 0o750)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create output directory: %w", err)
-	}
-
-	tsk.Params = s.cuectx.Encode(req.GetParameters())
-	if tsk.Params.Err() != nil {
-		return nil, fmt.Errorf("failed to decode parameters: %w", err)
-	}
-
+// Override Execute to add some special details to the context.
+func (pe pluginExecutor) Execute(ctx context.Context, tsk task.Task, res *task.Result) error {
 	execCtx, cleanup, err := getTaskLoggingContext(ctx, tsk.OutputFs)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// Append executor information
-	execCtx = slogctx.Append(execCtx, "executor", req.GetExecutor())
+	execCtx = slogctx.Append(execCtx, "executor", tsk.Executor())
 
-	var response task.Result
-	multierr.AppendInto(&err, s.executors.Execute(execCtx, tsk, &response))
-	multierr.AppendFunc(&err, cleanup)
-	if err != nil {
-		return nil, fmt.Errorf("failed to execute task: %w", err)
-	}
+	multierr.AppendInto(&err, pe.ExecutorManager.Execute(execCtx, tsk, res))
+	multierr.AppendInto(&err, cleanup())
 
-	res := bonkv0.ExecuteTaskResponse_builder{
-		Output:        response.Outputs,
-		FollowupTasks: make([]*bonkv0.ExecuteTaskResponse_FollowupTask, len(response.FollowupTasks)),
-	}
-
-	for idx, followup := range response.FollowupTasks {
-		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
-			Name:       &followup.ID.Name,
-			Parameters: &structpb.Struct{},
-		}
-		taskProto.Executor = &followup.ID.Executor
-		taskProto.Inputs = followup.Inputs
-		decodeErr := followup.Params.Decode(taskProto.Parameters)
-
-		if multierr.AppendInto(&err, decodeErr) {
-			continue
-		}
-
-		res.FollowupTasks[idx] = taskProto.Build()
-	}
-
-	return res.Build(), nil
+	return err
 }
