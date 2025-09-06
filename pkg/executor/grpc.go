@@ -1,0 +1,270 @@
+// Copyright © 2025 Colden Cullen
+// SPDX-License-Identifier: MIT
+
+package executor // import "go.bonk.build/pkg/executor"
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"log/slog"
+
+	"go.uber.org/multierr"
+
+	"google.golang.org/protobuf/types/known/structpb"
+
+	"cuelang.org/go/cue"
+
+	"github.com/google/uuid"
+	"github.com/spf13/afero"
+
+	bonkv0 "go.bonk.build/api/proto/bonk/v0"
+	"go.bonk.build/pkg/task"
+)
+
+// Creates an executor that forwards task invocations across a GRPC connection.
+func NewGRPCClient(
+	name string,
+	cuectx *cue.Context,
+	client bonkv0.ExecutorServiceClient,
+) task.Executor {
+	return &grpcClient{
+		name:   name,
+		cuectx: cuectx,
+		client: client,
+	}
+}
+
+type grpcClient struct {
+	name   string
+	cuectx *cue.Context
+	client bonkv0.ExecutorServiceClient
+}
+
+var (
+	_ task.Executor       = (*grpcClient)(nil)
+	_ task.SessionManager = (*grpcClient)(nil)
+)
+
+func (pb *grpcClient) Name() string {
+	return pb.name
+}
+
+func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
+	sessionIdString := session.ID().String()
+	openSessionRequest := bonkv0.OpenSessionRequest_builder{
+		SessionId: &sessionIdString,
+	}
+	if localSession, ok := session.(task.LocalSession); ok {
+		localPath := localSession.LocalPath()
+		openSessionRequest.Local = bonkv0.OpenSessionRequest_WorkspaceDescriptionLocal_builder{
+			AbsolutePath: &localPath,
+		}.Build()
+	}
+	_, err := pb.client.OpenSession(ctx, openSessionRequest.Build())
+	if err != nil {
+		return fmt.Errorf("failed to open session with executor: %w", err)
+	}
+
+	return nil
+}
+
+func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId) {
+	sessionIdString := sessionId.String()
+	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
+		SessionId: &sessionIdString,
+	}.Build())
+	if err != nil {
+		slog.WarnContext(
+			ctx,
+			"error returned when closing session",
+			"plugin",
+			pb.name,
+			"session",
+			sessionId.String(),
+		)
+	}
+}
+
+func (pb *grpcClient) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
+	sessionIdStr := tsk.Session.ID().String()
+	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
+		SessionId:  &sessionIdStr,
+		Name:       &tsk.ID.Name,
+		Executor:   &tsk.ID.Executor,
+		Inputs:     tsk.Inputs,
+		Parameters: &structpb.Struct{},
+	}
+
+	err := tsk.Params.Decode(taskReqBuilder.Parameters)
+	if err != nil {
+		return fmt.Errorf("failed to encode parameters as protobuf: %w", err)
+	}
+
+	res, err := pb.client.ExecuteTask(ctx, taskReqBuilder.Build())
+	if err != nil {
+		return fmt.Errorf("failed to call perform task: %w", err)
+	}
+
+	result.Outputs = res.GetOutput()
+	result.FollowupTasks = make([]task.Task, len(res.GetFollowupTasks()))
+	for ii, followup := range res.GetFollowupTasks() {
+		// Attmpt to decode the event params
+		params := pb.cuectx.Encode(followup.GetParameters())
+		if !multierr.AppendInto(&err, params.Err()) {
+			// Create the new task and append it
+			result.FollowupTasks[ii] = task.New(
+				tsk.Session,
+				followup.GetExecutor(),
+				fmt.Sprintf("%s.%s", tsk.ID.Name, followup.GetName()),
+				params,
+				followup.GetInputs()...,
+			)
+		}
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to schedule followup tasks: %w", err)
+	}
+
+	return nil
+}
+
+type grpcServer struct {
+	bonkv0.UnimplementedExecutorServiceServer
+
+	name     string
+	cuectx   *cue.Context
+	executor task.Executor
+
+	sessions map[task.SessionId]task.DefaultSession
+}
+
+var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
+
+// Creates a GRPC server which forwards incoming task requests to an Executor.
+func NewGRPCServer(
+	name string,
+	cuectx *cue.Context,
+	executor task.Executor,
+) bonkv0.ExecutorServiceServer {
+	return &grpcServer{
+		name:     name,
+		cuectx:   cuectx,
+		executor: executor,
+		sessions: make(map[task.SessionId]task.DefaultSession),
+	}
+}
+
+func (s *grpcServer) OpenSession(
+	ctx context.Context,
+	req *bonkv0.OpenSessionRequest,
+) (*bonkv0.OpenSessionResponse, error) {
+	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
+
+	sessionId := uuid.MustParse(req.GetSessionId())
+	var sessionFs afero.Fs
+
+	switch req.WhichWorkspaceDescription() {
+	case bonkv0.OpenSessionRequest_Local_case:
+		sessionFs = afero.NewBasePathFs(afero.NewOsFs(), req.GetLocal().GetAbsolutePath())
+
+	default:
+		return nil, errors.New("unsupported workspace type")
+	}
+
+	newSession := task.DefaultSession{
+		Id: sessionId,
+		Fs: sessionFs,
+	}
+	s.sessions[sessionId] = newSession
+
+	if ssm, ok := s.executor.(task.SessionManager); ok {
+		err := ssm.OpenSession(ctx, &newSession)
+		if err != nil {
+			return nil, err //nolint:wrapcheck
+		}
+	}
+
+	return bonkv0.OpenSessionResponse_builder{}.Build(), nil
+}
+
+func (s *grpcServer) CloseSession(
+	ctx context.Context,
+	req *bonkv0.CloseSessionRequest,
+) (*bonkv0.CloseSessionResponse, error) {
+	slog.DebugContext(ctx, "closing session", "session", req.GetSessionId())
+
+	sessionId := uuid.MustParse(req.GetSessionId())
+
+	if ssm, ok := s.executor.(task.SessionManager); ok {
+		ssm.CloseSession(ctx, sessionId)
+	}
+
+	delete(s.sessions, sessionId)
+
+	return bonkv0.CloseSessionResponse_builder{}.Build(), nil
+}
+
+func (s *grpcServer) ExecuteTask(
+	ctx context.Context,
+	req *bonkv0.ExecuteTaskRequest,
+) (*bonkv0.ExecuteTaskResponse, error) {
+	// Find the relevant session
+	sessionId := uuid.MustParse(req.GetSessionId())
+	session, ok := s.sessions[sessionId]
+	if !ok {
+		return nil, fmt.Errorf("unopened session id: %s", sessionId.String())
+	}
+
+	tskId := task.TaskId{
+		Name:     req.GetName(),
+		Executor: req.GetExecutor(),
+	}
+	tsk := task.Task{
+		ID:      tskId,
+		Session: &session,
+		Inputs:  req.GetInputs(),
+
+		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
+	}
+
+	err := tsk.OutputFs.MkdirAll("", 0o750)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create output directory: %w", err)
+	}
+
+	tsk.Params = s.cuectx.Encode(req.GetParameters())
+	if tsk.Params.Err() != nil {
+		return nil, fmt.Errorf("failed to decode parameters: %w", err)
+	}
+
+	var response task.Result
+	err = s.executor.Execute(ctx, tsk, &response)
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute task: %w", err)
+	}
+
+	res := bonkv0.ExecuteTaskResponse_builder{
+		Output:        response.Outputs,
+		FollowupTasks: make([]*bonkv0.ExecuteTaskResponse_FollowupTask, len(response.FollowupTasks)),
+	}
+
+	for idx, followup := range response.FollowupTasks {
+		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
+			Name:       &followup.ID.Name,
+			Parameters: &structpb.Struct{},
+		}
+		taskProto.Executor = &followup.ID.Executor
+		taskProto.Inputs = followup.Inputs
+		decodeErr := followup.Params.Decode(taskProto.Parameters)
+
+		if multierr.AppendInto(&err, decodeErr) {
+			continue
+		}
+
+		res.FollowupTasks[idx] = taskProto.Build()
+	}
+
+	return res.Build(), nil
+}

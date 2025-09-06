@@ -21,141 +21,6 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type DescribeExecutorsRequest struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DescribeExecutorsRequest) Reset() {
-	*x = DescribeExecutorsRequest{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[0]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DescribeExecutorsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DescribeExecutorsRequest) ProtoMessage() {}
-
-func (x *DescribeExecutorsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[0]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type DescribeExecutorsRequest_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 DescribeExecutorsRequest_builder) Build() *DescribeExecutorsRequest {
-	m0 := &DescribeExecutorsRequest{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
-type DescribeExecutorsResponse struct {
-	state                  protoimpl.MessageState                                    `protogen:"opaque.v1"`
-	xxx_hidden_PluginName  *string                                                   `protobuf:"bytes,1,opt,name=plugin_name,json=pluginName"`
-	xxx_hidden_Executors   map[string]*DescribeExecutorsResponse_ExecutorDescription `protobuf:"bytes,2,rep,name=executors" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	XXX_raceDetectHookData protoimpl.RaceDetectHookData
-	XXX_presence           [1]uint32
-	unknownFields          protoimpl.UnknownFields
-	sizeCache              protoimpl.SizeCache
-}
-
-func (x *DescribeExecutorsResponse) Reset() {
-	*x = DescribeExecutorsResponse{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DescribeExecutorsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DescribeExecutorsResponse) ProtoMessage() {}
-
-func (x *DescribeExecutorsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-func (x *DescribeExecutorsResponse) GetPluginName() string {
-	if x != nil {
-		if x.xxx_hidden_PluginName != nil {
-			return *x.xxx_hidden_PluginName
-		}
-		return ""
-	}
-	return ""
-}
-
-func (x *DescribeExecutorsResponse) GetExecutors() map[string]*DescribeExecutorsResponse_ExecutorDescription {
-	if x != nil {
-		return x.xxx_hidden_Executors
-	}
-	return nil
-}
-
-func (x *DescribeExecutorsResponse) SetPluginName(v string) {
-	x.xxx_hidden_PluginName = &v
-	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
-}
-
-func (x *DescribeExecutorsResponse) SetExecutors(v map[string]*DescribeExecutorsResponse_ExecutorDescription) {
-	x.xxx_hidden_Executors = v
-}
-
-func (x *DescribeExecutorsResponse) HasPluginName() bool {
-	if x == nil {
-		return false
-	}
-	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
-}
-
-func (x *DescribeExecutorsResponse) ClearPluginName() {
-	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_PluginName = nil
-}
-
-type DescribeExecutorsResponse_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-	PluginName *string
-	Executors  map[string]*DescribeExecutorsResponse_ExecutorDescription
-}
-
-func (b0 DescribeExecutorsResponse_builder) Build() *DescribeExecutorsResponse {
-	m0 := &DescribeExecutorsResponse{}
-	b, x := &b0, m0
-	_, _ = b, x
-	if b.PluginName != nil {
-		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
-		x.xxx_hidden_PluginName = b.PluginName
-	}
-	x.xxx_hidden_Executors = b.Executors
-	return m0
-}
-
 type OpenSessionRequest struct {
 	state                           protoimpl.MessageState                    `protogen:"opaque.v1"`
 	xxx_hidden_SessionId            *string                                   `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
@@ -168,7 +33,7 @@ type OpenSessionRequest struct {
 
 func (x *OpenSessionRequest) Reset() {
 	*x = OpenSessionRequest{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[2]
+	mi := &file_bonk_v0_executor_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -180,7 +45,7 @@ func (x *OpenSessionRequest) String() string {
 func (*OpenSessionRequest) ProtoMessage() {}
 
 func (x *OpenSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[2]
+	mi := &file_bonk_v0_executor_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -301,7 +166,7 @@ func (b0 OpenSessionRequest_builder) Build() *OpenSessionRequest {
 type case_OpenSessionRequest_WorkspaceDescription protoreflect.FieldNumber
 
 func (x case_OpenSessionRequest_WorkspaceDescription) String() string {
-	md := file_bonk_v0_executor_proto_msgTypes[2].Descriptor()
+	md := file_bonk_v0_executor_proto_msgTypes[0].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -326,7 +191,7 @@ type OpenSessionResponse struct {
 
 func (x *OpenSessionResponse) Reset() {
 	*x = OpenSessionResponse{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[3]
+	mi := &file_bonk_v0_executor_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -338,7 +203,7 @@ func (x *OpenSessionResponse) String() string {
 func (*OpenSessionResponse) ProtoMessage() {}
 
 func (x *OpenSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[3]
+	mi := &file_bonk_v0_executor_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -372,7 +237,7 @@ type CloseSessionRequest struct {
 
 func (x *CloseSessionRequest) Reset() {
 	*x = CloseSessionRequest{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[4]
+	mi := &file_bonk_v0_executor_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -384,7 +249,7 @@ func (x *CloseSessionRequest) String() string {
 func (*CloseSessionRequest) ProtoMessage() {}
 
 func (x *CloseSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[4]
+	mi := &file_bonk_v0_executor_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -447,7 +312,7 @@ type CloseSessionResponse struct {
 
 func (x *CloseSessionResponse) Reset() {
 	*x = CloseSessionResponse{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[5]
+	mi := &file_bonk_v0_executor_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -459,7 +324,7 @@ func (x *CloseSessionResponse) String() string {
 func (*CloseSessionResponse) ProtoMessage() {}
 
 func (x *CloseSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[5]
+	mi := &file_bonk_v0_executor_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -497,7 +362,7 @@ type ExecuteTaskRequest struct {
 
 func (x *ExecuteTaskRequest) Reset() {
 	*x = ExecuteTaskRequest{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[6]
+	mi := &file_bonk_v0_executor_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -509,7 +374,7 @@ func (x *ExecuteTaskRequest) String() string {
 func (*ExecuteTaskRequest) ProtoMessage() {}
 
 func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[6]
+	mi := &file_bonk_v0_executor_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -675,7 +540,7 @@ type ExecuteTaskResponse struct {
 
 func (x *ExecuteTaskResponse) Reset() {
 	*x = ExecuteTaskResponse{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[7]
+	mi := &file_bonk_v0_executor_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -687,7 +552,7 @@ func (x *ExecuteTaskResponse) String() string {
 func (*ExecuteTaskResponse) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[7]
+	mi := &file_bonk_v0_executor_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -738,49 +603,6 @@ func (b0 ExecuteTaskResponse_builder) Build() *ExecuteTaskResponse {
 	return m0
 }
 
-type DescribeExecutorsResponse_ExecutorDescription struct {
-	state         protoimpl.MessageState `protogen:"opaque.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *DescribeExecutorsResponse_ExecutorDescription) Reset() {
-	*x = DescribeExecutorsResponse_ExecutorDescription{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *DescribeExecutorsResponse_ExecutorDescription) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*DescribeExecutorsResponse_ExecutorDescription) ProtoMessage() {}
-
-func (x *DescribeExecutorsResponse_ExecutorDescription) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-type DescribeExecutorsResponse_ExecutorDescription_builder struct {
-	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
-
-}
-
-func (b0 DescribeExecutorsResponse_ExecutorDescription_builder) Build() *DescribeExecutorsResponse_ExecutorDescription {
-	m0 := &DescribeExecutorsResponse_ExecutorDescription{}
-	b, x := &b0, m0
-	_, _ = b, x
-	return m0
-}
-
 type OpenSessionRequest_WorkspaceDescriptionLocal struct {
 	state                   protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_AbsolutePath *string                `protobuf:"bytes,1,opt,name=absolute_path,json=absolutePath"`
@@ -792,7 +614,7 @@ type OpenSessionRequest_WorkspaceDescriptionLocal struct {
 
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) Reset() {
 	*x = OpenSessionRequest_WorkspaceDescriptionLocal{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[10]
+	mi := &file_bonk_v0_executor_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -804,7 +626,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) String() string {
 func (*OpenSessionRequest_WorkspaceDescriptionLocal) ProtoMessage() {}
 
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[10]
+	mi := &file_bonk_v0_executor_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -873,7 +695,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 
 func (x *ExecuteTaskResponse_FollowupTask) Reset() {
 	*x = ExecuteTaskResponse_FollowupTask{}
-	mi := &file_bonk_v0_executor_proto_msgTypes[11]
+	mi := &file_bonk_v0_executor_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -885,7 +707,7 @@ func (x *ExecuteTaskResponse_FollowupTask) String() string {
 func (*ExecuteTaskResponse_FollowupTask) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_executor_proto_msgTypes[11]
+	mi := &file_bonk_v0_executor_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1013,16 +835,7 @@ var File_bonk_v0_executor_proto protoreflect.FileDescriptor
 
 const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\n" +
-	"\x16bonk/v0/executor.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\"\x1a\n" +
-	"\x18DescribeExecutorsRequest\"\x9a\x02\n" +
-	"\x19DescribeExecutorsResponse\x12\x1f\n" +
-	"\vplugin_name\x18\x01 \x01(\tR\n" +
-	"pluginName\x12O\n" +
-	"\texecutors\x18\x02 \x03(\v21.bonk.v0.DescribeExecutorsResponse.ExecutorsEntryR\texecutors\x1a\x15\n" +
-	"\x13ExecutorDescription\x1at\n" +
-	"\x0eExecutorsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12L\n" +
-	"\x05value\x18\x02 \x01(\v26.bonk.v0.DescribeExecutorsResponse.ExecutorDescriptionR\x05value:\x028\x01\"\xdd\x01\n" +
+	"\x16bonk/v0/executor.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\"\xdd\x01\n" +
 	"\x12OpenSessionRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12M\n" +
@@ -1053,50 +866,41 @@ const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x127\n" +
 	"\n" +
 	"parameters\x18\x04 \x01(\v2\x17.google.protobuf.StructR\n" +
-	"parameters2\xce\x02\n" +
-	"\x0fExecutorService\x12Z\n" +
-	"\x11DescribeExecutors\x12!.bonk.v0.DescribeExecutorsRequest\x1a\".bonk.v0.DescribeExecutorsResponse\x12H\n" +
+	"parameters2\xf2\x01\n" +
+	"\x0fExecutorService\x12H\n" +
 	"\vOpenSession\x12\x1b.bonk.v0.OpenSessionRequest\x1a\x1c.bonk.v0.OpenSessionResponse\x12K\n" +
 	"\fCloseSession\x12\x1c.bonk.v0.CloseSessionRequest\x1a\x1d.bonk.v0.CloseSessionResponse\x12H\n" +
 	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseB}\n" +
 	"\vcom.bonk.v0B\rExecutorProtoP\x01Z\"go.bonk.build/api/go/proto/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
 
-var file_bonk_v0_executor_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_bonk_v0_executor_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_bonk_v0_executor_proto_goTypes = []any{
-	(*DescribeExecutorsRequest)(nil),                      // 0: bonk.v0.DescribeExecutorsRequest
-	(*DescribeExecutorsResponse)(nil),                     // 1: bonk.v0.DescribeExecutorsResponse
-	(*OpenSessionRequest)(nil),                            // 2: bonk.v0.OpenSessionRequest
-	(*OpenSessionResponse)(nil),                           // 3: bonk.v0.OpenSessionResponse
-	(*CloseSessionRequest)(nil),                           // 4: bonk.v0.CloseSessionRequest
-	(*CloseSessionResponse)(nil),                          // 5: bonk.v0.CloseSessionResponse
-	(*ExecuteTaskRequest)(nil),                            // 6: bonk.v0.ExecuteTaskRequest
-	(*ExecuteTaskResponse)(nil),                           // 7: bonk.v0.ExecuteTaskResponse
-	(*DescribeExecutorsResponse_ExecutorDescription)(nil), // 8: bonk.v0.DescribeExecutorsResponse.ExecutorDescription
-	nil, // 9: bonk.v0.DescribeExecutorsResponse.ExecutorsEntry
-	(*OpenSessionRequest_WorkspaceDescriptionLocal)(nil), // 10: bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
-	(*ExecuteTaskResponse_FollowupTask)(nil),             // 11: bonk.v0.ExecuteTaskResponse.FollowupTask
-	(*structpb.Struct)(nil),                              // 12: google.protobuf.Struct
+	(*OpenSessionRequest)(nil),                           // 0: bonk.v0.OpenSessionRequest
+	(*OpenSessionResponse)(nil),                          // 1: bonk.v0.OpenSessionResponse
+	(*CloseSessionRequest)(nil),                          // 2: bonk.v0.CloseSessionRequest
+	(*CloseSessionResponse)(nil),                         // 3: bonk.v0.CloseSessionResponse
+	(*ExecuteTaskRequest)(nil),                           // 4: bonk.v0.ExecuteTaskRequest
+	(*ExecuteTaskResponse)(nil),                          // 5: bonk.v0.ExecuteTaskResponse
+	(*OpenSessionRequest_WorkspaceDescriptionLocal)(nil), // 6: bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
+	(*ExecuteTaskResponse_FollowupTask)(nil),             // 7: bonk.v0.ExecuteTaskResponse.FollowupTask
+	(*structpb.Struct)(nil),                              // 8: google.protobuf.Struct
 }
 var file_bonk_v0_executor_proto_depIdxs = []int32{
-	9,  // 0: bonk.v0.DescribeExecutorsResponse.executors:type_name -> bonk.v0.DescribeExecutorsResponse.ExecutorsEntry
-	10, // 1: bonk.v0.OpenSessionRequest.local:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
-	12, // 2: bonk.v0.ExecuteTaskRequest.parameters:type_name -> google.protobuf.Struct
-	11, // 3: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
-	8,  // 4: bonk.v0.DescribeExecutorsResponse.ExecutorsEntry.value:type_name -> bonk.v0.DescribeExecutorsResponse.ExecutorDescription
-	12, // 5: bonk.v0.ExecuteTaskResponse.FollowupTask.parameters:type_name -> google.protobuf.Struct
-	0,  // 6: bonk.v0.ExecutorService.DescribeExecutors:input_type -> bonk.v0.DescribeExecutorsRequest
-	2,  // 7: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
-	4,  // 8: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
-	6,  // 9: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest
-	1,  // 10: bonk.v0.ExecutorService.DescribeExecutors:output_type -> bonk.v0.DescribeExecutorsResponse
-	3,  // 11: bonk.v0.ExecutorService.OpenSession:output_type -> bonk.v0.OpenSessionResponse
-	5,  // 12: bonk.v0.ExecutorService.CloseSession:output_type -> bonk.v0.CloseSessionResponse
-	7,  // 13: bonk.v0.ExecutorService.ExecuteTask:output_type -> bonk.v0.ExecuteTaskResponse
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	6, // 0: bonk.v0.OpenSessionRequest.local:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
+	8, // 1: bonk.v0.ExecuteTaskRequest.parameters:type_name -> google.protobuf.Struct
+	7, // 2: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
+	8, // 3: bonk.v0.ExecuteTaskResponse.FollowupTask.parameters:type_name -> google.protobuf.Struct
+	0, // 4: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
+	2, // 5: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
+	4, // 6: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest
+	1, // 7: bonk.v0.ExecutorService.OpenSession:output_type -> bonk.v0.OpenSessionResponse
+	3, // 8: bonk.v0.ExecutorService.CloseSession:output_type -> bonk.v0.CloseSessionResponse
+	5, // 9: bonk.v0.ExecutorService.ExecuteTask:output_type -> bonk.v0.ExecuteTaskResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_bonk_v0_executor_proto_init() }
@@ -1104,7 +908,7 @@ func file_bonk_v0_executor_proto_init() {
 	if File_bonk_v0_executor_proto != nil {
 		return
 	}
-	file_bonk_v0_executor_proto_msgTypes[2].OneofWrappers = []any{
+	file_bonk_v0_executor_proto_msgTypes[0].OneofWrappers = []any{
 		(*openSessionRequest_Local)(nil),
 	}
 	type x struct{}
@@ -1113,7 +917,7 @@ func file_bonk_v0_executor_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bonk_v0_executor_proto_rawDesc), len(file_bonk_v0_executor_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

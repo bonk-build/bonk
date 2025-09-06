@@ -6,15 +6,6 @@ package bonk.v0;
 
 import "google/protobuf/struct.proto";
 
-message DescribeExecutorsRequest {}
-
-message DescribeExecutorsResponse {
-  message ExecutorDescription {}
-
-  string plugin_name = 1;
-  map<string, ExecutorDescription> executors = 2;
-}
-
 message OpenSessionRequest {
   message WorkspaceDescriptionLocal {
     string absolute_path = 1;
@@ -56,9 +47,6 @@ message ExecuteTaskResponse {
 }
 
 service ExecutorService {
-  // General plugin support
-  rpc DescribeExecutors(DescribeExecutorsRequest) returns (DescribeExecutorsResponse);
-
   // Used for opening & closing sessions
   rpc OpenSession(OpenSessionRequest) returns (OpenSessionResponse);
   rpc CloseSession(CloseSessionRequest) returns (CloseSessionResponse);

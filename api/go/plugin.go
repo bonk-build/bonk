@@ -52,7 +52,7 @@ func (p *Plugin) Serve() {
 	pluginMap := make(map[string]goplugin.Plugin, defaultPluginMapSize)
 
 	if p.GetNumExecutors() != 0 {
-		pluginMap["executor"] = &ExecutorServer{
+		pluginMap["executor"] = &executorServer{
 			Name:      p.Name(),
 			Executors: &p.ExecutorManager,
 			Cuectx:    p.Cuectx,

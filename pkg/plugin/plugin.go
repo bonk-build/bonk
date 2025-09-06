@@ -10,7 +10,6 @@ import (
 	"io"
 	"log/slog"
 	"reflect"
-	"time"
 
 	"go.uber.org/multierr"
 
@@ -49,7 +48,7 @@ func (plugin *Plugin) Configure(
 		return fmt.Errorf("failed to create client: %w", err)
 	}
 
-	multierr.AppendInto(&err, plugin.handleFeatureExecutor(ctx, cuectx, rpcClient, execRegistrar))
+	multierr.AppendInto(&err, plugin.handleFeatureExecutor(cuectx, rpcClient, execRegistrar))
 	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, rpcClient))
 
 	if err != nil {
@@ -60,14 +59,10 @@ func (plugin *Plugin) Configure(
 }
 
 func (plugin *Plugin) handleFeatureExecutor(
-	ctx context.Context,
 	cuectx *cue.Context,
 	client goplugin.ClientProtocol,
 	execRegistrar ExecutorRegistrar,
 ) error {
-	configureCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
-	defer cancel()
-
 	executorPlugin, err := client.Dispense("executor")
 	if err != nil {
 		panic(fmt.Errorf("failed to dispense executor plugin: %w", err))
@@ -82,20 +77,8 @@ func (plugin *Plugin) handleFeatureExecutor(
 		))
 	}
 
-	resp, err := plugin.executorClient.DescribeExecutors(
-		configureCtx,
-		&bonkv0.DescribeExecutorsRequest{},
-	)
-	if err != nil {
-		return fmt.Errorf("failed to describe plugin: %w", err)
-	}
-
-	if plugin.name != resp.GetPluginName() {
-		return fmt.Errorf("plugins names didn't match: %s, %s", plugin.name, resp.GetPluginName())
-	}
-
 	err = execRegistrar.RegisterExecutors(
-		executor.NewRPC(plugin.name, cuectx, plugin.executorClient),
+		executor.NewGRPCClient(plugin.name, cuectx, plugin.executorClient),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to register plugin %s executors: %w", plugin.name, err)
