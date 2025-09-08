@@ -61,6 +61,9 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 			AbsolutePath: &localPath,
 		}.Build()
 	}
+	if _, ok := session.FS().(*afero.MemMapFs); ok {
+		openSessionRequest.Test = bonkv0.OpenSessionRequest_WorkspaceDescriptionTest_builder{}.Build()
+	}
 	_, err := pb.client.OpenSession(ctx, openSessionRequest.Build())
 	if err != nil {
 		return fmt.Errorf("failed to open session with executor: %w", err)
@@ -168,6 +171,9 @@ func (s *grpcServer) OpenSession(
 	switch req.WhichWorkspaceDescription() {
 	case bonkv0.OpenSessionRequest_Local_case:
 		sessionFs = afero.NewBasePathFs(afero.NewOsFs(), req.GetLocal().GetAbsolutePath())
+
+	case bonkv0.OpenSessionRequest_Test_case:
+		sessionFs = afero.NewMemMapFs()
 
 	default:
 		return nil, errors.New("unsupported workspace type")

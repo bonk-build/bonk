@@ -11,10 +11,14 @@ message OpenSessionRequest {
     string absolute_path = 1;
   }
 
+  message WorkspaceDescriptionTest {}
+
   string session_id = 1;
 
   oneof workspace_description {
     WorkspaceDescriptionLocal local = 2;
+
+    WorkspaceDescriptionTest test = 99;
   }
 }
 
