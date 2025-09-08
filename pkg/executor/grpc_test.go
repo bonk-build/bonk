@@ -41,7 +41,7 @@ func openConnection(t *testing.T, exec task.Executor) task.Executor {
 		return lis.Dial()
 	}
 
-	clientConn, err := grpc.NewClient("bufnet",
+	clientConn, err := grpc.NewClient("passthrough:///bufnet",
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
@@ -59,4 +59,36 @@ func Test_TestConnection(t *testing.T) {
 
 	client := openConnection(t, exec)
 	require.NotNil(t, client)
+}
+
+func Test_Params(t *testing.T) {
+	t.Parallel()
+
+	mock := gomock.NewController(t)
+	exec := test.NewMockExecutor(mock)
+	session := test.NewTestSession()
+	cuectx := cuecontext.New()
+
+	client := openConnection(t, exec)
+	require.NotNil(t, client)
+
+	var result task.Result
+
+	ssm, ok := client.(task.SessionManager)
+	require.True(t, ok)
+
+	err := ssm.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+	defer ssm.CloseSession(t.Context(), session.ID())
+
+	exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+		Times(1).
+		Return(nil)
+
+	err = client.Execute(t.Context(), task.Task{
+		Session:  session,
+		Params:   cuectx.CompileString(`testing: 3`),
+		OutputFs: session.FS(),
+	}, &result)
+	require.NoError(t, err)
 }
