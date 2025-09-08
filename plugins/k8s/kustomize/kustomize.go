@@ -31,7 +31,7 @@ func (Executor_Kustomize) Name() string {
 
 func (Executor_Kustomize) Execute(
 	ctx context.Context,
-	task bonk.TypedTask[Params],
+	task bonk.Task[Params],
 	res *bonk.Result,
 ) error {
 	// Apply resources and any needed fixes
@@ -94,7 +94,7 @@ func (Executor_Kustomize) Execute(
 
 var Plugin = bonk.NewPlugin("kustomize", func(plugin *bonk.Plugin) error {
 	err := plugin.RegisterExecutors(
-		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Kustomize{}),
+		bonk.BoxExecutor(Executor_Kustomize{}),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)

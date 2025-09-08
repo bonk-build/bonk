@@ -21,31 +21,31 @@ import (
 )
 
 // MockExecutor is a mock of Executor interface.
-type MockExecutor struct {
+type MockExecutor[Params any] struct {
 	ctrl     *gomock.Controller
-	recorder *MockExecutorMockRecorder
+	recorder *MockExecutorMockRecorder[Params]
 	isgomock struct{}
 }
 
 // MockExecutorMockRecorder is the mock recorder for MockExecutor.
-type MockExecutorMockRecorder struct {
-	mock *MockExecutor
+type MockExecutorMockRecorder[Params any] struct {
+	mock *MockExecutor[Params]
 }
 
 // NewMockExecutor creates a new mock instance.
-func NewMockExecutor(ctrl *gomock.Controller) *MockExecutor {
-	mock := &MockExecutor{ctrl: ctrl}
-	mock.recorder = &MockExecutorMockRecorder{mock}
+func NewMockExecutor[Params any](ctrl *gomock.Controller) *MockExecutor[Params] {
+	mock := &MockExecutor[Params]{ctrl: ctrl}
+	mock.recorder = &MockExecutorMockRecorder[Params]{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockExecutor) EXPECT() *MockExecutorMockRecorder {
+func (m *MockExecutor[Params]) EXPECT() *MockExecutorMockRecorder[Params] {
 	return m.recorder
 }
 
 // Execute mocks base method.
-func (m *MockExecutor) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
+func (m *MockExecutor[Params]) Execute(ctx context.Context, tsk task.Task[Params], result *task.Result) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", ctx, tsk, result)
 	ret0, _ := ret[0].(error)
@@ -53,37 +53,37 @@ func (m *MockExecutor) Execute(ctx context.Context, tsk task.Task, result *task.
 }
 
 // Execute indicates an expected call of Execute.
-func (mr *MockExecutorMockRecorder) Execute(ctx, tsk, result any) *MockExecutorExecuteCall {
+func (mr *MockExecutorMockRecorder[Params]) Execute(ctx, tsk, result any) *MockExecutorExecuteCall[Params] {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor)(nil).Execute), ctx, tsk, result)
-	return &MockExecutorExecuteCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor[Params])(nil).Execute), ctx, tsk, result)
+	return &MockExecutorExecuteCall[Params]{Call: call}
 }
 
 // MockExecutorExecuteCall wrap *gomock.Call
-type MockExecutorExecuteCall struct {
+type MockExecutorExecuteCall[Params any] struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockExecutorExecuteCall) Return(arg0 error) *MockExecutorExecuteCall {
+func (c *MockExecutorExecuteCall[Params]) Return(arg0 error) *MockExecutorExecuteCall[Params] {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockExecutorExecuteCall) Do(f func(context.Context, task.Task, *task.Result) error) *MockExecutorExecuteCall {
+func (c *MockExecutorExecuteCall[Params]) Do(f func(context.Context, task.Task[Params], *task.Result) error) *MockExecutorExecuteCall[Params] {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockExecutorExecuteCall) DoAndReturn(f func(context.Context, task.Task, *task.Result) error) *MockExecutorExecuteCall {
+func (c *MockExecutorExecuteCall[Params]) DoAndReturn(f func(context.Context, task.Task[Params], *task.Result) error) *MockExecutorExecuteCall[Params] {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // Name mocks base method.
-func (m *MockExecutor) Name() string {
+func (m *MockExecutor[Params]) Name() string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Name")
 	ret0, _ := ret[0].(string)
@@ -91,31 +91,31 @@ func (m *MockExecutor) Name() string {
 }
 
 // Name indicates an expected call of Name.
-func (mr *MockExecutorMockRecorder) Name() *MockExecutorNameCall {
+func (mr *MockExecutorMockRecorder[Params]) Name() *MockExecutorNameCall[Params] {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockExecutor)(nil).Name))
-	return &MockExecutorNameCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockExecutor[Params])(nil).Name))
+	return &MockExecutorNameCall[Params]{Call: call}
 }
 
 // MockExecutorNameCall wrap *gomock.Call
-type MockExecutorNameCall struct {
+type MockExecutorNameCall[Params any] struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockExecutorNameCall) Return(arg0 string) *MockExecutorNameCall {
+func (c *MockExecutorNameCall[Params]) Return(arg0 string) *MockExecutorNameCall[Params] {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockExecutorNameCall) Do(f func() string) *MockExecutorNameCall {
+func (c *MockExecutorNameCall[Params]) Do(f func() string) *MockExecutorNameCall[Params] {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockExecutorNameCall) DoAndReturn(f func() string) *MockExecutorNameCall {
+func (c *MockExecutorNameCall[Params]) DoAndReturn(f func() string) *MockExecutorNameCall[Params] {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

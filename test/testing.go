@@ -17,7 +17,7 @@ import (
 //go:generate go tool mockgen -destination task_mock.go -package test -copyright_file ../license-header.txt -typed ../pkg/task Executor,SessionManager
 
 // Call like you'd call Serve() but at the top of your test function.
-func ServeTest(t *testing.T, plugin *bonk.Plugin) task.Executor {
+func ServeTest(t *testing.T, plugin *bonk.Plugin) task.GenericExecutor {
 	t.Helper()
 
 	// client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{

@@ -23,7 +23,7 @@ func (Executor_Test) Name() string {
 
 func (Executor_Test) Execute(
 	ctx context.Context,
-	task bonk.TypedTask[Params],
+	task bonk.Task[Params],
 	res *bonk.Result,
 ) error {
 	slog.InfoContext(ctx, "it's happening!", "thing", task.Args.Value)
@@ -33,7 +33,7 @@ func (Executor_Test) Execute(
 
 var Plugin = bonk.NewPlugin("test", func(plugin *bonk.Plugin) error {
 	err := plugin.RegisterExecutors(
-		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Test{}),
+		bonk.BoxExecutor(Executor_Test{}),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)

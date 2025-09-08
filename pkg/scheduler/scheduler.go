@@ -15,12 +15,8 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-type TaskSender interface {
-	Execute(ctx context.Context, tsk task.Task, result *task.Result) error
-}
-
 type Scheduler struct {
-	executorManager TaskSender
+	executorManager task.GenericExecutor
 	executor        gotaskflow.Executor
 	tasks           map[string]*gotaskflow.Task
 
@@ -28,7 +24,7 @@ type Scheduler struct {
 	rootFlow     *gotaskflow.TaskFlow
 }
 
-func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
+func NewScheduler(executorManager task.GenericExecutor, concurrency uint) *Scheduler {
 	return &Scheduler{
 		executorManager: executorManager,
 		executor:        gotaskflow.NewExecutor(concurrency),
@@ -39,11 +35,11 @@ func NewScheduler(executorManager TaskSender, concurrency uint) *Scheduler {
 	}
 }
 
-func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
+func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
 	taskName := tsk.ID.String()
 	s.flowHasTasks = true
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		mismatches := DetectStateMismatches(&tsk)
+		mismatches := DetectStateMismatches(tsk)
 		if mismatches == nil {
 			slog.Debug("states match, skipping task")
 
@@ -53,9 +49,17 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 		slog.Debug("state mismatch, running task", "mismatches", mismatches)
 
 		var result task.Result
-		err := s.executorManager.Execute(context.Background(), tsk, &result)
+		err := s.executorManager.Execute(context.Background(), *tsk, &result)
 		if err != nil {
-			slog.Error("error executing task", "task", taskName, "executor", tsk.Executor(), "error", err)
+			slog.Error(
+				"error executing task",
+				"task",
+				taskName,
+				"executor",
+				tsk.ID.Executor,
+				"error",
+				err,
+			)
 
 			return
 		}
@@ -64,13 +68,13 @@ func (s *Scheduler) AddTask(tsk task.Task, deps ...string) error {
 
 		var followupErr error
 		for _, followup := range result.FollowupTasks {
-			multierr.AppendInto(&followupErr, s.AddTask(followup))
+			multierr.AppendInto(&followupErr, s.AddTask(&followup))
 		}
 		if followupErr != nil {
 			slog.Error("failed to schedule followup tasks", "task", taskName, "error", followupErr)
 		}
 
-		err = SaveState(&tsk, &result)
+		err = SaveState(tsk, &result)
 		if err != nil {
 			slog.Error("failed to save task state", "task", taskName, "error", err)
 

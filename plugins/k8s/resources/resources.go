@@ -7,9 +7,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/pkg/encoding/yaml"
+	"go.uber.org/multierr"
+	"go.yaml.in/yaml/v4"
 
 	bonk "go.bonk.build/api/go"
 )
@@ -17,7 +18,7 @@ import (
 const output = "resources.yaml"
 
 type Params struct {
-	Resources cue.Value `cue:"[...]" json:"resources"`
+	Resources any `cue:"[...]" json:"resources"`
 }
 
 type Executor_Resources struct{}
@@ -28,35 +29,48 @@ func (Executor_Resources) Name() string {
 
 func (Executor_Resources) Execute(
 	ctx context.Context,
-	task bonk.TypedTask[Params],
+	task bonk.Task[Params],
 	res *bonk.Result,
 ) error {
 	if len(task.Inputs) > 0 {
 		return errors.New("resources task does not accept inputs")
 	}
 
-	resourcesYaml, err := yaml.MarshalStream(task.Args.Resources)
-	if err != nil {
-		return fmt.Errorf("failed to marshal resources into yaml: %w", err)
-	}
-
 	file, err := task.OutputFs.Create(output)
 	if err != nil {
 		return fmt.Errorf("failed to create resources yaml: %w", err)
 	}
-	_, err = file.WriteString(resourcesYaml)
-	if err != nil {
-		return fmt.Errorf("failed to write resources yaml to disk: %w", err)
+
+	encoder := yaml.NewEncoder(file)
+
+	switch value := reflect.ValueOf(task.Args.Resources); value.Type().Kind() {
+	// Slices and arrays need to be written over multiple calls to force them into separate documents.
+	case reflect.Slice, reflect.Array:
+		for _, val := range value.Seq2() {
+			multierr.AppendInto(&err, encoder.Encode(val.Interface()))
+		}
+		if err != nil {
+			return fmt.Errorf("failed to encode resources as yaml: %w", err)
+		}
+
+	default:
+		err = encoder.Encode(task.Args.Resources)
+		if err != nil {
+			return fmt.Errorf("failed to encode resources to file: %w", err)
+		}
 	}
 
 	res.Outputs = []string{output}
 
-	return nil
+	multierr.AppendInto(&err, encoder.Close())
+	multierr.AppendInto(&err, file.Close())
+
+	return err //nolint:wrapcheck
 }
 
 var Plugin = bonk.NewPlugin("resources", func(plugin *bonk.Plugin) error {
 	err := plugin.RegisterExecutors(
-		bonk.WrapTypedExecutor(plugin.Cuectx, Executor_Resources{}),
+		bonk.BoxExecutor(Executor_Resources{}),
 	)
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)

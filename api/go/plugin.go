@@ -7,9 +7,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
-
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -23,19 +20,17 @@ type Plugin struct {
 	executor.ExecutorManager
 
 	EnableLogStreaming bool
-	Cuectx             *cue.Context
 }
 
 var (
-	_ task.Executor       = (*Plugin)(nil)
-	_ task.SessionManager = (*Plugin)(nil)
+	_ task.GenericExecutor = (*Plugin)(nil)
+	_ task.SessionManager  = (*Plugin)(nil)
 )
 
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 	plugin := &Plugin{
 		ExecutorManager:    executor.NewExecutorManager(name),
 		EnableLogStreaming: true,
-		Cuectx:             cuecontext.New(),
 	}
 
 	err := initializer(plugin)
@@ -55,7 +50,6 @@ func (p *Plugin) Serve() {
 		pluginMap["executor"] = &executorServer{
 			Name:      p.Name(),
 			Executors: &p.ExecutorManager,
-			Cuectx:    p.Cuectx,
 		}
 	}
 

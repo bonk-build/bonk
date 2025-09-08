@@ -4,18 +4,15 @@
 package scheduler
 
 import (
-	"bytes"
-	"crypto/sha256"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"hash"
+	"hash/fnv"
 	"io"
 	"log/slog"
 	"reflect"
 
-	"cuelang.org/go/cue"
-
+	"github.com/gohugoio/hashstructure"
 	"github.com/spf13/afero"
 
 	"go.bonk.build/pkg/task"
@@ -29,12 +26,13 @@ type state struct {
 	Inputs   []string     `json:"inputs,omitempty"`
 	Result   *task.Result `json:"result,omitempty"`
 
-	ParamsChecksum []byte `json:"paramsChecksum,omitempty"`
-	InputsChecksum []byte `json:"inputChecksum,omitempty"`
-	ResultChecksum []byte `json:"resultChecksum,omitempty"`
+	ParamsChecksum   uint64 `json:"paramsChecksum,omitempty"`
+	InputsChecksum   uint64 `json:"inputChecksum,omitempty"`
+	OutputChecksum   uint64 `json:"resultChecksum,omitempty"`
+	FollowupChecksum uint64 `json:"followupChecksum,omitempty"`
 }
 
-func SaveState(task *task.Task, result *task.Result) error {
+func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
 	err := task.OutputFs.MkdirAll("", 0o750)
 	if err != nil {
 		return fmt.Errorf("failed to create task directory: %w", err)
@@ -47,15 +45,15 @@ func SaveState(task *task.Task, result *task.Result) error {
 	encoder := json.NewEncoder(file)
 
 	state := state{
-		Executor: task.Executor(),
+		Executor: task.ID.Executor,
 		Inputs:   task.Inputs,
 		Result:   result,
 	}
 
-	hasher := sha256.New()
+	hasher := fnv.New64()
 
 	// Hash the parameters
-	state.ParamsChecksum, err = hashCueValue(hasher, task.Params)
+	state.ParamsChecksum, err = hashAnyValue(hasher, task.Args)
 	if err != nil {
 		return err
 	}
@@ -68,8 +66,13 @@ func SaveState(task *task.Task, result *task.Result) error {
 	}
 	hasher.Reset()
 
-	// Hash the result
-	state.ResultChecksum, err = hashResult(hasher, task.OutputFs, result)
+	// Hash the output files
+	state.OutputChecksum, err = hashFiles(hasher, task.OutputFs, result.Outputs)
+	if err != nil {
+		return err
+	}
+
+	state.FollowupChecksum, err = hashAnyValue(hasher, result.FollowupTasks)
 	if err != nil {
 		return err
 	}
@@ -83,7 +86,7 @@ func SaveState(task *task.Task, result *task.Result) error {
 	return nil
 }
 
-func DetectStateMismatches(task *task.Task) []string {
+func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
 	file, err := task.OutputFs.Open(StateFile)
 	if err != nil {
 		return []string{"<state missing>"}
@@ -99,14 +102,14 @@ func DetectStateMismatches(task *task.Task) []string {
 	}
 
 	var mismatches []string
-	hasher := sha256.New()
+	hasher := fnv.New64()
 
-	if task.Executor() != state.Executor {
+	if task.ID.Executor != state.Executor {
 		mismatches = append(mismatches, "executor")
 	}
 
-	paramsChecksum, err := hashCueValue(hasher, task.Params)
-	if err != nil || !bytes.Equal(paramsChecksum, state.ParamsChecksum) {
+	paramsChecksum, err := hashAnyValue(hasher, task.Args)
+	if err != nil || paramsChecksum != state.ParamsChecksum {
 		mismatches = append(mismatches, "params-checksum")
 	}
 	hasher.Reset()
@@ -115,68 +118,55 @@ func DetectStateMismatches(task *task.Task) []string {
 		mismatches = append(mismatches, "inputs")
 	}
 	inputsChecksum, err := hashFiles(hasher, task.Session.FS(), task.Inputs)
-	if err != nil || !bytes.Equal(inputsChecksum, state.InputsChecksum) {
+	if err != nil || inputsChecksum != state.InputsChecksum {
 		mismatches = append(mismatches, "inputs-checksum")
 	}
 	hasher.Reset()
 
-	resultChecksum, err := hashResult(hasher, task.OutputFs, state.Result)
+	outputChecksum, err := hashFiles(hasher, task.OutputFs, state.Result.Outputs)
 	if err != nil {
-		mismatches = append(mismatches, "!result-checksum-failed!")
-	} else if !bytes.Equal(resultChecksum, state.ResultChecksum) {
-		mismatches = append(mismatches, "result-checksum")
+		mismatches = append(mismatches, "!output-checksum-failed!")
+	} else if outputChecksum != state.OutputChecksum {
+		mismatches = append(mismatches, "output-checksum")
+	}
+	hasher.Reset()
+
+	followupChecksum, err := hashAnyValue(hasher, state.Result.FollowupTasks)
+	if err != nil {
+		mismatches = append(mismatches, "!followup-checksum-failed!")
+	} else if followupChecksum != state.FollowupChecksum {
+		mismatches = append(mismatches, "followup-checksum")
 	}
 	hasher.Reset()
 
 	return mismatches
 }
 
-func hashCueValue(hasher hash.Hash, params cue.Value) ([]byte, error) {
-	paramsJSON, err := params.MarshalJSON()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal params to json: %w", err)
-	}
-
-	return hasher.Sum(paramsJSON), nil
+func hashAnyValue(hasher hash.Hash64, params any) (uint64, error) {
+	return hashstructure.Hash(params, &hashstructure.HashOptions{ //nolint:wrapcheck
+		Hasher: hasher,
+	})
 }
 
-func hashFiles(hasher hash.Hash, root afero.Fs, files []string) ([]byte, error) {
+func hashFiles(hasher hash.Hash64, root afero.Fs, files []string) (uint64, error) {
 	for _, pattern := range files {
 		matches, err := afero.Glob(root, pattern)
 		if err != nil {
-			return nil, fmt.Errorf("failed to expand glob '%s': %w", pattern, err)
+			return 0, fmt.Errorf("failed to expand glob '%s': %w", pattern, err)
 		}
 
 		for _, fileName := range matches {
 			file, err := root.Open(fileName)
 			if err != nil {
-				return nil, fmt.Errorf("failed to open input file %s: %w", fileName, err)
+				return 0, fmt.Errorf("failed to open input file %s: %w", fileName, err)
 			}
 
 			_, err = io.Copy(hasher, file)
 			if err != nil {
-				return nil, fmt.Errorf("failed to hash input file %s: %w", fileName, err)
+				return 0, fmt.Errorf("failed to hash input file %s: %w", fileName, err)
 			}
 		}
 	}
 
-	result := hasher.Sum(nil)
-
-	return result, nil
-}
-
-func hashResult(hasher hash.Hash, root afero.Fs, result *task.Result) ([]byte, error) {
-	_, err := hashFiles(hasher, root, result.Outputs)
-	if err != nil {
-		return nil, errors.New("failed to hash output files")
-	}
-
-	// Convert the followups to json for easy hashing
-	bytes, err := json.Marshal(result.FollowupTasks)
-	if err != nil {
-		return nil, errors.New("failed to hash followup tasks")
-	}
-	hasher.Write(bytes)
-
-	return hasher.Sum(nil), nil
+	return hasher.Sum64(), nil
 }

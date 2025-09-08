@@ -8,15 +8,11 @@ import (
 
 	"go.uber.org/mock/gomock"
 
-	"cuelang.org/go/cue"
-
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/task"
 	"go.bonk.build/test"
 )
-
-//go:generate go tool mockgen -destination scheduler_mock_test.go -package scheduler -copyright_file ../../license-header.txt -typed . TaskSender
 
 func Test_SenderIsCalled(t *testing.T) {
 	t.Parallel()
@@ -24,7 +20,7 @@ func Test_SenderIsCalled(t *testing.T) {
 	mock := gomock.NewController(t)
 	session := test.NewTestSession()
 
-	sender := NewMockTaskSender(mock)
+	sender := test.NewMockExecutor[any](mock)
 	sender.EXPECT().
 		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
@@ -32,7 +28,7 @@ func Test_SenderIsCalled(t *testing.T) {
 
 	scheduler := NewScheduler(sender, 1)
 
-	require.NoError(t, scheduler.AddTask(task.New(session, "test", "task1", cue.Value{})))
+	require.NoError(t, scheduler.AddTask(task.New[any](session, "test", "task1", nil)))
 
 	scheduler.Run()
 }

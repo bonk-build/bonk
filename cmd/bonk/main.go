@@ -10,9 +10,6 @@ import (
 
 	"go.uber.org/multierr"
 
-	"cuelang.org/go/cue/ast"
-	"cuelang.org/go/cue/cuecontext"
-
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,12 +31,10 @@ var rootCmd = &cobra.Command{
 	Short: "A cue-based configuration build system.",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		cuectx := cuecontext.New()
-
 		bem := executor.NewExecutorManager("")
 		defer bem.Shutdown()
 
-		pum := plugin.NewPluginManager(cuectx, &bem)
+		pum := plugin.NewPluginManager(&bem)
 		defer pum.Shutdown()
 
 		sched := scheduler.NewScheduler(&bem, concurrency)
@@ -64,30 +59,37 @@ var rootCmd = &cobra.Command{
 					session,
 					"test.Test",
 					"Test.Test",
-					cuectx.CompileString(`value: 3`),
-				),
+					map[string]any{
+						"value": 3,
+					},
+				).Box(),
 			),
 			sched.AddTask(
 				task.New(
 					session,
 					"resources.Resources",
 					"Test.Resources",
-					cuectx.CompileString(`
-					resources: [{
-						apiVersion: "v1"
-						kind: "Namespace"
-						metadata: name: "Testing"
-					}]`),
-				),
+					map[string]any{
+						"resources": []map[string]any{
+							{
+								"apiVersion": "v1",
+								"kind":       "Namespace",
+								"metadata": map[string]any{
+									"name": "Testing",
+								},
+							},
+						},
+					},
+				).Box(),
 			),
 			sched.AddTask(
 				task.New(
 					session,
 					"kustomize.Kustomize",
 					"Test.Kustomize",
-					cuectx.BuildExpr(ast.NewStruct()),
+					map[string]any{},
 					".bonk/Test.Resources/resources.yaml",
-				),
+				).Box(),
 				"Test.Resources",
 			),
 		))

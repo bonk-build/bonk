@@ -13,8 +13,6 @@ import (
 
 	"go.uber.org/multierr"
 
-	"cuelang.org/go/cue"
-
 	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
@@ -23,7 +21,7 @@ import (
 )
 
 type ExecutorRegistrar interface {
-	RegisterExecutors(execs ...task.Executor) error
+	RegisterExecutors(execs ...task.GenericExecutor) error
 	UnregisterExecutors(names ...string)
 }
 
@@ -31,14 +29,12 @@ type PluginManager struct {
 	mu      sync.RWMutex
 	plugins map[string]Plugin
 
-	cuectx   *cue.Context
 	executor ExecutorRegistrar
 }
 
-func NewPluginManager(cuectx *cue.Context, executor ExecutorRegistrar) *PluginManager {
+func NewPluginManager(executor ExecutorRegistrar) *PluginManager {
 	return &PluginManager{
 		plugins:  make(map[string]Plugin),
-		cuectx:   cuectx,
 		executor: executor,
 	}
 }
@@ -62,7 +58,7 @@ func (pm *PluginManager) StartPlugin(ctx context.Context, pluginPath string) err
 	plug := Plugin{
 		name: pluginName,
 	}
-	err := plug.Configure(ctx, pm.cuectx, process, pm.executor)
+	err := plug.Configure(ctx, process, pm.executor)
 	if err != nil {
 		return fmt.Errorf("failed to create plugin %s: %w", pluginName, err)
 	}
