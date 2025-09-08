@@ -35,7 +35,7 @@ message ExecuteTaskRequest {
   string name = 2;
   string executor = 3;
   repeated string inputs = 4;
-  google.protobuf.Struct parameters = 5;
+  google.protobuf.Value arguments = 5;
 }
 
 message ExecuteTaskResponse {
@@ -43,7 +43,7 @@ message ExecuteTaskResponse {
     string name = 1;
     string executor = 2;
     repeated string inputs = 3;
-    google.protobuf.Struct parameters = 4;
+    google.protobuf.Value arguments = 4;
   }
 
   repeated string output = 1;

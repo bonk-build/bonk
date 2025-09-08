@@ -28,7 +28,7 @@ func Test_Add(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := test.NewMockExecutor(mock)
+	exec := test.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 
 	manager := executor.NewExecutorManager("")
@@ -40,7 +40,7 @@ func Test_Add(t *testing.T) {
 
 	var foundName string
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec task.Executor) {
+	manager.ForEachExecutor(func(name string, exec task.GenericExecutor) {
 		foundName = name
 		calls++
 	})
@@ -54,7 +54,7 @@ func Test_Call(t *testing.T) {
 	const execName = "testing.child.abc"
 	var result task.Result
 
-	exec := test.NewMockExecutor(mock)
+	exec := test.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
 
@@ -63,7 +63,7 @@ func Test_Call(t *testing.T) {
 	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), task.Task{
+	err = manager.Execute(t.Context(), task.GenericTask{
 		ID: task.TaskId{
 			Executor: execName,
 		},
@@ -76,7 +76,7 @@ func Test_Remove(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := test.NewMockExecutor(mock)
+	exec := test.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 	manager := executor.NewExecutorManager("")
 
@@ -88,7 +88,7 @@ func Test_Remove(t *testing.T) {
 	require.Equal(t, 0, manager.GetNumExecutors())
 
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec task.Executor) {
+	manager.ForEachExecutor(func(name string, exec task.GenericExecutor) {
 		calls++
 	})
 	require.Equal(t, 0, calls)
@@ -106,7 +106,7 @@ func Test_Add_Overlap(t *testing.T) {
 	manager := executor.NewExecutorManager("")
 
 	for _, execName := range execNames {
-		exec := test.NewMockExecutor(mock)
+		exec := test.NewMockExecutor[any](mock)
 		exec.EXPECT().Name().Return(execName)
 
 		err := manager.RegisterExecutors(exec)
@@ -114,7 +114,7 @@ func Test_Add_Overlap(t *testing.T) {
 	}
 
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec task.Executor) {
+	manager.ForEachExecutor(func(name string, exec task.GenericExecutor) {
 		calls++
 	})
 	require.Equal(t, 2, calls)

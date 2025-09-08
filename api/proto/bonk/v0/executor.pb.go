@@ -397,7 +397,7 @@ type ExecuteTaskRequest struct {
 	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
 	xxx_hidden_Executor    *string                `protobuf:"bytes,3,opt,name=executor"`
 	xxx_hidden_Inputs      []string               `protobuf:"bytes,4,rep,name=inputs"`
-	xxx_hidden_Parameters  *structpb.Struct       `protobuf:"bytes,5,opt,name=parameters"`
+	xxx_hidden_Arguments   *structpb.Value        `protobuf:"bytes,5,opt,name=arguments"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -466,9 +466,9 @@ func (x *ExecuteTaskRequest) GetInputs() []string {
 	return nil
 }
 
-func (x *ExecuteTaskRequest) GetParameters() *structpb.Struct {
+func (x *ExecuteTaskRequest) GetArguments() *structpb.Value {
 	if x != nil {
-		return x.xxx_hidden_Parameters
+		return x.xxx_hidden_Arguments
 	}
 	return nil
 }
@@ -492,8 +492,8 @@ func (x *ExecuteTaskRequest) SetInputs(v []string) {
 	x.xxx_hidden_Inputs = v
 }
 
-func (x *ExecuteTaskRequest) SetParameters(v *structpb.Struct) {
-	x.xxx_hidden_Parameters = v
+func (x *ExecuteTaskRequest) SetArguments(v *structpb.Value) {
+	x.xxx_hidden_Arguments = v
 }
 
 func (x *ExecuteTaskRequest) HasSessionId() bool {
@@ -517,11 +517,11 @@ func (x *ExecuteTaskRequest) HasExecutor() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 2)
 }
 
-func (x *ExecuteTaskRequest) HasParameters() bool {
+func (x *ExecuteTaskRequest) HasArguments() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Parameters != nil
+	return x.xxx_hidden_Arguments != nil
 }
 
 func (x *ExecuteTaskRequest) ClearSessionId() {
@@ -539,18 +539,18 @@ func (x *ExecuteTaskRequest) ClearExecutor() {
 	x.xxx_hidden_Executor = nil
 }
 
-func (x *ExecuteTaskRequest) ClearParameters() {
-	x.xxx_hidden_Parameters = nil
+func (x *ExecuteTaskRequest) ClearArguments() {
+	x.xxx_hidden_Arguments = nil
 }
 
 type ExecuteTaskRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	SessionId  *string
-	Name       *string
-	Executor   *string
-	Inputs     []string
-	Parameters *structpb.Struct
+	SessionId *string
+	Name      *string
+	Executor  *string
+	Inputs    []string
+	Arguments *structpb.Value
 }
 
 func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
@@ -570,7 +570,7 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
 		x.xxx_hidden_Executor = b.Executor
 	}
 	x.xxx_hidden_Inputs = b.Inputs
-	x.xxx_hidden_Parameters = b.Parameters
+	x.xxx_hidden_Arguments = b.Arguments
 	return m0
 }
 
@@ -773,7 +773,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
 	xxx_hidden_Executor    *string                `protobuf:"bytes,2,opt,name=executor"`
 	xxx_hidden_Inputs      []string               `protobuf:"bytes,3,rep,name=inputs"`
-	xxx_hidden_Parameters  *structpb.Struct       `protobuf:"bytes,4,opt,name=parameters"`
+	xxx_hidden_Arguments   *structpb.Value        `protobuf:"bytes,4,opt,name=arguments"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
 	unknownFields          protoimpl.UnknownFields
@@ -832,9 +832,9 @@ func (x *ExecuteTaskResponse_FollowupTask) GetInputs() []string {
 	return nil
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) GetParameters() *structpb.Struct {
+func (x *ExecuteTaskResponse_FollowupTask) GetArguments() *structpb.Value {
 	if x != nil {
-		return x.xxx_hidden_Parameters
+		return x.xxx_hidden_Arguments
 	}
 	return nil
 }
@@ -853,8 +853,8 @@ func (x *ExecuteTaskResponse_FollowupTask) SetInputs(v []string) {
 	x.xxx_hidden_Inputs = v
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) SetParameters(v *structpb.Struct) {
-	x.xxx_hidden_Parameters = v
+func (x *ExecuteTaskResponse_FollowupTask) SetArguments(v *structpb.Value) {
+	x.xxx_hidden_Arguments = v
 }
 
 func (x *ExecuteTaskResponse_FollowupTask) HasName() bool {
@@ -871,11 +871,11 @@ func (x *ExecuteTaskResponse_FollowupTask) HasExecutor() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) HasParameters() bool {
+func (x *ExecuteTaskResponse_FollowupTask) HasArguments() bool {
 	if x == nil {
 		return false
 	}
-	return x.xxx_hidden_Parameters != nil
+	return x.xxx_hidden_Arguments != nil
 }
 
 func (x *ExecuteTaskResponse_FollowupTask) ClearName() {
@@ -888,17 +888,17 @@ func (x *ExecuteTaskResponse_FollowupTask) ClearExecutor() {
 	x.xxx_hidden_Executor = nil
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) ClearParameters() {
-	x.xxx_hidden_Parameters = nil
+func (x *ExecuteTaskResponse_FollowupTask) ClearArguments() {
+	x.xxx_hidden_Arguments = nil
 }
 
 type ExecuteTaskResponse_FollowupTask_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name       *string
-	Executor   *string
-	Inputs     []string
-	Parameters *structpb.Struct
+	Name      *string
+	Executor  *string
+	Inputs    []string
+	Arguments *structpb.Value
 }
 
 func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_FollowupTask {
@@ -914,7 +914,7 @@ func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_
 		x.xxx_hidden_Executor = b.Executor
 	}
 	x.xxx_hidden_Inputs = b.Inputs
-	x.xxx_hidden_Parameters = b.Parameters
+	x.xxx_hidden_Arguments = b.Arguments
 	return m0
 }
 
@@ -936,26 +936,22 @@ const file_bonk_v0_executor_proto_rawDesc = "" +
 	"\x13CloseSessionRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\"\x16\n" +
-	"\x14CloseSessionResponse\"\xb4\x01\n" +
+	"\x14CloseSessionResponse\"\xb1\x01\n" +
 	"\x12ExecuteTaskRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
 	"\bexecutor\x18\x03 \x01(\tR\bexecutor\x12\x16\n" +
-	"\x06inputs\x18\x04 \x03(\tR\x06inputs\x127\n" +
-	"\n" +
-	"parameters\x18\x05 \x01(\v2\x17.google.protobuf.StructR\n" +
-	"parameters\"\x91\x02\n" +
+	"\x06inputs\x18\x04 \x03(\tR\x06inputs\x124\n" +
+	"\targuments\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\targuments\"\x8e\x02\n" +
 	"\x13ExecuteTaskResponse\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12P\n" +
-	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x8f\x01\n" +
+	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x8c\x01\n" +
 	"\fFollowupTask\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
 	"\bexecutor\x18\x02 \x01(\tR\bexecutor\x12\x16\n" +
-	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x127\n" +
-	"\n" +
-	"parameters\x18\x04 \x01(\v2\x17.google.protobuf.StructR\n" +
-	"parameters2\xf2\x01\n" +
+	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x124\n" +
+	"\targuments\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\targuments2\xf2\x01\n" +
 	"\x0fExecutorService\x12H\n" +
 	"\vOpenSession\x12\x1b.bonk.v0.OpenSessionRequest\x1a\x1c.bonk.v0.OpenSessionResponse\x12K\n" +
 	"\fCloseSession\x12\x1c.bonk.v0.CloseSessionRequest\x1a\x1d.bonk.v0.CloseSessionResponse\x12H\n" +
@@ -973,14 +969,14 @@ var file_bonk_v0_executor_proto_goTypes = []any{
 	(*OpenSessionRequest_WorkspaceDescriptionLocal)(nil), // 6: bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
 	(*OpenSessionRequest_WorkspaceDescriptionTest)(nil),  // 7: bonk.v0.OpenSessionRequest.WorkspaceDescriptionTest
 	(*ExecuteTaskResponse_FollowupTask)(nil),             // 8: bonk.v0.ExecuteTaskResponse.FollowupTask
-	(*structpb.Struct)(nil),                              // 9: google.protobuf.Struct
+	(*structpb.Value)(nil),                               // 9: google.protobuf.Value
 }
 var file_bonk_v0_executor_proto_depIdxs = []int32{
 	6, // 0: bonk.v0.OpenSessionRequest.local:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
 	7, // 1: bonk.v0.OpenSessionRequest.test:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionTest
-	9, // 2: bonk.v0.ExecuteTaskRequest.parameters:type_name -> google.protobuf.Struct
+	9, // 2: bonk.v0.ExecuteTaskRequest.arguments:type_name -> google.protobuf.Value
 	8, // 3: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
-	9, // 4: bonk.v0.ExecuteTaskResponse.FollowupTask.parameters:type_name -> google.protobuf.Struct
+	9, // 4: bonk.v0.ExecuteTaskResponse.FollowupTask.arguments:type_name -> google.protobuf.Value
 	0, // 5: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
 	2, // 6: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
 	4, // 7: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest

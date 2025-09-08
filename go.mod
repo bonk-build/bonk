@@ -14,6 +14,8 @@ require (
 	cuelang.org/go v0.14.1
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/delicb/slogbuffer v0.1.0
+	github.com/go-viper/mapstructure/v2 v2.4.0
+	github.com/gohugoio/hashstructure v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/noneback/go-taskflow v1.1.3
@@ -26,6 +28,7 @@ require (
 	github.com/veqryn/slog-context v0.8.0
 	go.uber.org/mock v0.6.0
 	go.uber.org/multierr v1.11.0
+	go.yaml.in/yaml/v4 v4.0.0-rc.2
 	google.golang.org/grpc v1.75.0
 	google.golang.org/protobuf v1.36.8
 	sigs.k8s.io/kustomize/api v0.20.1
@@ -84,7 +87,6 @@ require (
 	github.com/go-openapi/jsonpointer v0.21.2 // indirect
 	github.com/go-openapi/jsonreference v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.1 // indirect
-	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect

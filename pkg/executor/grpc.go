@@ -8,12 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"reflect"
 
 	"go.uber.org/multierr"
 
 	"google.golang.org/protobuf/types/known/structpb"
-
-	"cuelang.org/go/cue"
 
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
@@ -25,25 +24,22 @@ import (
 // Creates an executor that forwards task invocations across a GRPC connection.
 func NewGRPCClient(
 	name string,
-	cuectx *cue.Context,
 	client bonkv0.ExecutorServiceClient,
-) task.Executor {
+) task.GenericExecutor {
 	return &grpcClient{
 		name:   name,
-		cuectx: cuectx,
 		client: client,
 	}
 }
 
 type grpcClient struct {
 	name   string
-	cuectx *cue.Context
 	client bonkv0.ExecutorServiceClient
 }
 
 var (
-	_ task.Executor       = (*grpcClient)(nil)
-	_ task.SessionManager = (*grpcClient)(nil)
+	_ task.GenericExecutor = (*grpcClient)(nil)
+	_ task.SessionManager  = (*grpcClient)(nil)
 )
 
 func (pb *grpcClient) Name() string {
@@ -89,19 +85,23 @@ func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId
 	}
 }
 
-func (pb *grpcClient) Execute(ctx context.Context, tsk task.Task, result *task.Result) error {
+func (pb *grpcClient) Execute(
+	ctx context.Context,
+	tsk task.GenericTask,
+	result *task.Result,
+) error {
 	sessionIdStr := tsk.Session.ID().String()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
-		SessionId:  &sessionIdStr,
-		Name:       &tsk.ID.Name,
-		Executor:   &tsk.ID.Executor,
-		Inputs:     tsk.Inputs,
-		Parameters: &structpb.Struct{},
+		SessionId: &sessionIdStr,
+		Name:      &tsk.ID.Name,
+		Executor:  &tsk.ID.Executor,
+		Inputs:    tsk.Inputs,
 	}
 
-	err := tsk.Params.Decode(taskReqBuilder.Parameters)
+	var err error
+	taskReqBuilder.Arguments, err = toProtoValue(reflect.ValueOf(tsk.Args))
 	if err != nil {
-		return fmt.Errorf("failed to encode parameters as protobuf: %w", err)
+		return fmt.Errorf("failed to encode args to proto: %w", err)
 	}
 
 	res, err := pb.client.ExecuteTask(ctx, taskReqBuilder.Build())
@@ -110,24 +110,16 @@ func (pb *grpcClient) Execute(ctx context.Context, tsk task.Task, result *task.R
 	}
 
 	result.Outputs = res.GetOutput()
-	result.FollowupTasks = make([]task.Task, len(res.GetFollowupTasks()))
+	result.FollowupTasks = make([]task.GenericTask, len(res.GetFollowupTasks()))
 	for ii, followup := range res.GetFollowupTasks() {
-		// Attmpt to decode the event params
-		params := pb.cuectx.Encode(followup.GetParameters())
-		if !multierr.AppendInto(&err, params.Err()) {
-			// Create the new task and append it
-			result.FollowupTasks[ii] = task.New(
-				tsk.Session,
-				followup.GetExecutor(),
-				fmt.Sprintf("%s.%s", tsk.ID.Name, followup.GetName()),
-				params,
-				followup.GetInputs()...,
-			)
-		}
-	}
-
-	if err != nil {
-		return fmt.Errorf("failed to schedule followup tasks: %w", err)
+		// Create the new task and append it
+		result.FollowupTasks[ii] = *task.New(
+			tsk.Session,
+			followup.GetExecutor(),
+			fmt.Sprintf("%s.%s", tsk.ID.Name, followup.GetName()),
+			followup.GetArguments().AsInterface(),
+			followup.GetInputs()...,
+		)
 	}
 
 	return nil
@@ -137,8 +129,7 @@ type grpcServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
 	name     string
-	cuectx   *cue.Context
-	executor task.Executor
+	executor task.GenericExecutor
 
 	sessions map[task.SessionId]task.DefaultSession
 }
@@ -148,12 +139,10 @@ var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
 // Creates a GRPC server which forwards incoming task requests to an Executor.
 func NewGRPCServer(
 	name string,
-	cuectx *cue.Context,
-	executor task.Executor,
+	executor task.GenericExecutor,
 ) bonkv0.ExecutorServiceServer {
 	return &grpcServer{
 		name:     name,
-		cuectx:   cuectx,
 		executor: executor,
 		sessions: make(map[task.SessionId]task.DefaultSession),
 	}
@@ -227,10 +216,11 @@ func (s *grpcServer) ExecuteTask(
 		Name:     req.GetName(),
 		Executor: req.GetExecutor(),
 	}
-	tsk := task.Task{
+	tsk := task.GenericTask{
 		ID:      tskId,
 		Session: &session,
 		Inputs:  req.GetInputs(),
+		Args:    req.GetArguments().AsInterface(),
 
 		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
 	}
@@ -239,16 +229,10 @@ func (s *grpcServer) ExecuteTask(
 	if err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
-
-	tsk.Params = s.cuectx.Encode(req.GetParameters())
-	if tsk.Params.Err() != nil {
-		return nil, fmt.Errorf("failed to decode parameters: %w", err)
-	}
-
 	var response task.Result
 	err = s.executor.Execute(ctx, tsk, &response)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute task: %w", err)
+		return nil, err //nolint:wrapcheck
 	}
 
 	res := bonkv0.ExecuteTaskResponse_builder{
@@ -258,14 +242,15 @@ func (s *grpcServer) ExecuteTask(
 
 	for idx, followup := range response.FollowupTasks {
 		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
-			Name:       &followup.ID.Name,
-			Parameters: &structpb.Struct{},
+			Name:     &followup.ID.Name,
+			Executor: &followup.ID.Executor,
+			Inputs:   followup.Inputs,
 		}
-		taskProto.Executor = &followup.ID.Executor
-		taskProto.Inputs = followup.Inputs
-		decodeErr := followup.Params.Decode(taskProto.Parameters)
 
-		if multierr.AppendInto(&err, decodeErr) {
+		var newValErr error
+		taskProto.Arguments, newValErr = structpb.NewValue(followup.Args)
+
+		if multierr.AppendInto(&err, newValErr) {
 			continue
 		}
 

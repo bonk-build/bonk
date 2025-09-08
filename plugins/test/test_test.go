@@ -6,8 +6,6 @@ package main
 import (
 	"testing"
 
-	"cuelang.org/go/cue"
-
 	"go.bonk.build/pkg/task"
 	"go.bonk.build/test"
 )
@@ -21,7 +19,9 @@ func Test_Plugin(t *testing.T) {
 	var result task.Result
 	err := executors.Execute(
 		t.Context(),
-		task.New(session, "test.Test", "testing", cue.Value{}),
+		*task.New[any](session, "test.Test", "testing", Params{
+			Value: 2,
+		}),
 		&result,
 	)
 	if err != nil {

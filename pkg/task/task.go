@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"path"
 
-	"cuelang.org/go/cue"
-
 	"github.com/spf13/afero"
 )
 
@@ -33,38 +31,43 @@ func (id *TaskId) GetOutDirectory() string {
 	return path.Join(".bonk", id.Name)
 }
 
-type Task struct {
+type Task[Params any] struct {
 	ID      TaskId  `json:"id"`
 	Session Session `json:"-"`
 
-	Inputs []string  `json:"inputs,omitempty"`
-	Params cue.Value `json:"params"`
+	Inputs []string `json:"inputs,omitempty"`
+	Args   Params   `json:"args"`
 
 	OutputFs afero.Fs `json:"-"`
 }
 
-func New(session Session, executor, name string, params cue.Value, inputs ...string) Task {
+type GenericTask = Task[any]
+
+func New[Params any](
+	session Session,
+	executor, name string,
+	args Params,
+	inputs ...string,
+) *Task[Params] {
 	tskId := TaskId{
 		Executor: executor,
 		Name:     name,
 	}
 
-	return Task{
+	return &Task[Params]{
 		ID:      tskId,
 		Session: session,
 		Inputs:  inputs,
-		Params:  params,
+		Args:    args,
 
 		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
 	}
 }
 
-func (t *Task) Executor() string {
-	return t.ID.Executor
+// Executor is the interface required to execute tasks.
+type Executor[Params any] interface {
+	Name() string
+	Execute(ctx context.Context, tsk Task[Params], result *Result) error
 }
 
-// Executor is the interface required to execute tasks.
-type Executor interface {
-	Name() string
-	Execute(ctx context.Context, tsk Task, result *Result) error
-}
+type GenericExecutor = Executor[any]

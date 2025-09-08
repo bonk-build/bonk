@@ -18,13 +18,13 @@ import (
 type ExecutorManager struct {
 	name string
 
-	children map[string]task.Executor
+	children map[string]task.GenericExecutor
 }
 
 // Note that ExecutorManager is itself an executor.
 var (
-	_ task.Executor       = (*ExecutorManager)(nil)
-	_ task.SessionManager = (*ExecutorManager)(nil)
+	_ task.GenericExecutor = (*ExecutorManager)(nil)
+	_ task.SessionManager  = (*ExecutorManager)(nil)
 )
 var ErrNoExecutorFound = errors.New("no executor found")
 
@@ -33,7 +33,7 @@ const ExecPathSep = "."
 func NewExecutorManager(name string) ExecutorManager {
 	return ExecutorManager{
 		name:     name,
-		children: make(map[string]task.Executor),
+		children: make(map[string]task.GenericExecutor),
 	}
 }
 
@@ -41,9 +41,9 @@ func (bm *ExecutorManager) Name() string {
 	return bm.name
 }
 
-func (bm *ExecutorManager) RegisterExecutors(execs ...task.Executor) error {
-	var registerImpl func(manager *ExecutorManager, name string, impl task.Executor) error
-	registerImpl = func(manager *ExecutorManager, name string, impl task.Executor) error {
+func (bm *ExecutorManager) RegisterExecutors(execs ...task.GenericExecutor) error {
+	var registerImpl func(manager *ExecutorManager, name string, impl task.GenericExecutor) error
+	registerImpl = func(manager *ExecutorManager, name string, impl task.GenericExecutor) error {
 		before, after, needsManager := strings.Cut(name, ExecPathSep)
 		child, hasChild := manager.children[before]
 
@@ -61,7 +61,7 @@ func (bm *ExecutorManager) RegisterExecutors(execs ...task.Executor) error {
 		case needsManager && !hasChild:
 			manager.children[before] = &ExecutorManager{
 				name:     before,
-				children: make(map[string]task.Executor, 1),
+				children: make(map[string]task.GenericExecutor, 1),
 			}
 
 			return registerImpl(manager, name, impl)
@@ -116,7 +116,7 @@ func (bm *ExecutorManager) UnregisterExecutors(names ...string) {
 
 func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session) error {
 	var err error
-	bm.ForEachExecutor(func(_ string, exec task.Executor) {
+	bm.ForEachExecutor(func(_ string, exec task.GenericExecutor) {
 		if sm, ok := exec.(task.SessionManager); ok {
 			multierr.AppendInto(&err, sm.OpenSession(ctx, session))
 		}
@@ -126,7 +126,7 @@ func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session
 }
 
 func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId task.SessionId) {
-	bm.ForEachExecutor(func(_ string, exec task.Executor) {
+	bm.ForEachExecutor(func(_ string, exec task.GenericExecutor) {
 		if sm, ok := exec.(task.SessionManager); ok {
 			sm.CloseSession(ctx, sessionId)
 		}
@@ -135,10 +135,10 @@ func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId task.Sess
 
 func (bm *ExecutorManager) Execute(
 	ctx context.Context,
-	tsk task.Task,
+	tsk task.GenericTask,
 	result *task.Result,
 ) error {
-	before, after, _ := strings.Cut(tsk.Executor(), ExecPathSep)
+	before, after, _ := strings.Cut(tsk.ID.Executor, ExecPathSep)
 	child, ok := bm.children[before]
 
 	if ok {
@@ -147,26 +147,26 @@ func (bm *ExecutorManager) Execute(
 
 		return child.Execute(ctx, copyForChild, result) //nolint:wrapcheck
 	} else {
-		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor())
+		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.ID.Executor)
 	}
 }
 
 func (bm *ExecutorManager) GetNumExecutors() int {
 	result := 0
-	bm.ForEachExecutor(func(string, task.Executor) {
+	bm.ForEachExecutor(func(string, task.GenericExecutor) {
 		result++
 	})
 
 	return result
 }
 
-func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec task.Executor)) {
-	var forEachImpl func(name string, appendName bool, child task.Executor)
-	forEachImpl = func(name string, appendName bool, child task.Executor) {
+func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec task.GenericExecutor)) {
+	var forEachImpl func(name string, appendName bool, child task.GenericExecutor)
+	forEachImpl = func(name string, appendName bool, child task.GenericExecutor) {
 		if childManager, ok := child.(*ExecutorManager); ok {
 			for childName, childExec := range childManager.children {
 				var pathParts []string
-				if appendName {
+				if appendName && childName != "" {
 					pathParts = []string{name, childName}
 				} else {
 					pathParts = []string{childName}
@@ -183,5 +183,5 @@ func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec task.Execu
 }
 
 func (bm *ExecutorManager) Shutdown() {
-	bm.children = make(map[string]task.Executor)
+	bm.children = make(map[string]task.GenericExecutor)
 }

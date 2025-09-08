@@ -14,8 +14,6 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
-	"cuelang.org/go/cue/cuecontext"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -25,12 +23,12 @@ import (
 	"go.bonk.build/test"
 )
 
-func openConnection(t *testing.T, exec task.Executor) task.Executor {
+func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecutor {
 	t.Helper()
 
 	lis := bufconn.Listen(1024 * 1024)
 	s := grpc.NewServer()
-	bonkv0.RegisterExecutorServiceServer(s, executor.NewGRPCServer("", cuecontext.New(), exec))
+	bonkv0.RegisterExecutorServiceServer(s, executor.NewGRPCServer("", exec))
 
 	go func() {
 		err := s.Serve(lis)
@@ -48,28 +46,31 @@ func openConnection(t *testing.T, exec task.Executor) task.Executor {
 	require.NoError(t, err)
 	client := bonkv0.NewExecutorServiceClient(clientConn)
 
-	return executor.NewGRPCClient("", cuecontext.New(), client)
+	return executor.NewGRPCClient("", client)
 }
 
 func Test_TestConnection(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor(mock)
+	exec := test.NewMockExecutor[any](mock)
 
 	client := openConnection(t, exec)
 	require.NotNil(t, client)
 }
 
-func Test_Params(t *testing.T) {
+func Test_Args(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor(mock)
-	session := test.NewTestSession()
-	cuectx := cuecontext.New()
+	type Args struct {
+		Value int
+	}
 
-	client := openConnection(t, exec)
+	mock := gomock.NewController(t)
+	exec := test.NewMockExecutor[Args](mock)
+	session := test.NewTestSession()
+
+	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
 
 	var result task.Result
@@ -85,10 +86,13 @@ func Test_Params(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	err = client.Execute(t.Context(), task.Task{
-		Session:  session,
-		Params:   cuectx.CompileString(`testing: 3`),
-		OutputFs: session.FS(),
-	}, &result)
+	err = client.Execute(t.Context(), *task.New(
+		session,
+		"test.task",
+		"test.exec",
+		Args{
+			Value: 3,
+		},
+	).Box(), &result)
 	require.NoError(t, err)
 }
