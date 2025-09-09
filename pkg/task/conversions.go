@@ -63,10 +63,7 @@ type wrappedExecutor[Params any] struct {
 	Executor[Params]
 }
 
-var (
-	_ GenericExecutor = (*wrappedExecutor[any])(nil)
-	_ SessionManager  = (*wrappedExecutor[any])(nil)
-)
+var _ GenericExecutor = (*wrappedExecutor[any])(nil)
 
 // BoxExecutor accepts a TypedExecutor and wraps it into an untyped Executor.
 func BoxExecutor[Params any](
@@ -74,20 +71,6 @@ func BoxExecutor[Params any](
 ) GenericExecutor {
 	return wrappedExecutor[Params]{
 		Executor: impl,
-	}
-}
-
-func (wrapped wrappedExecutor[Params]) OpenSession(ctx context.Context, session Session) error {
-	if ssm, ok := wrapped.Executor.(SessionManager); ok {
-		return ssm.OpenSession(ctx, session) //nolint:wrapcheck
-	}
-
-	return nil
-}
-
-func (wrapped wrappedExecutor[Params]) CloseSession(ctx context.Context, sessionId SessionId) {
-	if ssm, ok := wrapped.Executor.(SessionManager); ok {
-		ssm.CloseSession(ctx, sessionId)
 	}
 }
 

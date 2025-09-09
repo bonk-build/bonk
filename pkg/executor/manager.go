@@ -24,7 +24,6 @@ type ExecutorManager struct {
 // Note that ExecutorManager is itself an executor.
 var (
 	_ task.GenericExecutor = (*ExecutorManager)(nil)
-	_ task.SessionManager  = (*ExecutorManager)(nil)
 )
 var ErrNoExecutorFound = errors.New("no executor found")
 
@@ -117,9 +116,7 @@ func (bm *ExecutorManager) UnregisterExecutors(names ...string) {
 func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session) error {
 	var err error
 	bm.ForEachExecutor(func(_ string, exec task.GenericExecutor) {
-		if sm, ok := exec.(task.SessionManager); ok {
-			multierr.AppendInto(&err, sm.OpenSession(ctx, session))
-		}
+		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
 	})
 
 	return err
@@ -127,9 +124,7 @@ func (bm *ExecutorManager) OpenSession(ctx context.Context, session task.Session
 
 func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId task.SessionId) {
 	bm.ForEachExecutor(func(_ string, exec task.GenericExecutor) {
-		if sm, ok := exec.(task.SessionManager); ok {
-			sm.CloseSession(ctx, sessionId)
-		}
+		exec.CloseSession(ctx, sessionId)
 	})
 }
 

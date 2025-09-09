@@ -63,6 +63,25 @@ func Test_TestConnection(t *testing.T) {
 	require.NotNil(t, client)
 }
 
+func Test_Session(t *testing.T) {
+	t.Parallel()
+
+	mock := gomock.NewController(t)
+	exec := test.NewMockExecutor[Args](mock)
+	session := test.NewTestSession()
+
+	client := openConnection(t, task.BoxExecutor(exec))
+	require.NotNil(t, client)
+
+	exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
+
+	err := client.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+
+	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(1)
+	client.CloseSession(t.Context(), session.ID())
+}
+
 func Test_Args(t *testing.T) {
 	t.Parallel()
 
@@ -75,12 +94,12 @@ func Test_Args(t *testing.T) {
 
 	var result task.Result
 
-	ssm, ok := client.(task.SessionManager)
-	require.True(t, ok)
+	exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
+	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(1)
 
-	err := ssm.OpenSession(t.Context(), session)
+	err := client.OpenSession(t.Context(), session)
 	require.NoError(t, err)
-	defer ssm.CloseSession(t.Context(), session.ID())
+	defer client.CloseSession(t.Context(), session.ID())
 
 	exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
@@ -109,12 +128,12 @@ func Test_Followups(t *testing.T) {
 
 	var result task.Result
 
-	ssm, ok := client.(task.SessionManager)
-	require.True(t, ok)
+	exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
+	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(1)
 
-	err := ssm.OpenSession(t.Context(), session)
+	err := client.OpenSession(t.Context(), session)
 	require.NoError(t, err)
-	defer ssm.CloseSession(t.Context(), session.ID())
+	defer client.CloseSession(t.Context(), session.ID())
 
 	expectedTask := task.Task[Args]{
 		ID: task.TaskId{

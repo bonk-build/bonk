@@ -34,10 +34,7 @@ type grpcClient struct {
 	client bonkv0.ExecutorServiceClient
 }
 
-var (
-	_ task.GenericExecutor = (*grpcClient)(nil)
-	_ task.SessionManager  = (*grpcClient)(nil)
-)
+var _ task.GenericExecutor = (*grpcClient)(nil)
 
 func (pb *grpcClient) Name() string {
 	return pb.name
@@ -171,11 +168,9 @@ func (s *grpcServer) OpenSession(
 	}
 	s.sessions[sessionId] = newSession
 
-	if ssm, ok := s.executor.(task.SessionManager); ok {
-		err := ssm.OpenSession(ctx, &newSession)
-		if err != nil {
-			return nil, err //nolint:wrapcheck
-		}
+	err := s.executor.OpenSession(ctx, &newSession)
+	if err != nil {
+		return nil, err //nolint:wrapcheck
 	}
 
 	return bonkv0.OpenSessionResponse_builder{}.Build(), nil
@@ -189,9 +184,7 @@ func (s *grpcServer) CloseSession(
 
 	sessionId := uuid.MustParse(req.GetSessionId())
 
-	if ssm, ok := s.executor.(task.SessionManager); ok {
-		ssm.CloseSession(ctx, sessionId)
-	}
+	s.executor.CloseSession(ctx, sessionId)
 
 	delete(s.sessions, sessionId)
 

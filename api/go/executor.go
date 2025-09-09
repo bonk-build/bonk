@@ -49,10 +49,7 @@ type pluginExecutor struct {
 	*executor.ExecutorManager
 }
 
-var (
-	_ task.GenericExecutor = pluginExecutor{}
-	_ task.SessionManager  = pluginExecutor{}
-)
+var _ task.GenericExecutor = pluginExecutor{}
 
 // Override Execute to add some special details to the context.
 func (pe pluginExecutor) Execute(

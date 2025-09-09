@@ -21,7 +21,9 @@ type Params struct {
 	Resources any `cue:"[...]" json:"resources"`
 }
 
-type Executor_Resources struct{}
+type Executor_Resources struct {
+	bonk.NoopSessionManager
+}
 
 func (Executor_Resources) Name() string {
 	return "Resources"

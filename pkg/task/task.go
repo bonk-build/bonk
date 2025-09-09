@@ -4,7 +4,6 @@
 package task // import "go.bonk.build/pkg/task"
 
 import (
-	"context"
 	"fmt"
 	"path"
 
@@ -63,11 +62,3 @@ func New[Params any](
 		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
 	}
 }
-
-// Executor is the interface required to execute tasks.
-type Executor[Params any] interface {
-	Name() string
-	Execute(ctx context.Context, tsk *Task[Params], result *Result) error
-}
-
-type GenericExecutor = Executor[any]

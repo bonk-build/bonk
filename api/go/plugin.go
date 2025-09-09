@@ -22,10 +22,7 @@ type Plugin struct {
 	EnableLogStreaming bool
 }
 
-var (
-	_ task.GenericExecutor = (*Plugin)(nil)
-	_ task.SessionManager  = (*Plugin)(nil)
-)
+var _ task.GenericExecutor = (*Plugin)(nil)
 
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 	plugin := &Plugin{

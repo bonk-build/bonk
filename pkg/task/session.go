@@ -4,8 +4,6 @@
 package task
 
 import (
-	"context"
-
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
 )
@@ -70,10 +68,4 @@ func (ls *localSession) FS() afero.Fs {
 
 func (ls *localSession) LocalPath() string {
 	return ls.localPath
-}
-
-// Executors may optionally implement this interface to be alerted when session statuses change.
-type SessionManager interface {
-	OpenSession(ctx context.Context, session Session) error
-	CloseSession(ctx context.Context, sessionId SessionId)
 }
