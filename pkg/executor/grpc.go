@@ -87,7 +87,7 @@ func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId
 
 func (pb *grpcClient) Execute(
 	ctx context.Context,
-	tsk task.GenericTask,
+	tsk *task.GenericTask,
 	result *task.Result,
 ) error {
 	sessionIdStr := tsk.Session.ID().String()
@@ -230,7 +230,7 @@ func (s *grpcServer) ExecuteTask(
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
 	var response task.Result
-	err = s.executor.Execute(ctx, tsk, &response)
+	err = s.executor.Execute(ctx, &tsk, &response)
 	if err != nil {
 		return nil, err //nolint:wrapcheck
 	}

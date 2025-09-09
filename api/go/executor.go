@@ -57,7 +57,7 @@ var (
 // Override Execute to add some special details to the context.
 func (pe pluginExecutor) Execute(
 	ctx context.Context,
-	tsk task.GenericTask,
+	tsk *task.GenericTask,
 	res *task.Result,
 ) error {
 	execCtx, cleanup, err := getTaskLoggingContext(ctx, tsk.OutputFs)

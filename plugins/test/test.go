@@ -23,7 +23,7 @@ func (Executor_Test) Name() string {
 
 func (Executor_Test) Execute(
 	ctx context.Context,
-	task bonk.Task[Params],
+	task *bonk.Task[Params],
 	res *bonk.Result,
 ) error {
 	slog.InfoContext(ctx, "it's happening!", "thing", task.Args.Value)

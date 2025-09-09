@@ -93,17 +93,17 @@ func (wrapped wrappedExecutor[Params]) CloseSession(ctx context.Context, session
 
 func (wrapped wrappedExecutor[Params]) Execute(
 	ctx context.Context,
-	tsk GenericTask,
+	tsk *GenericTask,
 	result *Result,
 ) error {
-	unboxed, err := Unbox[Params](&tsk)
+	unboxed, err := Unbox[Params](tsk)
 	if err != nil {
 		return err
 	}
 
 	return wrapped.Executor.Execute( //nolint:wrapcheck
 		ctx,
-		*unboxed,
+		unboxed,
 		result,
 	)
 }

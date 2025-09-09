@@ -19,7 +19,7 @@ func Test_Plugin(t *testing.T) {
 	var result task.Result
 	err := executors.Execute(
 		t.Context(),
-		*task.New[any](session, "test.Test", "testing", Params{
+		task.New[any](session, "test.Test", "testing", Params{
 			Value: 2,
 		}),
 		&result,
