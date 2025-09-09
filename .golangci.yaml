@@ -138,6 +138,16 @@ linters:
       # https://github.com/go-simpler/sloglint?tab=readme-ov-file#key-naming-convention
       key-naming-case: kebab
 
+    varnamelen:
+      # Check type parameters.
+      check-type-param: true
+      # Ignore "ok" variables that hold the bool return value of a type assertion.
+      ignore-type-assert-ok: true
+      # Ignore "ok" variables that hold the bool return value of a map index.
+      ignore-map-index-ok: true
+      # Ignore "ok" variables that hold the bool return value of a channel receive.
+      ignore-chan-recv-ok: true
+
 formatters:
   # Enable specific formatter.
   enable:
