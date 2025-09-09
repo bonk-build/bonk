@@ -56,14 +56,25 @@ jobs:
         run: go build ./...
 
       - name: go test
+        run: go tool gotestsum --junitfile junit.xml --jsonfile gotest.json -- -coverprofile=coverage.txt
+
+      - name: go test
         uses: robherley/go-test-action@b19f6aadabfb1ad85079065b21aa2af132466468 # v0.6.0
         with:
-          testArguments: ./... -coverprofile=coverage.txt
+          fromJSONFile: gotest.json
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.txt
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1.1.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./junit.xml
 
   publish-docs:
     runs-on: ubuntu-latest
