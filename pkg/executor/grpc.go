@@ -8,11 +8,8 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"reflect"
 
 	"go.uber.org/multierr"
-
-	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
@@ -99,7 +96,7 @@ func (pb *grpcClient) Execute(
 	}
 
 	var err error
-	taskReqBuilder.Arguments, err = toProtoValue(reflect.ValueOf(tsk.Args))
+	taskReqBuilder.Arguments, err = ToProtoValue(tsk.Args)
 	if err != nil {
 		return fmt.Errorf("failed to encode args to proto: %w", err)
 	}
@@ -248,7 +245,7 @@ func (s *grpcServer) ExecuteTask(
 		}
 
 		var newValErr error
-		taskProto.Arguments, newValErr = structpb.NewValue(followup.Args)
+		taskProto.Arguments, newValErr = ToProtoValue(followup.Args)
 
 		if multierr.AppendInto(&err, newValErr) {
 			continue
@@ -257,5 +254,5 @@ func (s *grpcServer) ExecuteTask(
 		res.FollowupTasks[idx] = taskProto.Build()
 	}
 
-	return res.Build(), nil
+	return res.Build(), err
 }
