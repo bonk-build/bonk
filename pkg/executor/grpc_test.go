@@ -23,6 +23,10 @@ import (
 	"go.bonk.build/test"
 )
 
+type Args struct {
+	Value int
+}
+
 func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecutor {
 	t.Helper()
 
@@ -62,10 +66,6 @@ func Test_TestConnection(t *testing.T) {
 func Test_Args(t *testing.T) {
 	t.Parallel()
 
-	type Args struct {
-		Value int
-	}
-
 	mock := gomock.NewController(t)
 	exec := test.NewMockExecutor[Args](mock)
 	session := test.NewTestSession()
@@ -95,4 +95,68 @@ func Test_Args(t *testing.T) {
 		},
 	).Box(), &result)
 	require.NoError(t, err)
+}
+
+func Test_Followups(t *testing.T) {
+	t.Parallel()
+
+	mock := gomock.NewController(t)
+	exec := test.NewMockExecutor[Args](mock)
+	session := test.NewTestSession()
+
+	client := openConnection(t, task.BoxExecutor(exec))
+	require.NotNil(t, client)
+
+	var result task.Result
+
+	ssm, ok := client.(task.SessionManager)
+	require.True(t, ok)
+
+	err := ssm.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+	defer ssm.CloseSession(t.Context(), session.ID())
+
+	expectedTask := task.Task[Args]{
+		ID: task.TaskId{
+			Name:     "Test.Task",
+			Executor: "Test.Executor",
+		},
+		Session: session,
+		Inputs: []string{
+			"File1.txt",
+			"File2.txt",
+		},
+		Args: Args{
+			Value: 69420,
+		},
+	}
+
+	exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+		Times(1).
+		Do(func(ctx context.Context, tsk *task.Task[Args], res *task.Result) {
+			res.FollowupTasks = append(res.FollowupTasks, *expectedTask.Box())
+		}).
+		Return(nil)
+
+	err = client.Execute(t.Context(), task.New(
+		session,
+		"test.exec",
+		"test.task",
+		Args{
+			Value: 3,
+		},
+	).Box(), &result)
+	require.NoError(t, err)
+
+	require.Len(t, result.FollowupTasks, 1)
+
+	unboxed, err := task.Unbox[Args](&result.FollowupTasks[0])
+
+	// Update the name since it gets modified
+	expectedTask.ID.Name = "test.task." + expectedTask.ID.Name
+	// Ignore the fs since it isn't stable
+	unboxed.OutputFs = nil
+
+	require.NoError(t, err)
+	require.EqualExportedValues(t, expectedTask, *unboxed)
 }
