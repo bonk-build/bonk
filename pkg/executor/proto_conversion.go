@@ -12,6 +12,10 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 )
 
+func ToProtoValue(value any) (*structpb.Value, error) {
+	return toProtoValue(reflect.ValueOf(value))
+}
+
 //nolint:wrapcheck
 func toProtoValue(value reflect.Value) (*structpb.Value, error) {
 	var err error
@@ -55,7 +59,7 @@ func toProtoValue(value reflect.Value) (*structpb.Value, error) {
 			return nil, fmt.Errorf("failed to decode args into mapstructure: %w", err)
 		}
 
-		return structpb.NewValue(intermediate)
+		return ToProtoValue(intermediate)
 
 	default:
 		return structpb.NewValue(value.Interface())
