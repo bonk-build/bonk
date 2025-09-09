@@ -11,4 +11,6 @@ coverage:
         target: auto
 
 ignore:
+- api/proto
+- cmd
 - test
