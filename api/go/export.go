@@ -11,6 +11,8 @@ type (
 	Executor[Params any] = task.Executor[Params]
 	GenericExecutor      = task.GenericExecutor
 	Result               = task.Result
+
+	NoopSessionManager = task.NoopSessionManager
 )
 
 func BoxExecutor[Params any](

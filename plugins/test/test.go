@@ -15,7 +15,9 @@ type Params struct {
 	Value int `json:"value"`
 }
 
-type Executor_Test struct{}
+type Executor_Test struct {
+	bonk.NoopSessionManager
+}
 
 func (Executor_Test) Name() string {
 	return "Test"

@@ -23,7 +23,9 @@ type Params struct {
 	Kustomization types.Kustomization `json:"-"`
 }
 
-type Executor_Kustomize struct{}
+type Executor_Kustomize struct {
+	bonk.NoopSessionManager
+}
 
 func (Executor_Kustomize) Name() string {
 	return "Kustomize"
