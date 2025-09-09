@@ -22,15 +22,14 @@ type executorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	goplugin.GRPCPlugin
 
-	Name      string
-	Executors *executor.ExecutorManager
+	Executors task.GenericExecutor
 }
 
 func (p *executorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	bonkv0.RegisterExecutorServiceServer(server, executor.NewGRPCServer(
-		p.Name,
+		p.Executors.Name(),
 		pluginExecutor{
-			ExecutorManager: p.Executors,
+			GenericExecutor: p.Executors,
 		},
 	))
 
@@ -46,7 +45,7 @@ func (p *executorServer) GRPCClient(
 }
 
 type pluginExecutor struct {
-	*executor.ExecutorManager
+	task.GenericExecutor
 }
 
 var _ task.GenericExecutor = pluginExecutor{}
@@ -65,7 +64,7 @@ func (pe pluginExecutor) Execute(
 	// Append executor information
 	execCtx = slogctx.Append(execCtx, "executor", tsk.ID.Executor)
 
-	multierr.AppendInto(&err, pe.ExecutorManager.Execute(execCtx, tsk, res))
+	multierr.AppendInto(&err, pe.GenericExecutor.Execute(execCtx, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err

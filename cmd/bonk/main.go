@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/plugin"
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
@@ -31,13 +30,10 @@ var rootCmd = &cobra.Command{
 	Short: "A cue-based configuration build system.",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		bem := executor.NewExecutorManager("")
-		defer bem.Shutdown()
-
-		pum := plugin.NewPluginManager(&bem)
+		pum := plugin.NewPluginClientManager()
 		defer pum.Shutdown()
 
-		sched := scheduler.NewScheduler(&bem, concurrency)
+		sched := scheduler.NewScheduler(pum, concurrency)
 
 		err := pum.StartPlugins(cmd.Context(),
 			"go.bonk.build/plugins/test",
@@ -49,8 +45,8 @@ var rootCmd = &cobra.Command{
 		cwd, _ := os.Getwd()
 		session := task.NewLocalSession(path.Join(cwd, "testdata"))
 
-		err = bem.OpenSession(cmd.Context(), session)
-		defer bem.CloseSession(cmd.Context(), session.ID())
+		err = pum.OpenSession(cmd.Context(), session)
+		defer pum.CloseSession(cmd.Context(), session.ID())
 		cobra.CheckErr(err)
 
 		cobra.CheckErr(multierr.Combine(
