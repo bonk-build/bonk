@@ -173,16 +173,19 @@ func getTaskLoggingContext(
 
 type LogStreamingServer struct {
 	goplugin.NetRPCUnsupportedPlugin
-	goplugin.GRPCPlugin
+
+	bonkv0.UnimplementedLogStreamingServiceServer
 }
 
+var _ goplugin.GRPCPlugin = (*LogStreamingServer)(nil)
+
 func (p *LogStreamingServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
-	bonkv0.RegisterLogStreamingServiceServer(s, &logStreamingGRPCServer{})
+	bonkv0.RegisterLogStreamingServiceServer(s, p)
 
 	return nil
 }
 
-func (p *LogStreamingServer) GRPCClient(
+func (*LogStreamingServer) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
 	c *grpc.ClientConn,
@@ -190,11 +193,7 @@ func (p *LogStreamingServer) GRPCClient(
 	return bonkv0.NewLogStreamingServiceClient(c), nil
 }
 
-type logStreamingGRPCServer struct {
-	bonkv0.UnimplementedLogStreamingServiceServer
-}
-
-func (s *logStreamingGRPCServer) StreamLogs(
+func (*LogStreamingServer) StreamLogs(
 	req *bonkv0.StreamLogsRequest,
 	res grpc.ServerStreamingServer[bonkv0.StreamLogsResponse],
 ) error {
