@@ -43,7 +43,7 @@ func (p *Plugin) Serve() {
 	const defaultPluginMapSize = 2
 	pluginMap := make(map[string]goplugin.Plugin, defaultPluginMapSize)
 
-	pluginMap["executor"] = &executorServer{
+	pluginMap["executor"] = &ExecutorServer{
 		GenericExecutor: &p.ExecutorManager,
 	}
 

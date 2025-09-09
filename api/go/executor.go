@@ -18,17 +18,17 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-type executorServer struct {
+type ExecutorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
 	task.GenericExecutor
 }
 
 var (
-	_ task.GenericExecutor = (*executorServer)(nil)
-	_ goplugin.GRPCPlugin  = (*executorServer)(nil)
+	_ task.GenericExecutor = (*ExecutorServer)(nil)
+	_ goplugin.GRPCPlugin  = (*ExecutorServer)(nil)
 )
 
-func (p *executorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
+func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	bonkv0.RegisterExecutorServiceServer(server, executor.NewGRPCServer(
 		p.Name(),
 		p,
@@ -37,7 +37,7 @@ func (p *executorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server)
 	return nil
 }
 
-func (*executorServer) GRPCClient(
+func (*ExecutorServer) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
 	c *grpc.ClientConn,
@@ -46,7 +46,7 @@ func (*executorServer) GRPCClient(
 }
 
 // Override Execute to add some special details to the context.
-func (p *executorServer) Execute(
+func (p *ExecutorServer) Execute(
 	ctx context.Context,
 	tsk *task.GenericTask,
 	res *task.Result,

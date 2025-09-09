@@ -8,8 +8,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/require"
+
+	goplugin "github.com/hashicorp/go-plugin"
 
 	bonk "go.bonk.build/api/go"
+	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
@@ -17,45 +21,35 @@ import (
 //go:generate go tool mockgen -destination task_mock.go -package test -copyright_file ../license-header.txt -typed ../pkg/task Executor
 
 // Call like you'd call Serve() but at the top of your test function.
-func ServeTest(t *testing.T, plugin *bonk.Plugin) task.GenericExecutor {
+func ServeTest(t *testing.T, pluginServer *bonk.Plugin) task.GenericExecutor {
 	t.Helper()
 
-	// client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
-	// 	"executor": &bonk.ExecutorServer{
-	// 		Cuectx:    cuecontext.New(),
-	// 		Executors: &plugin.ExecutorManager,
-	// 	},
-	// })
+	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
+		"executor": &bonk.ExecutorServer{
+			GenericExecutor: &pluginServer.ExecutorManager,
+		},
+	})
 
-	// raw, err := client.Dispense("executor")
-	// if err != nil {
-	// 	t.Fatal("failed to dispense plugin:", err)
-	// }
+	executorPlugin, err := client.Dispense("executor")
+	require.NoError(t, err)
 
-	// bonkClient, ok := raw.(bonkv0.ExecutorServiceClient)
-	// if !ok {
-	// 	t.Fatal("plugin dispensed is of the wrong type")
-	// }
+	executorClient, ok := executorPlugin.(bonkv0.ExecutorServiceClient)
+	require.Truef(
+		t,
+		ok,
+		"plugin reports supporting executors but client returned was of the wrong type",
+	)
 
-	executorManager := executor.NewExecutorManager(plugin.Name())
+	pluginClient := executor.NewGRPCClient(pluginServer.Name(), executorClient)
 
-	err := executorManager.RegisterExecutors(&plugin.ExecutorManager)
-	if err != nil {
-		t.Fatal("failed to register executor:", plugin.Name())
-	}
+	t.Cleanup(func() {
+		// Close the GRPC infrastructure
+		require.NoError(t, client.Close())
+		server.Stop()
+	})
 
-	// plugin.ForEachExecutor(func(name string, _ executor.Executor) {
-	// 	err = executorManager.RegisterExecutor(name, executor.NewRPC(name, bonkClient))
-	// 	if err != nil {
-	// 		t.Fatal("failed to register executor:", name)
-	// 	}
-	// })
-
-	// t.Cleanup(func() {
-	// 	// Close the GRPC infrastructure
-	// 	require.NoError(t, client.Close())
-	// 	server.Stop()
-	// })
+	executorManager := executor.NewExecutorManager(pluginClient.Name())
+	require.NoError(t, executorManager.RegisterExecutors(pluginClient))
 
 	return &executorManager
 }
