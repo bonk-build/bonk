@@ -1,0 +1,14 @@
+# Copyright © 2025 Colden Cullen
+# SPDX-License-Identifier: MIT
+
+codecov:
+  branch: main
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+
+ignore:
+- test
