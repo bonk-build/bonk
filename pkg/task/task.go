@@ -67,7 +67,7 @@ func New[Params any](
 // Executor is the interface required to execute tasks.
 type Executor[Params any] interface {
 	Name() string
-	Execute(ctx context.Context, tsk Task[Params], result *Result) error
+	Execute(ctx context.Context, tsk *Task[Params], result *Result) error
 }
 
 type GenericExecutor = Executor[any]

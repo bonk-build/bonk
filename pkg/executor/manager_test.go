@@ -63,7 +63,7 @@ func Test_Call(t *testing.T) {
 	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), task.GenericTask{
+	err = manager.Execute(t.Context(), &task.GenericTask{
 		ID: task.TaskId{
 			Executor: execName,
 		},

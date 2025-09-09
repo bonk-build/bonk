@@ -29,7 +29,7 @@ func (Executor_Resources) Name() string {
 
 func (Executor_Resources) Execute(
 	ctx context.Context,
-	task bonk.Task[Params],
+	task *bonk.Task[Params],
 	res *bonk.Result,
 ) error {
 	if len(task.Inputs) > 0 {

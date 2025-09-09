@@ -49,7 +49,7 @@ func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
 		slog.Debug("state mismatch, running task", "mismatches", mismatches)
 
 		var result task.Result
-		err := s.executorManager.Execute(context.Background(), *tsk, &result)
+		err := s.executorManager.Execute(context.Background(), tsk, &result)
 		if err != nil {
 			slog.Error(
 				"error executing task",

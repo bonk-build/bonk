@@ -86,7 +86,7 @@ func Test_Args(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	err = client.Execute(t.Context(), *task.New(
+	err = client.Execute(t.Context(), task.New(
 		session,
 		"test.task",
 		"test.exec",

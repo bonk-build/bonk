@@ -135,17 +135,16 @@ func (bm *ExecutorManager) CloseSession(ctx context.Context, sessionId task.Sess
 
 func (bm *ExecutorManager) Execute(
 	ctx context.Context,
-	tsk task.GenericTask,
+	tsk *task.GenericTask,
 	result *task.Result,
 ) error {
 	before, after, _ := strings.Cut(tsk.ID.Executor, ExecPathSep)
 	child, ok := bm.children[before]
 
 	if ok {
-		copyForChild := tsk
-		copyForChild.ID.Executor = after
+		tsk.ID.Executor = after
 
-		return child.Execute(ctx, copyForChild, result) //nolint:wrapcheck
+		return child.Execute(ctx, tsk, result) //nolint:wrapcheck
 	} else {
 		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.ID.Executor)
 	}

@@ -31,7 +31,7 @@ func (Executor_Kustomize) Name() string {
 
 func (Executor_Kustomize) Execute(
 	ctx context.Context,
-	task bonk.Task[Params],
+	task *bonk.Task[Params],
 	res *bonk.Result,
 ) error {
 	// Apply resources and any needed fixes
