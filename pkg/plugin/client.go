@@ -9,14 +9,17 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os/exec"
+	"path"
 	"reflect"
 
-	"go.uber.org/multierr"
+	"github.com/ValerySidorin/shclog"
 
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/task"
 )
 
 var Handshake = goplugin.HandshakeConfig{
@@ -25,71 +28,79 @@ var Handshake = goplugin.HandshakeConfig{
 	MagicCookieValue: "bonk the builder",
 }
 
-type Plugin struct {
-	name           string
-	pluginClient   *goplugin.Client
-	executorClient bonkv0.ExecutorServiceClient
+type PluginClient struct {
+	task.GenericExecutor
+
+	pluginClient *goplugin.Client
 }
 
-func (plugin *Plugin) Configure(
-	ctx context.Context,
-	client *goplugin.Client,
-	execRegistrar ExecutorRegistrar,
-) error {
-	var err error
+var _ task.GenericExecutor = (*PluginClient)(nil)
 
-	plugin.pluginClient = client
+func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, error) {
+	client := goplugin.NewClient(&goplugin.ClientConfig{
+		HandshakeConfig: Handshake,
+		Plugins: map[string]goplugin.Plugin{
+			"executor":      &executorPlugin{},
+			"log_streaming": &logStreamingPluginClient{},
+		},
+		Cmd: exec.CommandContext(ctx, "go", "run", goCmdPath),
+		AllowedProtocols: []goplugin.Protocol{
+			goplugin.ProtocolGRPC,
+		},
+		Logger: shclog.New(slog.Default()),
+	})
+
+	plug := &PluginClient{
+		pluginClient: client,
+	}
 
 	rpcClient, err := client.Client()
 	if err != nil {
-		return fmt.Errorf("failed to create client: %w", err)
+		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
-	multierr.AppendInto(&err, plugin.handleFeatureExecutor(rpcClient, execRegistrar))
-	multierr.AppendInto(&err, plugin.handleFeatureLogStreaming(ctx, rpcClient))
-
+	pluginName := path.Base(goCmdPath)
+	plug.handleFeatureExecutor(pluginName, rpcClient)
+	err = plug.handleFeatureLogStreaming(ctx, pluginName, rpcClient)
 	if err != nil {
-		return fmt.Errorf("failed to initialize plugin: %w", err)
+		return nil, fmt.Errorf("failed to initialize plugin: %w", err)
 	}
 
-	return nil
+	return plug, nil
 }
 
-func (plugin *Plugin) handleFeatureExecutor(
+func (plugin *PluginClient) Shutdown() {
+	plugin.pluginClient.Kill()
+}
+
+func (plugin *PluginClient) handleFeatureExecutor(
+	pluginName string,
 	client goplugin.ClientProtocol,
-	execRegistrar ExecutorRegistrar,
-) error {
+) {
 	executorPlugin, err := client.Dispense("executor")
 	if err != nil {
 		panic(fmt.Errorf("failed to dispense executor plugin: %w", err))
 	}
 
-	var ok bool
-	plugin.executorClient, ok = executorPlugin.(bonkv0.ExecutorServiceClient)
+	executorClient, ok := executorPlugin.(bonkv0.ExecutorServiceClient)
 	if !ok {
 		panic(fmt.Errorf(
 			"plugin %s reports supporting executors but client returned was of the wrong type",
-			plugin.name,
+			pluginName,
 		))
 	}
 
-	err = execRegistrar.RegisterExecutors(
-		executor.NewGRPCClient(plugin.name, plugin.executorClient),
-	)
-	if err != nil {
-		return fmt.Errorf("failed to register plugin %s executors: %w", plugin.name, err)
-	}
-
-	return nil
+	plugin.GenericExecutor = executor.NewGRPCClient(pluginName, executorClient)
 }
 
-func (plugin *Plugin) handleFeatureLogStreaming(
+func (plugin *PluginClient) handleFeatureLogStreaming(
 	ctx context.Context,
+	pluginName string,
 	client goplugin.ClientProtocol,
 ) error {
 	logStreamingPlugin, err := client.Dispense("log_streaming")
 	if err != nil {
-		slog.DebugContext(ctx, "plugin does not support log streaming, skipping", "plugin", plugin.name)
+		slog.DebugContext(ctx, "plugin does not support log streaming, skipping", "plugin", pluginName)
 
 		return nil //nolint: nilerr
 	}
@@ -99,7 +110,7 @@ func (plugin *Plugin) handleFeatureLogStreaming(
 		panic(
 			fmt.Sprintf(
 				"plugin %s reports supporting log streaming but client returned was of the wrong type: %s",
-				plugin.name,
+				pluginName,
 				reflect.TypeOf(logStreamingPlugin),
 			),
 		)
@@ -149,7 +160,7 @@ func (plugin *Plugin) handleFeatureLogStreaming(
 				})
 			}
 
-			slogHandler := slog.Default().With("plugin", plugin.name).Handler()
+			slogHandler := slog.Default().With("plugin", pluginName).Handler()
 			if slogHandler.Enabled(recvCtx, record.Level) {
 				err = slogHandler.Handle(recvCtx, record)
 				if err != nil {

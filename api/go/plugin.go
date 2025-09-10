@@ -43,11 +43,8 @@ func (p *Plugin) Serve() {
 	const defaultPluginMapSize = 2
 	pluginMap := make(map[string]goplugin.Plugin, defaultPluginMapSize)
 
-	if p.GetNumExecutors() != 0 {
-		pluginMap["executor"] = &executorServer{
-			Name:      p.Name(),
-			Executors: &p.ExecutorManager,
-		}
+	pluginMap["executor"] = &ExecutorServer{
+		GenericExecutor: &p.ExecutorManager,
 	}
 
 	if p.EnableLogStreaming {

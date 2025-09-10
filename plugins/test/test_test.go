@@ -6,6 +6,8 @@ package main
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"go.bonk.build/pkg/task"
 	"go.bonk.build/test"
 )
@@ -16,15 +18,16 @@ func Test_Plugin(t *testing.T) {
 	executors := test.ServeTest(t, Plugin)
 	session := test.NewTestSession()
 
+	require.NoError(t, executors.OpenSession(t.Context(), session))
+
 	var result task.Result
-	err := executors.Execute(
+	require.NoError(t, executors.Execute(
 		t.Context(),
 		task.New[any](session, "test.Test", "testing", Params{
 			Value: 2,
 		}),
 		&result,
-	)
-	if err != nil {
-		t.Fatal("failed call to PerformTask:", err)
-	}
+	))
+
+	executors.CloseSession(t.Context(), session.ID())
 }

@@ -18,26 +18,26 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-type executorServer struct {
+type ExecutorServer struct {
 	goplugin.NetRPCUnsupportedPlugin
-	goplugin.GRPCPlugin
-
-	Name      string
-	Executors *executor.ExecutorManager
+	task.GenericExecutor
 }
 
-func (p *executorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
+var (
+	_ task.GenericExecutor = (*ExecutorServer)(nil)
+	_ goplugin.GRPCPlugin  = (*ExecutorServer)(nil)
+)
+
+func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	bonkv0.RegisterExecutorServiceServer(server, executor.NewGRPCServer(
-		p.Name,
-		pluginExecutor{
-			ExecutorManager: p.Executors,
-		},
+		p.Name(),
+		p,
 	))
 
 	return nil
 }
 
-func (p *executorServer) GRPCClient(
+func (*ExecutorServer) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
 	c *grpc.ClientConn,
@@ -45,14 +45,8 @@ func (p *executorServer) GRPCClient(
 	return bonkv0.NewExecutorServiceClient(c), nil
 }
 
-type pluginExecutor struct {
-	*executor.ExecutorManager
-}
-
-var _ task.GenericExecutor = pluginExecutor{}
-
 // Override Execute to add some special details to the context.
-func (pe pluginExecutor) Execute(
+func (p *ExecutorServer) Execute(
 	ctx context.Context,
 	tsk *task.GenericTask,
 	res *task.Result,
@@ -65,7 +59,7 @@ func (pe pluginExecutor) Execute(
 	// Append executor information
 	execCtx = slogctx.Append(execCtx, "executor", tsk.ID.Executor)
 
-	multierr.AppendInto(&err, pe.ExecutorManager.Execute(execCtx, tsk, res))
+	multierr.AppendInto(&err, p.GenericExecutor.Execute(execCtx, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err
