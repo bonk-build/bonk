@@ -53,6 +53,11 @@ func Test_Call(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 	var result task.Result
+	tsk := task.GenericTask{
+		ID: task.TaskId{
+			Executor: execName,
+		},
+	}
 
 	exec := test.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
@@ -63,12 +68,9 @@ func Test_Call(t *testing.T) {
 	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), &task.GenericTask{
-		ID: task.TaskId{
-			Executor: execName,
-		},
-	}, &result)
+	err = manager.Execute(t.Context(), &tsk, &result)
 	require.NoError(t, err)
+	require.Equal(t, execName, tsk.ID.Executor)
 }
 
 func Test_Remove(t *testing.T) {
