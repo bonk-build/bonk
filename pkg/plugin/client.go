@@ -28,20 +28,24 @@ var Handshake = goplugin.HandshakeConfig{
 type PluginClient struct {
 	task.GenericExecutor
 
-	pluginClient *goplugin.Client
+	pluginClient       *goplugin.Client
+	cancelLogStreaming context.CancelFunc
 }
 
 var _ task.GenericExecutor = (*PluginClient)(nil)
 
 func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, error) {
+	pluginName := path.Base(goCmdPath)
+
 	client := goplugin.NewClient(&goplugin.ClientConfig{
 		HandshakeConfig: Handshake,
-		Plugins: map[string]goplugin.Plugin{
-			"log_streaming": &logStreamingPluginClient{},
-		},
-		Cmd: exec.CommandContext(ctx, "go", "run", goCmdPath),
+		Cmd:             exec.CommandContext(ctx, "go", "run", goCmdPath),
 		AllowedProtocols: []goplugin.Protocol{
 			goplugin.ProtocolGRPC,
+		},
+		// Necessary for it to not abort immediately
+		VersionedPlugins: map[int]goplugin.PluginSet{
+			int(Handshake.ProtocolVersion): {}, //nolint:gosec
 		},
 		Logger: shclog.New(slog.Default()),
 	})
@@ -60,12 +64,10 @@ func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, erro
 		panic(errors.New("rpcclient is of the wrong type"))
 	}
 
-	pluginName := path.Base(goCmdPath)
 	plug.GenericExecutor = executor.NewGRPCClient(pluginName, grpcClient.Conn)
-	err = plug.handleFeatureLogStreaming(ctx, pluginName, rpcClient)
-	if err != nil {
-		slog.DebugContext(ctx, "plugin does not support log streaming, skipping", "plugin", pluginName)
-	}
+
+	ctx, plug.cancelLogStreaming = context.WithCancel(ctx)
+	go handleLogStreaming(ctx, grpcClient.Conn, pluginName)
 
 	return plug, nil
 }
