@@ -133,13 +133,16 @@ func (bm *ExecutorManager) Execute(
 	tsk *task.GenericTask,
 	result *task.Result,
 ) error {
-	before, after, _ := strings.Cut(tsk.ID.Executor, ExecPathSep)
+	exec := tsk.ID.Executor
+	before, after, _ := strings.Cut(exec, ExecPathSep)
 	child, ok := bm.children[before]
 
 	if ok {
 		tsk.ID.Executor = after
+		err := child.Execute(ctx, tsk, result)
+		tsk.ID.Executor = exec
 
-		return child.Execute(ctx, tsk, result) //nolint:wrapcheck
+		return err //nolint:wrapcheck
 	} else {
 		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.ID.Executor)
 	}
