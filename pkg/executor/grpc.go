@@ -11,6 +11,8 @@ import (
 
 	"go.uber.org/multierr"
 
+	"google.golang.org/grpc"
+
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
 
@@ -21,11 +23,11 @@ import (
 // Creates an executor that forwards task invocations across a GRPC connection.
 func NewGRPCClient(
 	name string,
-	client bonkv0.ExecutorServiceClient,
+	conn *grpc.ClientConn,
 ) task.GenericExecutor {
 	return &grpcClient{
 		name:   name,
-		client: client,
+		client: bonkv0.NewExecutorServiceClient(conn),
 	}
 }
 
@@ -72,7 +74,7 @@ func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId
 			ctx,
 			"error returned when closing session",
 			"plugin",
-			pb.name,
+			pb.Name(),
 			"session",
 			sessionId.String(),
 		)

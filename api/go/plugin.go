@@ -18,16 +18,13 @@ import (
 
 type Plugin struct {
 	executor.ExecutorManager
-
-	EnableLogStreaming bool
 }
 
 var _ task.GenericExecutor = (*Plugin)(nil)
 
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 	plugin := &Plugin{
-		ExecutorManager:    executor.NewExecutorManager(name),
-		EnableLogStreaming: true,
+		ExecutorManager: executor.NewExecutorManager(name),
 	}
 
 	err := initializer(plugin)
@@ -40,21 +37,15 @@ func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 
 // Call from main() to start the plugin gRPC server.
 func (p *Plugin) Serve() {
-	const defaultPluginMapSize = 2
-	pluginMap := make(map[string]goplugin.Plugin, defaultPluginMapSize)
-
-	pluginMap["executor"] = &ExecutorServer{
-		GenericExecutor: &p.ExecutorManager,
-	}
-
-	if p.EnableLogStreaming {
-		pluginMap["log_streaming"] = &LogStreamingServer{}
-	}
-
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: plugin.Handshake,
-		Plugins:         pluginMap,
-		GRPCServer:      goplugin.DefaultGRPCServer,
-		Logger:          shclog.New(slog.Default()),
+		Plugins: map[string]goplugin.Plugin{
+			"executor": &ExecutorServer{
+				GenericExecutor: &p.ExecutorManager,
+			},
+			"log_streaming": &LogStreamingServer{},
+		},
+		GRPCServer: goplugin.DefaultGRPCServer,
+		Logger:     shclog.New(slog.Default()),
 	})
 }
