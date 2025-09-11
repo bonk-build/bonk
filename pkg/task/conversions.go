@@ -14,11 +14,10 @@ import (
 // Box converts a task with typed arguments to a task with generic arguments.
 func (t *Task[Params]) Box() *GenericTask {
 	return &GenericTask{
-		ID:       t.ID,
-		Session:  t.Session,
-		Inputs:   t.Inputs,
-		Args:     t.Args,
-		OutputFs: t.OutputFs,
+		ID:      t.ID,
+		Session: t.Session,
+		Inputs:  t.Inputs,
+		Args:    t.Args,
 	}
 }
 
@@ -28,10 +27,9 @@ func Unbox[Params any](tsk *GenericTask) (*Task[Params], error) {
 	argsT := reflect.TypeOf(tsk.Args)
 
 	result := &Task[Params]{
-		ID:       tsk.ID,
-		Session:  tsk.Session,
-		Inputs:   tsk.Inputs,
-		OutputFs: tsk.OutputFs,
+		ID:      tsk.ID,
+		Session: tsk.Session,
+		Inputs:  tsk.Inputs,
 	}
 
 	var convSuccess bool

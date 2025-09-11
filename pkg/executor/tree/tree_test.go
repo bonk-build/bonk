@@ -12,7 +12,6 @@ import (
 
 	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
-	"go.bonk.build/test"
 )
 
 var mock *gomock.Controller
@@ -28,7 +27,7 @@ func Test_Add(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := test.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 
 	manager := tree.NewExecutorManager("")
@@ -59,7 +58,7 @@ func Test_Call(t *testing.T) {
 		},
 	}
 
-	exec := test.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
 
@@ -78,7 +77,7 @@ func Test_Remove(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := test.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 	manager := tree.NewExecutorManager("")
 
@@ -108,7 +107,7 @@ func Test_Add_Overlap(t *testing.T) {
 	manager := tree.NewExecutorManager("")
 
 	for _, execName := range execNames {
-		exec := test.NewMockExecutor[any](mock)
+		exec := task.NewMockExecutor[any](mock)
 		exec.EXPECT().Name().Return(execName)
 
 		err := manager.RegisterExecutors(exec)

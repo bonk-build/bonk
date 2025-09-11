@@ -5,7 +5,6 @@ package task // import "go.bonk.build/pkg/task"
 
 import (
 	"fmt"
-	"path"
 
 	"github.com/spf13/afero"
 )
@@ -26,18 +25,12 @@ func (id *TaskId) GetChild(name, executor string) TaskId {
 	}
 }
 
-func (id *TaskId) GetOutDirectory() string {
-	return path.Join(".bonk", id.Name)
-}
-
 type Task[Params any] struct {
 	ID      TaskId  `json:"id"`
 	Session Session `json:"-"`
 
 	Inputs []string `json:"inputs,omitempty"`
 	Args   Params   `json:"args"`
-
-	OutputFs afero.Fs `json:"-"`
 }
 
 type GenericTask = Task[any]
@@ -58,7 +51,9 @@ func New[Params any](
 		Session: session,
 		Inputs:  inputs,
 		Args:    args,
-
-		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
 	}
+}
+
+func (tsk *Task[Params]) OutputFS() afero.Fs {
+	return afero.NewBasePathFs(tsk.Session.OutputFS(), tsk.ID.Name)
 }

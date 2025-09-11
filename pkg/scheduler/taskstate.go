@@ -33,12 +33,12 @@ type state struct {
 }
 
 func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
-	err := task.OutputFs.MkdirAll("", 0o750)
+	err := task.OutputFS().MkdirAll("", 0o750)
 	if err != nil {
 		return fmt.Errorf("failed to create task directory: %w", err)
 	}
 
-	file, err := task.OutputFs.Create(StateFile)
+	file, err := task.OutputFS().Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
 	}
@@ -60,14 +60,14 @@ func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
 	hasher.Reset()
 
 	// Hash the input files
-	state.InputsChecksum, err = hashFiles(hasher, task.Session.FS(), task.Inputs)
+	state.InputsChecksum, err = hashFiles(hasher, task.Session.SourceFS(), task.Inputs)
 	if err != nil {
 		return err
 	}
 	hasher.Reset()
 
 	// Hash the output files
-	state.OutputChecksum, err = hashFiles(hasher, task.OutputFs, result.Outputs)
+	state.OutputChecksum, err = hashFiles(hasher, task.OutputFS(), result.Outputs)
 	if err != nil {
 		return err
 	}
@@ -87,7 +87,7 @@ func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
 }
 
 func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
-	file, err := task.OutputFs.Open(StateFile)
+	file, err := task.OutputFS().Open(StateFile)
 	if err != nil {
 		return []string{"<state missing>"}
 	}
@@ -117,13 +117,13 @@ func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
 	if !reflect.DeepEqual(task.Inputs, state.Inputs) {
 		mismatches = append(mismatches, "inputs")
 	}
-	inputsChecksum, err := hashFiles(hasher, task.Session.FS(), task.Inputs)
+	inputsChecksum, err := hashFiles(hasher, task.Session.SourceFS(), task.Inputs)
 	if err != nil || inputsChecksum != state.InputsChecksum {
 		mismatches = append(mismatches, "inputs-checksum")
 	}
 	hasher.Reset()
 
-	outputChecksum, err := hashFiles(hasher, task.OutputFs, state.Result.Outputs)
+	outputChecksum, err := hashFiles(hasher, task.OutputFS(), state.Result.Outputs)
 	if err != nil {
 		mismatches = append(mismatches, "!output-checksum-failed!")
 	} else if outputChecksum != state.OutputChecksum {

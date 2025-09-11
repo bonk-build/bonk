@@ -9,14 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/task"
-	"go.bonk.build/test"
 )
 
 func Test_Plugin(t *testing.T) {
 	t.Parallel()
 
-	executors := test.ServeTest(t, Plugin)
-	session := test.NewTestSession()
+	executors := Plugin.ServeTest(t)
+	session := task.NewTestSession()
 
 	require.NoError(t, executors.OpenSession(t.Context(), session))
 

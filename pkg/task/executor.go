@@ -5,6 +5,8 @@ package task
 
 import "context"
 
+//go:generate go tool mockgen -destination executor_mock.go -package task -copyright_file ../../license-header.txt -typed . Executor
+
 // Executor is the interface required to execute tasks.
 type Executor[Params any] interface {
 	Name() string

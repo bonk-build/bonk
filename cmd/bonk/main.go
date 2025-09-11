@@ -43,7 +43,7 @@ var rootCmd = &cobra.Command{
 		cobra.CheckErr(err)
 
 		cwd, _ := os.Getwd()
-		session := task.NewLocalSession(path.Join(cwd, "testdata"))
+		session := task.NewLocalSession(task.NewSessionId(), path.Join(cwd, "testdata"))
 
 		err = pum.OpenSession(cmd.Context(), session)
 		defer pum.CloseSession(cmd.Context(), session.ID())

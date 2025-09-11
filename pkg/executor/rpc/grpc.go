@@ -53,7 +53,7 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 			AbsolutePath: &localPath,
 		}.Build()
 	}
-	if _, ok := session.FS().(*afero.MemMapFs); ok {
+	if _, ok := session.SourceFS().(*afero.MemMapFs); ok {
 		openSessionRequest.Test = bonkv0.OpenSessionRequest_WorkspaceDescriptionTest_builder{}.Build()
 	}
 	_, err := pb.client.OpenSession(ctx, openSessionRequest.Build())
@@ -127,7 +127,7 @@ type grpcServer struct {
 	name     string
 	executor task.GenericExecutor
 
-	sessions map[task.SessionId]task.DefaultSession
+	sessions map[task.SessionId]task.Session
 }
 
 var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
@@ -140,7 +140,7 @@ func NewGRPCServer(
 	return &grpcServer{
 		name:     name,
 		executor: executor,
-		sessions: make(map[task.SessionId]task.DefaultSession),
+		sessions: make(map[task.SessionId]task.Session),
 	}
 }
 
@@ -151,26 +151,22 @@ func (s *grpcServer) OpenSession(
 	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
 
 	sessionId := uuid.MustParse(req.GetSessionId())
-	var sessionFs afero.Fs
+	var session task.Session
 
 	switch req.WhichWorkspaceDescription() {
 	case bonkv0.OpenSessionRequest_Local_case:
-		sessionFs = afero.NewBasePathFs(afero.NewOsFs(), req.GetLocal().GetAbsolutePath())
+		session = task.NewLocalSession(sessionId, req.GetLocal().GetAbsolutePath())
 
 	case bonkv0.OpenSessionRequest_Test_case:
-		sessionFs = afero.NewMemMapFs()
+		session = task.NewTestSession()
 
 	default:
 		return nil, errors.New("unsupported workspace type")
 	}
 
-	newSession := task.DefaultSession{
-		Id: sessionId,
-		Fs: sessionFs,
-	}
-	s.sessions[sessionId] = newSession
+	s.sessions[sessionId] = session
 
-	err := s.executor.OpenSession(ctx, &newSession)
+	err := s.executor.OpenSession(ctx, session)
 	if err != nil {
 		return nil, err //nolint:wrapcheck
 	}
@@ -210,14 +206,12 @@ func (s *grpcServer) ExecuteTask(
 	}
 	tsk := task.GenericTask{
 		ID:      tskId,
-		Session: &session,
+		Session: session,
 		Inputs:  req.GetInputs(),
 		Args:    req.GetArguments().AsInterface(),
-
-		OutputFs: afero.NewBasePathFs(session.FS(), tskId.GetOutDirectory()),
 	}
 
-	err := tsk.OutputFs.MkdirAll("", 0o750)
+	err := tsk.OutputFS().MkdirAll("", 0o750)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create output directory: %w", err)
 	}
