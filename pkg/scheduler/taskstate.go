@@ -26,10 +26,10 @@ type state struct {
 	Inputs   []string     `json:"inputs,omitempty"`
 	Result   *task.Result `json:"result,omitempty"`
 
-	ParamsChecksum   uint64 `json:"paramsChecksum,omitempty"`
-	InputsChecksum   uint64 `json:"inputChecksum,omitempty"`
-	OutputChecksum   uint64 `json:"resultChecksum,omitempty"`
-	FollowupChecksum uint64 `json:"followupChecksum,omitempty"`
+	ArgumentsChecksum uint64 `json:"argumentsChecksum,omitempty"`
+	InputsChecksum    uint64 `json:"inputChecksum,omitempty"`
+	OutputChecksum    uint64 `json:"resultChecksum,omitempty"`
+	FollowupChecksum  uint64 `json:"followupChecksum,omitempty"`
 }
 
 func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
@@ -53,7 +53,7 @@ func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
 	hasher := fnv.New64()
 
 	// Hash the parameters
-	state.ParamsChecksum, err = hashAnyValue(hasher, task.Args)
+	state.ArgumentsChecksum, err = hashAnyValue(hasher, task.Args)
 	if err != nil {
 		return err
 	}
@@ -93,8 +93,8 @@ func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
 	}
 	encoder := json.NewDecoder(file)
 
-	state := &state{}
-	err = encoder.Decode(state)
+	state := state{}
+	err = encoder.Decode(&state)
 	if err != nil {
 		slog.Error("failed to decode json state", "error", err)
 
@@ -108,9 +108,9 @@ func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
 		mismatches = append(mismatches, "executor")
 	}
 
-	paramsChecksum, err := hashAnyValue(hasher, task.Args)
-	if err != nil || paramsChecksum != state.ParamsChecksum {
-		mismatches = append(mismatches, "params-checksum")
+	argsChecksum, err := hashAnyValue(hasher, task.Args)
+	if err != nil || argsChecksum != state.ArgumentsChecksum {
+		mismatches = append(mismatches, "arguments-checksum")
 	}
 	hasher.Reset()
 
@@ -143,6 +143,10 @@ func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
 }
 
 func hashAnyValue(hasher hash.Hash64, params any) (uint64, error) {
+	if params == nil {
+		return 0, nil
+	}
+
 	return hashstructure.Hash(params, &hashstructure.HashOptions{ //nolint:wrapcheck
 		Hasher: hasher,
 	})
