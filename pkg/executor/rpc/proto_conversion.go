@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package executor
+package rpc // import "go.bonk.build/pkg/executor/rpc"
 
 import (
 	"fmt"

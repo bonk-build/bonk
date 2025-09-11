@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package executor_test
+package tree_test
 
 import (
 	"testing"
@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
 	"go.bonk.build/test"
 )
@@ -31,7 +31,7 @@ func Test_Add(t *testing.T) {
 	exec := test.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
 
-	manager := executor.NewExecutorManager("")
+	manager := tree.NewExecutorManager("")
 
 	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
@@ -63,7 +63,7 @@ func Test_Call(t *testing.T) {
 	exec.EXPECT().Name().Return(execName)
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
 
-	manager := executor.NewExecutorManager("")
+	manager := tree.NewExecutorManager("")
 
 	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
@@ -80,7 +80,7 @@ func Test_Remove(t *testing.T) {
 
 	exec := test.NewMockExecutor[any](mock)
 	exec.EXPECT().Name().Return(execName)
-	manager := executor.NewExecutorManager("")
+	manager := tree.NewExecutorManager("")
 
 	err := manager.RegisterExecutors(exec)
 	require.NoError(t, err)
@@ -105,7 +105,7 @@ func Test_Add_Overlap(t *testing.T) {
 		"testing.sibling",
 	}
 
-	manager := executor.NewExecutorManager("")
+	manager := tree.NewExecutorManager("")
 
 	for _, execName := range execNames {
 		exec := test.NewMockExecutor[any](mock)

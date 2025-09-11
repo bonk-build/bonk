@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"go.bonk.build/pkg/plugin"
+	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
 )

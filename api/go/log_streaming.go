@@ -26,7 +26,7 @@ import (
 	slogctx "github.com/veqryn/slog-context"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/rpc"
 )
 
 var (
@@ -64,7 +64,7 @@ func (stream *streamHandler) Handle(ctx context.Context, record slog.Record) err
 	}
 
 	record.Attrs(func(attr slog.Attr) bool {
-		protoValue, err := executor.ToProtoValue(attr.Value.Any())
+		protoValue, err := rpc.ToProtoValue(attr.Value.Any())
 		if err != nil {
 			panic(err)
 		} else {
