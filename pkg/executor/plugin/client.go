@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package plugin
+package plugin // import "go.bonk.build/pkg/executor/plugin"
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 )
 
@@ -64,7 +64,7 @@ func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, erro
 		panic(errors.New("rpcclient is of the wrong type"))
 	}
 
-	plug.GenericExecutor = executor.NewGRPCClient(pluginName, grpcClient.Conn)
+	plug.GenericExecutor = rpc.NewGRPCClient(pluginName, grpcClient.Conn)
 
 	ctx, plug.cancelLogStreaming = context.WithCancel(ctx)
 	go handleLogStreaming(ctx, grpcClient.Conn, pluginName)

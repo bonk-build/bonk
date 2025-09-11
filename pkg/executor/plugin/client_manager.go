@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package plugin // import "go.bonk.build/pkg/plugin"
+package plugin // import "go.bonk.build/pkg/executor/plugin"
 
 import (
 	"context"
@@ -9,19 +9,19 @@ import (
 
 	"go.uber.org/multierr"
 
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
 )
 
 type PluginClientManager struct {
-	executor.ExecutorManager
+	tree.ExecutorManager
 
 	mu sync.Mutex
 }
 
 func NewPluginClientManager() *PluginClientManager {
 	return &PluginClientManager{
-		ExecutorManager: executor.NewExecutorManager(""),
+		ExecutorManager: tree.NewExecutorManager(""),
 	}
 }
 

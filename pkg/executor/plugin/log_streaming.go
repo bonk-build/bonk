@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package plugin
+package plugin // import "go.bonk.build/pkg/executor/plugin"
 
 import (
 	"context"

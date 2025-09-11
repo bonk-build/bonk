@@ -11,20 +11,20 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
-	"go.bonk.build/pkg/executor"
-	"go.bonk.build/pkg/plugin"
+	"go.bonk.build/pkg/executor/plugin"
+	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
 )
 
 type Plugin struct {
-	executor.ExecutorManager
+	tree.ExecutorManager
 }
 
 var _ task.GenericExecutor = (*Plugin)(nil)
 
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 	plugin := &Plugin{
-		ExecutorManager: executor.NewExecutorManager(name),
+		ExecutorManager: tree.NewExecutorManager(name),
 	}
 
 	err := initializer(plugin)

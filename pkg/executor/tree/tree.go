@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package executor // import "go.bonk.build/pkg/executor"
+package tree // import "go.bonk.build/pkg/executor/tree"
 
 import (
 	"context"

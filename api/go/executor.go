@@ -14,7 +14,7 @@ import (
 	slogctx "github.com/veqryn/slog-context"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 )
 
@@ -29,7 +29,7 @@ var (
 )
 
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
-	bonkv0.RegisterExecutorServiceServer(server, executor.NewGRPCServer(
+	bonkv0.RegisterExecutorServiceServer(server, rpc.NewGRPCServer(
 		p.Name(),
 		p,
 	))

@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package executor_test
+package rpc_test
 
 import (
 	"context"
@@ -19,7 +19,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 	"go.bonk.build/test"
 )
@@ -33,7 +33,7 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 
 	lis := bufconn.Listen(1024 * 1024)
 	s := grpc.NewServer()
-	bonkv0.RegisterExecutorServiceServer(s, executor.NewGRPCServer("", exec))
+	bonkv0.RegisterExecutorServiceServer(s, rpc.NewGRPCServer("", exec))
 
 	go func() {
 		err := s.Serve(lis)
@@ -50,7 +50,7 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 	)
 	require.NoError(t, err)
 
-	return executor.NewGRPCClient("test", clientConn)
+	return rpc.NewGRPCClient("test", clientConn)
 }
 
 func Test_TestConnection(t *testing.T) {

@@ -13,7 +13,8 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonk "go.bonk.build/api/go"
-	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/rpc"
+	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
 )
 
@@ -29,7 +30,7 @@ func ServeTest(t *testing.T, pluginServer *bonk.Plugin) task.GenericExecutor {
 		},
 	})
 
-	pluginClient := executor.NewGRPCClient(pluginServer.Name(), client.Conn)
+	pluginClient := rpc.NewGRPCClient(pluginServer.Name(), client.Conn)
 
 	t.Cleanup(func() {
 		// Close the GRPC infrastructure
@@ -37,7 +38,7 @@ func ServeTest(t *testing.T, pluginServer *bonk.Plugin) task.GenericExecutor {
 		server.Stop()
 	})
 
-	executorManager := executor.NewExecutorManager(pluginClient.Name())
+	executorManager := tree.NewExecutorManager(pluginClient.Name())
 	require.NoError(t, executorManager.RegisterExecutors(pluginClient))
 
 	return &executorManager
