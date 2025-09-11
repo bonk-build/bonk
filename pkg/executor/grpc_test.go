@@ -49,9 +49,8 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	require.NoError(t, err)
-	client := bonkv0.NewExecutorServiceClient(clientConn)
 
-	return executor.NewGRPCClient("", client)
+	return executor.NewGRPCClient("test", clientConn)
 }
 
 func Test_TestConnection(t *testing.T) {

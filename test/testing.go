@@ -13,7 +13,6 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	bonk "go.bonk.build/api/go"
-	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
@@ -30,17 +29,7 @@ func ServeTest(t *testing.T, pluginServer *bonk.Plugin) task.GenericExecutor {
 		},
 	})
 
-	executorPlugin, err := client.Dispense("executor")
-	require.NoError(t, err)
-
-	executorClient, ok := executorPlugin.(bonkv0.ExecutorServiceClient)
-	require.Truef(
-		t,
-		ok,
-		"plugin reports supporting executors but client returned was of the wrong type",
-	)
-
-	pluginClient := executor.NewGRPCClient(pluginServer.Name(), executorClient)
+	pluginClient := executor.NewGRPCClient(pluginServer.Name(), client.Conn)
 
 	t.Cleanup(func() {
 		// Close the GRPC infrastructure
