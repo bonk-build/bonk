@@ -51,7 +51,7 @@ func (p *ExecutorServer) Execute(
 	tsk *task.GenericTask,
 	res *task.Result,
 ) error {
-	execCtx, cleanup, err := getTaskLoggingContext(ctx, tsk.OutputFs)
+	execCtx, cleanup, err := getTaskLoggingContext(ctx, tsk.OutputFS())
 	if err != nil {
 		return err
 	}

@@ -21,7 +21,6 @@ import (
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
-	"go.bonk.build/test"
 )
 
 type Args struct {
@@ -57,7 +56,7 @@ func Test_TestConnection(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor[any](mock)
 
 	client := openConnection(t, exec)
 	require.NotNil(t, client)
@@ -67,8 +66,8 @@ func Test_Session(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor[Args](mock)
-	session := test.NewTestSession()
+	exec := task.NewMockExecutor[Args](mock)
+	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
@@ -86,8 +85,8 @@ func Test_Session_Fail(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor[Args](mock)
-	session := test.NewTestSession()
+	exec := task.NewMockExecutor[Args](mock)
+	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
@@ -105,8 +104,8 @@ func Test_Args(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor[Args](mock)
-	session := test.NewTestSession()
+	exec := task.NewMockExecutor[Args](mock)
+	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
@@ -139,8 +138,8 @@ func Test_Followups(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := test.NewMockExecutor[Args](mock)
-	session := test.NewTestSession()
+	exec := task.NewMockExecutor[Args](mock)
+	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
@@ -192,8 +191,6 @@ func Test_Followups(t *testing.T) {
 
 	// Update the name since it gets modified
 	expectedTask.ID.Name = "test.task." + expectedTask.ID.Name
-	// Ignore the fs since it isn't stable
-	unboxed.OutputFs = nil
 
 	require.NoError(t, err)
 	require.EqualExportedValues(t, expectedTask, *unboxed)

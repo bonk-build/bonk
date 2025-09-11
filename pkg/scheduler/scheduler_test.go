@@ -11,16 +11,15 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/task"
-	"go.bonk.build/test"
 )
 
 func Test_SenderIsCalled(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	session := test.NewTestSession()
+	session := task.NewTestSession()
 
-	sender := test.NewMockExecutor[any](mock)
+	sender := task.NewMockExecutor[any](mock)
 	sender.EXPECT().
 		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).

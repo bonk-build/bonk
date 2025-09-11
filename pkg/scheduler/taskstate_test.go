@@ -11,7 +11,6 @@ import (
 
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
-	"go.bonk.build/test"
 )
 
 func makeTestTask(t *testing.T) (task.GenericTask, task.Result) {
@@ -22,10 +21,8 @@ func makeTestTask(t *testing.T) (task.GenericTask, task.Result) {
 			Executor: "test.abc.def",
 			Name:     "Test.Testing",
 		},
-		Session: test.NewTestSession(),
+		Session: task.NewTestSession(),
 		Args:    nil,
-
-		OutputFs: afero.NewMemMapFs(),
 	}
 	result := task.Result{
 		Outputs: []string{
@@ -44,7 +41,7 @@ func TestSaveState(t *testing.T) {
 	err := scheduler.SaveState(&tsk, &result)
 	require.NoError(t, err)
 
-	exists, err := afero.Exists(tsk.OutputFs, scheduler.StateFile)
+	exists, err := afero.Exists(tsk.OutputFS(), scheduler.StateFile)
 	require.NoError(t, err)
 	require.True(t, exists)
 }
@@ -83,7 +80,7 @@ func TestStateMismatches_Inputs(t *testing.T) {
 
 	tsk.Inputs = []string{inputFileName}
 
-	inputFile, err := tsk.Session.FS().Create(inputFileName)
+	inputFile, err := tsk.Session.SourceFS().Create(inputFileName)
 	require.NoError(t, err)
 
 	written, err := inputFile.WriteString(inputFileContents)
@@ -106,7 +103,7 @@ func TestStateMismatches_InputsChecksum(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	tsk.Inputs = []string{inputFileName}
 
-	inputFile, err := tsk.Session.FS().Create(inputFileName)
+	inputFile, err := tsk.Session.SourceFS().Create(inputFileName)
 	require.NoError(t, err)
 
 	written, err := inputFile.WriteString(inputFileContents1)

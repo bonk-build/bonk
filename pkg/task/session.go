@@ -11,12 +11,18 @@ import (
 // SessionId is a unique identifier per-session.
 type SessionId = uuid.UUID
 
+func NewSessionId() SessionId {
+	return uuid.Must(uuid.NewV7())
+}
+
 // A session defines a context in which tasks are invoked.
 type Session interface {
 	// ID() returns a unique identifier per-session.
 	ID() SessionId
-	// FS() returns a filesystem describing the root of the project consumed by the session.
-	FS() afero.Fs
+	// SourceFS() returns a filesystem describing the root of the project consumed by the session.
+	SourceFS() afero.Fs
+	// OutputFS() returns a filesystem where output files may be written.
+	OutputFS() afero.Fs
 }
 
 // LocalSession is a session that is being executed on the local machine.
@@ -29,13 +35,9 @@ type LocalSession interface {
 
 // DefaultSession is a default implementation of Session that stores its parameters in members.
 type DefaultSession struct {
-	Id SessionId
-	Fs afero.Fs
-}
-
-type localSession struct {
-	id        SessionId
-	localPath string
+	Id       SessionId
+	SourceFs afero.Fs
+	OutputFs afero.Fs
 }
 
 var (
@@ -47,14 +49,32 @@ func (ds *DefaultSession) ID() SessionId {
 	return ds.Id
 }
 
-func (ds *DefaultSession) FS() afero.Fs {
-	return ds.Fs
+func (ds *DefaultSession) SourceFS() afero.Fs {
+	return ds.SourceFs
 }
 
-func NewLocalSession(localPath string) LocalSession {
+// OutputFS implements Session.
+func (ds *DefaultSession) OutputFS() afero.Fs {
+	return ds.OutputFs
+}
+
+type localSession struct {
+	id        SessionId
+	localPath string
+
+	sourceFs afero.Fs
+	outputFs afero.Fs
+}
+
+func NewLocalSession(id SessionId, localPath string) LocalSession {
+	sessionRoot := afero.NewBasePathFs(afero.NewOsFs(), localPath)
+
 	return &localSession{
-		id:        uuid.Must(uuid.NewV7()),
+		id:        id,
 		localPath: localPath,
+
+		sourceFs: afero.NewReadOnlyFs(sessionRoot),
+		outputFs: afero.NewBasePathFs(sessionRoot, ".bonk"),
 	}
 }
 
@@ -62,8 +82,12 @@ func (ls *localSession) ID() SessionId {
 	return ls.id
 }
 
-func (ls *localSession) FS() afero.Fs {
-	return afero.NewBasePathFs(afero.NewOsFs(), ls.localPath)
+func (ls *localSession) SourceFS() afero.Fs {
+	return ls.sourceFs
+}
+
+func (ls *localSession) OutputFS() afero.Fs {
+	return ls.outputFs
 }
 
 func (ls *localSession) LocalPath() string {

@@ -38,7 +38,7 @@ func (Executor_Resources) Execute(
 		return errors.New("resources task does not accept inputs")
 	}
 
-	file, err := task.OutputFs.Create(output)
+	file, err := task.OutputFS().Create(output)
 	if err != nil {
 		return fmt.Errorf("failed to create resources yaml: %w", err)
 	}
