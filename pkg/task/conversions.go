@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"cuelang.org/go/cuego"
+
 	"github.com/go-viper/mapstructure/v2"
 )
 
@@ -37,7 +39,7 @@ func Unbox[Params any](tsk *GenericTask) (*Task[Params], error) {
 	case paramsT.Kind():
 		result.Args, convSuccess = tsk.Args.(Params)
 		if !convSuccess {
-			return nil, fmt.Errorf("failed to convert params from %s to %s", paramsT, argsT)
+			return nil, fmt.Errorf("failed to convert params from %s to %s", argsT, paramsT)
 		}
 
 	case reflect.Map:
@@ -50,8 +52,14 @@ func Unbox[Params any](tsk *GenericTask) (*Task[Params], error) {
 	default:
 		result.Args, convSuccess = tsk.Args.(Params)
 		if !convSuccess {
-			return nil, fmt.Errorf("failed to convert params from %s to %s", paramsT, argsT)
+			return nil, fmt.Errorf("failed to convert params from %s to %s", argsT, paramsT)
 		}
+	}
+
+	// Use cuego to complete / validate the type
+	err := cuego.Complete(&result.Args)
+	if err != nil {
+		return nil, err //nolint:wrapcheck // Want to expose cue errors to those who many want them
 	}
 
 	return result, nil
