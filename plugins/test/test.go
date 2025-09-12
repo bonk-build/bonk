@@ -19,10 +19,6 @@ type Executor_Test struct {
 	bonk.NoopSessionManager
 }
 
-func (Executor_Test) Name() string {
-	return "Test"
-}
-
 func (Executor_Test) Execute(
 	ctx context.Context,
 	task *bonk.Task[Params],
@@ -34,9 +30,7 @@ func (Executor_Test) Execute(
 }
 
 var Plugin = bonk.NewPlugin("test", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutors(
-		bonk.BoxExecutor(Executor_Test{}),
-	)
+	err := plugin.RegisterExecutor("Test", bonk.BoxExecutor(Executor_Test{}))
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}

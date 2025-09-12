@@ -5,6 +5,7 @@ package plugin // import "go.bonk.build/pkg/executor/plugin"
 
 import (
 	"context"
+	"path"
 	"sync"
 
 	"go.uber.org/multierr"
@@ -21,7 +22,7 @@ type PluginClientManager struct {
 
 func NewPluginClientManager() *PluginClientManager {
 	return &PluginClientManager{
-		ExecutorManager: tree.NewExecutorManager(""),
+		ExecutorManager: tree.NewExecutorManager(),
 	}
 }
 
@@ -31,8 +32,10 @@ func (pm *PluginClientManager) StartPlugin(ctx context.Context, pluginPath strin
 		return err
 	}
 
+	pluginName := path.Base(pluginPath)
+
 	pm.mu.Lock()
-	err = pm.RegisterExecutors(plug)
+	err = pm.RegisterExecutor(pluginName, plug)
 	pm.mu.Unlock()
 
 	if err != nil {

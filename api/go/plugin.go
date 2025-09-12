@@ -18,13 +18,16 @@ import (
 
 type Plugin struct {
 	tree.ExecutorManager
+
+	name string
 }
 
 var _ task.GenericExecutor = (*Plugin)(nil)
 
 func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 	plugin := &Plugin{
-		ExecutorManager: tree.NewExecutorManager(name),
+		ExecutorManager: tree.NewExecutorManager(),
+		name:            name,
 	}
 
 	err := initializer(plugin)
@@ -34,6 +37,8 @@ func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 
 	return plugin
 }
+
+func (p *Plugin) Name() string { return p.name }
 
 // Call from main() to start the plugin gRPC server.
 func (p *Plugin) Serve() {

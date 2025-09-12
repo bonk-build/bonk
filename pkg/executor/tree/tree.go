@@ -16,8 +16,6 @@ import (
 
 // ExecutorManager is a tree of Executors.
 type ExecutorManager struct {
-	name string
-
 	children map[string]task.GenericExecutor
 }
 
@@ -29,18 +27,13 @@ var ErrNoExecutorFound = errors.New("no executor found")
 
 const ExecPathSep = "."
 
-func NewExecutorManager(name string) ExecutorManager {
+func NewExecutorManager() ExecutorManager {
 	return ExecutorManager{
-		name:     name,
 		children: make(map[string]task.GenericExecutor),
 	}
 }
 
-func (bm *ExecutorManager) Name() string {
-	return bm.name
-}
-
-func (bm *ExecutorManager) RegisterExecutors(execs ...task.GenericExecutor) error {
+func (bm *ExecutorManager) RegisterExecutor(name string, exec task.GenericExecutor) error {
 	var registerImpl func(manager *ExecutorManager, name string, impl task.GenericExecutor) error
 	registerImpl = func(manager *ExecutorManager, name string, impl task.GenericExecutor) error {
 		before, after, needsManager := strings.Cut(name, ExecPathSep)
@@ -59,7 +52,6 @@ func (bm *ExecutorManager) RegisterExecutors(execs ...task.GenericExecutor) erro
 		// Needs & doesn't have manager, add manager and retry
 		case needsManager && !hasChild:
 			manager.children[before] = &ExecutorManager{
-				name:     before,
 				children: make(map[string]task.GenericExecutor, 1),
 			}
 
@@ -80,12 +72,7 @@ func (bm *ExecutorManager) RegisterExecutors(execs ...task.GenericExecutor) erro
 		}
 	}
 
-	var err error
-	for _, exec := range execs {
-		multierr.AppendInto(&err, registerImpl(bm, exec.Name(), exec))
-	}
-
-	return err
+	return registerImpl(bm, name, exec)
 }
 
 func (bm *ExecutorManager) UnregisterExecutors(names ...string) {
@@ -176,7 +163,7 @@ func (bm *ExecutorManager) ForEachExecutor(fun func(name string, exec task.Gener
 		}
 	}
 
-	forEachImpl(bm.Name(), false, bm)
+	forEachImpl("", false, bm)
 }
 
 func (bm *ExecutorManager) Shutdown() {

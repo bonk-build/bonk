@@ -21,11 +21,9 @@ import (
 
 // Creates an executor that forwards task invocations across a GRPC connection.
 func NewGRPCClient(
-	name string,
 	conn *grpc.ClientConn,
 ) task.GenericExecutor {
 	return &grpcClient{
-		name:     name,
 		client:   bonkv0.NewExecutorServiceClient(conn),
 		sessions: make(map[task.SessionId]grpcClientSession),
 	}
@@ -36,7 +34,6 @@ type grpcClientSession struct {
 }
 
 type grpcClient struct {
-	name   string
 	client bonkv0.ExecutorServiceClient
 
 	sessions map[task.SessionId]grpcClientSession
@@ -44,12 +41,8 @@ type grpcClient struct {
 
 var _ task.GenericExecutor = (*grpcClient)(nil)
 
-func (pb *grpcClient) Name() string {
-	return pb.name
-}
-
 func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
-	slog.DebugContext(ctx, "opening session", "connection", pb.Name(), "session", session.ID())
+	slog.DebugContext(ctx, "opening session", "session", session.ID())
 
 	sessionCtx, cancel := context.WithCancel(ctx)
 	pb.sessions[session.ID()] = grpcClientSession{
@@ -123,8 +116,7 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 
 			switch msg.WhichMessage() {
 			case bonkv0.OpenSessionResponse_LogRecord_case:
-				attrs := make([]slog.Attr, 1, 1+len(msg.GetLogRecord().GetAttrs()))
-				attrs[0] = slog.String("connection", pb.Name())
+				attrs := make([]slog.Attr, 0, len(msg.GetLogRecord().GetAttrs()))
 				for key, value := range msg.GetLogRecord().GetAttrs() {
 					attrs = append(attrs, slog.Attr{
 						Key:   key,
@@ -157,7 +149,7 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 		// Wait for cancel() and close
 		<-sessionCtx.Done()
 
-		slog.DebugContext(sessionCtx, "closing session for rpc", "connection", pb.Name())
+		slog.DebugContext(sessionCtx, "closing session for rpc")
 
 		err = stream.CloseSend()
 		if err != nil {
