@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package bonk
+package plugin
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
+// This installs a default log handler into plugins that import this package.
 func init() {
 	// Install the default log handler
 	slog.SetDefault(slog.New(
