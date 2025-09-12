@@ -30,7 +30,6 @@ var (
 
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	bonkv0.RegisterExecutorServiceServer(server, rpc.NewGRPCServer(
-		p.Name(),
 		p,
 	))
 
@@ -54,7 +53,6 @@ func (p *ExecutorServer) Execute(
 	ctx, cleanup, err := getTaskLoggingContext(
 		ctx,
 		tsk,
-		p.Name(),
 	)
 	if err != nil {
 		return err

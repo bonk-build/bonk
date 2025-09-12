@@ -25,7 +25,7 @@ func (plugin *Plugin) ServeTest(t *testing.T) task.GenericExecutor {
 		},
 	})
 
-	pluginClient := rpc.NewGRPCClient(plugin.Name(), client.Conn)
+	pluginClient := rpc.NewGRPCClient(client.Conn)
 
 	t.Cleanup(func() {
 		// Close the GRPC infrastructure
@@ -33,8 +33,8 @@ func (plugin *Plugin) ServeTest(t *testing.T) task.GenericExecutor {
 		server.Stop()
 	})
 
-	executorManager := tree.NewExecutorManager(pluginClient.Name())
-	require.NoError(t, executorManager.RegisterExecutors(pluginClient))
+	executorManager := tree.NewExecutorManager()
+	require.NoError(t, executorManager.RegisterExecutor(plugin.Name(), pluginClient))
 
 	return &executorManager
 }

@@ -27,10 +27,6 @@ type Executor_Kustomize struct {
 	bonk.NoopSessionManager
 }
 
-func (Executor_Kustomize) Name() string {
-	return "Kustomize"
-}
-
 func (Executor_Kustomize) Execute(
 	ctx context.Context,
 	task *bonk.Task[Params],
@@ -95,9 +91,7 @@ func (Executor_Kustomize) Execute(
 }
 
 var Plugin = bonk.NewPlugin("kustomize", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutors(
-		bonk.BoxExecutor(Executor_Kustomize{}),
-	)
+	err := plugin.RegisterExecutor("Kustomize", bonk.BoxExecutor(Executor_Kustomize{}))
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}

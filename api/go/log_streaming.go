@@ -44,7 +44,6 @@ func init() {
 func getTaskLoggingContext(
 	ctx context.Context,
 	tsk *task.GenericTask,
-	pluginName string,
 ) (context.Context, func() error, error) {
 	// Open log txt and json files
 	logFileText, err := tsk.OutputFS().Create("log.txt")
@@ -68,7 +67,6 @@ func getTaskLoggingContext(
 	}
 
 	ctx = slogctx.Append(ctx,
-		"plugin", pluginName,
 		"executor", tsk.ID.Executor,
 	)
 

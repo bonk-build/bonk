@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"log/slog"
 	"os/exec"
-	"path"
 
 	"github.com/ValerySidorin/shclog"
 
@@ -34,8 +33,6 @@ type PluginClient struct {
 var _ task.GenericExecutor = (*PluginClient)(nil)
 
 func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, error) {
-	pluginName := path.Base(goCmdPath)
-
 	client := goplugin.NewClient(&goplugin.ClientConfig{
 		HandshakeConfig: Handshake,
 		Cmd:             exec.CommandContext(ctx, "go", "run", goCmdPath),
@@ -63,7 +60,7 @@ func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, erro
 		panic(errors.New("rpcclient is of the wrong type"))
 	}
 
-	plug.GenericExecutor = rpc.NewGRPCClient(pluginName, grpcClient.Conn)
+	plug.GenericExecutor = rpc.NewGRPCClient(grpcClient.Conn)
 
 	return plug, nil
 }

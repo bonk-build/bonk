@@ -117,44 +117,6 @@ func (c *MockExecutorExecuteCall[Params]) DoAndReturn(f func(context.Context, *T
 	return c
 }
 
-// Name mocks base method.
-func (m *MockExecutor[Params]) Name() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Name")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// Name indicates an expected call of Name.
-func (mr *MockExecutorMockRecorder[Params]) Name() *MockExecutorNameCall[Params] {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Name", reflect.TypeOf((*MockExecutor[Params])(nil).Name))
-	return &MockExecutorNameCall[Params]{Call: call}
-}
-
-// MockExecutorNameCall wrap *gomock.Call
-type MockExecutorNameCall[Params any] struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockExecutorNameCall[Params]) Return(arg0 string) *MockExecutorNameCall[Params] {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockExecutorNameCall[Params]) Do(f func() string) *MockExecutorNameCall[Params] {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockExecutorNameCall[Params]) DoAndReturn(f func() string) *MockExecutorNameCall[Params] {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // OpenSession mocks base method.
 func (m *MockExecutor[Params]) OpenSession(ctx context.Context, session Session) error {
 	m.ctrl.T.Helper()

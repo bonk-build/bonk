@@ -36,7 +36,7 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 
 	lis := bufconn.Listen(1024 * 1024)
 	s := grpc.NewServer()
-	bonkv0.RegisterExecutorServiceServer(s, rpc.NewGRPCServer("", exec))
+	bonkv0.RegisterExecutorServiceServer(s, rpc.NewGRPCServer(exec))
 
 	go func() {
 		err := s.Serve(lis)
@@ -53,7 +53,7 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 	)
 	require.NoError(t, err)
 
-	return rpc.NewGRPCClient("test", clientConn)
+	return rpc.NewGRPCClient(clientConn)
 }
 
 type testFunc = func(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args])
