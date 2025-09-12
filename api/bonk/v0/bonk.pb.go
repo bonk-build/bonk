@@ -1298,8 +1298,8 @@ const file_bonk_v0_bonk_proto_rawDesc = "" +
 	"\targuments\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\targuments2\xa9\x01\n" +
 	"\x0fExecutorService\x12L\n" +
 	"\vOpenSession\x12\x1b.bonk.v0.OpenSessionRequest\x1a\x1c.bonk.v0.OpenSessionResponse(\x010\x01\x12H\n" +
-	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseBy\n" +
-	"\vcom.bonk.v0B\tBonkProtoP\x01Z\"go.bonk.build/api/go/proto/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
+	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseBs\n" +
+	"\vcom.bonk.v0B\tBonkProtoP\x01Z\x1cgo.bonk.build/api/go/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
 
 var file_bonk_v0_bonk_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_bonk_v0_bonk_proto_goTypes = []any{

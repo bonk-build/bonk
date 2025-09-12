@@ -22,7 +22,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	bonkv0 "go.bonk.build/api/proto/bonk/v0"
+	bonkv0 "go.bonk.build/api/bonk/v0"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 )
