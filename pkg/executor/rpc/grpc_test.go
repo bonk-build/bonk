@@ -1,13 +1,17 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+//nolint:thelper // It doesn't recognize the subtests
 package rpc_test
 
 import (
 	"context"
 	"errors"
 	"net"
+	"reflect"
+	"runtime"
 	"testing"
+	"time"
 
 	"go.uber.org/mock/gomock"
 
@@ -52,59 +56,74 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 	return rpc.NewGRPCClient("test", clientConn)
 }
 
-func Test_TestConnection(t *testing.T) {
+type testFunc = func(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args])
+
+func Test_RPC(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[any](mock)
+	tests := []testFunc{
+		test_Connection,
+		test_Session,
+		test_Session_Fail,
+		test_Args,
+		test_Followups,
+	}
 
-	client := openConnection(t, exec)
+	for _, testFunc := range tests {
+		name := runtime.FuncForPC(reflect.ValueOf(testFunc).Pointer()).Name()
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			mock := gomock.NewController(t)
+			exec := task.NewMockExecutor[Args](mock)
+
+			testFunc(t, mock, exec)
+
+			require.Eventually(t, func() bool {
+				return mock.Satisfied()
+			}, 100*time.Millisecond, 10*time.Millisecond)
+		})
+	}
+}
+
+func test_Connection(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args]) {
+	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
 }
 
-func Test_Session(t *testing.T) {
-	t.Parallel()
-
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[Args](mock)
+func test_Session(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args]) {
 	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
 
+	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(1)
 	exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
 
 	err := client.OpenSession(t.Context(), session)
 	require.NoError(t, err)
-
-	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(1)
-	client.CloseSession(t.Context(), session.ID())
+	defer client.CloseSession(t.Context(), session.ID())
 }
 
-func Test_Session_Fail(t *testing.T) {
-	t.Parallel()
-
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[Args](mock)
+func test_Session_Fail(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args]) {
 	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
 	require.NotNil(t, client)
 
 	exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(errors.ErrUnsupported).Times(1)
+	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(0)
 
 	err := client.OpenSession(t.Context(), session)
 	require.ErrorContains(t, err, errors.ErrUnsupported.Error())
+	defer client.CloseSession(t.Context(), session.ID())
 
-	exec.EXPECT().CloseSession(gomock.Any(), session.ID()).Times(1)
-	client.CloseSession(t.Context(), session.ID())
+	require.Eventually(t, func() bool {
+		return mock.Satisfied()
+	}, 100*time.Millisecond, 10*time.Millisecond)
 }
 
-func Test_Args(t *testing.T) {
-	t.Parallel()
-
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[Args](mock)
+func test_Args(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args]) {
 	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))
@@ -134,11 +153,7 @@ func Test_Args(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func Test_Followups(t *testing.T) {
-	t.Parallel()
-
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[Args](mock)
+func test_Followups(t *testing.T, mock *gomock.Controller, exec *task.MockExecutor[Args]) {
 	session := task.NewTestSession()
 
 	client := openConnection(t, task.BoxExecutor(exec))

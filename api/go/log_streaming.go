@@ -6,37 +6,17 @@ package bonk
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
-	"os"
-	"runtime"
-	"time"
 
 	"go.uber.org/multierr"
 
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/structpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
-
-	"github.com/delicb/slogbuffer"
-	"github.com/spf13/afero"
-
-	goplugin "github.com/hashicorp/go-plugin"
 	slogmulti "github.com/samber/slog-multi"
 	slogctx "github.com/veqryn/slog-context"
 
-	bonkv0 "go.bonk.build/api/proto/bonk/v0"
-	"go.bonk.build/pkg/executor/rpc"
-)
-
-var (
-	bufferedHandler             *slogbuffer.BufferLogHandler
-	cancelWaitForStreamingSetup chan struct{}
+	"go.bonk.build/pkg/task"
 )
 
 func init() {
-	bufferedHandler = slogbuffer.NewBufferLogHandler(slog.LevelDebug)
-
 	// Install the default log handler
 	slog.SetDefault(slog.New(
 		slogmulti.Pipe(
@@ -57,41 +37,21 @@ func init() {
 				},
 			),
 			// Route to the buffered handler
-		).Handler(bufferedHandler),
+		).Handler(slog.Default().Handler()),
 	))
-
-	// Start a timer to just use stdout after some time if streaming isn't configured
-	streamingSetupTimeout := time.NewTimer(1 * time.Second)
-	cancelWaitForStreamingSetup = make(chan struct{})
-	go func() {
-		select {
-		case <-streamingSetupTimeout.C:
-			err := bufferedHandler.SetRealHandler(
-				context.Background(),
-				slog.NewTextHandler(os.Stdout, nil),
-			)
-			if err != nil {
-				slog.Error("failed to flush buffered handler", "error", err)
-			} else {
-				slog.Debug("timed out waiting for streaming setup, switching to stdout")
-			}
-
-		case <-cancelWaitForStreamingSetup:
-			streamingSetupTimeout.Stop()
-		}
-	}()
 }
 
 func getTaskLoggingContext(
 	ctx context.Context,
-	root afero.Fs,
+	tsk *task.GenericTask,
+	pluginName string,
 ) (context.Context, func() error, error) {
 	// Open log txt and json files
-	logFileText, err := root.Create("log.txt")
+	logFileText, err := tsk.OutputFS().Create("log.txt")
 	if err != nil {
 		return nil, nil, errors.New("failed to open log txt file")
 	}
-	logFileJSON, err := root.Create("log.jsonl")
+	logFileJSON, err := tsk.OutputFS().Create("log.jsonl")
 	if err != nil {
 		return nil, nil, errors.New("failed to open log json file")
 	}
@@ -107,110 +67,18 @@ func getTaskLoggingContext(
 		)
 	}
 
+	ctx = slogctx.Append(ctx,
+		"plugin", pluginName,
+		"executor", tsk.ID.Executor,
+	)
+
 	// Add logger which writes to the default handler, but also local files
-	return slogctx.NewCtx(ctx, slog.New(slogmulti.Fanout(
-		slog.NewTextHandler(logFileText, &config),
-		slog.NewJSONHandler(logFileJSON, &config),
-		bufferedHandler,
-	))), cleanup, nil
-}
-
-type LogStreamingServer struct {
-	goplugin.NetRPCUnsupportedPlugin
-
-	bonkv0.UnimplementedLogStreamingServiceServer
-}
-
-var _ goplugin.GRPCPlugin = (*LogStreamingServer)(nil)
-
-func (p *LogStreamingServer) GRPCServer(_ *goplugin.GRPCBroker, s *grpc.Server) error {
-	bonkv0.RegisterLogStreamingServiceServer(s, p)
-
-	return nil
-}
-
-func (*LogStreamingServer) GRPCClient(
-	_ context.Context,
-	_ *goplugin.GRPCBroker,
-	c *grpc.ClientConn,
-) (any, error) {
-	return bonkv0.NewLogStreamingServiceClient(c), nil
-}
-
-func (*LogStreamingServer) StreamLogs(
-	req *bonkv0.StreamLogsRequest,
-	res grpc.ServerStreamingServer[bonkv0.StreamLogsResponse],
-) error {
-	// Cancel the timeout now that a request has been received
-	cancelWaitForStreamingSetup <- struct{}{}
-
-	ctx := res.Context()
-
-	streamer := slogmulti.
-		Pipe(
-			slogmulti.NewEnabledInlineMiddleware(
-				func(ctx context.Context, level slog.Level, next func(context.Context, slog.Level) bool) bool {
-					if int(req.GetLevel()) > int(level) {
-						return false
-					}
-
-					return next(ctx, level)
-				},
-			),
-		).
-		Handler(slogmulti.NewHandleInlineHandler(
-			func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
-				if req.GetAddSource() {
-					fs := runtime.CallersFrames([]uintptr{record.PC})
-					f, _ := fs.Next()
-					record.AddAttrs(slog.Any(slog.SourceKey, &slog.Source{
-						Function: f.Function,
-						File:     f.File,
-						Line:     f.Line,
-					}))
-				}
-
-				level := int64(record.Level)
-				logInstance := bonkv0.StreamLogsResponse_builder{
-					Time:    timestamppb.New(record.Time),
-					Message: &record.Message,
-					Level:   &level,
-					Attrs:   make(map[string]*structpb.Value, record.NumAttrs()),
-				}
-
-				record.Attrs(func(attr slog.Attr) bool {
-					protoValue, err := rpc.ToProtoValue(attr.Value.Any())
-					if err != nil {
-						panic(err)
-					} else {
-						logInstance.Attrs[attr.Key] = protoValue
-					}
-
-					return true
-				})
-
-				err := res.Send(logInstance.Build())
-				if err != nil {
-					return fmt.Errorf("failed to send record across gRPC: %w", err)
-				}
-
-				return nil
-			},
-		))
-
-	err := bufferedHandler.SetRealHandler(ctx, streamer)
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
-	}
-
-	// Sleep until the request is canceled
-	<-ctx.Done()
-
-	// Once the stream is requested to be closed, forward logs to stdout.
-	err = bufferedHandler.SetRealHandler(ctx, slog.NewTextHandler(os.Stdout, nil))
-	if err != nil {
-		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
-	}
-
-	return nil
+	return slogctx.Append(slogctx.NewCtx(ctx,
+		slog.New(slogmulti.Fanout(
+			slog.NewTextHandler(logFileText, &config),
+			slog.NewJSONHandler(logFileJSON, &config),
+			// If ctx already contains a logger, we can chain to it.
+			// If not, we just hit default.
+			slogctx.FromCtx(ctx).Handler(),
+		)))), cleanup, nil
 }

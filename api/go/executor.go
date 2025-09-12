@@ -5,13 +5,13 @@ package bonk // import "go.bonk.build/api/go"
 
 import (
 	"context"
+	"errors"
 
 	"go.uber.org/multierr"
 
 	"google.golang.org/grpc"
 
 	goplugin "github.com/hashicorp/go-plugin"
-	slogctx "github.com/veqryn/slog-context"
 
 	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor/rpc"
@@ -42,7 +42,7 @@ func (*ExecutorServer) GRPCClient(
 	_ *goplugin.GRPCBroker,
 	c *grpc.ClientConn,
 ) (any, error) {
-	return bonkv0.NewExecutorServiceClient(c), nil
+	return nil, errors.ErrUnsupported
 }
 
 // Override Execute to add some special details to the context.
@@ -51,15 +51,16 @@ func (p *ExecutorServer) Execute(
 	tsk *task.GenericTask,
 	res *task.Result,
 ) error {
-	execCtx, cleanup, err := getTaskLoggingContext(ctx, tsk.OutputFS())
+	ctx, cleanup, err := getTaskLoggingContext(
+		ctx,
+		tsk,
+		p.Name(),
+	)
 	if err != nil {
 		return err
 	}
 
-	// Append executor information
-	execCtx = slogctx.Append(execCtx, "executor", tsk.ID.Executor)
-
-	multierr.AppendInto(&err, p.GenericExecutor.Execute(execCtx, tsk, res))
+	multierr.AppendInto(&err, p.GenericExecutor.Execute(ctx, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err

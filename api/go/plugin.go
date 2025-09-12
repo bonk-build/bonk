@@ -43,7 +43,6 @@ func (p *Plugin) Serve() {
 			"executor": &ExecutorServer{
 				GenericExecutor: &p.ExecutorManager,
 			},
-			"log_streaming": &LogStreamingServer{},
 		},
 		GRPCServer: goplugin.DefaultGRPCServer,
 		Logger:     shclog.New(slog.Default()),
