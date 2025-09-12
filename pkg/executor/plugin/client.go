@@ -28,8 +28,7 @@ var Handshake = goplugin.HandshakeConfig{
 type PluginClient struct {
 	task.GenericExecutor
 
-	pluginClient       *goplugin.Client
-	cancelLogStreaming context.CancelFunc
+	pluginClient *goplugin.Client
 }
 
 var _ task.GenericExecutor = (*PluginClient)(nil)
@@ -65,9 +64,6 @@ func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, erro
 	}
 
 	plug.GenericExecutor = rpc.NewGRPCClient(pluginName, grpcClient.Conn)
-
-	ctx, plug.cancelLogStreaming = context.WithCancel(ctx)
-	go handleLogStreaming(ctx, grpcClient.Conn, pluginName)
 
 	return plug, nil
 }

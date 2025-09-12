@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             (unknown)
-// source: bonk/v0/executor.proto
+// source: bonk/v0/bonk.proto
 
 package v0
 
@@ -19,9 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExecutorService_OpenSession_FullMethodName  = "/bonk.v0.ExecutorService/OpenSession"
-	ExecutorService_CloseSession_FullMethodName = "/bonk.v0.ExecutorService/CloseSession"
-	ExecutorService_ExecuteTask_FullMethodName  = "/bonk.v0.ExecutorService/ExecuteTask"
+	ExecutorService_OpenSession_FullMethodName = "/bonk.v0.ExecutorService/OpenSession"
+	ExecutorService_ExecuteTask_FullMethodName = "/bonk.v0.ExecutorService/ExecuteTask"
 )
 
 // ExecutorServiceClient is the client API for ExecutorService service.
@@ -29,8 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ExecutorServiceClient interface {
 	// Used for opening & closing sessions
-	OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error)
-	CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...grpc.CallOption) (*CloseSessionResponse, error)
+	OpenSession(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[OpenSessionRequest, OpenSessionResponse], error)
 	// Executor interface
 	ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskResponse, error)
 }
@@ -43,25 +41,18 @@ func NewExecutorServiceClient(cc grpc.ClientConnInterface) ExecutorServiceClient
 	return &executorServiceClient{cc}
 }
 
-func (c *executorServiceClient) OpenSession(ctx context.Context, in *OpenSessionRequest, opts ...grpc.CallOption) (*OpenSessionResponse, error) {
+func (c *executorServiceClient) OpenSession(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[OpenSessionRequest, OpenSessionResponse], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OpenSessionResponse)
-	err := c.cc.Invoke(ctx, ExecutorService_OpenSession_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &ExecutorService_ServiceDesc.Streams[0], ExecutorService_OpenSession_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &grpc.GenericClientStream[OpenSessionRequest, OpenSessionResponse]{ClientStream: stream}
+	return x, nil
 }
 
-func (c *executorServiceClient) CloseSession(ctx context.Context, in *CloseSessionRequest, opts ...grpc.CallOption) (*CloseSessionResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CloseSessionResponse)
-	err := c.cc.Invoke(ctx, ExecutorService_CloseSession_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ExecutorService_OpenSessionClient = grpc.BidiStreamingClient[OpenSessionRequest, OpenSessionResponse]
 
 func (c *executorServiceClient) ExecuteTask(ctx context.Context, in *ExecuteTaskRequest, opts ...grpc.CallOption) (*ExecuteTaskResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -78,8 +69,7 @@ func (c *executorServiceClient) ExecuteTask(ctx context.Context, in *ExecuteTask
 // for forward compatibility.
 type ExecutorServiceServer interface {
 	// Used for opening & closing sessions
-	OpenSession(context.Context, *OpenSessionRequest) (*OpenSessionResponse, error)
-	CloseSession(context.Context, *CloseSessionRequest) (*CloseSessionResponse, error)
+	OpenSession(grpc.BidiStreamingServer[OpenSessionRequest, OpenSessionResponse]) error
 	// Executor interface
 	ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error)
 	mustEmbedUnimplementedExecutorServiceServer()
@@ -92,11 +82,8 @@ type ExecutorServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedExecutorServiceServer struct{}
 
-func (UnimplementedExecutorServiceServer) OpenSession(context.Context, *OpenSessionRequest) (*OpenSessionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method OpenSession not implemented")
-}
-func (UnimplementedExecutorServiceServer) CloseSession(context.Context, *CloseSessionRequest) (*CloseSessionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CloseSession not implemented")
+func (UnimplementedExecutorServiceServer) OpenSession(grpc.BidiStreamingServer[OpenSessionRequest, OpenSessionResponse]) error {
+	return status.Errorf(codes.Unimplemented, "method OpenSession not implemented")
 }
 func (UnimplementedExecutorServiceServer) ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteTask not implemented")
@@ -122,41 +109,12 @@ func RegisterExecutorServiceServer(s grpc.ServiceRegistrar, srv ExecutorServiceS
 	s.RegisterService(&ExecutorService_ServiceDesc, srv)
 }
 
-func _ExecutorService_OpenSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(OpenSessionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExecutorServiceServer).OpenSession(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExecutorService_OpenSession_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExecutorServiceServer).OpenSession(ctx, req.(*OpenSessionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+func _ExecutorService_OpenSession_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(ExecutorServiceServer).OpenSession(&grpc.GenericServerStream[OpenSessionRequest, OpenSessionResponse]{ServerStream: stream})
 }
 
-func _ExecutorService_CloseSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CloseSessionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ExecutorServiceServer).CloseSession(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ExecutorService_CloseSession_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExecutorServiceServer).CloseSession(ctx, req.(*CloseSessionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type ExecutorService_OpenSessionServer = grpc.BidiStreamingServer[OpenSessionRequest, OpenSessionResponse]
 
 func _ExecutorService_ExecuteTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ExecuteTaskRequest)
@@ -184,18 +142,17 @@ var ExecutorService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ExecutorServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "OpenSession",
-			Handler:    _ExecutorService_OpenSession_Handler,
-		},
-		{
-			MethodName: "CloseSession",
-			Handler:    _ExecutorService_CloseSession_Handler,
-		},
-		{
 			MethodName: "ExecuteTask",
 			Handler:    _ExecutorService_ExecuteTask_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "bonk/v0/executor.proto",
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "OpenSession",
+			Handler:       _ExecutorService_OpenSession_Handler,
+			ServerStreams: true,
+			ClientStreams: true,
+		},
+	},
+	Metadata: "bonk/v0/bonk.proto",
 }

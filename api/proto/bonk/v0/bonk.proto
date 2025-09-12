@@ -5,8 +5,14 @@ edition = "2023";
 package bonk.v0;
 
 import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
 
 message OpenSessionRequest {
+  message LogStreamingOptions {
+    int64 level = 1;
+    bool add_source = 2;
+  }
+
   message WorkspaceDescriptionLocal {
     string absolute_path = 1;
   }
@@ -14,21 +20,30 @@ message OpenSessionRequest {
   message WorkspaceDescriptionTest {}
 
   string session_id = 1;
+  LogStreamingOptions log_streaming = 2;
 
   oneof workspace_description {
-    WorkspaceDescriptionLocal local = 2;
+    WorkspaceDescriptionLocal local = 5;
 
     WorkspaceDescriptionTest test = 99;
   }
 }
 
-message OpenSessionResponse {}
+// This is meant to mirror [slog.Record](https://pkg.go.dev/log/slog#Record)
+message OpenSessionResponse {
+  message Ack {}
+  message LogRecord {
+    google.protobuf.Timestamp time = 1;
+    string message = 2;
+    int64 level = 3;
+    map<string, google.protobuf.Value> attrs = 4;
+  }
 
-message CloseSessionRequest {
-  string session_id = 1;
+  oneof message {
+    Ack ack = 1;
+    LogRecord log_record = 2;
+  }
 }
-
-message CloseSessionResponse {}
 
 message ExecuteTaskRequest {
   string session_id = 1;
@@ -52,8 +67,7 @@ message ExecuteTaskResponse {
 
 service ExecutorService {
   // Used for opening & closing sessions
-  rpc OpenSession(OpenSessionRequest) returns (OpenSessionResponse);
-  rpc CloseSession(CloseSessionRequest) returns (CloseSessionResponse);
+  rpc OpenSession(stream OpenSessionRequest) returns (stream OpenSessionResponse);
 
   // Executor interface
   rpc ExecuteTask(ExecuteTaskRequest) returns (ExecuteTaskResponse);
