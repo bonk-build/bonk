@@ -17,7 +17,6 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
-	bonkv0 "go.bonk.build/api/bonk/v0"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
@@ -72,9 +71,7 @@ var (
 )
 
 func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
-	bonkv0.RegisterExecutorServiceServer(server, rpc.NewGRPCServer(
-		p,
-	))
+	rpc.RegisterGRPCServer(server, p)
 
 	return nil
 }
