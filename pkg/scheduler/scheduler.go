@@ -11,6 +11,7 @@ import (
 	"go.uber.org/multierr"
 
 	gotaskflow "github.com/noneback/go-taskflow"
+	slogctx "github.com/veqryn/slog-context"
 
 	"go.bonk.build/pkg/task"
 )
@@ -36,47 +37,43 @@ func NewScheduler(executorManager task.GenericExecutor, concurrency uint) *Sched
 }
 
 func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
+	ctx := context.Background()
+	ctx = slogctx.Append(ctx, "task", tsk.ID.Name)
+	ctx = slogctx.Append(ctx, "executor", tsk.ID.Executor)
+
 	taskName := tsk.ID.String()
 	s.flowHasTasks = true
 	newTask := s.rootFlow.NewTask(taskName, func() {
 		mismatches := DetectStateMismatches(tsk)
 		if mismatches == nil {
-			slog.Debug("states match, skipping task")
+			slog.DebugContext(ctx, "states match, skipping task")
 
 			return
 		}
 
-		slog.Debug("state mismatch, running task", "mismatches", mismatches)
+		slog.DebugContext(ctx, "state mismatch, running task", "mismatches", mismatches)
 
 		var result task.Result
-		err := s.executorManager.Execute(context.Background(), tsk, &result)
+		err := s.executorManager.Execute(ctx, tsk, &result)
 		if err != nil {
-			slog.Error(
-				"error executing task",
-				"task",
-				taskName,
-				"executor",
-				tsk.ID.Executor,
-				"error",
-				err,
-			)
+			slog.DebugContext(ctx, "error executing task", "error", err)
 
 			return
 		}
 
-		slog.Info("task succeeded, saving state", "task", taskName)
+		slog.Info("task succeeded, saving state")
 
 		var followupErr error
 		for _, followup := range result.FollowupTasks {
-			multierr.AppendInto(&followupErr, s.AddTask(&followup))
+			multierr.AppendInto(&followupErr, s.AddTask(&followup)) //nolint:contextcheck
 		}
 		if followupErr != nil {
-			slog.Error("failed to schedule followup tasks", "task", taskName, "error", followupErr)
+			slog.ErrorContext(ctx, "failed to schedule followup tasks", "error", followupErr)
 		}
 
 		err = SaveState(tsk, &result)
 		if err != nil {
-			slog.Error("failed to save task state", "task", taskName, "error", err)
+			slog.ErrorContext(ctx, "failed to save task state", "error", err)
 
 			return
 		}
