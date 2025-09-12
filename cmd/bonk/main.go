@@ -14,6 +14,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	slogmulti "github.com/samber/slog-multi"
+	slogctx "github.com/veqryn/slog-context"
+
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
@@ -123,12 +126,14 @@ func init() {
 func main() {
 	slog.SetDefault(
 		slog.New(
-			pterm.NewSlogHandler(
-				pterm.DefaultLogger.
-					WithWriter(rootCmd.OutOrStdout()).
-					WithLevel(pterm.LogLevelDebug).
-					WithTime(false),
-			),
+			slogmulti.
+				Pipe(slogctx.NewMiddleware(nil)).
+				Handler(pterm.NewSlogHandler(
+					pterm.DefaultLogger.
+						WithWriter(rootCmd.OutOrStdout()).
+						WithLevel(pterm.LogLevelDebug).
+						WithTime(false),
+				)),
 		),
 	)
 
