@@ -10,7 +10,6 @@ import (
 
 	"go.uber.org/multierr"
 
-	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -18,6 +17,7 @@ import (
 	slogctx "github.com/veqryn/slog-context"
 
 	"go.bonk.build/pkg/executor/plugin"
+	"go.bonk.build/pkg/logging"
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
 )
@@ -128,12 +128,7 @@ func main() {
 		slog.New(
 			slogmulti.
 				Pipe(slogctx.NewMiddleware(nil)).
-				Handler(pterm.NewSlogHandler(
-					pterm.DefaultLogger.
-						WithWriter(rootCmd.OutOrStdout()).
-						WithLevel(pterm.LogLevelDebug).
-						WithTime(false),
-				)),
+				Handler(logging.NewHandler()),
 		),
 	)
 
