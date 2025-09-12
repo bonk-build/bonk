@@ -32,6 +32,14 @@ type grpcServerSession struct {
 	logger *slog.Logger
 }
 
+func (s grpcServerSession) LocalPath() string {
+	if ls, ok := s.Session.(task.LocalSession); ok {
+		return ls.LocalPath()
+	}
+
+	return ""
+}
+
 type grpcServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
