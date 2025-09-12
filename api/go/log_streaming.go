@@ -34,62 +34,6 @@ var (
 	cancelWaitForStreamingSetup chan struct{}
 )
 
-type streamHandler struct {
-	slog.HandlerOptions
-
-	sender grpc.ServerStreamingServer[bonkv0.StreamLogsResponse]
-}
-
-func (stream *streamHandler) Enabled(_ context.Context, level slog.Level) bool {
-	return int(stream.Level.Level()) <= int(level)
-}
-
-func (stream *streamHandler) Handle(ctx context.Context, record slog.Record) error {
-	if stream.AddSource {
-		fs := runtime.CallersFrames([]uintptr{record.PC})
-		f, _ := fs.Next()
-		record.AddAttrs(slog.Any(slog.SourceKey, &slog.Source{
-			Function: f.Function,
-			File:     f.File,
-			Line:     f.Line,
-		}))
-	}
-
-	level := int64(record.Level)
-	res := bonkv0.StreamLogsResponse_builder{
-		Time:    timestamppb.New(record.Time),
-		Message: &record.Message,
-		Level:   &level,
-		Attrs:   make(map[string]*structpb.Value, record.NumAttrs()),
-	}
-
-	record.Attrs(func(attr slog.Attr) bool {
-		protoValue, err := rpc.ToProtoValue(attr.Value.Any())
-		if err != nil {
-			panic(err)
-		} else {
-			res.Attrs[attr.Key] = protoValue
-		}
-
-		return true
-	})
-
-	err := stream.sender.Send(res.Build())
-	if err != nil {
-		return fmt.Errorf("failed to send record across gRPC: %w", err)
-	}
-
-	return nil
-}
-
-func (stream *streamHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
-	return stream
-}
-
-func (stream *streamHandler) WithGroup(name string) slog.Handler {
-	return stream
-}
-
 func init() {
 	bufferedHandler = slogbuffer.NewBufferLogHandler(slog.LevelDebug)
 
@@ -202,15 +146,59 @@ func (*LogStreamingServer) StreamLogs(
 
 	ctx := res.Context()
 
-	streamer := streamHandler{
-		HandlerOptions: slog.HandlerOptions{
-			Level:     slog.Level(req.GetLevel()),
-			AddSource: req.GetAddSource(),
-		},
-		sender: res,
-	}
+	streamer := slogmulti.
+		Pipe(
+			slogmulti.NewEnabledInlineMiddleware(
+				func(ctx context.Context, level slog.Level, next func(context.Context, slog.Level) bool) bool {
+					if int(req.GetLevel()) > int(level) {
+						return false
+					}
 
-	err := bufferedHandler.SetRealHandler(ctx, &streamer)
+					return next(ctx, level)
+				},
+			),
+		).
+		Handler(slogmulti.NewHandleInlineHandler(
+			func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
+				if req.GetAddSource() {
+					fs := runtime.CallersFrames([]uintptr{record.PC})
+					f, _ := fs.Next()
+					record.AddAttrs(slog.Any(slog.SourceKey, &slog.Source{
+						Function: f.Function,
+						File:     f.File,
+						Line:     f.Line,
+					}))
+				}
+
+				level := int64(record.Level)
+				logInstance := bonkv0.StreamLogsResponse_builder{
+					Time:    timestamppb.New(record.Time),
+					Message: &record.Message,
+					Level:   &level,
+					Attrs:   make(map[string]*structpb.Value, record.NumAttrs()),
+				}
+
+				record.Attrs(func(attr slog.Attr) bool {
+					protoValue, err := rpc.ToProtoValue(attr.Value.Any())
+					if err != nil {
+						panic(err)
+					} else {
+						logInstance.Attrs[attr.Key] = protoValue
+					}
+
+					return true
+				})
+
+				err := res.Send(logInstance.Build())
+				if err != nil {
+					return fmt.Errorf("failed to send record across gRPC: %w", err)
+				}
+
+				return nil
+			},
+		))
+
+	err := bufferedHandler.SetRealHandler(ctx, streamer)
 	if err != nil {
 		slog.ErrorContext(ctx, "failed to flush buffered logs to the streamer", "error", err)
 	}
