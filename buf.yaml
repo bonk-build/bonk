@@ -5,7 +5,7 @@
 version: v2
 modules:
   - name: buf.build/bonk-build/bonk
-    path: api/proto
+    path: api
 lint:
   use:
     - STANDARD

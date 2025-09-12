@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package main // import "go.bonk.build/plugins/k8s/kustomize"
+package main
 
 import (
 	"context"
@@ -14,7 +14,8 @@ import (
 
 	"github.com/spf13/afero"
 
-	bonk "go.bonk.build/api/go"
+	"go.bonk.build/pkg/executor/plugin"
+	"go.bonk.build/pkg/task"
 )
 
 const output = "kustomized.yaml"
@@ -24,13 +25,13 @@ type Params struct {
 }
 
 type Executor_Kustomize struct {
-	bonk.NoopSessionManager
+	task.NoopSessionManager
 }
 
 func (Executor_Kustomize) Execute(
 	ctx context.Context,
-	task *bonk.Task[Params],
-	res *bonk.Result,
+	task *task.Task[Params],
+	res *task.Result,
 ) error {
 	// Apply resources and any needed fixes
 	task.Args.Kustomization.Resources = task.Inputs
@@ -90,8 +91,8 @@ func (Executor_Kustomize) Execute(
 	return nil
 }
 
-var Plugin = bonk.NewPlugin("kustomize", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutor("Kustomize", bonk.BoxExecutor(Executor_Kustomize{}))
+var Plugin = plugin.NewPlugin("kustomize", func(plugin *plugin.Plugin) error {
+	err := plugin.RegisterExecutor("Kustomize", task.BoxExecutor(Executor_Kustomize{}))
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}

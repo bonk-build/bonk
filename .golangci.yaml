@@ -72,10 +72,10 @@ linters:
         api:
           list-mode: lax
           files:
-            - "**/pkg/**/*.go"
+            - "!**/pkg/executor/rpc/*.go"
           deny:
-            - pkg: "go.bonk.build/api/go"
-              desc: only for use by plugins
+            - pkg: "go.bonk.build/api"
+              desc: only for use by the rpc package
 
         no-os:
           list-mode: lax

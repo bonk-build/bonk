@@ -12,7 +12,8 @@ import (
 	"go.uber.org/multierr"
 	"go.yaml.in/yaml/v4"
 
-	bonk "go.bonk.build/api/go"
+	"go.bonk.build/pkg/executor/plugin"
+	"go.bonk.build/pkg/task"
 )
 
 const output = "resources.yaml"
@@ -22,13 +23,13 @@ type Params struct {
 }
 
 type Executor_Resources struct {
-	bonk.NoopSessionManager
+	task.NoopSessionManager
 }
 
 func (Executor_Resources) Execute(
 	ctx context.Context,
-	task *bonk.Task[Params],
-	res *bonk.Result,
+	task *task.Task[Params],
+	res *task.Result,
 ) error {
 	if len(task.Inputs) > 0 {
 		return errors.New("resources task does not accept inputs")
@@ -66,8 +67,8 @@ func (Executor_Resources) Execute(
 	return err //nolint:wrapcheck
 }
 
-var Plugin = bonk.NewPlugin("resources", func(plugin *bonk.Plugin) error {
-	err := plugin.RegisterExecutor("Resources", bonk.BoxExecutor(Executor_Resources{}))
+var Plugin = plugin.NewPlugin("resources", func(plugin *plugin.Plugin) error {
+	err := plugin.RegisterExecutor("Resources", task.BoxExecutor(Executor_Resources{}))
 	if err != nil {
 		return fmt.Errorf("failed to register Test executor: %w", err)
 	}

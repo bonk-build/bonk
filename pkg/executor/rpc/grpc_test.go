@@ -22,7 +22,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	bonkv0 "go.bonk.build/api/proto/bonk/v0"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 )
@@ -36,7 +35,7 @@ func openConnection(t *testing.T, exec task.GenericExecutor) task.GenericExecuto
 
 	lis := bufconn.Listen(1024 * 1024)
 	s := grpc.NewServer()
-	bonkv0.RegisterExecutorServiceServer(s, rpc.NewGRPCServer(exec))
+	rpc.RegisterGRPCServer(s, exec)
 
 	go func() {
 		err := s.Serve(lis)
