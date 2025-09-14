@@ -30,21 +30,32 @@ type Plugin struct {
 
 var _ task.GenericExecutor = (*Plugin)(nil)
 
-func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
+type PluginOption func(plugin *Plugin) error
+
+func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 	plugin := &Plugin{
 		ExecutorManager: tree.NewExecutorManager(),
 		name:            name,
 	}
 
-	err := initializer(plugin)
-	if err != nil {
-		panic(fmt.Errorf("failed to initialize plugin: %w", err))
+	for _, initializer := range initializers {
+		err := initializer(plugin)
+		if err != nil {
+			panic(fmt.Errorf("failed to initialize plugin: %w", err))
+		}
 	}
 
 	return plugin
 }
 
 func (p *Plugin) Name() string { return p.name }
+
+// WithExecutor registers an executor with the plugin.
+func WithExecutor[Params any](name string, exec task.Executor[Params]) PluginOption {
+	return func(plugin *Plugin) error {
+		return plugin.RegisterExecutor(name, task.BoxExecutor(exec))
+	}
+}
 
 // Call from main() to start the plugin gRPC server.
 func (p *Plugin) Serve() {

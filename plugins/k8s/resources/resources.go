@@ -67,14 +67,9 @@ func (Executor_Resources) Execute(
 	return err //nolint:wrapcheck
 }
 
-var Plugin = plugin.NewPlugin("resources", func(plugin *plugin.Plugin) error {
-	err := plugin.RegisterExecutor("Resources", task.BoxExecutor(Executor_Resources{}))
-	if err != nil {
-		return fmt.Errorf("failed to register Test executor: %w", err)
-	}
-
-	return nil
-})
+var Plugin = plugin.NewPlugin("resources",
+	plugin.WithExecutor("Resources", Executor_Resources{}),
+)
 
 func main() {
 	Plugin.Serve()
