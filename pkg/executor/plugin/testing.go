@@ -19,11 +19,7 @@ import (
 func (plugin *Plugin) ServeTest(t *testing.T) task.GenericExecutor {
 	t.Helper()
 
-	client, server := goplugin.TestPluginGRPCConn(t, false, map[string]goplugin.Plugin{
-		"executor": &ExecutorServer{
-			GenericExecutor: &plugin.ExecutorManager,
-		},
-	})
+	client, server := goplugin.TestPluginGRPCConn(t, false, plugin.getPluginSet())
 
 	pluginClient := rpc.NewGRPCClient(client.Conn)
 
