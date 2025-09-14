@@ -91,14 +91,9 @@ func (Executor_Kustomize) Execute(
 	return nil
 }
 
-var Plugin = plugin.NewPlugin("kustomize", func(plugin *plugin.Plugin) error {
-	err := plugin.RegisterExecutor("Kustomize", task.BoxExecutor(Executor_Kustomize{}))
-	if err != nil {
-		return fmt.Errorf("failed to register Test executor: %w", err)
-	}
-
-	return nil
-})
+var Plugin = plugin.NewPlugin("kustomize",
+	plugin.WithExecutor("Kustomize", Executor_Kustomize{}),
+)
 
 func main() {
 	Plugin.Serve()

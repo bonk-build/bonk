@@ -5,7 +5,6 @@ package main // import "go.bonk.build/plugins/test"
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"go.bonk.build/pkg/executor/plugin"
@@ -30,14 +29,9 @@ func (Executor_Test) Execute(
 	return nil
 }
 
-var Plugin = plugin.NewPlugin("test", func(plugin *plugin.Plugin) error {
-	err := plugin.RegisterExecutor("Test", task.BoxExecutor(Executor_Test{}))
-	if err != nil {
-		return fmt.Errorf("failed to register Test executor: %w", err)
-	}
-
-	return nil
-})
+var Plugin = plugin.NewPlugin("test",
+	plugin.WithExecutor("Test", Executor_Test{}),
+)
 
 func main() {
 	Plugin.Serve()

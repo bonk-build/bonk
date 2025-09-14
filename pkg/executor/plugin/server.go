@@ -24,21 +24,29 @@ import (
 
 type Plugin struct {
 	tree.ExecutorManager
+	goplugin.NetRPCUnsupportedPlugin
 
 	name string
 }
 
-var _ task.GenericExecutor = (*Plugin)(nil)
+var (
+	_ task.GenericExecutor = (*Plugin)(nil)
+	_ goplugin.GRPCPlugin  = (*Plugin)(nil)
+)
 
-func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
+type PluginOption func(plugin *Plugin) error
+
+func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 	plugin := &Plugin{
 		ExecutorManager: tree.NewExecutorManager(),
 		name:            name,
 	}
 
-	err := initializer(plugin)
-	if err != nil {
-		panic(fmt.Errorf("failed to initialize plugin: %w", err))
+	for _, initializer := range initializers {
+		err := initializer(plugin)
+		if err != nil {
+			panic(fmt.Errorf("failed to initialize plugin: %w", err))
+		}
 	}
 
 	return plugin
@@ -46,37 +54,31 @@ func NewPlugin(name string, initializer func(plugin *Plugin) error) *Plugin {
 
 func (p *Plugin) Name() string { return p.name }
 
+// WithExecutor registers an executor with the plugin.
+func WithExecutor[Params any](name string, exec task.Executor[Params]) PluginOption {
+	return func(plugin *Plugin) error {
+		return plugin.RegisterExecutor(name, task.BoxExecutor(exec))
+	}
+}
+
 // Call from main() to start the plugin gRPC server.
 func (p *Plugin) Serve() {
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: Handshake,
-		Plugins: map[string]goplugin.Plugin{
-			"executor": &ExecutorServer{
-				GenericExecutor: &p.ExecutorManager,
-			},
-		},
-		GRPCServer: goplugin.DefaultGRPCServer,
-		Logger:     shclog.New(slog.Default()),
+		Plugins:         p.getPluginSet(),
+		GRPCServer:      goplugin.DefaultGRPCServer,
+		Logger:          shclog.New(slog.Default()),
 	})
 }
 
-type ExecutorServer struct {
-	goplugin.NetRPCUnsupportedPlugin
-	task.GenericExecutor
-}
-
-var (
-	_ task.GenericExecutor = (*ExecutorServer)(nil)
-	_ goplugin.GRPCPlugin  = (*ExecutorServer)(nil)
-)
-
-func (p *ExecutorServer) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
+func (p *Plugin) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	rpc.RegisterGRPCServer(server, p)
 
 	return nil
 }
 
-func (*ExecutorServer) GRPCClient(
+// Unsupported.
+func (*Plugin) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
 	c *grpc.ClientConn,
@@ -85,7 +87,7 @@ func (*ExecutorServer) GRPCClient(
 }
 
 // Override Execute to add some special details to the context.
-func (p *ExecutorServer) Execute(
+func (p *Plugin) Execute(
 	ctx context.Context,
 	tsk *task.GenericTask,
 	res *task.Result,
@@ -98,8 +100,14 @@ func (p *ExecutorServer) Execute(
 		return err
 	}
 
-	multierr.AppendInto(&err, p.GenericExecutor.Execute(ctx, tsk, res))
+	multierr.AppendInto(&err, p.ExecutorManager.Execute(ctx, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err
+}
+
+func (p *Plugin) getPluginSet() goplugin.PluginSet {
+	return map[string]goplugin.Plugin{
+		"executor": p,
+	}
 }
