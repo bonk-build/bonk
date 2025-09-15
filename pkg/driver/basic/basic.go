@@ -6,66 +6,29 @@ package basic
 
 import (
 	"context"
-	"errors"
 
 	"go.uber.org/multierr"
 
+	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
 )
 
-type BasicDriver struct {
+type basicDriver struct {
 	plugin.PluginClientManager
 	scheduler.Scheduler
 
 	openSessions []task.Session
 }
 
-type BasicDriverOption = func(context.Context, *BasicDriver) error
+var _ driver.Driver = (*basicDriver)(nil)
 
-func WithPlugins(plugins ...string) BasicDriverOption {
-	return func(ctx context.Context, drv *BasicDriver) error {
-		return drv.StartPlugins(ctx, plugins...)
+func New(ctx context.Context, options ...driver.DriverOption) (driver.Driver, error) {
+	result := &basicDriver{
+		PluginClientManager: plugin.NewPluginClientManager(),
 	}
-}
-
-func WithLocalSession(path string) BasicDriverOption {
-	return func(ctx context.Context, drv *BasicDriver) error {
-		_, err := drv.NewLocalSession(ctx, path)
-
-		return err
-	}
-}
-
-func WithTask[Params any](
-	executor, name string,
-	args Params,
-	inputs ...string,
-) BasicDriverOption {
-	return func(ctx context.Context, drv *BasicDriver) error {
-		if len(drv.openSessions) == 0 {
-			return errors.New("cannot schedule task without an open session")
-		}
-
-		return drv.AddTask(
-			ctx,
-			task.New(
-				drv.openSessions[len(drv.openSessions)-1],
-				executor,
-				name,
-				args,
-				inputs...,
-			).Box(),
-		)
-	}
-}
-
-func New(ctx context.Context, options ...BasicDriverOption) (*BasicDriver, error) {
-	result := &BasicDriver{
-		PluginClientManager: *plugin.NewPluginClientManager(),
-	}
-	result.Scheduler = *scheduler.NewScheduler(&result.PluginClientManager, 100) //nolint:mnd
+	result.Scheduler = scheduler.NewScheduler(result.PluginClientManager, 100) //nolint:mnd
 
 	var err error
 	for _, option := range options {
@@ -80,7 +43,7 @@ func New(ctx context.Context, options ...BasicDriverOption) (*BasicDriver, error
 	return result, nil
 }
 
-func (drv *BasicDriver) NewLocalSession(
+func (drv *basicDriver) NewLocalSession(
 	ctx context.Context,
 	path string,
 ) (task.LocalSession, error) {
@@ -96,10 +59,10 @@ func (drv *BasicDriver) NewLocalSession(
 	return session, nil
 }
 
-func (drv *BasicDriver) Shutdown(ctx context.Context) {
+func (drv *basicDriver) Shutdown(ctx context.Context) {
 	for _, session := range drv.openSessions {
 		drv.CloseSession(ctx, session.ID())
 	}
 
-	drv.PluginClientManager.Shutdown()
+	drv.PluginClientManager.Shutdown(ctx)
 }

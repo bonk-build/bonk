@@ -15,6 +15,7 @@ import (
 	slogmulti "github.com/samber/slog-multi"
 	slogctx "github.com/veqryn/slog-context"
 
+	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/driver/basic"
 )
 
@@ -33,39 +34,40 @@ var rootCmd = &cobra.Command{
 		cobra.CheckErr(err)
 
 		drv, err := basic.New(cmd.Context(),
-			basic.WithPlugins(
+			driver.WithPlugins(
 				"go.bonk.build/plugins/test",
 				"go.bonk.build/plugins/k8s/resources",
 				"go.bonk.build/plugins/k8s/kustomize",
 			),
-			basic.WithLocalSession(path.Join(cwd, "testdata")),
-			basic.WithTask(
-				"test.Test",
-				"Test.Test",
-				map[string]any{
-					"value": 3,
-				},
-			),
-			basic.WithTask(
-				"resources.Resources",
-				"Test.Resources",
-				map[string]any{
-					"resources": []map[string]any{
-						{
-							"apiVersion": "v1",
-							"kind":       "Namespace",
-							"metadata": map[string]any{
-								"name": "Testing",
+			driver.WithLocalSession(path.Join(cwd, "testdata"),
+				driver.WithTask(
+					"test.Test",
+					"Test.Test",
+					map[string]any{
+						"value": 3,
+					},
+				),
+				driver.WithTask(
+					"resources.Resources",
+					"Test.Resources",
+					map[string]any{
+						"resources": []map[string]any{
+							{
+								"apiVersion": "v1",
+								"kind":       "Namespace",
+								"metadata": map[string]any{
+									"name": "Testing",
+								},
 							},
 						},
 					},
-				},
-			),
-			basic.WithTask(
-				"kustomize.Kustomize",
-				"Test.Kustomize",
-				map[string]any{},
-				".bonk/Test.Resources/resources.yaml",
+				),
+				driver.WithTask(
+					"kustomize.Kustomize",
+					"Test.Kustomize",
+					map[string]any{},
+					".bonk/Test.Resources/resources.yaml",
+				),
 			),
 		)
 		cobra.CheckErr(err)
