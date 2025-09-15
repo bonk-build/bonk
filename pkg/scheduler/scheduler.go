@@ -36,8 +36,7 @@ func NewScheduler(executorManager task.GenericExecutor, concurrency uint) *Sched
 	}
 }
 
-func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
-	ctx := context.Background()
+func (s *Scheduler) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error {
 	ctx = slogctx.Append(ctx, "task", tsk.ID.Name)
 	ctx = slogctx.Append(ctx, "executor", tsk.ID.Executor)
 
@@ -65,7 +64,7 @@ func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
 
 		var followupErr error
 		for _, followup := range result.FollowupTasks {
-			multierr.AppendInto(&followupErr, s.AddTask(&followup)) //nolint:contextcheck
+			multierr.AppendInto(&followupErr, s.AddTask(ctx, &followup))
 		}
 		if followupErr != nil {
 			slog.ErrorContext(ctx, "failed to schedule followup tasks", "error", followupErr)

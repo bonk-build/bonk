@@ -53,7 +53,7 @@ var rootCmd = &cobra.Command{
 		cobra.CheckErr(err)
 
 		cobra.CheckErr(multierr.Combine(
-			sched.AddTask(
+			sched.AddTask(cmd.Context(),
 				task.New(
 					session,
 					"test.Test",
@@ -63,7 +63,7 @@ var rootCmd = &cobra.Command{
 					},
 				).Box(),
 			),
-			sched.AddTask(
+			sched.AddTask(cmd.Context(),
 				task.New(
 					session,
 					"resources.Resources",
@@ -81,7 +81,7 @@ var rootCmd = &cobra.Command{
 					},
 				).Box(),
 			),
-			sched.AddTask(
+			sched.AddTask(cmd.Context(),
 				task.New(
 					session,
 					"kustomize.Kustomize",
