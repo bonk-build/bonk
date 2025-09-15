@@ -23,6 +23,26 @@ var defaultArgs = Args{
 	Val2: 69420,
 }
 
+func Test_NopTask(t *testing.T) {
+	t.Parallel()
+
+	session := task.NewTestSession()
+	typed := task.New[any](session, "", "", defaultArgs)
+	boxed := typed.Box()
+
+	require.Same(t, typed, boxed)
+}
+
+func Test_NopExecutor(t *testing.T) {
+	t.Parallel()
+
+	mock := gomock.NewController(t)
+	typed := task.NewMockExecutor[any](mock)
+	boxed := task.BoxExecutor(typed)
+
+	require.Same(t, typed, boxed)
+}
+
 func Test_StraightConversion(t *testing.T) {
 	t.Parallel()
 
