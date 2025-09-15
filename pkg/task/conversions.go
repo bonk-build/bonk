@@ -15,6 +15,10 @@ import (
 
 // Box converts a task with typed arguments to a task with generic arguments.
 func (t *Task[Params]) Box() *GenericTask {
+	if generic, ok := any(t).(*GenericTask); ok {
+		return generic
+	}
+
 	return &GenericTask{
 		ID:      t.ID,
 		Session: t.Session,
@@ -75,6 +79,10 @@ var _ GenericExecutor = (*wrappedExecutor[any])(nil)
 func BoxExecutor[Params any](
 	impl Executor[Params],
 ) GenericExecutor {
+	if generic, ok := impl.(GenericExecutor); ok {
+		return generic
+	}
+
 	return wrappedExecutor[Params]{
 		Executor: impl,
 	}
