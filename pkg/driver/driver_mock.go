@@ -238,6 +238,44 @@ func (c *MockDriverOpenSessionCall) DoAndReturn(f func(context.Context, task.Ses
 	return c
 }
 
+// RegisterExecutor mocks base method.
+func (m *MockDriver) RegisterExecutor(name string, exec task.GenericExecutor) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RegisterExecutor", name, exec)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RegisterExecutor indicates an expected call of RegisterExecutor.
+func (mr *MockDriverMockRecorder) RegisterExecutor(name, exec any) *MockDriverRegisterExecutorCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterExecutor", reflect.TypeOf((*MockDriver)(nil).RegisterExecutor), name, exec)
+	return &MockDriverRegisterExecutorCall{Call: call}
+}
+
+// MockDriverRegisterExecutorCall wrap *gomock.Call
+type MockDriverRegisterExecutorCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockDriverRegisterExecutorCall) Return(arg0 error) *MockDriverRegisterExecutorCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockDriverRegisterExecutorCall) Do(f func(string, task.GenericExecutor) error) *MockDriverRegisterExecutorCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockDriverRegisterExecutorCall) DoAndReturn(f func(string, task.GenericExecutor) error) *MockDriverRegisterExecutorCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Run mocks base method.
 func (m *MockDriver) Run() {
 	m.ctrl.T.Helper()
@@ -349,6 +387,46 @@ func (c *MockDriverStartPluginsCall) Do(f func(context.Context, ...string) error
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockDriverStartPluginsCall) DoAndReturn(f func(context.Context, ...string) error) *MockDriverStartPluginsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UnregisterExecutors mocks base method.
+func (m *MockDriver) UnregisterExecutors(names ...string) {
+	m.ctrl.T.Helper()
+	varargs := []any{}
+	for _, a := range names {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "UnregisterExecutors", varargs...)
+}
+
+// UnregisterExecutors indicates an expected call of UnregisterExecutors.
+func (mr *MockDriverMockRecorder) UnregisterExecutors(names ...any) *MockDriverUnregisterExecutorsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UnregisterExecutors", reflect.TypeOf((*MockDriver)(nil).UnregisterExecutors), names...)
+	return &MockDriverUnregisterExecutorsCall{Call: call}
+}
+
+// MockDriverUnregisterExecutorsCall wrap *gomock.Call
+type MockDriverUnregisterExecutorsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockDriverUnregisterExecutorsCall) Return() *MockDriverUnregisterExecutorsCall {
+	c.Call = c.Call.Return()
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockDriverUnregisterExecutorsCall) Do(f func(...string)) *MockDriverUnregisterExecutorsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockDriverUnregisterExecutorsCall) DoAndReturn(f func(...string)) *MockDriverUnregisterExecutorsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
