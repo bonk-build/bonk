@@ -14,19 +14,26 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-type PluginClientManager struct {
+type PluginClientManager interface {
+	task.GenericExecutor
+
+	StartPlugins(ctx context.Context, plugins ...string) error
+	Shutdown(ctx context.Context)
+}
+
+type pluginClientManager struct {
 	tree.ExecutorManager
 
 	mu sync.Mutex
 }
 
-func NewPluginClientManager() *PluginClientManager {
-	return &PluginClientManager{
+func NewPluginClientManager() PluginClientManager {
+	return &pluginClientManager{
 		ExecutorManager: tree.NewExecutorManager(),
 	}
 }
 
-func (pm *PluginClientManager) StartPlugin(ctx context.Context, pluginPath string) error {
+func (pm *pluginClientManager) StartPlugin(ctx context.Context, pluginPath string) error {
 	plug, err := NewPluginClient(ctx, pluginPath)
 	if err != nil {
 		return err
@@ -45,7 +52,7 @@ func (pm *PluginClientManager) StartPlugin(ctx context.Context, pluginPath strin
 	return nil
 }
 
-func (pm *PluginClientManager) StartPlugins(ctx context.Context, pluginPath ...string) error {
+func (pm *pluginClientManager) StartPlugins(ctx context.Context, pluginPath ...string) error {
 	var (
 		pluginWaiter sync.WaitGroup
 		allErrs      error
@@ -70,7 +77,7 @@ func (pm *PluginClientManager) StartPlugins(ctx context.Context, pluginPath ...s
 	return allErrs
 }
 
-func (pm *PluginClientManager) Shutdown() {
+func (pm *pluginClientManager) Shutdown(context.Context) {
 	pm.mu.Lock()
 	pm.ForEachExecutor(func(name string, exec task.GenericExecutor) {
 		pm.UnregisterExecutors(name)

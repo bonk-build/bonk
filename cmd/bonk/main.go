@@ -8,8 +8,6 @@ import (
 	"os"
 	"path"
 
-	"go.uber.org/multierr"
-
 	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -17,9 +15,8 @@ import (
 	slogmulti "github.com/samber/slog-multi"
 	slogctx "github.com/veqryn/slog-context"
 
-	"go.bonk.build/pkg/executor/plugin"
-	"go.bonk.build/pkg/scheduler"
-	"go.bonk.build/pkg/task"
+	"go.bonk.build/pkg/driver"
+	"go.bonk.build/pkg/driver/basic"
 )
 
 var (
@@ -33,39 +30,24 @@ var rootCmd = &cobra.Command{
 	Short: "A cue-based configuration build system.",
 
 	Run: func(cmd *cobra.Command, args []string) {
-		pum := plugin.NewPluginClientManager()
-		defer pum.Shutdown()
-
-		sched := scheduler.NewScheduler(pum, concurrency)
-
-		err := pum.StartPlugins(cmd.Context(),
-			"go.bonk.build/plugins/test",
-			"go.bonk.build/plugins/k8s/resources",
-			"go.bonk.build/plugins/k8s/kustomize",
-		)
+		cwd, err := os.Getwd()
 		cobra.CheckErr(err)
 
-		cwd, _ := os.Getwd()
-		session := task.NewLocalSession(task.NewSessionId(), path.Join(cwd, "testdata"))
-
-		err = pum.OpenSession(cmd.Context(), session)
-		defer pum.CloseSession(cmd.Context(), session.ID())
-		cobra.CheckErr(err)
-
-		cobra.CheckErr(multierr.Combine(
-			sched.AddTask(
-				task.New(
-					session,
+		drv, err := basic.New(cmd.Context(),
+			driver.WithPlugins(
+				"go.bonk.build/plugins/test",
+				"go.bonk.build/plugins/k8s/resources",
+				"go.bonk.build/plugins/k8s/kustomize",
+			),
+			driver.WithLocalSession(path.Join(cwd, "testdata"),
+				driver.WithTask(
 					"test.Test",
 					"Test.Test",
 					map[string]any{
 						"value": 3,
 					},
-				).Box(),
-			),
-			sched.AddTask(
-				task.New(
-					session,
+				),
+				driver.WithTask(
 					"resources.Resources",
 					"Test.Resources",
 					map[string]any{
@@ -79,21 +61,19 @@ var rootCmd = &cobra.Command{
 							},
 						},
 					},
-				).Box(),
-			),
-			sched.AddTask(
-				task.New(
-					session,
+				),
+				driver.WithTask(
 					"kustomize.Kustomize",
 					"Test.Kustomize",
 					map[string]any{},
 					".bonk/Test.Resources/resources.yaml",
-				).Box(),
-				"Test.Resources",
+				),
 			),
-		))
+		)
+		cobra.CheckErr(err)
+		defer drv.Shutdown(cmd.Context())
 
-		sched.Run()
+		drv.Run()
 	},
 }
 

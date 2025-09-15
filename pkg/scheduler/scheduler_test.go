@@ -27,7 +27,7 @@ func Test_SenderIsCalled(t *testing.T) {
 
 	scheduler := NewScheduler(sender, 1)
 
-	require.NoError(t, scheduler.AddTask(task.New[any](session, "test", "task1", nil)))
+	require.NoError(t, scheduler.AddTask(t.Context(), task.New[any](session, "test", "task1", nil)))
 
 	scheduler.Run()
 }

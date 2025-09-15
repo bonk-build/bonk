@@ -16,7 +16,12 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-type Scheduler struct {
+type Scheduler interface {
+	AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error
+	Run()
+}
+
+type scheduler struct {
 	executorManager task.GenericExecutor
 	executor        gotaskflow.Executor
 	tasks           map[string]*gotaskflow.Task
@@ -25,8 +30,10 @@ type Scheduler struct {
 	rootFlow     *gotaskflow.TaskFlow
 }
 
-func NewScheduler(executorManager task.GenericExecutor, concurrency uint) *Scheduler {
-	return &Scheduler{
+var _ Scheduler = (*scheduler)(nil)
+
+func NewScheduler(executorManager task.GenericExecutor, concurrency uint) Scheduler {
+	return &scheduler{
 		executorManager: executorManager,
 		executor:        gotaskflow.NewExecutor(concurrency),
 		tasks:           make(map[string]*gotaskflow.Task),
@@ -36,8 +43,7 @@ func NewScheduler(executorManager task.GenericExecutor, concurrency uint) *Sched
 	}
 }
 
-func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
-	ctx := context.Background()
+func (s *scheduler) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error {
 	ctx = slogctx.Append(ctx, "task", tsk.ID.Name)
 	ctx = slogctx.Append(ctx, "executor", tsk.ID.Executor)
 
@@ -65,7 +71,7 @@ func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
 
 		var followupErr error
 		for _, followup := range result.FollowupTasks {
-			multierr.AppendInto(&followupErr, s.AddTask(&followup)) //nolint:contextcheck
+			multierr.AppendInto(&followupErr, s.AddTask(ctx, &followup))
 		}
 		if followupErr != nil {
 			slog.ErrorContext(ctx, "failed to schedule followup tasks", "error", followupErr)
@@ -93,7 +99,7 @@ func (s *Scheduler) AddTask(tsk *task.GenericTask, deps ...string) error {
 	return nil
 }
 
-func (s *Scheduler) Run() {
+func (s *scheduler) Run() {
 	for s.flowHasTasks {
 		existingFlow := s.rootFlow
 
