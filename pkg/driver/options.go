@@ -14,6 +14,12 @@ import (
 
 type DriverOption = func(context.Context, Driver) error
 
+func WithExecutor[Params any](name string, exec task.Executor[Params]) DriverOption {
+	return func(ctx context.Context, drv Driver) error {
+		return drv.RegisterExecutor(name, task.BoxExecutor(exec))
+	}
+}
+
 func WithPlugins(plugins ...string) DriverOption {
 	return func(ctx context.Context, drv Driver) error {
 		return drv.StartPlugins(ctx, plugins...)

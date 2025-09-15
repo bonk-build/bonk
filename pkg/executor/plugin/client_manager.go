@@ -17,6 +17,10 @@ import (
 type PluginClientManager interface {
 	task.GenericExecutor
 
+	// NOTE(colden): these should eventually be moved out of here
+	RegisterExecutor(name string, exec task.GenericExecutor) error
+	UnregisterExecutors(names ...string)
+
 	StartPlugins(ctx context.Context, plugins ...string) error
 	Shutdown(ctx context.Context)
 }
