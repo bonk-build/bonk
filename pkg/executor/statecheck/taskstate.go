@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package scheduler
+package statecheck
 
 import (
 	"encoding/json"

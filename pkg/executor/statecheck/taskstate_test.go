@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package scheduler_test
+package statecheck_test
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
-	"go.bonk.build/pkg/scheduler"
+	"go.bonk.build/pkg/executor/statecheck"
 	"go.bonk.build/pkg/task"
 )
 
@@ -38,10 +38,10 @@ func TestSaveState(t *testing.T) {
 
 	tsk, result := makeTestTask(t)
 
-	err := scheduler.SaveState(&tsk, &result)
+	err := statecheck.SaveState(&tsk, &result)
 	require.NoError(t, err)
 
-	exists, err := afero.Exists(tsk.OutputFS(), scheduler.StateFile)
+	exists, err := afero.Exists(tsk.OutputFS(), statecheck.StateFile)
 	require.NoError(t, err)
 	require.True(t, exists)
 }
@@ -51,15 +51,15 @@ func TestStateMismatches_Args(t *testing.T) {
 
 	tsk, result := makeTestTask(t)
 
-	err := scheduler.SaveState(&tsk, &result)
+	err := statecheck.SaveState(&tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := scheduler.DetectStateMismatches(&tsk)
+	mismatches := statecheck.DetectStateMismatches(&tsk)
 	require.Empty(t, mismatches)
 
 	tsk.Args = 12
 
-	mismatches = scheduler.DetectStateMismatches(&tsk)
+	mismatches = statecheck.DetectStateMismatches(&tsk)
 	require.Len(t, mismatches, 1)
 	require.Contains(t, mismatches, "arguments-checksum")
 }
@@ -72,10 +72,10 @@ func TestStateMismatches_Inputs(t *testing.T) {
 
 	tsk, result := makeTestTask(t)
 
-	err := scheduler.SaveState(&tsk, &result)
+	err := statecheck.SaveState(&tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := scheduler.DetectStateMismatches(&tsk)
+	mismatches := statecheck.DetectStateMismatches(&tsk)
 	require.Empty(t, mismatches)
 
 	tsk.Inputs = []string{inputFileName}
@@ -87,7 +87,7 @@ func TestStateMismatches_Inputs(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, len(inputFileContents), written)
 
-	mismatches = scheduler.DetectStateMismatches(&tsk)
+	mismatches = statecheck.DetectStateMismatches(&tsk)
 	require.Len(t, mismatches, 2)
 	require.Contains(t, mismatches, "inputs")
 	require.Contains(t, mismatches, "inputs-checksum")
@@ -110,17 +110,17 @@ func TestStateMismatches_InputsChecksum(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, len(inputFileContents1), written)
 
-	err = scheduler.SaveState(&tsk, &result)
+	err = statecheck.SaveState(&tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := scheduler.DetectStateMismatches(&tsk)
+	mismatches := statecheck.DetectStateMismatches(&tsk)
 	require.Empty(t, mismatches)
 
 	written, err = inputFile.WriteString(inputFileContents1)
 	require.NoError(t, err)
 	require.Equal(t, len(inputFileContents2), written)
 
-	mismatches = scheduler.DetectStateMismatches(&tsk)
+	mismatches = statecheck.DetectStateMismatches(&tsk)
 	require.Len(t, mismatches, 1)
 	require.Contains(t, mismatches, "inputs-checksum")
 }

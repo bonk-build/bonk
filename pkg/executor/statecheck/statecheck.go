@@ -1,0 +1,54 @@
+// Copyright © 2025 Colden Cullen
+// SPDX-License-Identifier: MIT
+
+// statecheck provides an executor that avoids re-running tasks if they are already up to date.
+package statecheck
+
+import (
+	"context"
+	"log/slog"
+
+	"go.bonk.build/pkg/task"
+)
+
+type statechecker struct {
+	task.GenericExecutor
+}
+
+func New(child task.GenericExecutor) task.GenericExecutor {
+	return statechecker{
+		GenericExecutor: child,
+	}
+}
+
+// Execute implements task.Executor.
+func (s statechecker) Execute(
+	ctx context.Context,
+	tsk *task.GenericTask,
+	result *task.Result,
+) error {
+	mismatches := DetectStateMismatches(tsk)
+	if mismatches == nil {
+		slog.DebugContext(ctx, "states match, skipping task")
+
+		return nil
+	}
+
+	slog.DebugContext(ctx, "state mismatch, running task", "mismatches", mismatches)
+
+	err := s.GenericExecutor.Execute(ctx, tsk, result)
+	if err != nil {
+		return err //nolint:wrapcheck
+	}
+
+	slog.DebugContext(ctx, "task succeeded, saving state")
+
+	err = SaveState(tsk, result)
+	if err != nil {
+		slog.WarnContext(ctx, "failed to save task state", "error", err)
+
+		return err
+	}
+
+	return nil
+}
