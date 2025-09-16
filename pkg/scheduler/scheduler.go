@@ -22,9 +22,9 @@ type Scheduler interface {
 }
 
 type scheduler struct {
-	executorManager task.GenericExecutor
-	executor        gotaskflow.Executor
-	tasks           map[string]*gotaskflow.Task
+	child    task.GenericExecutor
+	executor gotaskflow.Executor
+	tasks    map[string]*gotaskflow.Task
 
 	flowHasTasks bool
 	rootFlow     *gotaskflow.TaskFlow
@@ -32,11 +32,11 @@ type scheduler struct {
 
 var _ Scheduler = (*scheduler)(nil)
 
-func NewScheduler(executorManager task.GenericExecutor, concurrency uint) Scheduler {
+func NewScheduler(child task.GenericExecutor, concurrency uint) Scheduler {
 	return &scheduler{
-		executorManager: executorManager,
-		executor:        gotaskflow.NewExecutor(concurrency),
-		tasks:           make(map[string]*gotaskflow.Task),
+		child:    child,
+		executor: gotaskflow.NewExecutor(concurrency),
+		tasks:    make(map[string]*gotaskflow.Task),
 
 		flowHasTasks: false,
 		rootFlow:     gotaskflow.NewTaskFlow("bonk"),
@@ -50,24 +50,13 @@ func (s *scheduler) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...
 	taskName := tsk.ID.String()
 	s.flowHasTasks = true
 	newTask := s.rootFlow.NewTask(taskName, func() {
-		mismatches := DetectStateMismatches(tsk)
-		if mismatches == nil {
-			slog.DebugContext(ctx, "states match, skipping task")
-
-			return
-		}
-
-		slog.DebugContext(ctx, "state mismatch, running task", "mismatches", mismatches)
-
 		var result task.Result
-		err := s.executorManager.Execute(ctx, tsk, &result)
+		err := s.child.Execute(ctx, tsk, &result)
 		if err != nil {
 			slog.DebugContext(ctx, "error executing task", "error", err)
 
 			return
 		}
-
-		slog.Info("task succeeded, saving state")
 
 		var followupErr error
 		for _, followup := range result.FollowupTasks {
@@ -75,13 +64,6 @@ func (s *scheduler) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...
 		}
 		if followupErr != nil {
 			slog.ErrorContext(ctx, "failed to schedule followup tasks", "error", followupErr)
-		}
-
-		err = SaveState(tsk, &result)
-		if err != nil {
-			slog.ErrorContext(ctx, "failed to save task state", "error", err)
-
-			return
 		}
 	})
 

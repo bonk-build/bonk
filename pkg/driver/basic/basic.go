@@ -11,6 +11,7 @@ import (
 
 	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/executor/plugin"
+	"go.bonk.build/pkg/executor/statecheck"
 	"go.bonk.build/pkg/scheduler"
 	"go.bonk.build/pkg/task"
 )
@@ -28,7 +29,10 @@ func New(ctx context.Context, options ...driver.DriverOption) (driver.Driver, er
 	result := &basicDriver{
 		PluginClientManager: plugin.NewPluginClientManager(),
 	}
-	result.Scheduler = scheduler.NewScheduler(result.PluginClientManager, 100) //nolint:mnd
+	result.Scheduler = scheduler.NewScheduler(
+		statecheck.New(result.PluginClientManager),
+		100, //nolint:mnd
+	)
 
 	var err error
 	for _, option := range options {
