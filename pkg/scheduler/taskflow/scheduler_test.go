@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package scheduler
+package taskflow_test
 
 import (
 	"testing"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/scheduler/taskflow"
 	"go.bonk.build/pkg/task"
 )
 
@@ -25,7 +26,7 @@ func Test_SenderIsCalled(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	scheduler := NewScheduler(sender, 1)
+	scheduler := taskflow.New(sender, 1)
 
 	require.NoError(t, scheduler.AddTask(t.Context(), task.New[any](session, "test", "task1", nil)))
 
