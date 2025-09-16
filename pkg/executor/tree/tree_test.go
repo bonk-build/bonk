@@ -29,7 +29,7 @@ func Test_Add(t *testing.T) {
 
 	exec := task.NewMockExecutor[any](mock)
 
-	manager := tree.NewExecutorManager()
+	manager := tree.New()
 
 	err := manager.RegisterExecutor(execName, exec)
 	require.NoError(t, err)
@@ -60,7 +60,7 @@ func Test_Call(t *testing.T) {
 	exec := task.NewMockExecutor[any](mock)
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
 
-	manager := tree.NewExecutorManager()
+	manager := tree.New()
 
 	err := manager.RegisterExecutor(execName, exec)
 	require.NoError(t, err)
@@ -76,7 +76,7 @@ func Test_Remove(t *testing.T) {
 	const execName = "testing.child.abc"
 
 	exec := task.NewMockExecutor[any](mock)
-	manager := tree.NewExecutorManager()
+	manager := tree.New()
 
 	err := manager.RegisterExecutor(execName, exec)
 	require.NoError(t, err)
@@ -101,7 +101,7 @@ func Test_Add_Overlap(t *testing.T) {
 		"testing.sibling",
 	}
 
-	manager := tree.NewExecutorManager()
+	manager := tree.New()
 
 	for _, execName := range execNames {
 		exec := task.NewMockExecutor[any](mock)

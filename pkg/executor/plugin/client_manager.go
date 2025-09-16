@@ -26,14 +26,14 @@ type PluginClientManager interface {
 }
 
 type pluginClientManager struct {
-	tree.ExecutorManager
+	tree.ExecutorTree
 
 	mu sync.Mutex
 }
 
 func NewPluginClientManager() PluginClientManager {
 	return &pluginClientManager{
-		ExecutorManager: tree.NewExecutorManager(),
+		ExecutorTree: tree.New(),
 	}
 }
 
