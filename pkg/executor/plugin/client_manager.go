@@ -64,16 +64,13 @@ func (pm *pluginClientManager) StartPlugins(ctx context.Context, pluginPath ...s
 	)
 
 	for _, plugin := range pluginPath {
-		pluginWaiter.Add(1)
-		go func() {
+		pluginWaiter.Go(func() {
 			err := pm.StartPlugin(ctx, plugin)
 
 			errMu.Lock()
 			multierr.AppendInto(&allErrs, err)
 			errMu.Unlock()
-
-			pluginWaiter.Done()
-		}()
+		})
 	}
 
 	pluginWaiter.Wait()
