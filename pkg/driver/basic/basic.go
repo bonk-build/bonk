@@ -13,6 +13,7 @@ import (
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/executor/statecheck"
 	"go.bonk.build/pkg/scheduler"
+	"go.bonk.build/pkg/scheduler/taskflow"
 	"go.bonk.build/pkg/task"
 )
 
@@ -29,7 +30,7 @@ func New(ctx context.Context, options ...driver.DriverOption) (driver.Driver, er
 	result := &basicDriver{
 		PluginClientManager: plugin.NewPluginClientManager(),
 	}
-	result.Scheduler = scheduler.NewScheduler(
+	result.Scheduler = taskflow.New(
 		statecheck.New(result.PluginClientManager),
 		100, //nolint:mnd
 	)
