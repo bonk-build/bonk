@@ -23,7 +23,7 @@ func identity(str string) string {
 	return str
 }
 
-func trimFileNewlines(waitGroup *sync.WaitGroup, root *os.Root, file string) {
+func trimFileNewlines(root *os.Root, file string) {
 	stat, err := root.Stat(file)
 	cobra.CheckErr(err)
 
@@ -60,8 +60,6 @@ func trimFileNewlines(waitGroup *sync.WaitGroup, root *os.Root, file string) {
 
 	err = entryFile.Close()
 	cobra.CheckErr(err)
-
-	waitGroup.Done()
 }
 
 // docsCmd represents the docs command.
@@ -86,8 +84,9 @@ var docsCmd = &cobra.Command{
 				continue
 			}
 
-			waitGroup.Add(1)
-			go trimFileNewlines(&waitGroup, root, entry.Name())
+			waitGroup.Go(func() {
+				trimFileNewlines(root, entry.Name())
+			})
 		}
 
 		waitGroup.Wait()
