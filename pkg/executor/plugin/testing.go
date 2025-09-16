@@ -29,7 +29,7 @@ func (plugin *Plugin) ServeTest(t *testing.T) task.GenericExecutor {
 		server.Stop()
 	})
 
-	executorManager := tree.NewExecutorManager()
+	executorManager := tree.New()
 	require.NoError(t, executorManager.RegisterExecutor(plugin.Name(), pluginClient))
 
 	return &executorManager

@@ -23,7 +23,7 @@ import (
 )
 
 type Plugin struct {
-	tree.ExecutorManager
+	tree.ExecutorTree
 	goplugin.NetRPCUnsupportedPlugin
 
 	name string
@@ -38,8 +38,8 @@ type PluginOption func(plugin *Plugin) error
 
 func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 	plugin := &Plugin{
-		ExecutorManager: tree.NewExecutorManager(),
-		name:            name,
+		ExecutorTree: tree.New(),
+		name:         name,
 	}
 
 	for _, initializer := range initializers {
@@ -100,7 +100,7 @@ func (p *Plugin) Execute(
 		return err
 	}
 
-	multierr.AppendInto(&err, p.ExecutorManager.Execute(ctx, tsk, res))
+	multierr.AppendInto(&err, p.ExecutorTree.Execute(ctx, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err
