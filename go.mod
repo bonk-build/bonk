@@ -3,7 +3,7 @@
 
 module go.bonk.build
 
-go 1.24.5
+go 1.25.0
 
 tool (
 	cuelang.org/go/cmd/cue
