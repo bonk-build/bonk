@@ -33,7 +33,7 @@ func makeTestTask(t *testing.T) (task.GenericTask, task.Result) {
 	return tsk, result
 }
 
-func TestSaveState(t *testing.T) {
+func TestTaskState_SaveState(t *testing.T) {
 	t.Parallel()
 
 	tsk, result := makeTestTask(t)
@@ -46,7 +46,7 @@ func TestSaveState(t *testing.T) {
 	require.True(t, exists)
 }
 
-func TestStateMismatches_Args(t *testing.T) {
+func TestTaskState_StateMismatches_Args(t *testing.T) {
 	t.Parallel()
 
 	tsk, result := makeTestTask(t)
@@ -64,7 +64,7 @@ func TestStateMismatches_Args(t *testing.T) {
 	require.Contains(t, mismatches, "arguments-checksum")
 }
 
-func TestStateMismatches_Inputs(t *testing.T) {
+func TestTaskState_StateMismatches_Inputs(t *testing.T) {
 	t.Parallel()
 
 	const inputFileName = "input-file"
@@ -93,7 +93,7 @@ func TestStateMismatches_Inputs(t *testing.T) {
 	require.Contains(t, mismatches, "inputs-checksum")
 }
 
-func TestStateMismatches_InputsChecksum(t *testing.T) {
+func TestTaskState_StateMismatches_InputsChecksum(t *testing.T) {
 	t.Parallel()
 
 	const inputFileName = "input-file"
