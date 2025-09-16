@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 // statecheck provides an executor that avoids re-running tasks if they are already up to date.
+// State files are saved in the task's output fs as [StateFile].
 package statecheck
 
 import (
