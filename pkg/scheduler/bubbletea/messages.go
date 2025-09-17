@@ -23,6 +23,8 @@ const (
 type TaskStatusMsg struct {
 	tskId  string
 	status TaskStatus
+
+	err error
 }
 
 // Command that emits a task status update.
@@ -60,19 +62,28 @@ func (tsk TaskScheduleMsg) GetExecCmd() tea.Cmd {
 		var result task.Result
 		err := tsk.exec.Execute(tsk.ctx, tsk.tsk, &result)
 		if err != nil {
-			return TaskStatusUpdate(tsk.tsk, StatusFail)
+			return TaskStatusMsg{
+				tskId:  tsk.tsk.ID.Name,
+				status: StatusFail,
+				err:    err,
+			}
 		}
 
-		followups := make([]tea.Cmd, 1+len(result.FollowupTasks))
-		followups[0] = TaskStatusUpdate(tsk.tsk, StatusSuccess)
-		for idx, followup := range result.FollowupTasks {
-			followups[1+idx] = ScheduleTask(
-				tsk.ctx,
-				&followup,
-				tsk.exec,
-			)
+		statusUpdateCmd := TaskStatusUpdate(tsk.tsk, StatusSuccess)
+
+		if len(result.FollowupTasks) > 0 {
+			followups := make([]tea.Cmd, len(result.FollowupTasks))
+			for idx, followup := range result.FollowupTasks {
+				followups[idx] = ScheduleTask(
+					tsk.ctx,
+					&followup,
+					tsk.exec,
+				)
+			}
+
+			statusUpdateCmd = tea.Sequence(tea.Batch(followups...), statusUpdateCmd)
 		}
 
-		return tea.BatchMsg(followups)
+		return statusUpdateCmd()
 	})
 }

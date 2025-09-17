@@ -61,7 +61,17 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 		} else {
 			style := StatusStyleClear[msg.status]
-			child.node.Root(lipgloss.Sprintf("%s  %s", style.Emoji, style.Render(this)))
+
+			parts := []any{
+				style.Emoji,
+				style.Padding(0, 2).Render(this), //nolint:mnd
+			}
+
+			if msg.err != nil {
+				parts = append(parts, msg.err)
+			}
+
+			child.node.Root(lipgloss.Sprint(parts...))
 		}
 	}
 
