@@ -8,12 +8,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	slogmulti "github.com/samber/slog-multi"
-	slogctx "github.com/veqryn/slog-context"
 
 	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/driver/basic"
@@ -104,19 +100,6 @@ func init() {
 }
 
 func main() {
-	slog.SetDefault(
-		slog.New(
-			slogmulti.
-				Pipe(slogctx.NewMiddleware(nil)).
-				Handler(pterm.NewSlogHandler(
-					pterm.DefaultLogger.
-						WithWriter(rootCmd.OutOrStdout()).
-						WithLevel(pterm.LogLevelDebug).
-						WithTime(false),
-				)),
-		),
-	)
-
 	err := rootCmd.Execute()
 	if err != nil {
 		slog.Error(err.Error())
