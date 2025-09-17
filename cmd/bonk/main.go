@@ -8,15 +8,12 @@ import (
 	"os"
 	"path"
 
-	"github.com/pterm/pterm"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	slogmulti "github.com/samber/slog-multi"
-	slogctx "github.com/veqryn/slog-context"
-
 	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/driver/basic"
+	"go.bonk.build/pkg/scheduler/bubbletea"
 )
 
 var (
@@ -33,7 +30,7 @@ var rootCmd = &cobra.Command{
 		cwd, err := os.Getwd()
 		cobra.CheckErr(err)
 
-		drv, err := basic.New(cmd.Context(),
+		drv, err := basic.New(cmd.Context(), bubbletea.New(false),
 			driver.WithPlugins(
 				"go.bonk.build/plugins/test",
 				"go.bonk.build/plugins/k8s/resources",
@@ -104,19 +101,6 @@ func init() {
 }
 
 func main() {
-	slog.SetDefault(
-		slog.New(
-			slogmulti.
-				Pipe(slogctx.NewMiddleware(nil)).
-				Handler(pterm.NewSlogHandler(
-					pterm.DefaultLogger.
-						WithWriter(rootCmd.OutOrStdout()).
-						WithLevel(pterm.LogLevelDebug).
-						WithTime(false),
-				)),
-		),
-	)
-
 	err := rootCmd.Execute()
 	if err != nil {
 		slog.Error(err.Error())
