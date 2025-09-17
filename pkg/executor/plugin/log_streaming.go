@@ -47,6 +47,10 @@ func getTaskLoggingContext(
 	tsk *task.GenericTask,
 ) (context.Context, func() error, error) {
 	// Open log txt and json files
+	err := tsk.OutputFS().MkdirAll("", 0o750)
+	if err != nil {
+		return nil, nil, errors.New("failed to create task directory")
+	}
 	logFileText, err := tsk.OutputFS().Create("log.txt")
 	if err != nil {
 		return nil, nil, errors.New("failed to open log txt file")
