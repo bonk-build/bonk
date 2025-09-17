@@ -26,7 +26,7 @@ func Test_SenderIsCalled(t *testing.T) {
 		Times(1).
 		Return(nil)
 
-	scheduler := taskflow.New(sender, 1)
+	scheduler := taskflow.New(1)(t.Context(), sender)
 
 	require.NoError(t, scheduler.AddTask(t.Context(), task.New[any](session, "test", "task1", nil)))
 

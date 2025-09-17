@@ -29,14 +29,16 @@ type tfScheduler struct {
 
 var _ scheduler.Scheduler = (*tfScheduler)(nil)
 
-func New(child task.GenericExecutor, concurrency uint) scheduler.Scheduler {
-	return &tfScheduler{
-		child:    child,
-		executor: gotaskflow.NewExecutor(concurrency),
-		tasks:    make(map[string]*gotaskflow.Task),
+func New(concurrency uint) scheduler.SchedulerFactory {
+	return func(_ context.Context, child task.GenericExecutor) scheduler.Scheduler {
+		return &tfScheduler{
+			child:    child,
+			executor: gotaskflow.NewExecutor(concurrency),
+			tasks:    make(map[string]*gotaskflow.Task),
 
-		flowHasTasks: false,
-		rootFlow:     gotaskflow.NewTaskFlow("bonk"),
+			flowHasTasks: false,
+			rootFlow:     gotaskflow.NewTaskFlow("bonk"),
+		}
 	}
 }
 

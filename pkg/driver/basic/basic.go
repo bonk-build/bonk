@@ -12,7 +12,6 @@ import (
 	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/scheduler"
-	"go.bonk.build/pkg/scheduler/bubbletea"
 	"go.bonk.build/pkg/task"
 )
 
@@ -25,11 +24,15 @@ type basicDriver struct {
 
 var _ driver.Driver = (*basicDriver)(nil)
 
-func New(ctx context.Context, options ...driver.DriverOption) (driver.Driver, error) {
+func New(
+	ctx context.Context,
+	scheduler scheduler.SchedulerFactory,
+	options ...driver.DriverOption,
+) (driver.Driver, error) {
 	result := &basicDriver{
 		PluginClientManager: plugin.NewPluginClientManager(),
 	}
-	result.Scheduler = bubbletea.New(ctx, result.PluginClientManager, false)
+	result.Scheduler = scheduler(ctx, result.PluginClientManager)
 
 	var err error
 	for _, option := range options {

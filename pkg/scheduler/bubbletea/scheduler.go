@@ -21,44 +21,48 @@ type sched struct {
 }
 
 // Creates a new scheduler driven by bubbletea.
-func New(ctx context.Context, exec task.GenericExecutor, debugDump bool) scheduler.Scheduler {
-	result := &sched{
-		program: tea.NewProgram(
-			&teaModel{
-				debugDump: debugDump,
-			},
-			tea.WithContext(ctx),
-		),
-		exec: exec,
-	}
-
-	// The logger needs to be replaced to avoid writing to stdout.
-	defaultLogger := slog.Default()
-	slog.SetDefault(
-		slog.New(slogmulti.
-			Pipe(slogctx.NewMiddleware(nil)).
-			Handler(slogmulti.NewHandleInlineHandler(
-				func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
-					go result.program.Printf("%s", record.Message)
-
-					return nil
+func New(
+	debugDump bool,
+) scheduler.SchedulerFactory {
+	return func(ctx context.Context, exec task.GenericExecutor) scheduler.Scheduler {
+		result := &sched{
+			program: tea.NewProgram(
+				&teaModel{
+					debugDump: debugDump,
 				},
+				tea.WithContext(ctx),
 			),
-			),
-		),
-	)
-
-	// Start the program
-	go func() {
-		_, err := result.program.Run()
-		slog.SetDefault(defaultLogger)
-
-		if err != nil {
-			slog.ErrorContext(ctx, "error running bubbletea program", "error", err)
+			exec: exec,
 		}
-	}()
 
-	return result
+		// The logger needs to be replaced to avoid writing to stdout.
+		defaultLogger := slog.Default()
+		slog.SetDefault(
+			slog.New(slogmulti.
+				Pipe(slogctx.NewMiddleware(nil)).
+				Handler(slogmulti.NewHandleInlineHandler(
+					func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
+						go result.program.Printf("%s", record.Message)
+
+						return nil
+					},
+				),
+				),
+			),
+		)
+
+		// Start the program
+		go func() {
+			_, err := result.program.Run()
+			slog.SetDefault(defaultLogger)
+
+			if err != nil {
+				slog.ErrorContext(ctx, "error running bubbletea program", "error", err)
+			}
+		}()
+
+		return result
+	}
 }
 
 // AddTask implements scheduler.Scheduler.
