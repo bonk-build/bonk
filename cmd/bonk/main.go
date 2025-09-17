@@ -4,10 +4,12 @@
 package main
 
 import (
+	"context"
 	"log/slog"
 	"os"
 	"path"
 
+	"github.com/charmbracelet/fang"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -101,7 +103,7 @@ func init() {
 }
 
 func main() {
-	err := rootCmd.Execute()
+	err := fang.Execute(context.Background(), rootCmd)
 	if err != nil {
 		slog.Error(err.Error())
 		os.Exit(1)
