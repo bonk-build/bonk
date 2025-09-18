@@ -122,3 +122,21 @@ func TestTaskState_StateMismatches_InputsChecksum(t *testing.T) {
 	require.Len(t, mismatches, 1)
 	require.Contains(t, mismatches, "inputs-checksum")
 }
+
+func TestTaskState_StateMismatches_Executor(t *testing.T) {
+	t.Parallel()
+
+	tsk, result := makeTestTask(t)
+
+	err := statecheck.SaveState(&tsk, &result)
+	require.NoError(t, err)
+
+	mismatches := statecheck.DetectStateMismatches(&tsk)
+	require.Empty(t, mismatches)
+
+	tsk.Executor = "Different"
+
+	mismatches = statecheck.DetectStateMismatches(&tsk)
+	require.Len(t, mismatches, 1)
+	require.Contains(t, mismatches, "executor")
+}
