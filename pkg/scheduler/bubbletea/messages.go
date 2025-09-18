@@ -5,6 +5,7 @@ package bubbletea
 
 import (
 	"context"
+	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 
@@ -74,6 +75,7 @@ func (tsk TaskScheduleMsg) GetExecCmd() tea.Cmd {
 		if len(result.FollowupTasks) > 0 {
 			followups := make([]tea.Cmd, len(result.FollowupTasks))
 			for idx, followup := range result.FollowupTasks {
+				followup.ID.Name = fmt.Sprintf("%s.%s", tsk.tsk.ID.Name, followup.ID.Name)
 				followups[idx] = ScheduleTask(
 					tsk.ctx,
 					&followup,
