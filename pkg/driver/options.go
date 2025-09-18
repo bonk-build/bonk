@@ -9,6 +9,7 @@ import (
 
 	"go.uber.org/multierr"
 
+	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/task"
 )
 
@@ -20,8 +21,8 @@ func WithGenericExecutor(name string, exec task.Executor) DriverOption {
 	}
 }
 
-func WithExecutor[Params any](name string, exec task.TypedExecutor[Params]) DriverOption {
-	return WithGenericExecutor(name, task.BoxExecutor(exec))
+func WithExecutor[Params any](name string, exec argconv.TypedExecutor[Params]) DriverOption {
+	return WithGenericExecutor(name, argconv.BoxExecutor(exec))
 }
 
 func WithPlugins(plugins ...string) DriverOption {

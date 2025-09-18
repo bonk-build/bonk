@@ -17,6 +17,7 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
+	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
@@ -55,9 +56,9 @@ func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 func (p *Plugin) Name() string { return p.name }
 
 // WithExecutor registers an executor with the plugin.
-func WithExecutor[Params any](name string, exec task.TypedExecutor[Params]) PluginOption {
+func WithExecutor[Params any](name string, exec argconv.TypedExecutor[Params]) PluginOption {
 	return func(plugin *Plugin) error {
-		return plugin.RegisterExecutor(name, task.BoxExecutor(exec))
+		return plugin.RegisterExecutor(name, argconv.BoxExecutor(exec))
 	}
 }
 

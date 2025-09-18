@@ -18,6 +18,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 )
@@ -183,7 +184,7 @@ func (s *rpcSuite) Test_Followups() {
 	s.Require().NoError(err)
 	s.Len(result.FollowupTasks, 1)
 
-	unboxed, err := task.UnboxArgs[Args](&result.FollowupTasks[0])
+	unboxed, err := argconv.UnboxArgs[Args](&result.FollowupTasks[0])
 
 	s.Require().NoError(err)
 	s.EqualExportedValues(expectedTask.Args, *unboxed)
