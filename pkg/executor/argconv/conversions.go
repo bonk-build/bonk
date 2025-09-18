@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package task
+package argconv
 
 import (
 	"context"
@@ -11,16 +11,20 @@ import (
 	"cuelang.org/go/cuego"
 
 	"github.com/go-viper/mapstructure/v2"
+
+	"go.bonk.build/pkg/task"
 )
 
+//go:generate go tool mockgen -destination typedexecutor_mock.go -package argconv -copyright_file ../../../license-header.txt -typed . TypedExecutor
+
 type TypedExecutor[Params any] interface {
-	OpenSession(ctx context.Context, session Session) error
-	CloseSession(ctx context.Context, sessionId SessionId)
-	Execute(ctx context.Context, tsk *Task, args *Params, result *Result) error
+	OpenSession(ctx context.Context, session task.Session) error
+	CloseSession(ctx context.Context, sessionId task.SessionId)
+	Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error
 }
 
 // UnboxArgs converts a task with generic arguments to a task with typed arguments.
-func UnboxArgs[Params any](tsk *Task) (*Params, error) {
+func UnboxArgs[Params any](tsk *task.Task) (*Params, error) {
 	paramsT := reflect.TypeFor[Params]()
 	argsV := reflect.ValueOf(tsk.Args)
 	argsT := argsV.Type()
@@ -79,12 +83,12 @@ type wrappedExecutor[Params any] struct {
 	TypedExecutor[Params]
 }
 
-var _ Executor = (*wrappedExecutor[any])(nil)
+var _ task.Executor = (*wrappedExecutor[any])(nil)
 
 // BoxExecutor accepts a TypedExecutor and wraps it into an untyped Executor.
 func BoxExecutor[Params any](
 	impl TypedExecutor[Params],
-) Executor {
+) task.Executor {
 	return wrappedExecutor[Params]{
 		TypedExecutor: impl,
 	}
@@ -92,8 +96,8 @@ func BoxExecutor[Params any](
 
 func (wrapped wrappedExecutor[Params]) Execute(
 	ctx context.Context,
-	tsk *Task,
-	result *Result,
+	tsk *task.Task,
+	result *task.Result,
 ) error {
 	unboxed, err := UnboxArgs[Params](tsk)
 	if err != nil {

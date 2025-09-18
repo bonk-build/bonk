@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package task_test
+package argconv_test
 
 import (
 	"testing"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/task"
 )
 
@@ -29,7 +30,7 @@ func Test_StraightConversion(t *testing.T) {
 	session := task.NewTestSession()
 	tsk := task.New("", session, "", defaultArgs)
 
-	unboxed, err := task.UnboxArgs[Args](tsk)
+	unboxed, err := argconv.UnboxArgs[Args](tsk)
 
 	require.NoError(t, err)
 	require.Equal(t, defaultArgs, *unboxed)
@@ -44,7 +45,7 @@ func Test_StringMap(t *testing.T) {
 		"Val2": defaultArgs.Val2,
 	})
 
-	unboxed, err := task.UnboxArgs[Args](tsk)
+	unboxed, err := argconv.UnboxArgs[Args](tsk)
 
 	require.NoError(t, err)
 	require.Equal(t, defaultArgs, *unboxed)
@@ -58,7 +59,7 @@ func Test_CueConstraints(t *testing.T) {
 	args.Val2 = 90000
 	tsk := task.New("", session, "", args)
 
-	unboxed, err := task.UnboxArgs[Args](tsk)
+	unboxed, err := argconv.UnboxArgs[Args](tsk)
 
 	require.Error(t, err)
 	require.Nil(t, unboxed)
@@ -68,14 +69,14 @@ func Test_BoxExecutor(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := task.NewMockTypedExecutor[Args](mock)
+	exec := argconv.NewMockTypedExecutor[Args](mock)
 	session := task.NewTestSession()
 
 	tsk := task.New("", session, "", defaultArgs)
 
 	exec.EXPECT().Execute(t.Context(), tsk, &defaultArgs, nil).Times(1)
 
-	err := task.BoxExecutor(exec).Execute(t.Context(), tsk, nil)
+	err := argconv.BoxExecutor(exec).Execute(t.Context(), tsk, nil)
 	require.NoError(t, err)
 }
 
@@ -83,14 +84,14 @@ func Test_BoxExecutor_Failure(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := task.NewMockTypedExecutor[Args](mock)
-	boxed := task.BoxExecutor(exec)
+	exec := argconv.NewMockTypedExecutor[Args](mock)
+	boxed := argconv.BoxExecutor(exec)
 	session := task.NewTestSession()
 
-	typed := task.New[any]("", session, "", 111)
+	typed := task.New("", session, "", 111)
 
 	exec.EXPECT().Execute(t.Context(), typed, gomock.Any(), gomock.Any()).Times(0)
 
 	err := boxed.Execute(t.Context(), typed, nil)
-	require.ErrorContains(t, err, "failed to convert params from int to task_test.Args")
+	require.ErrorContains(t, err, "failed to convert params from int to argconv_test.Args")
 }
