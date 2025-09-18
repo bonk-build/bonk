@@ -29,7 +29,7 @@ type TaskStatusMsg struct {
 }
 
 // Command that emits a task status update.
-func TaskStatusUpdate(tsk *task.GenericTask, status TaskStatus) tea.Cmd {
+func TaskStatusUpdate(tsk *task.Task, status TaskStatus) tea.Cmd {
 	return func() tea.Msg {
 		return TaskStatusMsg{
 			tskId:  tsk.ID,
@@ -40,14 +40,14 @@ func TaskStatusUpdate(tsk *task.GenericTask, status TaskStatus) tea.Cmd {
 
 type TaskScheduleMsg struct {
 	ctx  context.Context //nolint:containedctx
-	tsk  *task.GenericTask
-	exec task.GenericExecutor
+	tsk  *task.Task
+	exec task.Executor
 }
 
 func ScheduleTask(
 	ctx context.Context,
-	tsk *task.GenericTask,
-	exec task.GenericExecutor,
+	tsk *task.Task,
+	exec task.Executor,
 ) tea.Cmd {
 	return func() tea.Msg {
 		return TaskScheduleMsg{

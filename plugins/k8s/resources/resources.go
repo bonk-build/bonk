@@ -28,7 +28,8 @@ type Executor_Resources struct {
 
 func (Executor_Resources) Execute(
 	ctx context.Context,
-	task *task.Task[Params],
+	task *task.Task,
+	args *Params,
 	res *task.Result,
 ) error {
 	if len(task.Inputs) > 0 {
@@ -42,7 +43,7 @@ func (Executor_Resources) Execute(
 
 	encoder := yaml.NewEncoder(file)
 
-	switch value := reflect.ValueOf(task.Args.Resources); value.Type().Kind() {
+	switch value := reflect.ValueOf(args.Resources); value.Type().Kind() {
 	// Slices and arrays need to be written over multiple calls to force them into separate documents.
 	case reflect.Slice, reflect.Array:
 		for _, val := range value.Seq2() {
@@ -53,7 +54,7 @@ func (Executor_Resources) Execute(
 		}
 
 	default:
-		err = encoder.Encode(task.Args.Resources)
+		err = encoder.Encode(args.Resources)
 		if err != nil {
 			return fmt.Errorf("failed to encode resources to file: %w", err)
 		}

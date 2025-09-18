@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 // The executor package provides useful executors for building task-executing heirarchies.
-// Each package exports just a few objects conforming to the [go.bonk.build/pkg/task.GenericExecutor] interface,
+// Each package exports just a few objects conforming to the [go.bonk.build/pkg/task.Executor] interface,
 // and optionally a few helpers.
 //
 //   - [go.bonk.build/pkg/executor/statecheck]: allows using task states to avoid re-executing up-to-date tasks

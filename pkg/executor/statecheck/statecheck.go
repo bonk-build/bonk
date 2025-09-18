@@ -13,19 +13,19 @@ import (
 )
 
 type statechecker struct {
-	task.GenericExecutor
+	task.Executor
 }
 
-func New(child task.GenericExecutor) task.GenericExecutor {
+func New(child task.Executor) task.Executor {
 	return statechecker{
-		GenericExecutor: child,
+		Executor: child,
 	}
 }
 
 // Execute implements task.Executor.
 func (s statechecker) Execute(
 	ctx context.Context,
-	tsk *task.GenericTask,
+	tsk *task.Task,
 	result *task.Result,
 ) error {
 	mismatches := DetectStateMismatches(tsk)
@@ -37,7 +37,7 @@ func (s statechecker) Execute(
 
 	slog.DebugContext(ctx, "state mismatch, running task", "mismatches", mismatches)
 
-	err := s.GenericExecutor.Execute(ctx, tsk, result)
+	err := s.Executor.Execute(ctx, tsk, result)
 	if err != nil {
 		return err //nolint:wrapcheck
 	}

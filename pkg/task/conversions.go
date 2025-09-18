@@ -13,95 +13,96 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 )
 
-// Box converts a task with typed arguments to a task with generic arguments.
-func (t *Task[Params]) Box() *GenericTask {
-	if generic, ok := any(t).(*GenericTask); ok {
-		return generic
-	}
-
-	return &GenericTask{
-		ID:       t.ID,
-		Executor: t.Executor,
-		Session:  t.Session,
-		Inputs:   t.Inputs,
-		Args:     t.Args,
-	}
+type TypedExecutor[Params any] interface {
+	OpenSession(ctx context.Context, session Session) error
+	CloseSession(ctx context.Context, sessionId SessionId)
+	Execute(ctx context.Context, tsk *Task, args *Params, result *Result) error
 }
 
-// Unbox converts a task with generic arguments to a task with typed arguments.
-func Unbox[Params any](tsk *GenericTask) (*Task[Params], error) {
+// UnboxArgs converts a task with generic arguments to a task with typed arguments.
+func UnboxArgs[Params any](tsk *Task) (*Params, error) {
 	paramsT := reflect.TypeFor[Params]()
-	argsT := reflect.TypeOf(tsk.Args)
+	argsV := reflect.ValueOf(tsk.Args)
+	argsT := argsV.Type()
+	var ok bool
+	var result *Params
 
-	result := &Task[Params]{
-		ID:       tsk.ID,
-		Executor: tsk.Executor,
-		Session:  tsk.Session,
-		Inputs:   tsk.Inputs,
-	}
+	err := fmt.Errorf("failed to convert params from %s to %s", argsT, paramsT)
 
-	var convSuccess bool
 	switch argsT.Kind() {
 	case paramsT.Kind():
-		result.Args, convSuccess = tsk.Args.(Params)
-		if !convSuccess {
-			return nil, fmt.Errorf("failed to convert params from %s to %s", argsT, paramsT)
+		if argsT == paramsT {
+			if argsV.CanAddr() {
+				result, ok = argsV.Addr().Interface().(*Params)
+				if !ok {
+					return nil, err
+				}
+			} else {
+				// yolo
+				if tmpResult, ok := tsk.Args.(Params); ok {
+					result = &tmpResult
+				} else {
+					return nil, err
+				}
+			}
 		}
 
 	case reflect.Map:
 		// If the types don't match and we're given a map, use mapstructure to pull it out.
-		err := mapstructure.Decode(tsk.Args, &result.Args)
+		result = new(Params)
+		err := mapstructure.Decode(tsk.Args, result)
 		if err != nil {
 			return nil, fmt.Errorf("failed to decode args: %w", err)
 		}
 
+		return result, nil
+
 	default:
-		result.Args, convSuccess = tsk.Args.(Params)
-		if !convSuccess {
-			return nil, fmt.Errorf("failed to convert params from %s to %s", argsT, paramsT)
+		// yolo
+		if tmpResult, ok := tsk.Args.(Params); ok {
+			result = &tmpResult
+		} else {
+			return nil, err
 		}
 	}
 
 	// Use cuego to complete / validate the type
-	err := cuego.Complete(&result.Args)
-	if err != nil {
-		return nil, err //nolint:wrapcheck // Want to expose cue errors to those who many want them
+	cueErr := cuego.Complete(result)
+	if cueErr != nil {
+		return nil, cueErr //nolint:wrapcheck // Want to expose cue errors to those who many want them
 	}
 
 	return result, nil
 }
 
 type wrappedExecutor[Params any] struct {
-	Executor[Params]
+	TypedExecutor[Params]
 }
 
-var _ GenericExecutor = (*wrappedExecutor[any])(nil)
+var _ Executor = (*wrappedExecutor[any])(nil)
 
 // BoxExecutor accepts a TypedExecutor and wraps it into an untyped Executor.
 func BoxExecutor[Params any](
-	impl Executor[Params],
-) GenericExecutor {
-	if generic, ok := impl.(GenericExecutor); ok {
-		return generic
-	}
-
+	impl TypedExecutor[Params],
+) Executor {
 	return wrappedExecutor[Params]{
-		Executor: impl,
+		TypedExecutor: impl,
 	}
 }
 
 func (wrapped wrappedExecutor[Params]) Execute(
 	ctx context.Context,
-	tsk *GenericTask,
+	tsk *Task,
 	result *Result,
 ) error {
-	unboxed, err := Unbox[Params](tsk)
+	unboxed, err := UnboxArgs[Params](tsk)
 	if err != nil {
 		return err
 	}
 
-	return wrapped.Executor.Execute( //nolint:wrapcheck
+	return wrapped.TypedExecutor.Execute( //nolint:wrapcheck
 		ctx,
+		tsk,
 		unboxed,
 		result,
 	)

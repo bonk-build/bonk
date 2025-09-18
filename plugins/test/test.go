@@ -21,10 +21,11 @@ type Executor_Test struct {
 
 func (Executor_Test) Execute(
 	ctx context.Context,
-	task *task.Task[Params],
+	task *task.Task,
+	args *Params,
 	res *task.Result,
 ) error {
-	slog.InfoContext(ctx, "it's happening!", "thing", task.Args.Value)
+	slog.InfoContext(ctx, "it's happening!", "thing", args.Value)
 
 	return nil
 }

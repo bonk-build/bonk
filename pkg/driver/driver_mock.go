@@ -45,7 +45,7 @@ func (m *MockDriver) EXPECT() *MockDriverMockRecorder {
 }
 
 // AddTask mocks base method.
-func (m *MockDriver) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error {
+func (m *MockDriver) AddTask(ctx context.Context, tsk *task.Task, deps ...string) error {
 	m.ctrl.T.Helper()
 	varargs := []any{ctx, tsk}
 	for _, a := range deps {
@@ -76,13 +76,13 @@ func (c *MockDriverAddTaskCall) Return(arg0 error) *MockDriverAddTaskCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockDriverAddTaskCall) Do(f func(context.Context, *task.GenericTask, ...string) error) *MockDriverAddTaskCall {
+func (c *MockDriverAddTaskCall) Do(f func(context.Context, *task.Task, ...string) error) *MockDriverAddTaskCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockDriverAddTaskCall) DoAndReturn(f func(context.Context, *task.GenericTask, ...string) error) *MockDriverAddTaskCall {
+func (c *MockDriverAddTaskCall) DoAndReturn(f func(context.Context, *task.Task, ...string) error) *MockDriverAddTaskCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -124,7 +124,7 @@ func (c *MockDriverCloseSessionCall) DoAndReturn(f func(context.Context, task.Se
 }
 
 // Execute mocks base method.
-func (m *MockDriver) Execute(ctx context.Context, tsk *task.Task[any], result *task.Result) error {
+func (m *MockDriver) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Execute", ctx, tsk, result)
 	ret0, _ := ret[0].(error)
@@ -150,13 +150,13 @@ func (c *MockDriverExecuteCall) Return(arg0 error) *MockDriverExecuteCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockDriverExecuteCall) Do(f func(context.Context, *task.Task[any], *task.Result) error) *MockDriverExecuteCall {
+func (c *MockDriverExecuteCall) Do(f func(context.Context, *task.Task, *task.Result) error) *MockDriverExecuteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockDriverExecuteCall) DoAndReturn(f func(context.Context, *task.Task[any], *task.Result) error) *MockDriverExecuteCall {
+func (c *MockDriverExecuteCall) DoAndReturn(f func(context.Context, *task.Task, *task.Result) error) *MockDriverExecuteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -239,7 +239,7 @@ func (c *MockDriverOpenSessionCall) DoAndReturn(f func(context.Context, task.Ses
 }
 
 // RegisterExecutor mocks base method.
-func (m *MockDriver) RegisterExecutor(name string, exec task.GenericExecutor) error {
+func (m *MockDriver) RegisterExecutor(name string, exec task.Executor) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RegisterExecutor", name, exec)
 	ret0, _ := ret[0].(error)
@@ -265,13 +265,13 @@ func (c *MockDriverRegisterExecutorCall) Return(arg0 error) *MockDriverRegisterE
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockDriverRegisterExecutorCall) Do(f func(string, task.GenericExecutor) error) *MockDriverRegisterExecutorCall {
+func (c *MockDriverRegisterExecutorCall) Do(f func(string, task.Executor) error) *MockDriverRegisterExecutorCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockDriverRegisterExecutorCall) DoAndReturn(f func(string, task.GenericExecutor) error) *MockDriverRegisterExecutorCall {
+func (c *MockDriverRegisterExecutorCall) DoAndReturn(f func(string, task.Executor) error) *MockDriverRegisterExecutorCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

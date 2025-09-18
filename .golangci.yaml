@@ -150,6 +150,13 @@ linters:
       # Optional list of variable names that should be ignored completely.
       ignore-names:
         - id
+      # Optional list of variable declarations that should be ignored completely.
+      # Entries must be in one of the following forms (see below for examples):
+      # - for variables, parameters, named return values, method receivers, or type parameters:
+      #   <name> <type>  (<type> can also be a pointer/slice/map/chan/...)
+      # - for constants: const <name>
+      ignore-decls:
+        - ok bool
 
 formatters:
   # Enable specific formatter.

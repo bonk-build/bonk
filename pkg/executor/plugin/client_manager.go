@@ -15,10 +15,10 @@ import (
 )
 
 type PluginClientManager interface {
-	task.GenericExecutor
+	task.Executor
 
 	// NOTE(colden): these should eventually be moved out of here
-	RegisterExecutor(name string, exec task.GenericExecutor) error
+	RegisterExecutor(name string, exec task.Executor) error
 	UnregisterExecutors(names ...string)
 
 	StartPlugins(ctx context.Context, plugins ...string) error
@@ -83,7 +83,7 @@ func (pm *pluginClientManager) StartPlugins(ctx context.Context, pluginPath ...s
 
 func (pm *pluginClientManager) Shutdown(context.Context) {
 	pm.mu.Lock()
-	pm.ForEachExecutor(func(name string, exec task.GenericExecutor) {
+	pm.ForEachExecutor(func(name string, exec task.Executor) {
 		pm.UnregisterExecutors(name)
 
 		if plug, ok := exec.(*PluginClient); ok {

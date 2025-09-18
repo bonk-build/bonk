@@ -30,12 +30,13 @@ type Executor_Kustomize struct {
 
 func (Executor_Kustomize) Execute(
 	ctx context.Context,
-	task *task.Task[Params],
+	task *task.Task,
+	args *Params,
 	res *task.Result,
 ) error {
 	// Apply resources and any needed fixes
-	task.Args.Kustomization.Resources = task.Inputs
-	task.Args.Kustomization.FixKustomization()
+	args.Kustomization.Resources = task.Inputs
+	args.Kustomization.FixKustomization()
 
 	kustomFs := afero.NewCopyOnWriteFs(task.Session.SourceFS(), afero.NewMemMapFs())
 
@@ -47,7 +48,7 @@ func (Executor_Kustomize) Execute(
 
 	enc := yaml.NewEncoder(kustFile)
 
-	err = enc.Encode(task.Args.Kustomization)
+	err = enc.Encode(args.Kustomization)
 	if err != nil {
 		return fmt.Errorf("failed to encode kustomization file as yaml: %w", err)
 	}

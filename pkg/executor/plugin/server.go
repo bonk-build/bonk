@@ -30,8 +30,8 @@ type Plugin struct {
 }
 
 var (
-	_ task.GenericExecutor = (*Plugin)(nil)
-	_ goplugin.GRPCPlugin  = (*Plugin)(nil)
+	_ task.Executor       = (*Plugin)(nil)
+	_ goplugin.GRPCPlugin = (*Plugin)(nil)
 )
 
 type PluginOption func(plugin *Plugin) error
@@ -55,7 +55,7 @@ func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 func (p *Plugin) Name() string { return p.name }
 
 // WithExecutor registers an executor with the plugin.
-func WithExecutor[Params any](name string, exec task.Executor[Params]) PluginOption {
+func WithExecutor[Params any](name string, exec task.TypedExecutor[Params]) PluginOption {
 	return func(plugin *Plugin) error {
 		return plugin.RegisterExecutor(name, task.BoxExecutor(exec))
 	}
@@ -89,7 +89,7 @@ func (*Plugin) GRPCClient(
 // Override Execute to add some special details to the context.
 func (p *Plugin) Execute(
 	ctx context.Context,
-	tsk *task.GenericTask,
+	tsk *task.Task,
 	res *task.Result,
 ) error {
 	ctx, cleanup, err := getTaskLoggingContext(

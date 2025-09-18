@@ -44,7 +44,7 @@ func (s grpcServerSession) LocalPath() string {
 type grpcServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
-	executor task.GenericExecutor
+	executor task.Executor
 
 	sessions map[task.SessionId]grpcServerSession
 }
@@ -54,7 +54,7 @@ var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
 // Creates a GRPC server which forwards incoming task requests to an Executor.
 func RegisterGRPCServer(
 	server *grpc.Server,
-	executor task.GenericExecutor,
+	executor task.Executor,
 ) {
 	bonkv0.RegisterExecutorServiceServer(server, &grpcServer{
 		executor: executor,
@@ -191,7 +191,7 @@ func (s *grpcServer) ExecuteTask(
 
 	ctx = slogctx.NewCtx(ctx, session.logger)
 
-	tsk := task.GenericTask{
+	tsk := task.Task{
 		ID:       task.TaskID(req.GetId()),
 		Executor: req.GetExecutor(),
 		Session:  session,

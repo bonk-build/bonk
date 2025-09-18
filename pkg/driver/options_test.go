@@ -22,11 +22,11 @@ func TestWithExecutor(t *testing.T) {
 
 	mock := gomock.NewController(t)
 	drv := NewMockDriver(mock)
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 
 	drv.EXPECT().RegisterExecutor(execName, exec).Times(1)
 
-	err := WithExecutor(execName, exec)(t.Context(), drv)
+	err := WithGenericExecutor(execName, exec)(t.Context(), drv)
 	require.NoError(t, err)
 }
 
@@ -38,11 +38,11 @@ func TestWithExecutor_Fail(t *testing.T) {
 
 	mock := gomock.NewController(t)
 	drv := NewMockDriver(mock)
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 
 	drv.EXPECT().RegisterExecutor(execName, exec).Return(expectedErr).Times(1)
 
-	err := WithExecutor(execName, exec)(t.Context(), drv)
+	err := WithGenericExecutor(execName, exec)(t.Context(), drv)
 	require.ErrorIs(t, err, expectedErr)
 }
 
