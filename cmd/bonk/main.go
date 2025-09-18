@@ -65,7 +65,9 @@ var rootCmd = &cobra.Command{
 					"Test.Kustomize",
 					"kustomize.Kustomize",
 					map[string]any{},
-					".bonk/Test.Resources/resources.yaml",
+					driver.WithInputs(
+						".bonk/Test.Resources/resources.yaml",
+					),
 				),
 			),
 		)

@@ -207,8 +207,7 @@ func (pb *grpcClient) Execute(
 			tsk.Session,
 			followup.GetExecutor(),
 			followup.GetArguments().AsInterface(),
-			followup.GetInputs()...,
-		)
+		).WithInputs(followup.GetInputs()...)
 	}
 
 	return nil

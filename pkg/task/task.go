@@ -23,15 +23,21 @@ func New[Params any](
 	session Session,
 	executor string,
 	args Params,
-	inputs ...string,
 ) *Task[Params] {
-	return &Task[Params]{
+	result := &Task[Params]{
 		ID:       TaskID(id),
 		Executor: executor,
 		Session:  session,
-		Inputs:   inputs,
 		Args:     args,
 	}
+
+	return result
+}
+
+func (tsk *Task[Params]) WithInputs(inputs ...string) *Task[Params] {
+	tsk.Inputs = append(tsk.Inputs, inputs...)
+
+	return tsk
 }
 
 func (tsk *Task[Params]) OutputFS() afero.Fs {
