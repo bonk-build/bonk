@@ -4,19 +4,16 @@
 package bubbletea
 
 import (
+	"log/slog"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/charmbracelet/lipgloss/v2/tree"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 )
 
-// taskTree is responsible for rendering task state to the terminal.
 type taskTree struct {
-	node *tree.Tree
-
-	children map[string]*taskTree
+	tree.Tree
 }
 
 var (
@@ -24,10 +21,11 @@ var (
 	_ tea.ViewModel = (*taskTree)(nil)
 )
 
-func newTaskTree() *taskTree {
-	return &taskTree{
-		node:     tree.New(),
-		children: make(map[string]*taskTree),
+func newTaskTree() taskTree {
+	return taskTree{
+		Tree: *tree.New().
+			Enumerator(tree.RoundedEnumerator).
+			ItemStyleFunc(taskNodeStyle(StatusStyleClear)),
 	}
 }
 
@@ -41,38 +39,51 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	if msg, ok := msg.(TaskStatusMsg); ok {
-		this, children, hasChildren := strings.Cut(msg.tskId, ".")
+		curName, childPath, hasChildren := strings.Cut(msg.tskId, ".")
 
-		child, ok := t.children[this]
+		var cur *taskNode
 
-		// If there isn't already a child node, add & initialize it
-		if !ok {
-			child = newTaskTree()
-			t.node.Child(child.node.Root(this))
-			cmds = append(cmds, child.Init())
+		// Search the top level list for the node
+		treeChildren := t.Children()
+		for idx := range treeChildren.Length() {
+			taskNode, ok := treeChildren.At(idx).(*taskNode)
+			if !ok {
+				panic("unexpected child!")
+			}
+			if taskNode.name == curName {
+				cur = taskNode
 
-			t.children[this] = child
+				break
+			}
+		}
+		if cur == nil {
+			slog.Info("Added root child " + curName)
+			cur = makeTaskNode(curName)
+			t.Child(cur)
 		}
 
-		if hasChildren {
-			child.Update(TaskStatusMsg{
-				tskId:  children,
-				status: msg.status,
-			})
-		} else {
-			style := StatusStyleClear[msg.status]
+		// Now find the sub task inside of that
+		for hasChildren {
+			curName, childPath, hasChildren = strings.Cut(childPath, ".")
 
-			parts := []any{
-				style.Emoji,
-				style.Padding(0, 2).Render(this), //nolint:mnd
+			newChild, ok := cur.children.Get(curName)
+
+			// If there isn't already a child node, add & initialize it
+			if !ok {
+				newChild = makeTaskNode(curName)
+				cur.children.Set(curName, newChild)
+				slog.Info("Added deep child " + curName + " to " + cur.name)
 			}
 
-			if msg.err != nil {
-				parts = append(parts, msg.err)
-			}
-
-			child.node.Root(lipgloss.Sprint(parts...))
+			cur = newChild
 		}
+
+		if cur == nil {
+			panic("invalid!")
+		}
+
+		// Now update cur
+		cur.SetValue(msg)
 	}
 
 	return t, tea.Batch(cmds...)
@@ -80,12 +91,5 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View implements tea.ViewModel.
 func (t *taskTree) View() string {
-	// Assume the root is empty and we can ignore it, just print the children
-	children := t.node.Children()
-	components := make([]string, children.Length())
-	for idx := range children.Length() {
-		components[idx] = children.At(idx).String()
-	}
-
-	return lipgloss.JoinVertical(lipgloss.Left, components...)
+	return t.String()
 }

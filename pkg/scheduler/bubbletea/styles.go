@@ -5,41 +5,19 @@ package bubbletea
 
 import "github.com/charmbracelet/lipgloss/v2"
 
-type StatusStyle struct {
-	lipgloss.Style
-
-	Emoji string
-}
-
-type StatusStyles map[TaskStatus]StatusStyle
+type StatusStyles map[TaskStatus]lipgloss.Style
 
 var (
 	StatusStyleClear = StatusStyles{
-		StatusScheduled: StatusStyle{
-			Style: lipgloss.NewStyle(),
-			Emoji: "🔘",
-		},
-		StatusSuccess: StatusStyle{
-			Style: lipgloss.NewStyle().Foreground(lipgloss.Green),
-			Emoji: "✔️",
-		},
-		StatusFail: StatusStyle{
-			Style: lipgloss.NewStyle().Foreground(lipgloss.Red),
-			Emoji: "❌",
-		},
+		StatusNone:      lipgloss.NewStyle().SetString("  ").Faint(true),
+		StatusScheduled: lipgloss.NewStyle().SetString("🔘 "),
+		StatusSuccess:   lipgloss.NewStyle().SetString("✔️ ").Foreground(lipgloss.Green),
+		StatusFail:      lipgloss.NewStyle().SetString("❌ ").Foreground(lipgloss.Red),
 	}
 	StatusStyleCircle = StatusStyles{
-		StatusScheduled: StatusStyle{
-			Style: lipgloss.NewStyle(),
-			Emoji: "🔵",
-		},
-		StatusSuccess: StatusStyle{
-			Style: lipgloss.NewStyle().Foreground(lipgloss.Green),
-			Emoji: "🟢",
-		},
-		StatusFail: StatusStyle{
-			Style: lipgloss.NewStyle().Foreground(lipgloss.Red),
-			Emoji: "🔴",
-		},
+		StatusNone:      lipgloss.NewStyle().SetString("  ").Faint(true),
+		StatusScheduled: lipgloss.NewStyle().SetString("🔵 "),
+		StatusSuccess:   lipgloss.NewStyle().SetString("🟢 ").Foreground(lipgloss.Green),
+		StatusFail:      lipgloss.NewStyle().SetString("🔴 ").Foreground(lipgloss.Red),
 	}
 )

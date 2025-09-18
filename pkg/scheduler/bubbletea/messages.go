@@ -15,7 +15,8 @@ import (
 type TaskStatus int
 
 const (
-	StatusScheduled TaskStatus = iota
+	StatusNone TaskStatus = iota
+	StatusScheduled
 	StatusSuccess
 	StatusFail
 )
