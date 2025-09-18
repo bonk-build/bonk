@@ -4,7 +4,6 @@
 package bubbletea
 
 import (
-	"log/slog"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss/v2/tree"
@@ -57,7 +56,6 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 		if cur == nil {
-			slog.Info("Added root child " + curName)
 			cur = makeTaskNode(curName)
 			t.Child(cur)
 		}
@@ -72,7 +70,6 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if !ok {
 				newChild = makeTaskNode(curName)
 				cur.children.Set(curName, newChild)
-				slog.Info("Added deep child " + curName + " to " + cur.name)
 			}
 
 			cur = newChild
