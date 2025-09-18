@@ -12,6 +12,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/task"
 )
 
@@ -44,6 +45,21 @@ func TestWithExecutor_Fail(t *testing.T) {
 
 	err := WithGenericExecutor(execName, exec)(t.Context(), drv)
 	require.ErrorIs(t, err, expectedErr)
+}
+
+func TestWithTypedExecutor(t *testing.T) {
+	t.Parallel()
+
+	const execName = "executor"
+
+	mock := gomock.NewController(t)
+	drv := NewMockDriver(mock)
+	exec := argconv.NewMockTypedExecutor[any](mock)
+
+	drv.EXPECT().RegisterExecutor(execName, gomock.Any()).Times(1)
+
+	err := WithExecutor(execName, exec)(t.Context(), drv)
+	require.NoError(t, err)
 }
 
 func TestWithPlugins(t *testing.T) {
