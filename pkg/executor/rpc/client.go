@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 
 	"google.golang.org/grpc"
@@ -25,30 +24,18 @@ func NewGRPCClient(
 	conn *grpc.ClientConn,
 ) task.Executor {
 	return &grpcClient{
-		client:   bonkv0.NewExecutorServiceClient(conn),
-		sessions: make(map[task.SessionId]grpcClientSession),
+		client: bonkv0.NewExecutorServiceClient(conn),
 	}
-}
-
-type grpcClientSession struct {
-	closeSession context.CancelFunc
 }
 
 type grpcClient struct {
 	client bonkv0.ExecutorServiceClient
-
-	sessions map[task.SessionId]grpcClientSession
 }
 
 var _ task.Executor = (*grpcClient)(nil)
 
 func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
 	slog.DebugContext(ctx, "opening session", "session", session.ID())
-
-	sessionCtx, cancel := context.WithCancel(ctx)
-	pb.sessions[session.ID()] = grpcClientSession{
-		closeSession: cancel,
-	}
 
 	sessionIdString := session.ID().String()
 	defaultLevel := int64(slog.LevelInfo)
@@ -70,103 +57,34 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 	if _, ok := session.SourceFS().(*afero.MemMapFs); ok {
 		openSessionRequest.Test = bonkv0.OpenSessionRequest_WorkspaceDescriptionTest_builder{}.Build()
 	}
-	stream, err := pb.client.OpenSession(ctx)
+	stream, err := pb.client.OpenSession(ctx, openSessionRequest.Build())
 	if err != nil {
 		return fmt.Errorf("failed to open session stream: %w", err)
 	}
 
-	err = stream.Send(openSessionRequest.Build())
+	// Wait for ack message
+	msg, err := stream.Recv()
 	if err != nil {
-		return fmt.Errorf("failed to send open session request: %w", err)
+		return fmt.Errorf("error receiving ack: %w", err)
 	}
-
-	ack := make(chan error)
+	if msg.WhichMessage() != bonkv0.OpenSessionResponse_Ack_case {
+		return errors.New("expected ack, received other message")
+	}
 
 	// Start up log streaming goroutine
-	go func() {
-		msg, err := stream.Recv()
-		if err != nil {
-			ack <- err
-
-			return
-		}
-		if msg.WhichMessage() == bonkv0.OpenSessionResponse_Ack_case {
-			ack <- nil
-		} else {
-			ack <- errors.New("expected ack, received other message")
-
-			return
-		}
-
-		for {
-			msg, err := stream.Recv()
-			if err != nil {
-				if stream.Context().Err() != nil || errors.Is(err, io.EOF) {
-					// If this occurs, the log stream is imply shutting down and we should exit
-					break
-				} else {
-					slog.ErrorContext(
-						stream.Context(),
-						"received error on log stream",
-						"error", err,
-						"context err", stream.Context().Err())
-
-					continue
-				}
-			}
-
-			switch msg.WhichMessage() {
-			case bonkv0.OpenSessionResponse_LogRecord_case:
-				attrs := make([]slog.Attr, 0, len(msg.GetLogRecord().GetAttrs()))
-				for key, value := range msg.GetLogRecord().GetAttrs() {
-					attrs = append(attrs, slog.Attr{
-						Key:   key,
-						Value: slog.AnyValue(value.AsInterface()),
-					})
-				}
-
-				slog.LogAttrs(
-					stream.Context(),
-					slog.Level(msg.GetLogRecord().GetLevel()),
-					msg.GetLogRecord().GetMessage(),
-					attrs...,
-				)
-
-			default:
-				slog.ErrorContext(stream.Context(), "received unknown session response")
-
-				continue
-			}
-		}
-	}()
-
-	// Wait for the ack to come through
-	err = <-ack
-	if err != nil {
-		return err
-	}
-
-	go func() {
-		// Wait for cancel() and close
-		<-sessionCtx.Done()
-
-		slog.DebugContext(sessionCtx, "closing session for rpc")
-
-		err = stream.CloseSend()
-		if err != nil {
-			slog.WarnContext(sessionCtx, "failed to close session", "error", err)
-		}
-	}()
+	go handleLogStreaming(stream)
 
 	return nil
 }
 
 func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId) {
-	session, ok := pb.sessions[sessionId]
-	if !ok {
-		slog.ErrorContext(ctx, "attempting to close session that isn't open", "session", sessionId)
+	sessionIdString := sessionId.String()
+	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
+		Id: &sessionIdString,
+	}.Build())
+	if err != nil {
+		slog.ErrorContext(ctx, "got error closing session", "session", sessionId, "error", err)
 	}
-	session.closeSession()
 }
 
 func (pb *grpcClient) Execute(
