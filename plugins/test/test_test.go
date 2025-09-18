@@ -22,7 +22,7 @@ func Test_Plugin(t *testing.T) {
 	var result task.Result
 	require.NoError(t, executors.Execute(
 		t.Context(),
-		task.New[any]("testing", session, "test.Test", Params{
+		task.New("testing", session, "test.Test", Params{
 			Value: 2,
 		}),
 		&result,

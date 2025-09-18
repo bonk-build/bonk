@@ -19,7 +19,7 @@ func Test_SenderIsCalled(t *testing.T) {
 
 	mock := gomock.NewController(t)
 	session := task.NewTestSession()
-	tsk := task.New[any]("task1", session, "test", nil)
+	tsk := task.New("task1", session, "test", nil)
 
 	sender := task.NewMockExecutor(mock)
 	sender.EXPECT().
