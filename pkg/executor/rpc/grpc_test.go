@@ -99,8 +99,8 @@ func (s *rpcSuite) Test_Connection() {
 }
 
 func (s *rpcSuite) Test_Session() {
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
+	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 
 	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
 	s.Require().NoError(err)

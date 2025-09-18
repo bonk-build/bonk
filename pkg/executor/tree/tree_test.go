@@ -56,7 +56,7 @@ func Test_Call(t *testing.T) {
 	}
 
 	exec := task.NewMockExecutor[any](mock)
-	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
+	exec.EXPECT().Execute(t.Context(), &tsk, &result)
 
 	manager := tree.New()
 

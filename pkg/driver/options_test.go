@@ -24,7 +24,7 @@ func TestWithExecutor(t *testing.T) {
 	drv := NewMockDriver(mock)
 	exec := task.NewMockExecutor[any](mock)
 
-	drv.EXPECT().RegisterExecutor(execName, gomock.Any()).Times(1)
+	drv.EXPECT().RegisterExecutor(execName, exec).Times(1)
 
 	err := WithExecutor(execName, exec)(t.Context(), drv)
 	require.NoError(t, err)
@@ -40,7 +40,7 @@ func TestWithExecutor_Fail(t *testing.T) {
 	drv := NewMockDriver(mock)
 	exec := task.NewMockExecutor[any](mock)
 
-	drv.EXPECT().RegisterExecutor(execName, gomock.Any()).Return(expectedErr).Times(1)
+	drv.EXPECT().RegisterExecutor(execName, exec).Return(expectedErr).Times(1)
 
 	err := WithExecutor(execName, exec)(t.Context(), drv)
 	require.ErrorIs(t, err, expectedErr)

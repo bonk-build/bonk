@@ -94,11 +94,11 @@ func Test_BoxExecutor(t *testing.T) {
 	exec := task.NewMockExecutor[Args](mock)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(t.Context(), gomock.Any(), nil).Times(1)
-
 	typed := task.New("", session, "", defaultArgs)
-	boxed := typed.Box()
 
+	exec.EXPECT().Execute(t.Context(), typed, nil).Times(1)
+
+	boxed := typed.Box()
 	err := task.BoxExecutor(exec).Execute(t.Context(), boxed, nil)
 	require.NoError(t, err)
 }
@@ -111,9 +111,9 @@ func Test_BoxExecutor_Failure(t *testing.T) {
 	boxed := task.BoxExecutor(exec)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
-
 	typed := task.New[any]("", session, "", 111)
+
+	exec.EXPECT().Execute(t.Context(), typed, gomock.Any()).Times(0)
 
 	err := boxed.Execute(t.Context(), typed, nil)
 	require.ErrorContains(t, err, "failed to convert params from int to task_test.Args")
