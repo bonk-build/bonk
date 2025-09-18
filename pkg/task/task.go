@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package task // import "go.bonk.build/pkg/task"
+package task
 
 import (
 	"github.com/spf13/afero"

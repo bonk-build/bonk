@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package scheduler // import "go.bonk.build/pkg/scheduler"
+package scheduler
 
 import (
 	"context"

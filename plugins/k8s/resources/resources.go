@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package main // import "go.bonk.build/plugins/k8s/resources"
+package main
 
 import (
 	"context"
