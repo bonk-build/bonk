@@ -4,7 +4,6 @@
 name: push
 on:
   - push
-  - pull_request
 
 jobs:
   pre-commit:
