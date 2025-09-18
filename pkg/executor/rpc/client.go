@@ -12,6 +12,7 @@ import (
 	"log/slog"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 
 	"github.com/spf13/afero"
 
@@ -189,7 +190,12 @@ func (pb *grpcClient) Execute(
 
 	res, err := pb.client.ExecuteTask(ctx, taskReqBuilder.Build())
 	if err != nil {
-		return fmt.Errorf("failed to call perform task: %w", err)
+		status := status.Convert(err)
+		if status.Code() == CodeExecErr {
+			return errors.New(status.Message())
+		} else {
+			return fmt.Errorf("unknown error performing task: %w", err)
+		}
 	}
 
 	result.Outputs = res.GetOutput()

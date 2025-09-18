@@ -14,6 +14,7 @@ import (
 	"go.uber.org/multierr"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
@@ -208,7 +209,7 @@ func (s *grpcServer) ExecuteTask(
 	var response task.Result
 	err = s.executor.Execute(ctx, &tsk, &response)
 	if err != nil {
-		return nil, err //nolint:wrapcheck
+		return nil, status.Error(CodeExecErr, err.Error()) //nolint:wrapcheck
 	}
 
 	res := bonkv0.ExecuteTaskResponse_builder{
