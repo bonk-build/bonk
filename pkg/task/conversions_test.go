@@ -27,7 +27,7 @@ func Test_NopTask(t *testing.T) {
 	t.Parallel()
 
 	session := task.NewTestSession()
-	typed := task.New[any](session, "", "", defaultArgs)
+	typed := task.New[any]("", session, "", defaultArgs)
 	boxed := typed.Box()
 
 	require.Same(t, typed, boxed)
@@ -47,7 +47,7 @@ func Test_StraightConversion(t *testing.T) {
 	t.Parallel()
 
 	session := task.NewTestSession()
-	typed := task.New(session, "", "", defaultArgs)
+	typed := task.New("", session, "", defaultArgs)
 
 	boxed := typed.Box()
 	unboxed, err := task.Unbox[Args](boxed)
@@ -60,7 +60,7 @@ func Test_StringMap(t *testing.T) {
 	t.Parallel()
 
 	session := task.NewTestSession()
-	typed := task.New(session, "", "", map[string]any{
+	typed := task.New("", session, "", map[string]any{
 		"Val1": defaultArgs.Val1,
 		"Val2": defaultArgs.Val2,
 	})
@@ -78,7 +78,7 @@ func Test_CueConstraints(t *testing.T) {
 	session := task.NewTestSession()
 	args := defaultArgs
 	args.Val2 = 90000
-	typed := task.New(session, "", "", args)
+	typed := task.New("", session, "", args)
 
 	boxed := typed.Box()
 	unboxed, err := task.Unbox[Args](boxed)
@@ -96,7 +96,7 @@ func Test_BoxExecutor(t *testing.T) {
 
 	exec.EXPECT().Execute(t.Context(), gomock.Any(), nil).Times(1)
 
-	typed := task.New(session, "", "", defaultArgs)
+	typed := task.New("", session, "", defaultArgs)
 	boxed := typed.Box()
 
 	err := task.BoxExecutor(exec).Execute(t.Context(), boxed, nil)
@@ -113,7 +113,7 @@ func Test_BoxExecutor_Failure(t *testing.T) {
 
 	exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).Times(0)
 
-	typed := task.New[any](session, "", "", 111)
+	typed := task.New[any]("", session, "", 111)
 
 	err := boxed.Execute(t.Context(), typed, nil)
 	require.ErrorContains(t, err, "failed to convert params from int to task_test.Args")

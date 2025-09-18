@@ -20,10 +20,11 @@ func (t *Task[Params]) Box() *GenericTask {
 	}
 
 	return &GenericTask{
-		ID:      t.ID,
-		Session: t.Session,
-		Inputs:  t.Inputs,
-		Args:    t.Args,
+		ID:       t.ID,
+		Executor: t.Executor,
+		Session:  t.Session,
+		Inputs:   t.Inputs,
+		Args:     t.Args,
 	}
 }
 
@@ -33,9 +34,10 @@ func Unbox[Params any](tsk *GenericTask) (*Task[Params], error) {
 	argsT := reflect.TypeOf(tsk.Args)
 
 	result := &Task[Params]{
-		ID:      tsk.ID,
-		Session: tsk.Session,
-		Inputs:  tsk.Inputs,
+		ID:       tsk.ID,
+		Executor: tsk.Executor,
+		Session:  tsk.Session,
+		Inputs:   tsk.Inputs,
 	}
 
 	var convSuccess bool

@@ -17,12 +17,10 @@ func makeTestTask(t *testing.T) (task.GenericTask, task.Result) {
 	t.Helper()
 
 	tsk := task.GenericTask{
-		ID: task.TaskId{
-			Executor: "test.abc.def",
-			Name:     "Test.Testing",
-		},
-		Session: task.NewTestSession(),
-		Args:    nil,
+		ID:       task.TaskID("Test.Testing"),
+		Executor: "test.abc.def",
+		Session:  task.NewTestSession(),
+		Args:     nil,
 	}
 	result := task.Result{
 		Outputs: []string{

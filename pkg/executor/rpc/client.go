@@ -177,8 +177,8 @@ func (pb *grpcClient) Execute(
 	sessionIdStr := tsk.Session.ID().String()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
 		SessionId: &sessionIdStr,
-		Name:      &tsk.ID.Name,
-		Executor:  &tsk.ID.Executor,
+		Id:        (*string)(&tsk.ID),
+		Executor:  &tsk.Executor,
 		Inputs:    tsk.Inputs,
 	}
 
@@ -203,9 +203,9 @@ func (pb *grpcClient) Execute(
 	for ii, followup := range res.GetFollowupTasks() {
 		// Create the new task and append it
 		result.FollowupTasks[ii] = *task.New(
+			followup.GetId(),
 			tsk.Session,
 			followup.GetExecutor(),
-			fmt.Sprintf("%s.%s", tsk.ID.Name, followup.GetName()),
 			followup.GetArguments().AsInterface(),
 			followup.GetInputs()...,
 		)

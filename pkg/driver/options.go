@@ -48,7 +48,8 @@ func WithLocalSession(path string, options ...SessionOption) DriverOption {
 }
 
 func WithTask[Params any](
-	executor, name string,
+	name string,
+	executor string,
 	args Params,
 	inputs ...string,
 ) SessionOption {
@@ -56,9 +57,9 @@ func WithTask[Params any](
 		return drv.AddTask(
 			ctx,
 			task.New(
+				name,
 				session,
 				executor,
-				name,
 				args,
 				inputs...,
 			).Box(),

@@ -40,15 +40,15 @@ var rootCmd = &cobra.Command{
 			),
 			driver.WithLocalSession(path.Join(cwd, "testdata"),
 				driver.WithTask(
-					"test.Test",
 					"Test.Test",
+					"test.Test",
 					map[string]any{
 						"value": 3,
 					},
 				),
 				driver.WithTask(
-					"resources.Resources",
 					"Test.Resources",
+					"resources.Resources",
 					map[string]any{
 						"resources": []map[string]any{
 							{
@@ -62,8 +62,8 @@ var rootCmd = &cobra.Command{
 					},
 				),
 				driver.WithTask(
-					"kustomize.Kustomize",
 					"Test.Kustomize",
+					"kustomize.Kustomize",
 					map[string]any{},
 					".bonk/Test.Resources/resources.yaml",
 				),

@@ -43,8 +43,8 @@ func New(concurrency uint) scheduler.SchedulerFactory {
 }
 
 func (s *tfScheduler) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error {
-	ctx = slogctx.Append(ctx, "task", tsk.ID.Name)
-	ctx = slogctx.Append(ctx, "executor", tsk.ID.Executor)
+	ctx = slogctx.Append(ctx, "task", tsk.ID.String())
+	ctx = slogctx.Append(ctx, "executor", tsk.Executor)
 
 	taskName := tsk.ID.String()
 	s.flowHasTasks = true
