@@ -22,6 +22,19 @@
       "schedule": [
         "* * * * 0"
       ]
+    },
+    {
+      "description": "allow updating go indirect dependencies weekly",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "indirect"
+      ],
+      "enabled": true,
+      "schedule": [
+        "* * * * 0"
+      ]
     }
   ],
   "renovate-config-presets": {
