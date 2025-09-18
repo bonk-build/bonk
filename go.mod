@@ -20,6 +20,7 @@ require (
 	github.com/charmbracelet/fang v0.4.1
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta1
 	github.com/davecgh/go-spew v1.1.1
+	github.com/elliotchance/orderedmap/v3 v3.1.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
 	github.com/gohugoio/hashstructure v0.5.0
 	github.com/google/uuid v1.6.0

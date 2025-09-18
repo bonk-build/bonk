@@ -15,10 +15,11 @@ import (
 
 // teaModel is responsible for handling task invocation and status tracking.
 type teaModel struct {
-	tree *taskTree
+	tree taskTree
 
 	tasks atomic.Int64
 
+	quitting  bool
 	debugDump bool
 }
 
@@ -30,11 +31,9 @@ var (
 // Init implements tea.Model.
 func (t *teaModel) Init() tea.Cmd {
 	cmds := make([]tea.Cmd, 0, 1)
-	t.tree = newTaskTree()
 
-	if t.tree != nil {
-		cmds = append(cmds, t.tree.Init())
-	}
+	t.tree = newTaskTree()
+	cmds = append(cmds, t.tree.Init())
 
 	return tea.Batch(cmds...)
 }
@@ -47,15 +46,22 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	)
 
 	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		if msg.Key().Mod.Contains(tea.ModCtrl) && msg.Key().Code == 'c' {
+			t.quitting = true
+			cmds = append(cmds, tea.Quit)
+		}
+
 	case TaskScheduleMsg:
+		t.tasks.Add(1)
 		cmds = append(cmds, msg.GetExecCmd())
 
 	case TaskStatusMsg:
 		if msg.status == StatusScheduled {
-			t.tasks.Add(1)
 		} else {
 			remaining := t.tasks.Add(-1)
 			if remaining == 0 {
+				t.quitting = true
 				cmds = append(cmds, tea.Quit)
 			}
 		}
@@ -67,10 +73,8 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// Pass the events down to the tree
-	if t.tree != nil {
-		_, cmd = t.tree.Update(msg)
-		cmds = append(cmds, cmd)
-	}
+	_, cmd = t.tree.Update(msg)
+	cmds = append(cmds, cmd)
 
 	return t, tea.Batch(cmds...)
 }
@@ -79,8 +83,11 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (t *teaModel) View() string {
 	component := make([]string, 0, 1)
 
-	if t.tree != nil {
-		component = append(component, t.tree.View())
+	component = append(component, t.tree.View())
+
+	// Add final newline
+	if t.quitting {
+		component = append(component, "")
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, component...)
