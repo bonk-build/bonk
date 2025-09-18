@@ -6,6 +6,7 @@
   ],
   "packageRules": [
     {
+      "description": "automerge all but major updates",
       "matchUpdateTypes": [
         "minor",
         "patch",
@@ -13,6 +14,28 @@
         "digest"
       ],
       "automerge": true
+    },
+    {
+      "description": "only update pre-commit hooks weekly",
+      "matchManagers": [
+        "pre-commit"
+      ],
+      "schedule": [
+        "* * * * 0"
+      ]
+    },
+    {
+      "description": "allow updating go indirect dependencies weekly",
+      "matchManagers": [
+        "gomod"
+      ],
+      "matchDepTypes": [
+        "indirect"
+      ],
+      "enabled": true,
+      "schedule": [
+        "* * * * 0"
+      ]
     }
   ],
   "renovate-config-presets": {
