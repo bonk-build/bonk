@@ -13,6 +13,15 @@
         "digest"
       ],
       "automerge": true
+    },
+    {
+      "description": "only update pre-commit hooks weekly",
+      "matchManagers": [
+        "pre-commit"
+      ],
+      "schedule": [
+        "* * * * 0"
+      ]
     }
   ],
   "renovate-config-presets": {
