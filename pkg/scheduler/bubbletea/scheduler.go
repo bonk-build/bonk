@@ -17,14 +17,14 @@ import (
 
 type sched struct {
 	program *tea.Program
-	exec    task.GenericExecutor
+	exec    task.Executor
 }
 
 // Creates a new scheduler driven by bubbletea.
 func New(
 	debugDump bool,
 ) scheduler.SchedulerFactory {
-	return func(ctx context.Context, exec task.GenericExecutor) scheduler.Scheduler {
+	return func(ctx context.Context, exec task.Executor) scheduler.Scheduler {
 		result := &sched{
 			program: tea.NewProgram(
 				&teaModel{
@@ -66,7 +66,7 @@ func New(
 }
 
 // AddTask implements scheduler.Scheduler.
-func (s *sched) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error {
+func (s *sched) AddTask(ctx context.Context, tsk *task.Task, deps ...string) error {
 	// This can block, so run in a goroutine
 	go s.program.Send(TaskScheduleMsg{
 		ctx:  ctx,

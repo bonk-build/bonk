@@ -16,24 +16,24 @@ import (
 
 // ExecutorTree is a tree of Executors.
 type ExecutorTree struct {
-	children map[string]task.GenericExecutor
+	children map[string]task.Executor
 }
 
 // Note that ExecutorTree is itself an executor.
 var (
-	_ task.GenericExecutor = (*ExecutorTree)(nil)
+	_ task.Executor = (*ExecutorTree)(nil)
 )
 var ErrNoExecutorFound = errors.New("no executor found")
 
 func New() ExecutorTree {
 	return ExecutorTree{
-		children: make(map[string]task.GenericExecutor),
+		children: make(map[string]task.Executor),
 	}
 }
 
-func (et *ExecutorTree) RegisterExecutor(name string, exec task.GenericExecutor) error {
-	var registerImpl func(manager *ExecutorTree, name string, impl task.GenericExecutor) error
-	registerImpl = func(manager *ExecutorTree, name string, impl task.GenericExecutor) error {
+func (et *ExecutorTree) RegisterExecutor(name string, exec task.Executor) error {
+	var registerImpl func(manager *ExecutorTree, name string, impl task.Executor) error
+	registerImpl = func(manager *ExecutorTree, name string, impl task.Executor) error {
 		before, after, needsManager := strings.Cut(name, task.TaskIDSep)
 		child, hasChild := manager.children[before]
 
@@ -50,7 +50,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec task.GenericExecutor)
 		// Needs & doesn't have manager, add manager and retry
 		case needsManager && !hasChild:
 			manager.children[before] = &ExecutorTree{
-				children: make(map[string]task.GenericExecutor, 1),
+				children: make(map[string]task.Executor, 1),
 			}
 
 			return registerImpl(manager, name, impl)
@@ -100,7 +100,7 @@ func (et *ExecutorTree) UnregisterExecutors(names ...string) {
 
 func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) error {
 	var err error
-	et.ForEachExecutor(func(_ string, exec task.GenericExecutor) {
+	et.ForEachExecutor(func(_ string, exec task.Executor) {
 		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
 	})
 
@@ -108,14 +108,14 @@ func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) e
 }
 
 func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionId) {
-	et.ForEachExecutor(func(_ string, exec task.GenericExecutor) {
+	et.ForEachExecutor(func(_ string, exec task.Executor) {
 		exec.CloseSession(ctx, sessionId)
 	})
 }
 
 func (et *ExecutorTree) Execute(
 	ctx context.Context,
-	tsk *task.GenericTask,
+	tsk *task.Task,
 	result *task.Result,
 ) error {
 	exec := tsk.Executor
@@ -135,16 +135,16 @@ func (et *ExecutorTree) Execute(
 
 func (et *ExecutorTree) GetNumExecutors() int {
 	result := 0
-	et.ForEachExecutor(func(string, task.GenericExecutor) {
+	et.ForEachExecutor(func(string, task.Executor) {
 		result++
 	})
 
 	return result
 }
 
-func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec task.GenericExecutor)) {
-	var forEachImpl func(name string, appendName bool, child task.GenericExecutor)
-	forEachImpl = func(name string, appendName bool, child task.GenericExecutor) {
+func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec task.Executor)) {
+	var forEachImpl func(name string, appendName bool, child task.Executor)
+	forEachImpl = func(name string, appendName bool, child task.Executor) {
 		if childManager, ok := child.(*ExecutorTree); ok {
 			for childName, childExec := range childManager.children {
 				var pathParts []string
@@ -165,5 +165,5 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec task.GenericE
 }
 
 func (et *ExecutorTree) Shutdown() {
-	et.children = make(map[string]task.GenericExecutor)
+	et.children = make(map[string]task.Executor)
 }

@@ -10,8 +10,8 @@ import (
 )
 
 type Scheduler interface {
-	AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error
+	AddTask(ctx context.Context, tsk *task.Task, deps ...string) error
 	Run()
 }
 
-type SchedulerFactory func(context.Context, task.GenericExecutor) Scheduler
+type SchedulerFactory func(context.Context, task.Executor) Scheduler

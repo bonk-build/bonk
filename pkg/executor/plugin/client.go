@@ -25,12 +25,12 @@ var Handshake = goplugin.HandshakeConfig{
 }
 
 type PluginClient struct {
-	task.GenericExecutor
+	task.Executor
 
 	pluginClient *goplugin.Client
 }
 
-var _ task.GenericExecutor = (*PluginClient)(nil)
+var _ task.Executor = (*PluginClient)(nil)
 
 func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, error) {
 	client := goplugin.NewClient(&goplugin.ClientConfig{
@@ -60,7 +60,7 @@ func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, erro
 		panic(errors.New("rpcclient is of the wrong type"))
 	}
 
-	plug.GenericExecutor = rpc.NewGRPCClient(grpcClient.Conn)
+	plug.Executor = rpc.NewGRPCClient(grpcClient.Conn)
 
 	return plug, nil
 }

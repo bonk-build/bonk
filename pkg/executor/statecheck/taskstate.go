@@ -32,7 +32,7 @@ type state struct {
 	FollowupChecksum  uint64 `json:"followupChecksum,omitempty"`
 }
 
-func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
+func SaveState(task *task.Task, result *task.Result) error {
 	err := task.OutputFS().MkdirAll("", 0o750)
 	if err != nil {
 		return fmt.Errorf("failed to create task directory: %w", err)
@@ -86,7 +86,7 @@ func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
 	return nil
 }
 
-func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
+func DetectStateMismatches(task *task.Task) []string {
 	file, err := task.OutputFS().Open(StateFile)
 	if err != nil {
 		return []string{"<state missing>"}

@@ -14,10 +14,14 @@ import (
 
 type DriverOption = func(context.Context, Driver) error
 
-func WithExecutor[Params any](name string, exec task.Executor[Params]) DriverOption {
+func WithGenericExecutor(name string, exec task.Executor) DriverOption {
 	return func(ctx context.Context, drv Driver) error {
-		return drv.RegisterExecutor(name, task.BoxExecutor(exec))
+		return drv.RegisterExecutor(name, exec)
 	}
+}
+
+func WithExecutor[Params any](name string, exec task.TypedExecutor[Params]) DriverOption {
+	return WithGenericExecutor(name, task.BoxExecutor(exec))
 }
 
 func WithPlugins(plugins ...string) DriverOption {
@@ -47,12 +51,12 @@ func WithLocalSession(path string, options ...SessionOption) DriverOption {
 	}
 }
 
-type TaskOption = func(context.Context, *task.GenericTask)
+type TaskOption = func(context.Context, *task.Task)
 
-func WithTask[Params any](
+func WithTask(
 	id string,
 	executor string,
-	args Params,
+	args any,
 	options ...TaskOption,
 ) SessionOption {
 	return func(ctx context.Context, drv Driver, session task.Session) error {
@@ -61,7 +65,7 @@ func WithTask[Params any](
 			session,
 			executor,
 			args,
-		).Box()
+		)
 		for _, opt := range options {
 			opt(ctx, tsk)
 		}
@@ -71,7 +75,7 @@ func WithTask[Params any](
 }
 
 func WithInputs(inputs ...string) TaskOption {
-	return func(_ context.Context, tsk *task.GenericTask) {
+	return func(_ context.Context, tsk *task.Task) {
 		tsk.WithInputs(inputs...)
 	}
 }

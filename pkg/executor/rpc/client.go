@@ -23,7 +23,7 @@ import (
 // Creates an executor that forwards task invocations across a GRPC connection.
 func NewGRPCClient(
 	conn *grpc.ClientConn,
-) task.GenericExecutor {
+) task.Executor {
 	return &grpcClient{
 		client:   bonkv0.NewExecutorServiceClient(conn),
 		sessions: make(map[task.SessionId]grpcClientSession),
@@ -40,7 +40,7 @@ type grpcClient struct {
 	sessions map[task.SessionId]grpcClientSession
 }
 
-var _ task.GenericExecutor = (*grpcClient)(nil)
+var _ task.Executor = (*grpcClient)(nil)
 
 func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
 	slog.DebugContext(ctx, "opening session", "session", session.ID())
@@ -171,7 +171,7 @@ func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId
 
 func (pb *grpcClient) Execute(
 	ctx context.Context,
-	tsk *task.GenericTask,
+	tsk *task.Task,
 	result *task.Result,
 ) error {
 	sessionIdStr := tsk.Session.ID().String()
@@ -199,7 +199,7 @@ func (pb *grpcClient) Execute(
 	}
 
 	result.Outputs = res.GetOutput()
-	result.FollowupTasks = make([]task.GenericTask, len(res.GetFollowupTasks()))
+	result.FollowupTasks = make([]task.Task, len(res.GetFollowupTasks()))
 	for ii, followup := range res.GetFollowupTasks() {
 		// Create the new task and append it
 		result.FollowupTasks[ii] = *task.New(

@@ -44,7 +44,7 @@ func init() {
 
 func getTaskLoggingContext(
 	ctx context.Context,
-	tsk *task.GenericTask,
+	tsk *task.Task,
 ) (context.Context, func() error, error) {
 	// Open log txt and json files
 	err := tsk.OutputFS().MkdirAll("", 0o750)

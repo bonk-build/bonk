@@ -30,18 +30,18 @@ type rpcSuite struct {
 	suite.Suite
 
 	mock       *gomock.Controller
-	exec       *task.MockExecutor[Args]
-	grpcClient task.GenericExecutor
+	exec       *task.MockExecutor
+	grpcClient task.Executor
 	session    task.Session
 }
 
 func (s *rpcSuite) SetupTest() {
 	s.mock = gomock.NewController(s.T())
-	s.exec = task.NewMockExecutor[Args](s.mock)
+	s.exec = task.NewMockExecutor(s.mock)
 
 	lis := bufconn.Listen(1024 * 1024)
 	server := grpc.NewServer()
-	rpc.RegisterGRPCServer(server, task.BoxExecutor(s.exec))
+	rpc.RegisterGRPCServer(server, s.exec)
 
 	go func() {
 		err := server.Serve(lis)
@@ -137,7 +137,7 @@ func (s *rpcSuite) Test_Args() {
 		Args{
 			Value: 3,
 		},
-	).Box(), &result)
+	), &result)
 	s.Require().NoError(err)
 }
 
@@ -151,7 +151,7 @@ func (s *rpcSuite) Test_Followups() {
 	s.Require().NoError(err)
 	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
 
-	expectedTask := task.Task[Args]{
+	expectedTask := task.Task{
 		ID:       task.TaskID("Test.Task"),
 		Executor: "Test.Executor",
 		Session:  s.session,
@@ -166,8 +166,8 @@ func (s *rpcSuite) Test_Followups() {
 
 	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
-		Do(func(ctx context.Context, tsk *task.Task[Args], res *task.Result) {
-			res.FollowupTasks = append(res.FollowupTasks, *expectedTask.Box())
+		Do(func(ctx context.Context, tsk *task.Task, res *task.Result) {
+			res.FollowupTasks = append(res.FollowupTasks, expectedTask)
 		}).
 		Return(nil)
 
@@ -183,10 +183,10 @@ func (s *rpcSuite) Test_Followups() {
 	s.Require().NoError(err)
 	s.Len(result.FollowupTasks, 1)
 
-	unboxed, err := task.Unbox[Args](&result.FollowupTasks[0])
+	unboxed, err := task.UnboxArgs[Args](&result.FollowupTasks[0])
 
 	s.Require().NoError(err)
-	s.EqualExportedValues(expectedTask, *unboxed)
+	s.EqualExportedValues(expectedTask.Args, *unboxed)
 }
 
 func TestRPC(t *testing.T) {

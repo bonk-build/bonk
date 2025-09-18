@@ -19,7 +19,7 @@ import (
 )
 
 type tfScheduler struct {
-	child    task.GenericExecutor
+	child    task.Executor
 	executor gotaskflow.Executor
 	tasks    map[string]*gotaskflow.Task
 
@@ -30,7 +30,7 @@ type tfScheduler struct {
 var _ scheduler.Scheduler = (*tfScheduler)(nil)
 
 func New(concurrency uint) scheduler.SchedulerFactory {
-	return func(_ context.Context, child task.GenericExecutor) scheduler.Scheduler {
+	return func(_ context.Context, child task.Executor) scheduler.Scheduler {
 		return &tfScheduler{
 			child:    child,
 			executor: gotaskflow.NewExecutor(concurrency),
@@ -42,7 +42,7 @@ func New(concurrency uint) scheduler.SchedulerFactory {
 	}
 }
 
-func (s *tfScheduler) AddTask(ctx context.Context, tsk *task.GenericTask, deps ...string) error {
+func (s *tfScheduler) AddTask(ctx context.Context, tsk *task.Task, deps ...string) error {
 	ctx = slogctx.Append(ctx, "task", tsk.ID.String())
 	ctx = slogctx.Append(ctx, "executor", tsk.Executor)
 

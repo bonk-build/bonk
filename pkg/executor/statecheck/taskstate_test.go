@@ -13,10 +13,10 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func makeTestTask(t *testing.T) (task.GenericTask, task.Result) {
+func makeTestTask(t *testing.T) (task.Task, task.Result) {
 	t.Helper()
 
-	tsk := task.GenericTask{
+	tsk := task.Task{
 		ID:       task.TaskID("Test.Testing"),
 		Executor: "test.abc.def",
 		Session:  task.NewTestSession(),

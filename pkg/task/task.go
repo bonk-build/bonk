@@ -7,24 +7,22 @@ import (
 	"github.com/spf13/afero"
 )
 
-type Task[Params any] struct {
+type Task struct {
 	ID       TaskID  `json:"id"`
 	Executor string  `json:"executor"`
 	Session  Session `json:"-"`
 
 	Inputs []string `json:"inputs,omitempty"`
-	Args   Params   `json:"args"`
+	Args   any      `json:"args"`
 }
-
-type GenericTask = Task[any]
 
 func New[Params any](
 	id string,
 	session Session,
 	executor string,
 	args Params,
-) *Task[Params] {
-	result := &Task[Params]{
+) *Task {
+	result := &Task{
 		ID:       TaskID(id),
 		Executor: executor,
 		Session:  session,
@@ -34,12 +32,12 @@ func New[Params any](
 	return result
 }
 
-func (tsk *Task[Params]) WithInputs(inputs ...string) *Task[Params] {
+func (tsk *Task) WithInputs(inputs ...string) *Task {
 	tsk.Inputs = append(tsk.Inputs, inputs...)
 
 	return tsk
 }
 
-func (tsk *Task[Params]) OutputFS() afero.Fs {
+func (tsk *Task) OutputFS() afero.Fs {
 	return afero.NewBasePathFs(tsk.Session.OutputFS(), tsk.ID.String())
 }

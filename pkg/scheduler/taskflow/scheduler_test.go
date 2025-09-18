@@ -21,7 +21,7 @@ func Test_SenderIsCalled(t *testing.T) {
 	session := task.NewTestSession()
 	tsk := task.New[any]("task1", session, "test", nil)
 
-	sender := task.NewMockExecutor[any](mock)
+	sender := task.NewMockExecutor(mock)
 	sender.EXPECT().
 		Execute(gomock.Any(), tsk, gomock.Any()).
 		Times(1).

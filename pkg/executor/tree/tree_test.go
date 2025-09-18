@@ -27,7 +27,7 @@ func Test_Add(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 
 	manager := tree.New()
 
@@ -38,7 +38,7 @@ func Test_Add(t *testing.T) {
 
 	var foundName string
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec task.GenericExecutor) {
+	manager.ForEachExecutor(func(name string, exec task.Executor) {
 		foundName = name
 		calls++
 	})
@@ -51,11 +51,11 @@ func Test_Call(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 	var result task.Result
-	tsk := task.GenericTask{
+	tsk := task.Task{
 		Executor: execName,
 	}
 
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 	exec.EXPECT().Execute(t.Context(), &tsk, &result)
 
 	manager := tree.New()
@@ -74,11 +74,11 @@ func Test_Call_Fail(t *testing.T) {
 
 	const execName = "testing.child.abc"
 	var result task.Result
-	tsk := task.GenericTask{
+	tsk := task.Task{
 		Executor: execName,
 	}
 
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 	exec.EXPECT().Execute(t.Context(), &tsk, &result).Times(0)
 
 	manager := tree.New()
@@ -96,7 +96,7 @@ func Test_Remove(t *testing.T) {
 	testSetup(t)
 	const execName = "testing.child.abc"
 
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 	manager := tree.New()
 
 	err := manager.RegisterExecutor(execName, exec)
@@ -107,7 +107,7 @@ func Test_Remove(t *testing.T) {
 	require.Equal(t, 0, manager.GetNumExecutors())
 
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec task.GenericExecutor) {
+	manager.ForEachExecutor(func(name string, exec task.Executor) {
 		calls++
 	})
 	require.Equal(t, 0, calls)
@@ -125,14 +125,14 @@ func Test_Add_Overlap(t *testing.T) {
 	manager := tree.New()
 
 	for _, execName := range execNames {
-		exec := task.NewMockExecutor[any](mock)
+		exec := task.NewMockExecutor(mock)
 
 		err := manager.RegisterExecutor(execName, exec)
 		require.NoError(t, err)
 	}
 
 	calls := 0
-	manager.ForEachExecutor(func(name string, exec task.GenericExecutor) {
+	manager.ForEachExecutor(func(name string, exec task.Executor) {
 		calls++
 	})
 	require.Equal(t, 2, calls)

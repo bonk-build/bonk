@@ -20,7 +20,7 @@ func TestStateCheck_SaveState(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 
@@ -42,7 +42,7 @@ func TestStateCheck_ExecFailure(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 
@@ -62,7 +62,7 @@ func TestStateCheck_StateMismatches_Args(t *testing.T) {
 	t.Parallel()
 
 	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor[any](mock)
+	exec := task.NewMockExecutor(mock)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 

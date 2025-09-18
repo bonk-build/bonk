@@ -16,7 +16,7 @@ import (
 )
 
 // Call like you'd call Serve() but at the top of your test function.
-func (plugin *Plugin) ServeTest(t *testing.T) task.GenericExecutor {
+func (plugin *Plugin) ServeTest(t *testing.T) task.Executor {
 	t.Helper()
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, plugin.getPluginSet())
