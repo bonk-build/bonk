@@ -52,13 +52,11 @@ func Test_Call(t *testing.T) {
 	const execName = "testing.child.abc"
 	var result task.Result
 	tsk := task.GenericTask{
-		ID: task.TaskId{
-			Executor: execName,
-		},
+		Executor: execName,
 	}
 
 	exec := task.NewMockExecutor[any](mock)
-	exec.EXPECT().Execute(t.Context(), gomock.Any(), &result)
+	exec.EXPECT().Execute(t.Context(), &tsk, &result)
 
 	manager := tree.New()
 
@@ -67,7 +65,7 @@ func Test_Call(t *testing.T) {
 
 	err = manager.Execute(t.Context(), &tsk, &result)
 	require.NoError(t, err)
-	require.Equal(t, execName, tsk.ID.Executor)
+	require.Equal(t, execName, tsk.Executor)
 }
 
 func Test_Remove(t *testing.T) {

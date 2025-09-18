@@ -39,7 +39,7 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
 	if msg, ok := msg.(TaskStatusMsg); ok {
-		curName, childPath, hasChildren := strings.Cut(msg.tskId, ".")
+		curName, childPath, hasChildren := msg.tskId.Cut()
 
 		var cur *taskNode
 

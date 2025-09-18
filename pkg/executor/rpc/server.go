@@ -191,15 +191,12 @@ func (s *grpcServer) ExecuteTask(
 
 	ctx = slogctx.NewCtx(ctx, session.logger)
 
-	tskId := task.TaskId{
-		Name:     req.GetName(),
-		Executor: req.GetExecutor(),
-	}
 	tsk := task.GenericTask{
-		ID:      tskId,
-		Session: session,
-		Inputs:  req.GetInputs(),
-		Args:    req.GetArguments().AsInterface(),
+		ID:       task.TaskID(req.GetId()),
+		Executor: req.GetExecutor(),
+		Session:  session,
+		Inputs:   req.GetInputs(),
+		Args:     req.GetArguments().AsInterface(),
 	}
 
 	err := tsk.OutputFS().MkdirAll("", 0o750)
@@ -219,8 +216,8 @@ func (s *grpcServer) ExecuteTask(
 
 	for idx, followup := range response.FollowupTasks {
 		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
-			Name:     &followup.ID.Name,
-			Executor: &followup.ID.Executor,
+			Id:       (*string)(&followup.ID),
+			Executor: &followup.Executor,
 			Inputs:   followup.Inputs,
 		}
 

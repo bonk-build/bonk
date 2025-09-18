@@ -47,21 +47,31 @@ func WithLocalSession(path string, options ...SessionOption) DriverOption {
 	}
 }
 
+type TaskOption = func(context.Context, *task.GenericTask)
+
 func WithTask[Params any](
-	executor, name string,
+	id string,
+	executor string,
 	args Params,
-	inputs ...string,
+	options ...TaskOption,
 ) SessionOption {
 	return func(ctx context.Context, drv Driver, session task.Session) error {
-		return drv.AddTask(
-			ctx,
-			task.New(
-				session,
-				executor,
-				name,
-				args,
-				inputs...,
-			).Box(),
-		)
+		tsk := task.New(
+			id,
+			session,
+			executor,
+			args,
+		).Box()
+		for _, opt := range options {
+			opt(ctx, tsk)
+		}
+
+		return drv.AddTask(ctx, tsk)
+	}
+}
+
+func WithInputs(inputs ...string) TaskOption {
+	return func(_ context.Context, tsk *task.GenericTask) {
+		tsk.WithInputs(inputs...)
 	}
 }

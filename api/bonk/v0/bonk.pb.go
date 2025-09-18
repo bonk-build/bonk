@@ -428,7 +428,7 @@ func (*openSessionResponse_LogRecord_) isOpenSessionResponse_Message() {}
 type ExecuteTaskRequest struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_SessionId   *string                `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
-	xxx_hidden_Name        *string                `protobuf:"bytes,2,opt,name=name"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,2,opt,name=id"`
 	xxx_hidden_Executor    *string                `protobuf:"bytes,3,opt,name=executor"`
 	xxx_hidden_Inputs      []string               `protobuf:"bytes,4,rep,name=inputs"`
 	xxx_hidden_Arguments   *structpb.Value        `protobuf:"bytes,5,opt,name=arguments"`
@@ -473,10 +473,10 @@ func (x *ExecuteTaskRequest) GetSessionId() string {
 	return ""
 }
 
-func (x *ExecuteTaskRequest) GetName() string {
+func (x *ExecuteTaskRequest) GetId() string {
 	if x != nil {
-		if x.xxx_hidden_Name != nil {
-			return *x.xxx_hidden_Name
+		if x.xxx_hidden_Id != nil {
+			return *x.xxx_hidden_Id
 		}
 		return ""
 	}
@@ -512,8 +512,8 @@ func (x *ExecuteTaskRequest) SetSessionId(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 5)
 }
 
-func (x *ExecuteTaskRequest) SetName(v string) {
-	x.xxx_hidden_Name = &v
+func (x *ExecuteTaskRequest) SetId(v string) {
+	x.xxx_hidden_Id = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 5)
 }
 
@@ -537,7 +537,7 @@ func (x *ExecuteTaskRequest) HasSessionId() bool {
 	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
 }
 
-func (x *ExecuteTaskRequest) HasName() bool {
+func (x *ExecuteTaskRequest) HasId() bool {
 	if x == nil {
 		return false
 	}
@@ -563,9 +563,9 @@ func (x *ExecuteTaskRequest) ClearSessionId() {
 	x.xxx_hidden_SessionId = nil
 }
 
-func (x *ExecuteTaskRequest) ClearName() {
+func (x *ExecuteTaskRequest) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
-	x.xxx_hidden_Name = nil
+	x.xxx_hidden_Id = nil
 }
 
 func (x *ExecuteTaskRequest) ClearExecutor() {
@@ -581,7 +581,7 @@ type ExecuteTaskRequest_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
 	SessionId *string
-	Name      *string
+	Id        *string
 	Executor  *string
 	Inputs    []string
 	Arguments *structpb.Value
@@ -595,9 +595,9 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 5)
 		x.xxx_hidden_SessionId = b.SessionId
 	}
-	if b.Name != nil {
+	if b.Id != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 5)
-		x.xxx_hidden_Name = b.Name
+		x.xxx_hidden_Id = b.Id
 	}
 	if b.Executor != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
@@ -1099,7 +1099,7 @@ func (b0 OpenSessionResponse_LogRecord_builder) Build() *OpenSessionResponse_Log
 
 type ExecuteTaskResponse_FollowupTask struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
-	xxx_hidden_Name        *string                `protobuf:"bytes,1,opt,name=name"`
+	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Executor    *string                `protobuf:"bytes,2,opt,name=executor"`
 	xxx_hidden_Inputs      []string               `protobuf:"bytes,3,rep,name=inputs"`
 	xxx_hidden_Arguments   *structpb.Value        `protobuf:"bytes,4,opt,name=arguments"`
@@ -1134,10 +1134,10 @@ func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) GetName() string {
+func (x *ExecuteTaskResponse_FollowupTask) GetId() string {
 	if x != nil {
-		if x.xxx_hidden_Name != nil {
-			return *x.xxx_hidden_Name
+		if x.xxx_hidden_Id != nil {
+			return *x.xxx_hidden_Id
 		}
 		return ""
 	}
@@ -1168,8 +1168,8 @@ func (x *ExecuteTaskResponse_FollowupTask) GetArguments() *structpb.Value {
 	return nil
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) SetName(v string) {
-	x.xxx_hidden_Name = &v
+func (x *ExecuteTaskResponse_FollowupTask) SetId(v string) {
+	x.xxx_hidden_Id = &v
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 4)
 }
 
@@ -1186,7 +1186,7 @@ func (x *ExecuteTaskResponse_FollowupTask) SetArguments(v *structpb.Value) {
 	x.xxx_hidden_Arguments = v
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) HasName() bool {
+func (x *ExecuteTaskResponse_FollowupTask) HasId() bool {
 	if x == nil {
 		return false
 	}
@@ -1207,9 +1207,9 @@ func (x *ExecuteTaskResponse_FollowupTask) HasArguments() bool {
 	return x.xxx_hidden_Arguments != nil
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) ClearName() {
+func (x *ExecuteTaskResponse_FollowupTask) ClearId() {
 	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
-	x.xxx_hidden_Name = nil
+	x.xxx_hidden_Id = nil
 }
 
 func (x *ExecuteTaskResponse_FollowupTask) ClearExecutor() {
@@ -1224,7 +1224,7 @@ func (x *ExecuteTaskResponse_FollowupTask) ClearArguments() {
 type ExecuteTaskResponse_FollowupTask_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Name      *string
+	Id        *string
 	Executor  *string
 	Inputs    []string
 	Arguments *structpb.Value
@@ -1234,9 +1234,9 @@ func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_
 	m0 := &ExecuteTaskResponse_FollowupTask{}
 	b, x := &b0, m0
 	_, _ = b, x
-	if b.Name != nil {
+	if b.Id != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 4)
-		x.xxx_hidden_Name = b.Name
+		x.xxx_hidden_Id = b.Id
 	}
 	if b.Executor != nil {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
@@ -1280,19 +1280,19 @@ const file_bonk_v0_bonk_proto_rawDesc = "" +
 	"AttrsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12,\n" +
 	"\x05value\x18\x02 \x01(\v2\x16.google.protobuf.ValueR\x05value:\x028\x01B\t\n" +
-	"\amessage\"\xb1\x01\n" +
+	"\amessage\"\xad\x01\n" +
 	"\x12ExecuteTaskRequest\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1a\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x1a\n" +
 	"\bexecutor\x18\x03 \x01(\tR\bexecutor\x12\x16\n" +
 	"\x06inputs\x18\x04 \x03(\tR\x06inputs\x124\n" +
-	"\targuments\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\targuments\"\x8e\x02\n" +
+	"\targuments\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\targuments\"\x8a\x02\n" +
 	"\x13ExecuteTaskResponse\x12\x16\n" +
 	"\x06output\x18\x01 \x03(\tR\x06output\x12P\n" +
-	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x8c\x01\n" +
-	"\fFollowupTask\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12\x1a\n" +
+	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x88\x01\n" +
+	"\fFollowupTask\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
 	"\bexecutor\x18\x02 \x01(\tR\bexecutor\x12\x16\n" +
 	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x124\n" +
 	"\targuments\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\targuments2\xa9\x01\n" +

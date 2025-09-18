@@ -72,7 +72,7 @@ func getTaskLoggingContext(
 	}
 
 	ctx = slogctx.Append(ctx,
-		"executor", tsk.ID.Executor,
+		"executor", tsk.Executor,
 	)
 
 	// Add logger which writes to the default handler, but also local files

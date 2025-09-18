@@ -19,16 +19,18 @@ func Test_SenderIsCalled(t *testing.T) {
 
 	mock := gomock.NewController(t)
 	session := task.NewTestSession()
+	tsk := task.New[any]("task1", session, "test", nil)
 
 	sender := task.NewMockExecutor[any](mock)
 	sender.EXPECT().
-		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+		Execute(gomock.Any(), tsk, gomock.Any()).
 		Times(1).
 		Return(nil)
 
 	scheduler := taskflow.New(1)(t.Context(), sender)
 
-	require.NoError(t, scheduler.AddTask(t.Context(), task.New[any](session, "test", "task1", nil)))
+	err := scheduler.AddTask(t.Context(), tsk)
+	require.NoError(t, err)
 
 	scheduler.Run()
 }

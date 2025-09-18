@@ -147,6 +147,9 @@ linters:
       ignore-map-index-ok: true
       # Ignore "ok" variables that hold the bool return value of a channel receive.
       ignore-chan-recv-ok: true
+      # Optional list of variable names that should be ignored completely.
+      ignore-names:
+        - id
 
 formatters:
   # Enable specific formatter.

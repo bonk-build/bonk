@@ -99,8 +99,8 @@ func (s *rpcSuite) Test_Connection() {
 }
 
 func (s *rpcSuite) Test_Session() {
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
+	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 
 	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
 	s.Require().NoError(err)
@@ -131,8 +131,8 @@ func (s *rpcSuite) Test_Args() {
 		Return(nil)
 
 	err = s.grpcClient.Execute(s.T().Context(), task.New(
-		s.session,
 		"test.task",
+		s.session,
 		"test.exec",
 		Args{
 			Value: 3,
@@ -152,11 +152,9 @@ func (s *rpcSuite) Test_Followups() {
 	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
 
 	expectedTask := task.Task[Args]{
-		ID: task.TaskId{
-			Name:     "Test.Task",
-			Executor: "Test.Executor",
-		},
-		Session: s.session,
+		ID:       task.TaskID("Test.Task"),
+		Executor: "Test.Executor",
+		Session:  s.session,
 		Inputs: []string{
 			"File1.txt",
 			"File2.txt",
@@ -173,22 +171,19 @@ func (s *rpcSuite) Test_Followups() {
 		}).
 		Return(nil)
 
-	err = s.grpcClient.Execute(s.T().Context(), task.New(
+	err = s.grpcClient.Execute(s.T().Context(), task.New[any](
+		"test.task",
 		s.session,
 		"test.exec",
-		"test.task",
 		Args{
 			Value: 3,
 		},
-	).Box(), &result)
+	), &result)
 
 	s.Require().NoError(err)
 	s.Len(result.FollowupTasks, 1)
 
 	unboxed, err := task.Unbox[Args](&result.FollowupTasks[0])
-
-	// Update the name since it gets modified
-	expectedTask.ID.Name = "test.task." + expectedTask.ID.Name
 
 	s.Require().NoError(err)
 	s.EqualExportedValues(expectedTask, *unboxed)

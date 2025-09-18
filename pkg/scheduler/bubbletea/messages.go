@@ -5,7 +5,6 @@ package bubbletea
 
 import (
 	"context"
-	"fmt"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 
@@ -23,7 +22,7 @@ const (
 
 // Message signifying a task's change in status.
 type TaskStatusMsg struct {
-	tskId  string
+	tskId  task.TaskID
 	status TaskStatus
 
 	err error
@@ -33,7 +32,7 @@ type TaskStatusMsg struct {
 func TaskStatusUpdate(tsk *task.GenericTask, status TaskStatus) tea.Cmd {
 	return func() tea.Msg {
 		return TaskStatusMsg{
-			tskId:  tsk.ID.Name,
+			tskId:  tsk.ID,
 			status: status,
 		}
 	}
@@ -65,7 +64,7 @@ func (tsk TaskScheduleMsg) GetExecCmd() tea.Cmd {
 		err := tsk.exec.Execute(tsk.ctx, tsk.tsk, &result)
 		if err != nil {
 			return TaskStatusMsg{
-				tskId:  tsk.tsk.ID.Name,
+				tskId:  tsk.tsk.ID,
 				status: StatusFail,
 				err:    err,
 			}
@@ -76,7 +75,7 @@ func (tsk TaskScheduleMsg) GetExecCmd() tea.Cmd {
 		if len(result.FollowupTasks) > 0 {
 			followups := make([]tea.Cmd, len(result.FollowupTasks))
 			for idx, followup := range result.FollowupTasks {
-				followup.ID.Name = fmt.Sprintf("%s.%s", tsk.tsk.ID.Name, followup.ID.Name)
+				followup.ID = tsk.tsk.ID.GetChild(followup.ID.String())
 				followups[idx] = ScheduleTask(
 					tsk.ctx,
 					&followup,

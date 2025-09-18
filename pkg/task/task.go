@@ -4,30 +4,13 @@
 package task // import "go.bonk.build/pkg/task"
 
 import (
-	"fmt"
-
 	"github.com/spf13/afero"
 )
 
-type TaskId struct {
-	Name     string `json:"name"`
-	Executor string `json:"executor"`
-}
-
-func (id *TaskId) String() string {
-	return id.Name
-}
-
-func (id *TaskId) GetChild(name, executor string) TaskId {
-	return TaskId{
-		Executor: executor,
-		Name:     fmt.Sprintf("%s.%s", id.Name, name),
-	}
-}
-
 type Task[Params any] struct {
-	ID      TaskId  `json:"id"`
-	Session Session `json:"-"`
+	ID       TaskID  `json:"id"`
+	Executor string  `json:"executor"`
+	Session  Session `json:"-"`
 
 	Inputs []string `json:"inputs,omitempty"`
 	Args   Params   `json:"args"`
@@ -36,24 +19,27 @@ type Task[Params any] struct {
 type GenericTask = Task[any]
 
 func New[Params any](
+	id string,
 	session Session,
-	executor, name string,
+	executor string,
 	args Params,
-	inputs ...string,
 ) *Task[Params] {
-	tskId := TaskId{
+	result := &Task[Params]{
+		ID:       TaskID(id),
 		Executor: executor,
-		Name:     name,
+		Session:  session,
+		Args:     args,
 	}
 
-	return &Task[Params]{
-		ID:      tskId,
-		Session: session,
-		Inputs:  inputs,
-		Args:    args,
-	}
+	return result
+}
+
+func (tsk *Task[Params]) WithInputs(inputs ...string) *Task[Params] {
+	tsk.Inputs = append(tsk.Inputs, inputs...)
+
+	return tsk
 }
 
 func (tsk *Task[Params]) OutputFS() afero.Fs {
-	return afero.NewBasePathFs(tsk.Session.OutputFS(), tsk.ID.Name)
+	return afero.NewBasePathFs(tsk.Session.OutputFS(), tsk.ID.String())
 }

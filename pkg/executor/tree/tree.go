@@ -25,8 +25,6 @@ var (
 )
 var ErrNoExecutorFound = errors.New("no executor found")
 
-const ExecPathSep = "."
-
 func New() ExecutorTree {
 	return ExecutorTree{
 		children: make(map[string]task.GenericExecutor),
@@ -36,7 +34,7 @@ func New() ExecutorTree {
 func (et *ExecutorTree) RegisterExecutor(name string, exec task.GenericExecutor) error {
 	var registerImpl func(manager *ExecutorTree, name string, impl task.GenericExecutor) error
 	registerImpl = func(manager *ExecutorTree, name string, impl task.GenericExecutor) error {
-		before, after, needsManager := strings.Cut(name, ExecPathSep)
+		before, after, needsManager := strings.Cut(name, task.TaskIDSep)
 		child, hasChild := manager.children[before]
 
 		switch {
@@ -78,7 +76,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec task.GenericExecutor)
 func (et *ExecutorTree) UnregisterExecutors(names ...string) {
 	var unregisterImpl func(manager *ExecutorTree, name string)
 	unregisterImpl = func(manager *ExecutorTree, name string) {
-		before, after, hasChild := strings.Cut(name, ExecPathSep)
+		before, after, hasChild := strings.Cut(name, task.TaskIDSep)
 		child, ok := manager.children[before]
 
 		switch {
@@ -120,18 +118,18 @@ func (et *ExecutorTree) Execute(
 	tsk *task.GenericTask,
 	result *task.Result,
 ) error {
-	exec := tsk.ID.Executor
-	before, after, _ := strings.Cut(exec, ExecPathSep)
+	exec := tsk.Executor
+	before, after, _ := strings.Cut(exec, task.TaskIDSep)
 	child, ok := et.children[before]
 
 	if ok {
-		tsk.ID.Executor = after
+		tsk.Executor = after
 		err := child.Execute(ctx, tsk, result)
-		tsk.ID.Executor = exec
+		tsk.Executor = exec
 
 		return err //nolint:wrapcheck
 	} else {
-		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.ID.Executor)
+		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor)
 	}
 }
 
@@ -156,7 +154,7 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec task.GenericE
 					pathParts = []string{childName}
 				}
 
-				forEachImpl(strings.Join(pathParts, ExecPathSep), true, childExec)
+				forEachImpl(strings.Join(pathParts, task.TaskIDSep), true, childExec)
 			}
 		} else {
 			fun(name, child)

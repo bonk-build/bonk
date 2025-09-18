@@ -45,7 +45,7 @@ func SaveState[Params any](task *task.Task[Params], result *task.Result) error {
 	encoder := json.NewEncoder(file)
 
 	state := state{
-		Executor: task.ID.Executor,
+		Executor: task.Executor,
 		Inputs:   task.Inputs,
 		Result:   result,
 	}
@@ -104,7 +104,7 @@ func DetectStateMismatches[Params any](task *task.Task[Params]) []string {
 	var mismatches []string
 	hasher := fnv.New64()
 
-	if task.ID.Executor != state.Executor {
+	if task.Executor != state.Executor {
 		mismatches = append(mismatches, "executor")
 	}
 
