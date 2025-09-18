@@ -172,7 +172,7 @@ func (s *rpcSuite) Test_Followups() {
 		}).
 		Return(nil)
 
-	err = s.grpcClient.Execute(s.T().Context(), task.New[any](
+	err = s.grpcClient.Execute(s.T().Context(), task.New(
 		"test.task",
 		s.session,
 		"test.exec",

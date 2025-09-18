@@ -16,11 +16,11 @@ type Task struct {
 	Args   any      `json:"args"`
 }
 
-func New[Params any](
+func New(
 	id string,
 	session Session,
 	executor string,
-	args Params,
+	args any,
 ) *Task {
 	result := &Task{
 		ID:       TaskID(id),
