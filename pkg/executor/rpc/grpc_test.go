@@ -32,6 +32,7 @@ type rpcSuite struct {
 
 	mock       *gomock.Controller
 	exec       *task.MockExecutor
+	grpcServer *grpc.Server
 	grpcClient task.Executor
 	session    task.Session
 }
@@ -41,11 +42,11 @@ func (s *rpcSuite) SetupTest() {
 	s.exec = task.NewMockExecutor(s.mock)
 
 	lis := bufconn.Listen(1024 * 1024)
-	server := grpc.NewServer()
-	rpc.RegisterGRPCServer(server, s.exec)
+	s.grpcServer = grpc.NewServer()
+	rpc.RegisterGRPCServer(s.grpcServer, s.exec)
 
 	go func() {
-		err := server.Serve(lis)
+		err := s.grpcServer.Serve(lis)
 		s.NoError(err, "Server execited with err: %v", err)
 	}()
 
@@ -65,35 +66,11 @@ func (s *rpcSuite) SetupTest() {
 }
 
 func (s *rpcSuite) AfterTest(_, _ string) {
+	// s.grpcServer.GracefulStop()
 	s.Require().Eventually(func() bool {
 		return s.mock.Satisfied()
 	}, 100*time.Millisecond, 10*time.Millisecond)
 }
-
-// func (s *rpcSuite) Test_RPC(t *testing.T) {
-// 	t.Parallel()
-
-// 	tests := []testFunc{
-// 		test_Connection,
-// 		test_Session,
-// 		test_Session_Fail,
-// 		test_Args,
-// 		test_Followups,
-// 	}
-
-// 	for _, testFunc := range tests {
-// 		name := runtime.FuncForPC(reflect.ValueOf(testFunc).Pointer()).Name()
-// 		t.Run(name, func(t *testing.T) {
-// 			t.Parallel()
-
-// 			testFunc(t, mock, exec)
-
-// 			require.Eventually(t, func() bool {
-// 				return mock.Satisfied()
-// 			}, 100*time.Millisecond, 10*time.Millisecond)
-// 		})
-// 	}
-// }
 
 func (s *rpcSuite) Test_Connection() {
 	s.NotNil(s.grpcClient)

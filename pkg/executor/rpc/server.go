@@ -7,7 +7,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"runtime"
 
@@ -30,6 +29,7 @@ import (
 type grpcServerSession struct {
 	task.Session
 
+	closer chan<- struct{}
 	logger *slog.Logger
 }
 
@@ -63,14 +63,10 @@ func RegisterGRPCServer(
 }
 
 func (s *grpcServer) OpenSession(
-	stream grpc.BidiStreamingServer[bonkv0.OpenSessionRequest, bonkv0.OpenSessionResponse],
+	req *bonkv0.OpenSessionRequest,
+	stream grpc.ServerStreamingServer[bonkv0.OpenSessionResponse],
 ) error {
 	ctx := stream.Context()
-
-	req, err := stream.Recv()
-	if err != nil {
-		return fmt.Errorf("failed to open session: %w", err)
-	}
 	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
 
 	sessionId := uuid.MustParse(req.GetSessionId())
@@ -146,12 +142,7 @@ func (s *grpcServer) OpenSession(
 		)
 		ctx = slogctx.NewCtx(ctx, logger)
 	}
-
-	s.sessions[sessionId] = grpcServerSession{
-		Session: session,
-		logger:  logger,
-	}
-	err = s.executor.OpenSession(ctx, session)
+	err := s.executor.OpenSession(ctx, session)
 	if err != nil {
 		return err //nolint:wrapcheck
 	}
@@ -163,19 +154,41 @@ func (s *grpcServer) OpenSession(
 		return fmt.Errorf("failed to send ack: %w", err)
 	}
 
+	closer := make(chan struct{})
+
+	s.sessions[sessionId] = grpcServerSession{
+		Session: session,
+		closer:  closer,
+		logger:  logger,
+	}
+
 	slog.DebugContext(ctx, "successfully opened session", "session", sessionId)
 
 	// Block until the request is canceled/closed
-	_, err = stream.Recv()
-	if !errors.Is(err, io.EOF) {
-		err = fmt.Errorf("expected eof, got: %w", err)
+	<-closer
+
+	return nil
+}
+
+// CloseSession implements v0.ExecutorServiceServer.
+func (s *grpcServer) CloseSession(
+	ctx context.Context,
+	req *bonkv0.CloseSessionRequest,
+) (*bonkv0.CloseSessionResponse, error) {
+	// Find the relevant session
+	sessionId := uuid.MustParse(req.GetId())
+	session, ok := s.sessions[sessionId]
+	if !ok {
+		return nil, fmt.Errorf("unopened session id: %s", sessionId.String())
 	}
+
+	session.closer <- struct{}{}
 
 	// Close the session
 	s.executor.CloseSession(ctx, sessionId)
 	delete(s.sessions, sessionId)
 
-	return err
+	return &bonkv0.CloseSessionResponse{}, nil
 }
 
 func (s *grpcServer) ExecuteTask(

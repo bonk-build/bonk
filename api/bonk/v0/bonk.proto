@@ -29,9 +29,10 @@ message OpenSessionRequest {
   }
 }
 
-// This is meant to mirror [slog.Record](https://pkg.go.dev/log/slog#Record)
 message OpenSessionResponse {
   message Ack {}
+
+  // This is meant to mirror [slog.Record](https://pkg.go.dev/log/slog#Record)
   message LogRecord {
     google.protobuf.Timestamp time = 1;
     string message = 2;
@@ -44,6 +45,12 @@ message OpenSessionResponse {
     LogRecord log_record = 2;
   }
 }
+
+message CloseSessionRequest {
+  string id = 1;
+}
+
+message CloseSessionResponse {}
 
 message ExecuteTaskRequest {
   string session_id = 1;
@@ -67,7 +74,8 @@ message ExecuteTaskResponse {
 
 service ExecutorService {
   // Used for opening & closing sessions
-  rpc OpenSession(stream OpenSessionRequest) returns (stream OpenSessionResponse);
+  rpc OpenSession(OpenSessionRequest) returns (stream OpenSessionResponse);
+  rpc CloseSession(CloseSessionRequest) returns (CloseSessionResponse);
 
   // Executor interface
   rpc ExecuteTask(ExecuteTaskRequest) returns (ExecuteTaskResponse);
