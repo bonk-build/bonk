@@ -17,7 +17,7 @@ require (
 	cuelang.org/go v0.14.1
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.4.0.20250911202326-439500e8e5c1
-	github.com/charmbracelet/fang v0.4.1
+	github.com/charmbracelet/fang v0.4.2
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elliotchance/orderedmap/v3 v3.1.0
@@ -67,7 +67,7 @@ require (
 	github.com/bufbuild/protocompile v0.14.1 // indirect
 	github.com/bufbuild/protoplugin v0.0.0-20250218205857-750e09ce93e1 // indirect
 	github.com/charmbracelet/colorprofile v0.3.2 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20250910155420-aa0094762299 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20250915111650-81d4262876ef // indirect
 	github.com/charmbracelet/x/ansi v0.10.1 // indirect
 	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20250603201427-c31516f43444 // indirect
@@ -123,7 +123,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
-	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
