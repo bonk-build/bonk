@@ -68,6 +68,29 @@ func Test_Call(t *testing.T) {
 	require.Equal(t, execName, tsk.Executor)
 }
 
+func Test_Call_Fail(t *testing.T) {
+	t.Parallel()
+	testSetup(t)
+
+	const execName = "testing.child.abc"
+	var result task.Result
+	tsk := task.GenericTask{
+		Executor: execName,
+	}
+
+	exec := task.NewMockExecutor[any](mock)
+	exec.EXPECT().Execute(t.Context(), &tsk, &result).Times(0)
+
+	manager := tree.New()
+
+	err := manager.RegisterExecutor("something.else", exec)
+	require.NoError(t, err)
+
+	err = manager.Execute(t.Context(), &tsk, &result)
+	require.Error(t, err)
+	require.ErrorIs(t, err, tree.ErrNoExecutorFound)
+}
+
 func Test_Remove(t *testing.T) {
 	t.Parallel()
 	testSetup(t)
