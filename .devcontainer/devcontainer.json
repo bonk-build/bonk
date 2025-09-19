@@ -1,0 +1,71 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go
+{
+	"name": "bonk",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"cacheFrom": [
+			"ghcr.io/bonk-build/devcontainer:latest"
+		]
+	},
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/common-utils:2": {
+			"installZsh": true,
+			"configureZshAsDefaultShell": true,
+			"installOhMyZsh": true,
+			"installOhMyZshConfig": true
+		},
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "1.25"
+		},
+		"ghcr.io/devcontainers-extra/features/pre-commit:2": {},
+		"ghcr.io/devcontainers-extra/features/mkdocs:2": {
+			"plugins": "mkdocs-material pymdown-extensions"
+		},
+		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"containerEnv": {
+		"PRE_COMMIT_HOME": "/pre-commit"
+	},
+	"mounts": [
+		{
+			"type": "volume",
+			"source": "bonk-goroot",
+			"target": "/go"
+		},
+		{
+			"type": "volume",
+			"source": "bonk-precommit",
+			"target": "/pre-commit"
+		},
+		{
+			"type": "bind",
+			"source": "${localEnv:HOME}${localEnv:USERPROFILE}/.config/gh",
+			"target": "/home/vscode/.config/gh"
+		}
+	],
+	"onCreateCommand": {
+		"gh-exts-act": "gh extension install nektos/gh-act",
+		"gh-exts-poi": "gh extension install seachicken/gh-poi",
+		"chown-pre-commit": "sudo chown -R vscode:vscode $PRE_COMMIT_HOME"
+	},
+	"updateContentCommand": {
+		"pre-commit-hooks": "pre-commit install-hooks",
+		"go-get": "go get ./..."
+	},
+	"postStartCommand": {
+		"pre-commit-install": "pre-commit install"
+	},
+	"customizations": {
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": {},
+			"extensions": [
+				"bufbuild.vscode-buf",
+				"cuelangorg.vscode-cue",
+				"redhat.vscode-yaml"
+			]
+		}
+	}
+}
