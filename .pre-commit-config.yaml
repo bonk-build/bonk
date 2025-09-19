@@ -60,7 +60,6 @@ repos:
       - id: check-merge-conflict
       - id: check-vcs-permalinks
       - id: check-toml
-      - id: check-json
       - id: check-yaml
         args:
           - --allow-multiple-documents
@@ -68,11 +67,11 @@ repos:
       - id: check-added-large-files
       - id: mixed-line-ending
       - id: detect-private-key
-      - id: pretty-format-json
-        args:
-          - --autofix
-          - --no-ensure-ascii
-          - --no-sort-keys
+
+  - repo: https://gitlab.com/bmares/check-json5
+    rev: v1.0.0
+    hooks:
+    - id: check-json5
 
   - repo: https://github.com/renovatebot/pre-commit-hooks
     rev: 41.116.5
