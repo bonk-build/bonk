@@ -6,6 +6,7 @@ module go.bonk.build
 go 1.24.5
 
 tool (
+	cuelang.org/go/cmd/cue
 	github.com/bufbuild/buf/cmd/buf
 	go.uber.org/mock/mockgen
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc
