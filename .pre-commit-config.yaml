@@ -29,12 +29,12 @@ repos:
       - id: cue-fmt
         name: cue format
         language: system
-        entry: cue fmt
+        entry: go tool cue fmt
         types: [cue]
       - id: cue-vet
         name: cue vet
         language: system
-        entry: cue vet -c
+        entry: go tool cue vet -c
         types: [cue, yaml]
         pass_filenames: false
 
@@ -91,7 +91,7 @@ repos:
   - repo: https://github.com/korandoru/hawkeye
     rev: 77c2515a10d0133ea938118da962a2a2572cbf08
     hooks:
-      - id: hawkeye-format-docker
+      - id: hawkeye-format
 
   - repo: https://github.com/golangci/golangci-lint
     rev: v2.4.0
