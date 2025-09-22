@@ -33,6 +33,8 @@
         "indirect"
       ],
       "enabled": true,
+      "groupName": "go indirect dependencies",
+      "groupSlug": "go-indirect",
       "schedule": [
         "* * * * 0"
       ]
