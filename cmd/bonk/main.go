@@ -16,6 +16,7 @@ import (
 	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/driver/basic"
 	"go.bonk.build/pkg/scheduler/bubbletea"
+	"go.bonk.build/pkg/task"
 )
 
 var (
@@ -40,14 +41,14 @@ var rootCmd = &cobra.Command{
 			),
 			driver.WithLocalSession(path.Join(cwd, "testdata"),
 				driver.WithTask(
-					"Test.Test",
+					task.NewID("Test", "Test"),
 					"test.Test",
 					map[string]any{
 						"value": 3,
 					},
 				),
 				driver.WithTask(
-					"Test.Resources",
+					task.NewID("Test", "Resources"),
 					"resources.Resources",
 					map[string]any{
 						"resources": []map[string]any{
@@ -62,7 +63,7 @@ var rootCmd = &cobra.Command{
 					},
 				),
 				driver.WithTask(
-					"Test.Kustomize",
+					task.NewID("Test", "Kustomize"),
 					"kustomize.Kustomize",
 					map[string]any{},
 					driver.WithInputs(

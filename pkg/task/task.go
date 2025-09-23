@@ -17,13 +17,13 @@ type Task struct {
 }
 
 func New(
-	id string,
+	id TaskID,
 	session Session,
 	executor string,
 	args any,
 ) *Task {
 	result := &Task{
-		ID:       TaskID(id),
+		ID:       id,
 		Executor: executor,
 		Session:  session,
 		Args:     args,

@@ -121,7 +121,7 @@ func (pb *grpcClient) Execute(
 	for ii, followup := range res.GetFollowupTasks() {
 		// Create the new task and append it
 		result.FollowupTasks[ii] = *task.New(
-			followup.GetId(),
+			task.NewID(followup.GetId()),
 			tsk.Session,
 			followup.GetExecutor(),
 			followup.GetArguments().AsInterface(),
