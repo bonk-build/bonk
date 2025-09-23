@@ -88,15 +88,15 @@ func (c *MockDriverAddTaskCall) DoAndReturn(f func(context.Context, *task.Task, 
 }
 
 // CloseSession mocks base method.
-func (m *MockDriver) CloseSession(ctx context.Context, sessionId task.SessionID) {
+func (m *MockDriver) CloseSession(ctx context.Context, sessionID task.SessionID) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CloseSession", ctx, sessionId)
+	m.ctrl.Call(m, "CloseSession", ctx, sessionID)
 }
 
 // CloseSession indicates an expected call of CloseSession.
-func (mr *MockDriverMockRecorder) CloseSession(ctx, sessionId any) *MockDriverCloseSessionCall {
+func (mr *MockDriverMockRecorder) CloseSession(ctx, sessionID any) *MockDriverCloseSessionCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseSession", reflect.TypeOf((*MockDriver)(nil).CloseSession), ctx, sessionId)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseSession", reflect.TypeOf((*MockDriver)(nil).CloseSession), ctx, sessionID)
 	return &MockDriverCloseSessionCall{Call: call}
 }
 

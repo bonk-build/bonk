@@ -43,15 +43,15 @@ func (m *MockExecutor) EXPECT() *MockExecutorMockRecorder {
 }
 
 // CloseSession mocks base method.
-func (m *MockExecutor) CloseSession(ctx context.Context, sessionId SessionID) {
+func (m *MockExecutor) CloseSession(ctx context.Context, sessionID SessionID) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "CloseSession", ctx, sessionId)
+	m.ctrl.Call(m, "CloseSession", ctx, sessionID)
 }
 
 // CloseSession indicates an expected call of CloseSession.
-func (mr *MockExecutorMockRecorder) CloseSession(ctx, sessionId any) *MockExecutorCloseSessionCall {
+func (mr *MockExecutorMockRecorder) CloseSession(ctx, sessionID any) *MockExecutorCloseSessionCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseSession", reflect.TypeOf((*MockExecutor)(nil).CloseSession), ctx, sessionId)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CloseSession", reflect.TypeOf((*MockExecutor)(nil).CloseSession), ctx, sessionID)
 	return &MockExecutorCloseSessionCall{Call: call}
 }
 
