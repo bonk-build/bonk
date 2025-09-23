@@ -1,0 +1,43 @@
+# Copyright © 2025 Colden Cullen
+# SPDX-License-Identifier: MIT
+
+name: devcontainer
+on:
+  push:
+    paths:
+      - '.devcontainer/**'
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5.0.0
+
+      - name: login to github container registry
+        uses: docker/login-action@v3.5.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          sep-tags: ','
+          images: |
+            name=ghcr.io/bonk-build/devcontainer
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha
+
+      - name: rebuild devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/bonk-build/devcontainer
+          imageTag: '{{ steps.meta.outputs.tags }}'
+          refFilterForPush: refs/heads/main
