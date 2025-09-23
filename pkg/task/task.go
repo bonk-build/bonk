@@ -10,7 +10,7 @@ import (
 // Task represents a unit of work to be executed.
 type Task struct {
 	// ID describes how this task is addressed.
-	ID TaskID `json:"id"`
+	ID ID `json:"id"`
 	// Executor describes where to route this task for execution.
 	Executor string `json:"executor"`
 	// Session manages the filesystem access for this task.
@@ -24,7 +24,7 @@ type Task struct {
 
 // New creates a new task with the given parameters.
 func New(
-	id TaskID,
+	id ID,
 	session Session,
 	executor string,
 	args any,

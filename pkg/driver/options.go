@@ -55,7 +55,7 @@ func WithLocalSession(path string, options ...SessionOption) DriverOption {
 type TaskOption = func(context.Context, *task.Task)
 
 func WithTask(
-	id task.TaskID,
+	id task.ID,
 	executor string,
 	args any,
 	options ...TaskOption,

@@ -22,7 +22,7 @@ const (
 
 // TaskStatusMsg signifies a task's change in status.
 type TaskStatusMsg struct {
-	tskId  task.TaskID
+	tskId  task.ID
 	status TaskStatus
 
 	err error
