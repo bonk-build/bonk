@@ -107,7 +107,7 @@ func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) e
 	return err
 }
 
-func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionId) {
+func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionID) {
 	et.ForEachExecutor(func(_ string, exec task.Executor) {
 		exec.CloseSession(ctx, sessionId)
 	})

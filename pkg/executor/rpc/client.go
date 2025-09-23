@@ -77,7 +77,7 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 	return nil
 }
 
-func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionId) {
+func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionID) {
 	sessionIdString := sessionId.String()
 	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
 		Id: &sessionIdString,

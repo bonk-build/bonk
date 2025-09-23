@@ -43,7 +43,7 @@ func (m *MockExecutor) EXPECT() *MockExecutorMockRecorder {
 }
 
 // CloseSession mocks base method.
-func (m *MockExecutor) CloseSession(ctx context.Context, sessionId SessionId) {
+func (m *MockExecutor) CloseSession(ctx context.Context, sessionId SessionID) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "CloseSession", ctx, sessionId)
 }
@@ -67,13 +67,13 @@ func (c *MockExecutorCloseSessionCall) Return() *MockExecutorCloseSessionCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockExecutorCloseSessionCall) Do(f func(context.Context, SessionId)) *MockExecutorCloseSessionCall {
+func (c *MockExecutorCloseSessionCall) Do(f func(context.Context, SessionID)) *MockExecutorCloseSessionCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockExecutorCloseSessionCall) DoAndReturn(f func(context.Context, SessionId)) *MockExecutorCloseSessionCall {
+func (c *MockExecutorCloseSessionCall) DoAndReturn(f func(context.Context, SessionID)) *MockExecutorCloseSessionCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

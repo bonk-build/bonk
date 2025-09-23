@@ -51,7 +51,7 @@ func (drv *basicDriver) NewLocalSession(
 	ctx context.Context,
 	path string,
 ) (task.LocalSession, error) {
-	session := task.NewLocalSession(task.NewSessionId(), path)
+	session := task.NewLocalSession(task.NewSessionID(), path)
 
 	err := drv.OpenSession(ctx, session)
 	if err != nil {
