@@ -12,6 +12,11 @@ const TaskIDSep = "."
 
 type TaskID string
 
+// NewID creates a new TaskID from a series of parts.
+func NewID(parts ...string) TaskID {
+	return TaskID(strings.Join(parts, TaskIDSep))
+}
+
 func (id TaskID) String() string {
 	return string(id)
 }
