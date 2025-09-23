@@ -17,7 +17,7 @@ func makeTestTask(t *testing.T) (task.Task, task.Result) {
 	t.Helper()
 
 	tsk := task.Task{
-		ID:       task.TaskID("Test.Testing"),
+		ID:       task.ID("Test.Testing"),
 		Executor: "test.abc.def",
 		Session:  task.NewTestSession(),
 		Args:     nil,

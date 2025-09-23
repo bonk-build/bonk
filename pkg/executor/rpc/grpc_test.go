@@ -130,7 +130,7 @@ func (s *rpcSuite) Test_Followups() {
 	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
 
 	expectedTask := task.Task{
-		ID:       task.TaskID("Test.Task"),
+		ID:       task.ID("Test.Task"),
 		Executor: "Test.Executor",
 		Session:  s.session,
 		Inputs: []string{

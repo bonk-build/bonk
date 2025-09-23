@@ -205,7 +205,7 @@ func (s *grpcServer) ExecuteTask(
 	ctx = slogctx.NewCtx(ctx, session.logger)
 
 	tsk := task.Task{
-		ID:       task.TaskID(req.GetId()),
+		ID:       task.ID(req.GetId()),
 		Executor: req.GetExecutor(),
 		Session:  session,
 		Inputs:   req.GetInputs(),
