@@ -88,7 +88,7 @@ func (c *MockDriverAddTaskCall) DoAndReturn(f func(context.Context, *task.Task, 
 }
 
 // CloseSession mocks base method.
-func (m *MockDriver) CloseSession(ctx context.Context, sessionId task.SessionId) {
+func (m *MockDriver) CloseSession(ctx context.Context, sessionId task.SessionID) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "CloseSession", ctx, sessionId)
 }
@@ -112,13 +112,13 @@ func (c *MockDriverCloseSessionCall) Return() *MockDriverCloseSessionCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockDriverCloseSessionCall) Do(f func(context.Context, task.SessionId)) *MockDriverCloseSessionCall {
+func (c *MockDriverCloseSessionCall) Do(f func(context.Context, task.SessionID)) *MockDriverCloseSessionCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockDriverCloseSessionCall) DoAndReturn(f func(context.Context, task.SessionId)) *MockDriverCloseSessionCall {
+func (c *MockDriverCloseSessionCall) DoAndReturn(f func(context.Context, task.SessionID)) *MockDriverCloseSessionCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

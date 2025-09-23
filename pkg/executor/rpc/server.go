@@ -46,7 +46,7 @@ type grpcServer struct {
 
 	executor task.Executor
 
-	sessions map[task.SessionId]grpcServerSession
+	sessions map[task.SessionID]grpcServerSession
 }
 
 var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
@@ -58,7 +58,7 @@ func RegisterGRPCServer(
 ) {
 	bonkv0.RegisterExecutorServiceServer(server, &grpcServer{
 		executor: executor,
-		sessions: make(map[task.SessionId]grpcServerSession),
+		sessions: make(map[task.SessionID]grpcServerSession),
 	})
 }
 

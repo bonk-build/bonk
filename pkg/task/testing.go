@@ -19,7 +19,7 @@ func NewTestSession() Session {
 	}
 }
 
-func (ts *testSession) ID() SessionId {
+func (ts *testSession) ID() SessionID {
 	return uuid.Nil
 }
 

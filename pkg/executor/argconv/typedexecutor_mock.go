@@ -45,7 +45,7 @@ func (m *MockTypedExecutor[Params]) EXPECT() *MockTypedExecutorMockRecorder[Para
 }
 
 // CloseSession mocks base method.
-func (m *MockTypedExecutor[Params]) CloseSession(ctx context.Context, sessionId task.SessionId) {
+func (m *MockTypedExecutor[Params]) CloseSession(ctx context.Context, sessionId task.SessionID) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "CloseSession", ctx, sessionId)
 }
@@ -69,13 +69,13 @@ func (c *MockTypedExecutorCloseSessionCall[Params]) Return() *MockTypedExecutorC
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTypedExecutorCloseSessionCall[Params]) Do(f func(context.Context, task.SessionId)) *MockTypedExecutorCloseSessionCall[Params] {
+func (c *MockTypedExecutorCloseSessionCall[Params]) Do(f func(context.Context, task.SessionID)) *MockTypedExecutorCloseSessionCall[Params] {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTypedExecutorCloseSessionCall[Params]) DoAndReturn(f func(context.Context, task.SessionId)) *MockTypedExecutorCloseSessionCall[Params] {
+func (c *MockTypedExecutorCloseSessionCall[Params]) DoAndReturn(f func(context.Context, task.SessionID)) *MockTypedExecutorCloseSessionCall[Params] {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -19,7 +19,7 @@ import (
 
 type TypedExecutor[Params any] interface {
 	OpenSession(ctx context.Context, session task.Session) error
-	CloseSession(ctx context.Context, sessionId task.SessionId)
+	CloseSession(ctx context.Context, sessionId task.SessionID)
 	Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error
 }
 

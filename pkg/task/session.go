@@ -8,18 +8,18 @@ import (
 	"github.com/spf13/afero"
 )
 
-// SessionId is a unique identifier per-session.
-type SessionId = uuid.UUID
+// SessionID is a unique identifier per-session.
+type SessionID = uuid.UUID
 
-// NewSessionId creates a new unique session identifier which may be sorted in order of creation time.
-func NewSessionId() SessionId {
+// NewSessionID creates a new unique session identifier which may be sorted in order of creation time.
+func NewSessionID() SessionID {
 	return uuid.Must(uuid.NewV7())
 }
 
 // Session defines a context in which tasks are invoked.
 type Session interface {
 	// ID() returns a unique identifier per-session.
-	ID() SessionId
+	ID() SessionID
 	// SourceFS() returns a filesystem describing the root of the project consumed by the session.
 	SourceFS() afero.Fs
 	// OutputFS() returns a filesystem where output files may be written.
@@ -36,7 +36,7 @@ type LocalSession interface {
 
 // DefaultSession is a default implementation of Session that stores its parameters in members.
 type DefaultSession struct {
-	Id       SessionId
+	Id       SessionID
 	SourceFs afero.Fs
 	OutputFs afero.Fs
 }
@@ -46,7 +46,7 @@ var (
 	_ LocalSession = (*localSession)(nil)
 )
 
-func (ds *DefaultSession) ID() SessionId {
+func (ds *DefaultSession) ID() SessionID {
 	return ds.Id
 }
 
@@ -60,7 +60,7 @@ func (ds *DefaultSession) OutputFS() afero.Fs {
 }
 
 type localSession struct {
-	id        SessionId
+	id        SessionID
 	localPath string
 
 	sourceFs afero.Fs
@@ -68,7 +68,7 @@ type localSession struct {
 }
 
 // NewLocalSession creates a session describing a project source on the current local machine.
-func NewLocalSession(id SessionId, localPath string) LocalSession {
+func NewLocalSession(id SessionID, localPath string) LocalSession {
 	sessionRoot := afero.NewBasePathFs(afero.NewOsFs(), localPath)
 
 	return &localSession{
@@ -80,7 +80,7 @@ func NewLocalSession(id SessionId, localPath string) LocalSession {
 	}
 }
 
-func (ls *localSession) ID() SessionId {
+func (ls *localSession) ID() SessionID {
 	return ls.id
 }
 
