@@ -14,7 +14,7 @@ type Executor interface {
 	CloseSession(ctx context.Context, sessionId SessionId)
 }
 
-// Can be embedded if session management isn't necessary.
+// NoopSessionManager can be embedded if session management isn't necessary.
 type NoopSessionManager struct{}
 
 func (NoopSessionManager) OpenSession(ctx context.Context, session Session) error { return nil }

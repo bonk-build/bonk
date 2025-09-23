@@ -51,7 +51,7 @@ type grpcServer struct {
 
 var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
 
-// Creates a GRPC server which forwards incoming task requests to an Executor.
+// RegisterGRPCServer creates a GRPC server which forwards incoming task requests to an Executor.
 func RegisterGRPCServer(
 	server *grpc.Server,
 	executor task.Executor,

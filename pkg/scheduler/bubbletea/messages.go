@@ -20,7 +20,7 @@ const (
 	StatusFail
 )
 
-// Message signifying a task's change in status.
+// TaskStatusMsg signifies a task's change in status.
 type TaskStatusMsg struct {
 	tskId  task.TaskID
 	status TaskStatus
@@ -28,7 +28,7 @@ type TaskStatusMsg struct {
 	err error
 }
 
-// Command that emits a task status update.
+// TaskStatusUpdate returns a command that emits a task status update.
 func TaskStatusUpdate(tsk *task.Task, status TaskStatus) tea.Cmd {
 	return func() tea.Msg {
 		return TaskStatusMsg{

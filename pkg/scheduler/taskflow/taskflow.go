@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-// taskflow provides a scheduler backed by [github.com/noneback/go-taskflow].
+// Package taskflow provides a scheduler backed by [github.com/noneback/go-taskflow].
 package taskflow
 
 import (
