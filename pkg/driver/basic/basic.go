@@ -27,7 +27,7 @@ var _ driver.Driver = (*basicDriver)(nil)
 func New(
 	ctx context.Context,
 	scheduler scheduler.SchedulerFactory,
-	options ...driver.DriverOption,
+	options ...driver.Option,
 ) (driver.Driver, error) {
 	result := &basicDriver{
 		PluginClientManager: plugin.NewPluginClientManager(),
