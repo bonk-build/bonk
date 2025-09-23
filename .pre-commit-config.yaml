@@ -35,7 +35,7 @@ repos:
         name: cue vet
         language: system
         entry: go tool cue vet -c
-        types: [cue, yaml]
+        types_or: [cue, yaml]
         pass_filenames: false
 
       - id: buf-fmt
@@ -50,6 +50,11 @@ repos:
         entry: go tool buf lint
         types: [proto]
         pass_filenames: false
+
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
