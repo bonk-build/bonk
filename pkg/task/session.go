@@ -11,6 +11,7 @@ import (
 // SessionId is a unique identifier per-session.
 type SessionId = uuid.UUID
 
+// NewSessionId creates a new unique session identifier which may be sorted in order of creation time.
 func NewSessionId() SessionId {
 	return uuid.Must(uuid.NewV7())
 }
@@ -66,6 +67,7 @@ type localSession struct {
 	outputFs afero.Fs
 }
 
+// NewLocalSession creates a session describing a project source on the current local machine.
 func NewLocalSession(id SessionId, localPath string) LocalSession {
 	sessionRoot := afero.NewBasePathFs(afero.NewOsFs(), localPath)
 
