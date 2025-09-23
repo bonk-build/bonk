@@ -1,6 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// resources provides a plugin which can emit a list of k8s resources to a file.
 package main
 
 import (
@@ -22,12 +23,12 @@ type Params struct {
 	Resources any `cue:"[...]" json:"resources"`
 }
 
-type Executor_Resources struct {
+type ExecutorResources struct {
 	task.NoopSessionManager
 }
 
-func (Executor_Resources) Execute(
-	ctx context.Context,
+func (ExecutorResources) Execute(
+	_ context.Context,
 	task *task.Task,
 	args *Params,
 	res *task.Result,
@@ -69,7 +70,7 @@ func (Executor_Resources) Execute(
 }
 
 var Plugin = plugin.NewPlugin("resources",
-	plugin.WithExecutor("Resources", Executor_Resources{}),
+	plugin.WithExecutor("Resources", ExecutorResources{}),
 )
 
 func main() {

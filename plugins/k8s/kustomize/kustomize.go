@@ -1,6 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// kustomize provides a plugin which can execute Kustomize with the given parameters and resources.
 package main
 
 import (
@@ -24,12 +25,12 @@ type Params struct {
 	Kustomization types.Kustomization `json:"-"`
 }
 
-type Executor_Kustomize struct {
+type ExecutorKustomize struct {
 	task.NoopSessionManager
 }
 
-func (Executor_Kustomize) Execute(
-	ctx context.Context,
+func (ExecutorKustomize) Execute(
+	_ context.Context,
 	task *task.Task,
 	args *Params,
 	res *task.Result,
@@ -93,7 +94,7 @@ func (Executor_Kustomize) Execute(
 }
 
 var Plugin = plugin.NewPlugin("kustomize",
-	plugin.WithExecutor("Kustomize", Executor_Kustomize{}),
+	plugin.WithExecutor("Kustomize", ExecutorKustomize{}),
 )
 
 func main() {
