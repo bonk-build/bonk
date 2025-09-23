@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-// basic provides a driver using default implementations of the basic bonk services.
+// Package basic provides a driver using default implementations of the basic bonk services.
 package basic
 
 import (

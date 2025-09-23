@@ -15,7 +15,7 @@ func NewSessionId() SessionId {
 	return uuid.Must(uuid.NewV7())
 }
 
-// A session defines a context in which tasks are invoked.
+// Session defines a context in which tasks are invoked.
 type Session interface {
 	// ID() returns a unique identifier per-session.
 	ID() SessionId

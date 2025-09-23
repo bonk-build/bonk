@@ -132,7 +132,7 @@ linters:
       # Enforce message style.
       # Values: lowercased, capitalized
       # https://github.com/go-simpler/sloglint?tab=readme-ov-file#message-style
-      msg-style: lowercased
+      # msg-style: lowercased
       # Enforce key naming convention.
       # Values: snake, kebab, camel, pascal
       # https://github.com/go-simpler/sloglint?tab=readme-ov-file#key-naming-convention

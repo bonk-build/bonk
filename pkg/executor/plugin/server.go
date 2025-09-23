@@ -62,7 +62,7 @@ func WithExecutor[Params any](name string, exec argconv.TypedExecutor[Params]) P
 	}
 }
 
-// Call from main() to start the plugin gRPC server.
+// Serve starts the plugin gRPC server.
 func (p *Plugin) Serve() {
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: Handshake,
@@ -78,7 +78,7 @@ func (p *Plugin) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	return nil
 }
 
-// Unsupported.
+// GRPCClient: Unsupported.
 func (*Plugin) GRPCClient(
 	_ context.Context,
 	_ *goplugin.GRPCBroker,
@@ -87,7 +87,7 @@ func (*Plugin) GRPCClient(
 	return nil, errors.ErrUnsupported
 }
 
-// Override Execute to add some special details to the context.
+// Execute adds some special details to the context.
 func (p *Plugin) Execute(
 	ctx context.Context,
 	tsk *task.Task,

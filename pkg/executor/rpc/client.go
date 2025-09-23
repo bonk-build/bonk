@@ -19,7 +19,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-// Creates an executor that forwards task invocations across a GRPC connection.
+// NewGRPCClient creates an executor that forwards task invocations across a GRPC connection.
 func NewGRPCClient(
 	conn *grpc.ClientConn,
 ) task.Executor {

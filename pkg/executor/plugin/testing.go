@@ -15,7 +15,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-// Call like you'd call Serve() but at the top of your test function.
+// ServeTest sets up a test gRPC connection which serves plugin and returns a client executor.
 func (plugin *Plugin) ServeTest(t *testing.T) task.Executor {
 	t.Helper()
 

@@ -22,12 +22,12 @@ func (fs KyamlFilesys) Create(path string) (filesys.File, error) {
 	return fs.Fs.Create(path)
 }
 
-// MkDir makes a directory.
+// Mkdir makes a directory.
 func (fs KyamlFilesys) Mkdir(path string) error {
 	return fs.Fs.Mkdir(path, 0o750)
 }
 
-// MkDirAll makes a directory path, creating intervening directories.
+// MkdirAll makes a directory path, creating intervening directories.
 func (fs KyamlFilesys) MkdirAll(path string) error {
 	return fs.Fs.MkdirAll(path, 0o750)
 }

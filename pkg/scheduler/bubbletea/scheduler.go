@@ -20,7 +20,7 @@ type sched struct {
 	exec    task.Executor
 }
 
-// Creates a new scheduler driven by bubbletea.
+// New creates a new scheduler driven by bubbletea.
 func New(
 	debugDump bool,
 ) scheduler.SchedulerFactory {
