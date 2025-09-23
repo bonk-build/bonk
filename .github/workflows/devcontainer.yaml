@@ -27,8 +27,6 @@ jobs:
         id: meta
         with:
           sep-tags: ','
-          images: |
-            name=ghcr.io/bonk-build/devcontainer
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -39,5 +37,5 @@ jobs:
         uses: devcontainers/ci@v0.3
         with:
           imageName: ghcr.io/bonk-build/devcontainer
-          imageTag: '{{ steps.meta.outputs.tags }}'
+          imageTag: ${{ steps.meta.outputs.tags }}
           refFilterForPush: refs/heads/main
