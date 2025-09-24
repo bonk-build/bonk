@@ -42,7 +42,7 @@ func New(concurrency uint) scheduler.SchedulerFactory {
 	}
 }
 
-func (s *tfScheduler) AddTask(ctx context.Context, tsk *task.Task, deps ...string) error {
+func (s *tfScheduler) AddTask(ctx context.Context, tsk *task.Task) error {
 	ctx = slogctx.Append(ctx, "task", tsk.ID.String())
 	ctx = slogctx.Append(ctx, "executor", tsk.Executor)
 
@@ -66,8 +66,8 @@ func (s *tfScheduler) AddTask(ctx context.Context, tsk *task.Task, deps ...strin
 		}
 	})
 
-	for _, dep := range deps {
-		depTask, ok := s.tasks[dep]
+	for _, dep := range tsk.Dependencies {
+		depTask, ok := s.tasks[dep.String()]
 		if !ok {
 			return fmt.Errorf("could not find dependency task %s", dep)
 		}

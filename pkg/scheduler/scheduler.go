@@ -10,7 +10,7 @@ import (
 )
 
 type Scheduler interface {
-	AddTask(ctx context.Context, tsk *task.Task, deps ...string) error
+	AddTask(ctx context.Context, tsk *task.Task) error
 	Run()
 }
 
