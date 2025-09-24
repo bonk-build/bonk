@@ -128,9 +128,9 @@ func (et *ExecutorTree) Execute(
 		tsk.Executor = exec
 
 		return err //nolint:wrapcheck
-	} else {
-		return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor)
 	}
+
+	return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor)
 }
 
 func (et *ExecutorTree) GetNumExecutors() int {
