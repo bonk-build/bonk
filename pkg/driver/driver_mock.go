@@ -44,22 +44,17 @@ func (m *MockDriver) EXPECT() *MockDriverMockRecorder {
 }
 
 // AddTask mocks base method.
-func (m *MockDriver) AddTask(ctx context.Context, tsk *task.Task, deps ...string) error {
+func (m *MockDriver) AddTask(ctx context.Context, tsk *task.Task) error {
 	m.ctrl.T.Helper()
-	varargs := []any{ctx, tsk}
-	for _, a := range deps {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "AddTask", varargs...)
+	ret := m.ctrl.Call(m, "AddTask", ctx, tsk)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // AddTask indicates an expected call of AddTask.
-func (mr *MockDriverMockRecorder) AddTask(ctx, tsk any, deps ...any) *MockDriverAddTaskCall {
+func (mr *MockDriverMockRecorder) AddTask(ctx, tsk any) *MockDriverAddTaskCall {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{ctx, tsk}, deps...)
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTask", reflect.TypeOf((*MockDriver)(nil).AddTask), varargs...)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddTask", reflect.TypeOf((*MockDriver)(nil).AddTask), ctx, tsk)
 	return &MockDriverAddTaskCall{Call: call}
 }
 
@@ -75,13 +70,13 @@ func (c *MockDriverAddTaskCall) Return(arg0 error) *MockDriverAddTaskCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockDriverAddTaskCall) Do(f func(context.Context, *task.Task, ...string) error) *MockDriverAddTaskCall {
+func (c *MockDriverAddTaskCall) Do(f func(context.Context, *task.Task) error) *MockDriverAddTaskCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockDriverAddTaskCall) DoAndReturn(f func(context.Context, *task.Task, ...string) error) *MockDriverAddTaskCall {
+func (c *MockDriverAddTaskCall) DoAndReturn(f func(context.Context, *task.Task) error) *MockDriverAddTaskCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

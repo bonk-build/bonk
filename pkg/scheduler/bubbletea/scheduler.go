@@ -66,7 +66,7 @@ func New(
 }
 
 // AddTask implements scheduler.Scheduler.
-func (s *sched) AddTask(ctx context.Context, tsk *task.Task, deps ...string) error {
+func (s *sched) AddTask(ctx context.Context, tsk *task.Task) error {
 	// This can block, so run in a goroutine
 	go s.program.Send(TaskScheduleMsg{
 		ctx:  ctx,

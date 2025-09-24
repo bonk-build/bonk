@@ -18,6 +18,8 @@ type Task struct {
 
 	// Inputs describes any files that may be consumed by this task (relative to [Session.SourceFS]).
 	Inputs []string `json:"inputs,omitempty"`
+	// Dependencies contains a list of tasks which must be completed before this task can run.
+	Dependencies []ID `json:"dependencies,omitempty"`
 	// Args contains any arguments that may be passed to the executor.
 	Args any `json:"args"`
 }
@@ -50,6 +52,13 @@ func New(
 func WithInputs(inputs ...string) Option {
 	return func(tsk *Task) {
 		tsk.Inputs = append(tsk.Inputs, inputs...)
+	}
+}
+
+// WithDependencies appends input specifiers to this task.
+func WithDependencies(dependencies ...ID) Option {
+	return func(tsk *Task) {
+		tsk.Dependencies = append(tsk.Dependencies, dependencies...)
 	}
 }
 
