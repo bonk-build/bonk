@@ -58,15 +58,12 @@ func WithLocalSession(path string, options ...SessionOption) Option {
 	}
 }
 
-// TaskOption is a functor for modifying a [task.Task].
-type TaskOption = func(context.Context, *task.Task)
-
 // WithTask executes a task in the session.
 func WithTask(
 	id task.ID,
 	executor string,
 	args any,
-	options ...TaskOption,
+	options ...task.Option,
 ) SessionOption {
 	return func(ctx context.Context, drv Driver, session task.Session) error {
 		tsk := task.New(
@@ -74,18 +71,9 @@ func WithTask(
 			session,
 			executor,
 			args,
+			options...,
 		)
-		for _, opt := range options {
-			opt(ctx, tsk)
-		}
 
 		return drv.AddTask(ctx, tsk)
-	}
-}
-
-// WithInputs appends the given input specifiers to the task.
-func WithInputs(inputs ...string) TaskOption {
-	return func(_ context.Context, tsk *task.Task) {
-		tsk.WithInputs(inputs...)
 	}
 }
