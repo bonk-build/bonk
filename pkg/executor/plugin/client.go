@@ -18,12 +18,13 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-var Handshake = goplugin.HandshakeConfig{
+var handshake = goplugin.HandshakeConfig{
 	ProtocolVersion:  0,
 	MagicCookieKey:   "BONK_PLUGIN",
 	MagicCookieValue: "bonk the builder",
 }
 
+// PluginClient manages a [goplugin.Client] and exposes it as a [task.Executor].
 type PluginClient struct {
 	task.Executor
 
@@ -32,16 +33,17 @@ type PluginClient struct {
 
 var _ task.Executor = (*PluginClient)(nil)
 
+// NewPluginClient starts a plugin subprocess and opens a gRPC connection to it.
 func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, error) {
 	client := goplugin.NewClient(&goplugin.ClientConfig{
-		HandshakeConfig: Handshake,
+		HandshakeConfig: handshake,
 		Cmd:             exec.CommandContext(ctx, "go", "run", goCmdPath),
 		AllowedProtocols: []goplugin.Protocol{
 			goplugin.ProtocolGRPC,
 		},
 		// Necessary for it to not abort immediately
 		VersionedPlugins: map[int]goplugin.PluginSet{
-			int(Handshake.ProtocolVersion): {}, //nolint:gosec
+			int(handshake.ProtocolVersion): {}, //nolint:gosec
 		},
 		Logger: shclog.New(slog.Default()),
 	})
@@ -65,6 +67,7 @@ func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, erro
 	return plug, nil
 }
 
+// Shutdown kills the subprocess.
 func (plugin *PluginClient) Shutdown() {
 	plugin.pluginClient.Kill()
 }

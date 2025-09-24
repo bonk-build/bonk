@@ -1,6 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// Package argconv provides an executor for automatically unboxing task parameters.
 package argconv
 
 import (
@@ -15,11 +16,12 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-//go:generate go tool mockgen -destination typedexecutor_mock.go -package argconv -copyright_file ../../../license-header.txt -typed . TypedExecutor
+//go:generate go tool mockgen -destination typedexecutor_mock.go -package argconv -copyright_file ../../../license-header.txt -typed  -write_package_comment=false . TypedExecutor
 
+// TypedExecutor is like [task.Executor] but with unboxed arguments.
 type TypedExecutor[Params any] interface {
 	OpenSession(ctx context.Context, session task.Session) error
-	CloseSession(ctx context.Context, sessionId task.SessionID)
+	CloseSession(ctx context.Context, sessionID task.SessionID)
 	Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error
 }
 

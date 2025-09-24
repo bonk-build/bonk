@@ -36,7 +36,7 @@ type LocalSession interface {
 
 // DefaultSession is a default implementation of Session that stores its parameters in members.
 type DefaultSession struct {
-	Id       SessionID
+	Id       SessionID //nolint:revive
 	SourceFs afero.Fs
 	OutputFs afero.Fs
 }
@@ -46,15 +46,17 @@ var (
 	_ LocalSession = (*localSession)(nil)
 )
 
+// ID returns a unique identifier per-session.
 func (ds *DefaultSession) ID() SessionID {
 	return ds.Id
 }
 
+// SourceFS returns an [afero.Fs] referring to the sesion root.
 func (ds *DefaultSession) SourceFS() afero.Fs {
 	return ds.SourceFs
 }
 
-// OutputFS implements Session.
+// OutputFS returns an [afero.Fs] referring to session's output directory.
 func (ds *DefaultSession) OutputFS() afero.Fs {
 	return ds.OutputFs
 }

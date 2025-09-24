@@ -11,11 +11,14 @@ import "context"
 type Executor interface {
 	Execute(ctx context.Context, tsk *Task, result *Result) error
 	OpenSession(ctx context.Context, session Session) error
-	CloseSession(ctx context.Context, sessionId SessionID)
+	CloseSession(ctx context.Context, sessionID SessionID)
 }
 
 // NoopSessionManager can be embedded if session management isn't necessary.
 type NoopSessionManager struct{}
 
-func (NoopSessionManager) OpenSession(ctx context.Context, session Session) error { return nil }
-func (NoopSessionManager) CloseSession(ctx context.Context, sessionId SessionID)  {}
+// OpenSession implements Executor.
+func (n NoopSessionManager) OpenSession(context.Context, Session) error { return nil }
+
+// CloseSession implements Executor.
+func (n NoopSessionManager) CloseSession(context.Context, SessionID) {}

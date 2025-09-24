@@ -69,12 +69,12 @@ func (s *grpcServer) OpenSession(
 	ctx := stream.Context()
 	slog.DebugContext(ctx, "opening session", "session", req.GetSessionId())
 
-	sessionId := uuid.MustParse(req.GetSessionId())
+	sessionID := uuid.MustParse(req.GetSessionId())
 	var session task.Session
 
 	switch req.WhichWorkspaceDescription() {
 	case bonkv0.OpenSessionRequest_Local_case:
-		session = task.NewLocalSession(sessionId, req.GetLocal().GetAbsolutePath())
+		session = task.NewLocalSession(sessionID, req.GetLocal().GetAbsolutePath())
 
 	case bonkv0.OpenSessionRequest_Test_case:
 		session = task.NewTestSession()
@@ -99,7 +99,7 @@ func (s *grpcServer) OpenSession(
 				),
 			).
 			Handler(slogmulti.NewHandleInlineHandler(
-				func(ctx context.Context, groups []string, attrs []slog.Attr, record slog.Record) error {
+				func(_ context.Context, _ []string, _ []slog.Attr, record slog.Record) error {
 					if req.GetLogStreaming().GetAddSource() {
 						fs := runtime.CallersFrames([]uintptr{record.PC})
 						f, _ := fs.Next()
@@ -122,9 +122,8 @@ func (s *grpcServer) OpenSession(
 						protoValue, err := ToProtoValue(attr.Value.Any())
 						if err != nil {
 							panic(err)
-						} else {
-							logInstance.Attrs[attr.Key] = protoValue
 						}
+						logInstance.Attrs[attr.Key] = protoValue
 
 						return true
 					})
@@ -156,13 +155,13 @@ func (s *grpcServer) OpenSession(
 
 	closer := make(chan struct{})
 
-	s.sessions[sessionId] = grpcServerSession{
+	s.sessions[sessionID] = grpcServerSession{
 		Session: session,
 		closer:  closer,
 		logger:  logger,
 	}
 
-	slog.DebugContext(ctx, "successfully opened session", "session", sessionId)
+	slog.DebugContext(ctx, "successfully opened session", "session", sessionID)
 
 	// Block until the request is canceled/closed
 	<-closer
@@ -176,17 +175,17 @@ func (s *grpcServer) CloseSession(
 	req *bonkv0.CloseSessionRequest,
 ) (*bonkv0.CloseSessionResponse, error) {
 	// Find the relevant session
-	sessionId := uuid.MustParse(req.GetId())
-	session, ok := s.sessions[sessionId]
+	sessionID := uuid.MustParse(req.GetId())
+	session, ok := s.sessions[sessionID]
 	if !ok {
-		return nil, fmt.Errorf("unopened session id: %s", sessionId.String())
+		return nil, fmt.Errorf("unopened session id: %s", sessionID.String())
 	}
 
 	session.closer <- struct{}{}
 
 	// Close the session
-	s.executor.CloseSession(ctx, sessionId)
-	delete(s.sessions, sessionId)
+	s.executor.CloseSession(ctx, sessionID)
+	delete(s.sessions, sessionID)
 
 	return &bonkv0.CloseSessionResponse{}, nil
 }
@@ -196,10 +195,10 @@ func (s *grpcServer) ExecuteTask(
 	req *bonkv0.ExecuteTaskRequest,
 ) (*bonkv0.ExecuteTaskResponse, error) {
 	// Find the relevant session
-	sessionId := uuid.MustParse(req.GetSessionId())
-	session, ok := s.sessions[sessionId]
+	sessionID := uuid.MustParse(req.GetSessionId())
+	session, ok := s.sessions[sessionID]
 	if !ok {
-		return nil, fmt.Errorf("unopened session id: %s", sessionId.String())
+		return nil, fmt.Errorf("unopened session id: %s", sessionID.String())
 	}
 
 	ctx = slogctx.NewCtx(ctx, session.logger)

@@ -1,6 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// test provides a plugin purely for testing purposes.
 package main
 
 import (
@@ -15,15 +16,15 @@ type Params struct {
 	Value int `json:"value"`
 }
 
-type Executor_Test struct {
+type ExecutorTest struct {
 	task.NoopSessionManager
 }
 
-func (Executor_Test) Execute(
+func (ExecutorTest) Execute(
 	ctx context.Context,
-	task *task.Task,
+	_ *task.Task,
 	args *Params,
-	res *task.Result,
+	_ *task.Result,
 ) error {
 	slog.InfoContext(ctx, "it's happening!", "thing", args.Value)
 
@@ -31,7 +32,7 @@ func (Executor_Test) Execute(
 }
 
 var Plugin = plugin.NewPlugin("test",
-	plugin.WithExecutor("Test", Executor_Test{}),
+	plugin.WithExecutor("Test", ExecutorTest{}),
 )
 
 func main() {

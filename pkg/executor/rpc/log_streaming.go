@@ -22,15 +22,14 @@ func handleLogStreaming(
 			if stream.Context().Err() != nil || errors.Is(err, io.EOF) {
 				// If this occurs, the log stream is imply shutting down and we should exit
 				break
-			} else {
-				slog.ErrorContext(
-					stream.Context(),
-					"received error on log stream",
-					"error", err,
-					"context err", stream.Context().Err())
-
-				continue
 			}
+			slog.ErrorContext(
+				stream.Context(),
+				"received error on log stream",
+				"error", err,
+				"context err", stream.Context().Err())
+
+			continue
 		}
 
 		switch msg.WhichMessage() {

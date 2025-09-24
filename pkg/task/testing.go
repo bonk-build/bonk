@@ -12,7 +12,7 @@ type testSession struct {
 	memmapFs afero.MemMapFs
 }
 
-// NewTestSession() creates a session suitable for testing, with an in-memory file system.
+// NewTestSession creates a session suitable for testing, with an in-memory file system.
 func NewTestSession() Session {
 	return &testSession{
 		memmapFs: afero.MemMapFs{},

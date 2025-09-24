@@ -14,6 +14,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
+// PluginClientManager manages a set of [PluginClient]s and functions as a distributing [tree.ExecutorTree].
 type PluginClientManager interface {
 	task.Executor
 
@@ -31,12 +32,14 @@ type pluginClientManager struct {
 	mu sync.Mutex
 }
 
+// NewPluginClientManager creates a new empty [PluginClientManager].
 func NewPluginClientManager() PluginClientManager {
 	return &pluginClientManager{
 		ExecutorTree: tree.New(),
 	}
 }
 
+// StartPlugin calls [NewPluginClient] and registers the executor by the plugin's name.
 func (pm *pluginClientManager) StartPlugin(ctx context.Context, pluginPath string) error {
 	plug, err := NewPluginClient(ctx, pluginPath)
 	if err != nil {
@@ -56,6 +59,7 @@ func (pm *pluginClientManager) StartPlugin(ctx context.Context, pluginPath strin
 	return nil
 }
 
+// StartPlugins calls [StartPlugin] in parallel per pluginPath.
 func (pm *pluginClientManager) StartPlugins(ctx context.Context, pluginPath ...string) error {
 	var (
 		pluginWaiter sync.WaitGroup
@@ -78,6 +82,7 @@ func (pm *pluginClientManager) StartPlugins(ctx context.Context, pluginPath ...s
 	return allErrs
 }
 
+// Shutdown does de initialization and kills all plugin processes.
 func (pm *pluginClientManager) Shutdown(context.Context) {
 	pm.mu.Lock()
 	pm.ForEachExecutor(func(name string, exec task.Executor) {

@@ -1,6 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// bonk runs a test build operation.
 package main
 
 import (
@@ -29,7 +30,7 @@ var rootCmd = &cobra.Command{
 	Use:   "bonk",
 	Short: "A cue-based configuration build system.",
 
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(cmd *cobra.Command, _ []string) {
 		cwd, err := os.Getwd()
 		cobra.CheckErr(err)
 

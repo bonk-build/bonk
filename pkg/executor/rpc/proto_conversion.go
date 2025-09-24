@@ -12,6 +12,7 @@ import (
 	"github.com/go-viper/mapstructure/v2"
 )
 
+// ToProtoValue wraps any value into a [structpb.Value].
 func ToProtoValue(value any) (*structpb.Value, error) {
 	return toProtoValue(reflect.ValueOf(value))
 }

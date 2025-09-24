@@ -24,10 +24,11 @@ type basicDriver struct {
 
 var _ driver.Driver = (*basicDriver)(nil)
 
+// New creates a basic driver from a series of options.
 func New(
 	ctx context.Context,
 	scheduler scheduler.SchedulerFactory,
-	options ...driver.DriverOption,
+	options ...driver.Option,
 ) (driver.Driver, error) {
 	result := &basicDriver{
 		PluginClientManager: plugin.NewPluginClientManager(),

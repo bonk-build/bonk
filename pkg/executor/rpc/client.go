@@ -37,11 +37,11 @@ var _ task.Executor = (*grpcClient)(nil)
 func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
 	slog.DebugContext(ctx, "opening session", "session", session.ID())
 
-	sessionIdString := session.ID().String()
+	sessionIDString := session.ID().String()
 	defaultLevel := int64(slog.LevelInfo)
 	addSource := false
 	openSessionRequest := bonkv0.OpenSessionRequest_builder{
-		SessionId: &sessionIdString,
+		SessionId: &sessionIDString,
 		LogStreaming: bonkv0.OpenSessionRequest_LogStreamingOptions_builder{
 			Level:     &defaultLevel,
 			AddSource: &addSource,
@@ -77,13 +77,13 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 	return nil
 }
 
-func (pb *grpcClient) CloseSession(ctx context.Context, sessionId task.SessionID) {
-	sessionIdString := sessionId.String()
+func (pb *grpcClient) CloseSession(ctx context.Context, sessionID task.SessionID) {
+	sessionIDString := sessionID.String()
 	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
-		Id: &sessionIdString,
+		Id: &sessionIDString,
 	}.Build())
 	if err != nil {
-		slog.ErrorContext(ctx, "got error closing session", "session", sessionId, "error", err)
+		slog.ErrorContext(ctx, "got error closing session", "session", sessionID, "error", err)
 	}
 }
 
@@ -92,9 +92,9 @@ func (pb *grpcClient) Execute(
 	tsk *task.Task,
 	result *task.Result,
 ) error {
-	sessionIdStr := tsk.Session.ID().String()
+	sessionIDStr := tsk.Session.ID().String()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
-		SessionId: &sessionIdStr,
+		SessionId: &sessionIDStr,
 		Id:        (*string)(&tsk.ID),
 		Executor:  &tsk.Executor,
 		Inputs:    tsk.Inputs,
@@ -111,9 +111,9 @@ func (pb *grpcClient) Execute(
 		status := status.Convert(err)
 		if status.Code() == CodeExecErr {
 			return errors.New(status.Message())
-		} else {
-			return fmt.Errorf("unknown error performing task: %w", err)
 		}
+
+		return fmt.Errorf("unknown error performing task: %w", err)
 	}
 
 	result.Outputs = res.GetOutput()
