@@ -144,7 +144,7 @@ func (s *rpcSuite) Test_Followups() {
 
 	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
-		Do(func(ctx context.Context, tsk *task.Task, res *task.Result) {
+		Do(func(_ context.Context, _ *task.Task, res *task.Result) {
 			res.FollowupTasks = append(res.FollowupTasks, expectedTask)
 		}).
 		Return(nil)
