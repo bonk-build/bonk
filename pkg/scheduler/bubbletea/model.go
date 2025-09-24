@@ -11,6 +11,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 
 	tea "github.com/charmbracelet/bubbletea/v2"
+
+	"go.bonk.build/pkg/executor/observer"
 )
 
 // teaModel is responsible for handling task invocation and status tracking.
@@ -56,9 +58,8 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		t.tasks.Add(1)
 		cmds = append(cmds, msg.GetExecCmd())
 
-	case TaskStatusMsg:
-		if msg.status == StatusScheduled {
-		} else {
+	case observer.TaskStatusMsg:
+		if msg.Status != observer.StatusRunning {
 			remaining := t.tasks.Add(-1)
 			if remaining == 0 {
 				t.quitting = true

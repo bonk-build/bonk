@@ -1,3 +1,5 @@
+atomicgo.dev/event v0.3.0 h1:fd6gSQdoPvxU6hIgjRiH51flOFpgqUfRmcRHSgZYyOE=
+atomicgo.dev/event v0.3.0/go.mod h1:iFub4qDOw3KAF+eUxqduIOgCEJS5v250w4wgGG6AyFI=
 buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go v1.36.9-20250718181942-e35f9b667443.1 h1:HiLfreYRsqycF5QDlsnvSQOnl4tvhBoROl8+DkbaphI=
 buf.build/gen/go/bufbuild/bufplugin/protocolbuffers/go v1.36.9-20250718181942-e35f9b667443.1/go.mod h1:WSxC6zKCpqVRcGZCpOgVwkATp9XBIleoAdSAnkq7dhw=
 buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go v1.36.9-20250912141014-52f32327d4b0.1 h1:DQLS/rRxLHuugVzjJU5AvOwD57pdFl9he/0O7e5P294=

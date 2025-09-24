@@ -10,12 +10,14 @@ import (
 	"github.com/charmbracelet/lipgloss/v2/tree"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/elliotchance/orderedmap/v3"
+
+	"go.bonk.build/pkg/executor/observer"
 )
 
 // taskNode is responsible for rendering task state to the terminal.
 type taskNode struct {
 	name   string
-	status TaskStatus
+	status observer.TaskStatus
 	err    error
 
 	children taskNodeChildren
@@ -65,9 +67,9 @@ func (t *taskNode) Value() string {
 
 // SetValue implements tree.Node.
 func (t *taskNode) SetValue(value any) {
-	if status, ok := value.(TaskStatusMsg); ok {
-		t.status = status.status
-		t.err = status.err
+	if status, ok := value.(observer.TaskStatusMsg); ok {
+		t.status = status.Status
+		t.err = status.Error
 	} else {
 		panic("unimplemented " + spew.Sdump(value))
 	}

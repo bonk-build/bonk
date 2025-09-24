@@ -3,21 +3,25 @@
 
 package bubbletea
 
-import "github.com/charmbracelet/lipgloss/v2"
+import (
+	"github.com/charmbracelet/lipgloss/v2"
 
-type StatusStyles map[TaskStatus]lipgloss.Style
+	"go.bonk.build/pkg/executor/observer"
+)
+
+type StatusStyles map[observer.TaskStatus]lipgloss.Style
 
 var (
 	StatusStyleClear = StatusStyles{
-		StatusNone:      lipgloss.NewStyle().SetString("  ").Faint(true),
-		StatusScheduled: lipgloss.NewStyle().SetString("🔘 "),
-		StatusSuccess:   lipgloss.NewStyle().SetString("✔️ ").Foreground(lipgloss.Green),
-		StatusFail:      lipgloss.NewStyle().SetString("❌ ").Foreground(lipgloss.Red),
+		observer.StatusNone:    lipgloss.NewStyle().SetString("  ").Faint(true),
+		observer.StatusRunning: lipgloss.NewStyle().SetString("🔘 "),
+		observer.StatusSuccess: lipgloss.NewStyle().SetString("✔️ ").Foreground(lipgloss.Green),
+		observer.StatusError:   lipgloss.NewStyle().SetString("❌ ").Foreground(lipgloss.Red),
 	}
 	StatusStyleCircle = StatusStyles{
-		StatusNone:      lipgloss.NewStyle().SetString("  ").Faint(true),
-		StatusScheduled: lipgloss.NewStyle().SetString("🔵 "),
-		StatusSuccess:   lipgloss.NewStyle().SetString("🟢 ").Foreground(lipgloss.Green),
-		StatusFail:      lipgloss.NewStyle().SetString("🔴 ").Foreground(lipgloss.Red),
+		observer.StatusNone:    lipgloss.NewStyle().SetString("  ").Faint(true),
+		observer.StatusRunning: lipgloss.NewStyle().SetString("🔵 "),
+		observer.StatusSuccess: lipgloss.NewStyle().SetString("🟢 ").Foreground(lipgloss.Green),
+		observer.StatusError:   lipgloss.NewStyle().SetString("🔴 ").Foreground(lipgloss.Red),
 	}
 )
