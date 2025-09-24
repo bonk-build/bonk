@@ -67,7 +67,7 @@ var rootCmd = &cobra.Command{
 					task.NewID("Test", "Kustomize"),
 					"kustomize.Kustomize",
 					map[string]any{},
-					driver.WithInputs(
+					task.WithInputs(
 						".bonk/Test.Resources/resources.yaml",
 					),
 				),

@@ -22,12 +22,15 @@ type Task struct {
 	Args any `json:"args"`
 }
 
+type Option func(*Task)
+
 // New creates a new task with the given parameters.
 func New(
 	id ID,
 	session Session,
 	executor string,
 	args any,
+	options ...Option,
 ) *Task {
 	result := &Task{
 		ID:       id,
@@ -36,14 +39,18 @@ func New(
 		Args:     args,
 	}
 
+	for _, opt := range options {
+		opt(result)
+	}
+
 	return result
 }
 
 // WithInputs appends input specifiers to this task.
-func (tsk *Task) WithInputs(inputs ...string) *Task {
-	tsk.Inputs = append(tsk.Inputs, inputs...)
-
-	return tsk
+func WithInputs(inputs ...string) Option {
+	return func(tsk *Task) {
+		tsk.Inputs = append(tsk.Inputs, inputs...)
+	}
 }
 
 // OutputFS returns the output filesystem for this task.
