@@ -8,32 +8,16 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 
+	"go.bonk.build/pkg/executor/observer"
 	"go.bonk.build/pkg/task"
 )
 
-type TaskStatus int
-
-const (
-	StatusNone TaskStatus = iota
-	StatusScheduled
-	StatusSuccess
-	StatusFail
-)
-
-// TaskStatusMsg signifies a task's change in status.
-type TaskStatusMsg struct {
-	tskId  task.ID
-	status TaskStatus
-
-	err error
-}
-
 // TaskStatusUpdate returns a command that emits a task status update.
-func TaskStatusUpdate(tsk *task.Task, status TaskStatus) tea.Cmd {
+func TaskStatusUpdate(tsk *task.Task, status observer.TaskStatus) tea.Cmd {
 	return func() tea.Msg {
-		return TaskStatusMsg{
-			tskId:  tsk.ID,
-			status: status,
+		return observer.TaskStatusMsg{
+			TaskID: tsk.ID,
+			Status: status,
 		}
 	}
 }
@@ -59,18 +43,14 @@ func ScheduleTask(
 }
 
 func (tsk TaskScheduleMsg) GetExecCmd() tea.Cmd {
-	return tea.Sequence(TaskStatusUpdate(tsk.tsk, StatusScheduled), func() tea.Msg {
+	return tea.Sequence(TaskStatusUpdate(tsk.tsk, observer.StatusRunning), func() tea.Msg {
 		var result task.Result
 		err := tsk.exec.Execute(tsk.ctx, tsk.tsk, &result)
 		if err != nil {
-			return TaskStatusMsg{
-				tskId:  tsk.tsk.ID,
-				status: StatusFail,
-				err:    err,
-			}
+			return observer.TaskFinishedMsg(tsk.tsk.ID, err)
 		}
 
-		statusUpdateCmd := TaskStatusUpdate(tsk.tsk, StatusSuccess)
+		statusUpdateCmd := TaskStatusUpdate(tsk.tsk, observer.StatusSuccess)
 
 		if len(result.FollowupTasks) > 0 {
 			followups := make([]tea.Cmd, len(result.FollowupTasks))
