@@ -24,6 +24,7 @@ type basicDriver struct {
 
 var _ driver.Driver = (*basicDriver)(nil)
 
+// New creates a basic driver from a series of options.
 func New(
 	ctx context.Context,
 	scheduler scheduler.SchedulerFactory,
