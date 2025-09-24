@@ -29,12 +29,12 @@ func init() {
 					if ctxLogger := slogctx.FromCtx(ctx); ctxLogger != slog.Default() {
 						if ctxLogger.Enabled(ctx, record.Level) {
 							return ctxLogger.Handler().Handle(ctx, record)
-						} else {
-							return nil
 						}
-					} else {
-						return next(ctx, record)
+
+						return nil
 					}
+
+					return next(ctx, record)
 				},
 			),
 			// Route to the buffered handler

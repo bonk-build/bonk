@@ -23,6 +23,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
+// Plugin describes a plugin and the services it provides.
 type Plugin struct {
 	tree.ExecutorTree
 	goplugin.NetRPCUnsupportedPlugin
@@ -35,8 +36,10 @@ var (
 	_ goplugin.GRPCPlugin = (*Plugin)(nil)
 )
 
+// PluginOption is a modifier for the plugin.
 type PluginOption func(plugin *Plugin) error
 
+// NewPlugin creates a new [Plugin] from the given options.
 func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 	plugin := &Plugin{
 		ExecutorTree: tree.New(),
@@ -53,6 +56,7 @@ func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 	return plugin
 }
 
+// Name returns the plugin's name.
 func (p *Plugin) Name() string { return p.name }
 
 // WithExecutor registers an executor with the plugin.
@@ -65,24 +69,25 @@ func WithExecutor[Params any](name string, exec argconv.TypedExecutor[Params]) P
 // Serve starts the plugin gRPC server.
 func (p *Plugin) Serve() {
 	goplugin.Serve(&goplugin.ServeConfig{
-		HandshakeConfig: Handshake,
+		HandshakeConfig: handshake,
 		Plugins:         p.getPluginSet(),
 		GRPCServer:      goplugin.DefaultGRPCServer,
 		Logger:          shclog.New(slog.Default()),
 	})
 }
 
+// GRPCServer calls [rpc.RegisterGRPCServer] for the plugin.
 func (p *Plugin) GRPCServer(_ *goplugin.GRPCBroker, server *grpc.Server) error {
 	rpc.RegisterGRPCServer(server, p)
 
 	return nil
 }
 
-// GRPCClient: Unsupported.
+// GRPCClient is unsupported.
 func (*Plugin) GRPCClient(
-	_ context.Context,
-	_ *goplugin.GRPCBroker,
-	c *grpc.ClientConn,
+	context.Context,
+	*goplugin.GRPCBroker,
+	*grpc.ClientConn,
 ) (any, error) {
 	return nil, errors.ErrUnsupported
 }
