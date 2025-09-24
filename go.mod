@@ -15,6 +15,7 @@ tool (
 )
 
 require (
+	atomicgo.dev/event v0.3.0
 	cuelang.org/go v0.14.1
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.4.0.20250911202326-439500e8e5c1
