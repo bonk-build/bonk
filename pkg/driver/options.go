@@ -4,22 +4,38 @@
 package driver
 
 import (
-	"context"
-	"fmt"
-
-	"go.uber.org/multierr"
-
 	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/task"
 )
 
+type Options struct {
+	Concurrency uint
+	Plugins     []string
+	Executors   map[string]task.Executor
+	Sessions    map[task.Session][]*task.Task
+}
+
+func MakeDefaultOptions() Options {
+	return Options{
+		Plugins:   make([]string, 0, 3), //nolint:mnd
+		Executors: make(map[string]task.Executor),
+		Sessions:  make(map[task.Session][]*task.Task),
+	}
+}
+
 // Option is a functor for modifying a [Driver].
-type Option = func(context.Context, Driver) error
+type Option = func(*Options)
+
+func WithConcurrency(concurrency uint) Option {
+	return func(opts *Options) {
+		opts.Concurrency = concurrency
+	}
+}
 
 // WithGenericExecutor registers the given generic executor.
 func WithGenericExecutor(name string, exec task.Executor) Option {
-	return func(_ context.Context, drv Driver) error {
-		return drv.RegisterExecutor(name, exec)
+	return func(opts *Options) {
+		opts.Executors[name] = exec
 	}
 }
 
@@ -30,31 +46,22 @@ func WithExecutor[Params any](name string, exec argconv.TypedExecutor[Params]) O
 
 // WithPlugins loads the specified plugins.
 func WithPlugins(plugins ...string) Option {
-	return func(ctx context.Context, drv Driver) error {
-		return drv.StartPlugins(ctx, plugins...)
+	return func(opts *Options) {
+		opts.Plugins = append(opts.Plugins, plugins...)
 	}
 }
 
 // SessionOption is a functor for modifying a [task.Session].
-type SessionOption = func(context.Context, Driver, task.Session) error
+type SessionOption = func(*Options, task.Session)
 
 // WithLocalSession creates a [task.LocalSession] with the given options.
 func WithLocalSession(path string, options ...SessionOption) Option {
-	return func(ctx context.Context, drv Driver) error {
-		sess, err := drv.NewLocalSession(ctx, path)
-		if err != nil {
-			return err //nolint:wrapcheck
-		}
+	return func(opts *Options) {
+		sess := task.NewLocalSession(task.NewSessionID(), path)
 
 		for _, option := range options {
-			multierr.AppendInto(&err, option(ctx, drv, sess))
+			option(opts, sess)
 		}
-
-		if err != nil {
-			return fmt.Errorf("failed to initialize session with options: %w", err)
-		}
-
-		return nil
 	}
 }
 
@@ -65,15 +72,13 @@ func WithTask(
 	args any,
 	options ...task.Option,
 ) SessionOption {
-	return func(ctx context.Context, drv Driver, session task.Session) error {
-		tsk := task.New(
+	return func(opts *Options, session task.Session) {
+		opts.Sessions[session] = append(opts.Sessions[session], task.New(
 			id,
 			session,
 			executor,
 			args,
 			options...,
-		)
-
-		return drv.AddTask(ctx, tsk)
+		))
 	}
 }

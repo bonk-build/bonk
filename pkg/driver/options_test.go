@@ -4,11 +4,9 @@
 package driver
 
 import (
-	"errors"
 	"testing"
 
 	"go.uber.org/mock/gomock"
-	"go.uber.org/multierr"
 
 	"github.com/stretchr/testify/require"
 
@@ -16,35 +14,30 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
+func TestWithConcurrency(t *testing.T) {
+	t.Parallel()
+
+	const concurrency = uint(0xDEADBEEF)
+
+	options := MakeDefaultOptions()
+
+	WithConcurrency(concurrency)(&options)
+	require.Equal(t, concurrency, options.Concurrency)
+}
+
 func TestWithExecutor(t *testing.T) {
 	t.Parallel()
 
 	const execName = "executor"
 
 	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
 	exec := task.NewMockExecutor(mock)
 
-	drv.EXPECT().RegisterExecutor(execName, exec).Times(1)
+	options := MakeDefaultOptions()
 
-	err := WithGenericExecutor(execName, exec)(t.Context(), drv)
-	require.NoError(t, err)
-}
-
-func TestWithExecutor_Fail(t *testing.T) {
-	t.Parallel()
-
-	const execName = "executor"
-	expectedErr := errors.New("failed to register executor")
-
-	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
-	exec := task.NewMockExecutor(mock)
-
-	drv.EXPECT().RegisterExecutor(execName, exec).Return(expectedErr).Times(1)
-
-	err := WithGenericExecutor(execName, exec)(t.Context(), drv)
-	require.ErrorIs(t, err, expectedErr)
+	WithGenericExecutor(execName, exec)(&options)
+	require.Len(t, options.Executors, 1)
+	require.Same(t, exec, options.Executors[execName])
 }
 
 func TestWithTypedExecutor(t *testing.T) {
@@ -53,77 +46,41 @@ func TestWithTypedExecutor(t *testing.T) {
 	const execName = "executor"
 
 	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
 	exec := argconv.NewMockTypedExecutor[any](mock)
 
-	drv.EXPECT().RegisterExecutor(execName, gomock.Any()).Times(1)
+	options := MakeDefaultOptions()
 
-	err := WithExecutor(execName, exec)(t.Context(), drv)
-	require.NoError(t, err)
+	WithExecutor(execName, exec)(&options)
+	require.Len(t, options.Executors, 1)
+	require.NotNil(t, options.Executors[execName])
 }
 
 func TestWithPlugins(t *testing.T) {
 	t.Parallel()
-
-	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
 
 	plugins := []string{
 		"plugin a",
 		"plugin b",
 	}
 
-	drv.EXPECT().StartPlugins(t.Context(), "plugin a", "plugin b").Times(1)
+	options := MakeDefaultOptions()
 
-	err := WithPlugins(plugins...)(t.Context(), drv)
-	require.NoError(t, err)
+	WithPlugins(plugins...)(&options)
+	require.ElementsMatch(t, options.Plugins, plugins)
 }
 
 func TestWithLocalSession(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
+	options := MakeDefaultOptions()
 
-	drv.EXPECT().NewLocalSession(t.Context(), ".").Times(1)
-	drv.EXPECT().AddTask(t.Context(), gomock.Any()).Times(2)
-
-	err := WithLocalSession(".",
+	WithLocalSession(".",
 		WithTask("exec 0", "task 0", []string{}),
 		WithTask("exec 1", "task 1", map[string]string{}),
-	)(t.Context(), drv)
-	require.NoError(t, err)
-}
+	)(&options)
 
-func TestWithLocalSession_Fail1(t *testing.T) {
-	t.Parallel()
-
-	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
-
-	expectedErr := errors.New("failed to open session")
-
-	drv.EXPECT().NewLocalSession(t.Context(), ".").Times(1).Return(nil, expectedErr)
-
-	err := WithLocalSession(".")(t.Context(), drv)
-	require.ErrorIs(t, err, expectedErr)
-}
-
-func TestWithLocalSession_Fail2(t *testing.T) {
-	t.Parallel()
-
-	mock := gomock.NewController(t)
-	drv := NewMockDriver(mock)
-
-	expectedErr := errors.New("failed to create task")
-
-	drv.EXPECT().NewLocalSession(t.Context(), ".").Times(1)
-	drv.EXPECT().AddTask(t.Context(), gomock.Any()).Return(expectedErr).Times(2)
-
-	err := WithLocalSession(".",
-		WithTask("exec 0", "task 0", []string{}),
-		WithTask("exec 1", "task 1", map[string]string{}),
-	)(t.Context(), drv)
-	require.Error(t, err)
-	require.True(t, multierr.Every(err, expectedErr))
+	require.Len(t, options.Sessions, 1)
+	for _, tsks := range options.Sessions {
+		require.Len(t, tsks, 2)
+	}
 }

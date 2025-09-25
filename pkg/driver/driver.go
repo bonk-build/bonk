@@ -5,24 +5,61 @@
 package driver
 
 import (
-	"context"
+	"fmt"
 
+	"go.uber.org/multierr"
+
+	context "context"
+
+	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/executor/plugin"
-	"go.bonk.build/pkg/scheduler"
-	"go.bonk.build/pkg/task"
+	"go.bonk.build/pkg/executor/statecheck"
+	"go.bonk.build/pkg/scheduler/taskflow"
 )
 
-//go:generate go tool mockgen -destination driver_mock.go -package driver -copyright_file ../../license-header.txt -typed -write_package_comment=false . Driver
+func Run(ctx context.Context, options ...Option) error {
+	option := MakeDefaultOptions()
 
-// Driver is an interface for an object that can delegate the work of a bonk pipeline.
-type Driver interface {
-	plugin.PluginClientManager
-	scheduler.Scheduler
+	for _, opt := range options {
+		opt(&option)
+	}
 
-	NewLocalSession(
-		ctx context.Context,
-		path string,
-	) (task.LocalSession, error)
+	pcm := plugin.NewPluginClientManager()
+	err := pcm.StartPlugins(ctx, option.Plugins...)
+	if err != nil {
+		return fmt.Errorf("failed to initialize plugins: %w", err)
+	}
 
-	Shutdown(ctx context.Context)
+	for name, exec := range option.Executors {
+		multierr.AppendInto(&err, pcm.RegisterExecutor(name, exec))
+	}
+	if err != nil {
+		return fmt.Errorf("failed to register executors: %w", err)
+	}
+
+	// Wrap the pcm in common executors
+	exec := statecheck.New(pcm)
+	exec = observable.New(exec)
+
+	sched := taskflow.New(option.Concurrency)(ctx, exec)
+
+	for session, tasks := range option.Sessions {
+		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
+
+		for _, tsk := range tasks {
+			multierr.AppendInto(&err, sched.AddTask(ctx, tsk))
+		}
+	}
+
+	if err != nil {
+		return fmt.Errorf("failed to register tasks with scheduler: %w", err)
+	}
+
+	sched.Run()
+
+	for session := range option.Sessions {
+		exec.CloseSession(ctx, session.ID())
+	}
+
+	return nil
 }
