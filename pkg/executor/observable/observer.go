@@ -13,25 +13,27 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
+type Observer = func(TaskStatusMsg)
+
 type Observable interface {
 	task.Executor
 
-	Listen(f func(TaskStatusMsg)) error
+	Listen(f Observer) error
 }
 
 func New(exec task.Executor) Observable {
-	return observable{
+	return observ{
 		Executor: exec,
 		Event:    event.New[TaskStatusMsg](),
 	}
 }
 
-type observable struct {
+type observ struct {
 	task.Executor
 	*event.Event[TaskStatusMsg]
 }
 
-func (obs observable) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
+func (obs observ) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
 	triggerErr := obs.Trigger(TaskRunningMsg(tsk.ID))
 	if triggerErr != nil {
 		slog.WarnContext(ctx, "failed to trigger task status message")
