@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor/argconv"
+	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
 
@@ -83,4 +84,16 @@ func TestWithLocalSession(t *testing.T) {
 	for _, tsks := range options.Sessions {
 		require.Len(t, tsks, 2)
 	}
+}
+
+func TestWithObservers(t *testing.T) {
+	t.Parallel()
+
+	options := MakeDefaultOptions()
+
+	WithObservers(
+		func(observable.TaskStatusMsg) {},
+	)(&options)
+
+	require.Len(t, options.Observers, 1)
 }
