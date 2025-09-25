@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package observer_test
+package observable_test
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"go.bonk.build/pkg/executor/observer"
+	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
 
@@ -25,7 +25,7 @@ func TestPass(t *testing.T) {
 		mock := gomock.NewController(t)
 		exec := task.NewMockExecutor(mock)
 		session := task.NewTestSession()
-		obs := observer.New(exec)
+		obs := observable.New(exec)
 
 		cont := make(chan struct{})
 
@@ -37,10 +37,10 @@ func TestPass(t *testing.T) {
 			"exec",
 			nil,
 		)
-		exepectedStatus := observer.StatusRunning
+		exepectedStatus := observable.StatusRunning
 
 		callCount := 0
-		err := obs.Listen(func(tsm observer.TaskStatusMsg) {
+		err := obs.Listen(func(tsm observable.TaskStatusMsg) {
 			callCount++
 			assert.Equal(t, tskID, tsm.TaskID)
 			assert.Equal(t, exepectedStatus, tsm.Status)
@@ -66,7 +66,7 @@ func TestPass(t *testing.T) {
 		synctest.Wait()
 		assert.Equal(t, 1, callCount)
 
-		exepectedStatus = observer.StatusSuccess
+		exepectedStatus = observable.StatusSuccess
 		cont <- struct{}{}
 		execWaiter.Wait()
 		assert.Equal(t, 2, callCount)
@@ -80,7 +80,7 @@ func TestFail(t *testing.T) {
 		mock := gomock.NewController(t)
 		exec := task.NewMockExecutor(mock)
 		session := task.NewTestSession()
-		obs := observer.New(exec)
+		obs := observable.New(exec)
 
 		cont := make(chan struct{})
 
@@ -92,14 +92,14 @@ func TestFail(t *testing.T) {
 			"exec",
 			nil,
 		)
-		exepectedStatus := observer.StatusRunning
+		exepectedStatus := observable.StatusRunning
 
 		callCount := 0
-		err := obs.Listen(func(tsm observer.TaskStatusMsg) {
+		err := obs.Listen(func(tsm observable.TaskStatusMsg) {
 			callCount++
 			assert.Equal(t, tskID, tsm.TaskID)
 			assert.Equal(t, exepectedStatus, tsm.Status)
-			if tsm.Status == observer.StatusError {
+			if tsm.Status == observable.StatusError {
 				assert.ErrorIs(t, tsm.Error, assert.AnError)
 			}
 		})
@@ -123,7 +123,7 @@ func TestFail(t *testing.T) {
 		synctest.Wait()
 		assert.Equal(t, 1, callCount)
 
-		exepectedStatus = observer.StatusError
+		exepectedStatus = observable.StatusError
 		cont <- struct{}{}
 		execWaiter.Wait()
 		assert.Equal(t, 2, callCount)

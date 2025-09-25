@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package observer
+package observable
 
 import "go.bonk.build/pkg/task"
 
@@ -9,7 +9,7 @@ import "go.bonk.build/pkg/task"
 type TaskStatus int
 
 const (
-	// StatusNone means that the task is unknown. [Observer] will never emit this status.
+	// StatusNone means that the task is unknown. [Observable] will never emit this status.
 	StatusNone TaskStatus = iota
 	// StatusRunning means that the task has begun executing.
 	StatusRunning
