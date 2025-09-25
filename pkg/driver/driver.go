@@ -15,6 +15,7 @@ import (
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/executor/statecheck"
 	"go.bonk.build/pkg/scheduler/taskflow"
+	"go.bonk.build/pkg/task"
 )
 
 func Run(ctx context.Context, options ...Option) error {
@@ -37,9 +38,24 @@ func Run(ctx context.Context, options ...Option) error {
 		return fmt.Errorf("failed to register executors: %w", err)
 	}
 
+	// This is the root of the executable tree
+	var exec task.Executor = pcm
+
 	// Wrap the pcm in common executors
-	exec := statecheck.New(pcm)
-	exec = observable.New(exec)
+	exec = statecheck.New(exec)
+
+	if len(option.Observers) > 0 {
+		obs := observable.New(exec)
+
+		for _, observer := range option.Observers {
+			multierr.AppendInto(&err, obs.Listen(observer))
+		}
+		if err != nil {
+			return fmt.Errorf("failed to register observers: %w", err)
+		}
+
+		exec = obs
+	}
 
 	sched := taskflow.New(option.Concurrency)(ctx, exec)
 

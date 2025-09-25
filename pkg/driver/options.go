@@ -5,6 +5,7 @@ package driver
 
 import (
 	"go.bonk.build/pkg/executor/argconv"
+	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
 
@@ -13,6 +14,7 @@ type Options struct {
 	Plugins     []string
 	Executors   map[string]task.Executor
 	Sessions    map[task.Session][]*task.Task
+	Observers   []observable.Observer
 }
 
 func MakeDefaultOptions() Options {
@@ -20,6 +22,7 @@ func MakeDefaultOptions() Options {
 		Plugins:   make([]string, 0, 3), //nolint:mnd
 		Executors: make(map[string]task.Executor),
 		Sessions:  make(map[task.Session][]*task.Task),
+		Observers: make([]observable.Observer, 0),
 	}
 }
 
@@ -80,5 +83,12 @@ func WithTask(
 			args,
 			options...,
 		))
+	}
+}
+
+// WithObservers adds observers to the execution pipeline.
+func WithObservers(observers ...observable.Observer) Option {
+	return func(opts *Options) {
+		opts.Observers = append(opts.Observers, observers...)
 	}
 }
