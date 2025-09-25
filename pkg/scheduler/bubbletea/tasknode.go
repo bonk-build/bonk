@@ -11,13 +11,13 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/elliotchance/orderedmap/v3"
 
-	"go.bonk.build/pkg/executor/observer"
+	"go.bonk.build/pkg/executor/observable"
 )
 
 // taskNode is responsible for rendering task state to the terminal.
 type taskNode struct {
 	name   string
-	status observer.TaskStatus
+	status observable.TaskStatus
 	err    error
 
 	children taskNodeChildren
@@ -67,7 +67,7 @@ func (t *taskNode) Value() string {
 
 // SetValue implements tree.Node.
 func (t *taskNode) SetValue(value any) {
-	if status, ok := value.(observer.TaskStatusMsg); ok {
+	if status, ok := value.(observable.TaskStatusMsg); ok {
 		t.status = status.Status
 		t.err = status.Error
 	} else {

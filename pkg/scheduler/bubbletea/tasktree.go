@@ -10,7 +10,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 
-	"go.bonk.build/pkg/executor/observer"
+	"go.bonk.build/pkg/executor/observable"
 )
 
 type taskTree struct {
@@ -39,7 +39,7 @@ func (t *taskTree) Init() tea.Cmd {
 func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmds []tea.Cmd
 
-	if msg, ok := msg.(observer.TaskStatusMsg); ok {
+	if msg, ok := msg.(observable.TaskStatusMsg); ok {
 		curName, childPath, hasChildren := msg.TaskID.Cut()
 
 		var cur *taskNode

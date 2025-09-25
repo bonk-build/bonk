@@ -8,14 +8,14 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea/v2"
 
-	"go.bonk.build/pkg/executor/observer"
+	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
 
 // TaskStatusUpdate returns a command that emits a task status update.
-func TaskStatusUpdate(tsk *task.Task, status observer.TaskStatus) tea.Cmd {
+func TaskStatusUpdate(tsk *task.Task, status observable.TaskStatus) tea.Cmd {
 	return func() tea.Msg {
-		return observer.TaskStatusMsg{
+		return observable.TaskStatusMsg{
 			TaskID: tsk.ID,
 			Status: status,
 		}
@@ -43,14 +43,14 @@ func ScheduleTask(
 }
 
 func (tsk TaskScheduleMsg) GetExecCmd() tea.Cmd {
-	return tea.Sequence(TaskStatusUpdate(tsk.tsk, observer.StatusRunning), func() tea.Msg {
+	return tea.Sequence(TaskStatusUpdate(tsk.tsk, observable.StatusRunning), func() tea.Msg {
 		var result task.Result
 		err := tsk.exec.Execute(tsk.ctx, tsk.tsk, &result)
 		if err != nil {
-			return observer.TaskFinishedMsg(tsk.tsk.ID, err)
+			return observable.TaskFinishedMsg(tsk.tsk.ID, err)
 		}
 
-		statusUpdateCmd := TaskStatusUpdate(tsk.tsk, observer.StatusSuccess)
+		statusUpdateCmd := TaskStatusUpdate(tsk.tsk, observable.StatusSuccess)
 
 		if len(result.FollowupTasks) > 0 {
 			followups := make([]tea.Cmd, len(result.FollowupTasks))
