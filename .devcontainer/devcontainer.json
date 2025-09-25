@@ -3,9 +3,9 @@
 {
 	"name": "bonk",
 	"build": {
-		"dockerfile": "Dockerfile",
+		"dockerfile": "Containerfile",
 		"cacheFrom": [
-			"ghcr.io/bonk-build/devcontainer:latest"
+			"ghcr.io/bonk-build/devcontainer-cache"
 		]
 	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
@@ -42,7 +42,7 @@
 		},
 		{
 			"type": "bind",
-			"source": "${localEnv:HOME}${localEnv:USERPROFILE}/.config/gh",
+			"source": "${localEnv:HOME}/.config/gh",
 			"target": "/home/vscode/.config/gh"
 		}
 	],

@@ -38,4 +38,5 @@ jobs:
         with:
           imageName: ghcr.io/bonk-build/devcontainer
           imageTag: ${{ steps.meta.outputs.tags }}
+          cacheTo: ghcr.io/bonk-build/devcontainer-cache
           refFilterForPush: refs/heads/main
