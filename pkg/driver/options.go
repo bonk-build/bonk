@@ -4,7 +4,6 @@
 package driver
 
 import (
-	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
@@ -26,46 +25,38 @@ func MakeDefaultOptions() Options {
 	}
 }
 
-// Option is a functor for modifying a [Driver].
-type Option = func(*Options)
+func (opts Options) WithConcurrency(concurrency uint) Options {
+	opts.Concurrency = concurrency
 
-func WithConcurrency(concurrency uint) Option {
-	return func(opts *Options) {
-		opts.Concurrency = concurrency
-	}
-}
-
-// WithGenericExecutor registers the given generic executor.
-func WithGenericExecutor(name string, exec task.Executor) Option {
-	return func(opts *Options) {
-		opts.Executors[name] = exec
-	}
+	return opts
 }
 
 // WithExecutor registers the given executor.
-func WithExecutor[Params any](name string, exec argconv.TypedExecutor[Params]) Option {
-	return WithGenericExecutor(name, argconv.BoxExecutor(exec))
+func (opts Options) WithExecutor(name string, exec task.Executor) Options {
+	opts.Executors[name] = exec
+
+	return opts
 }
 
 // WithPlugins loads the specified plugins.
-func WithPlugins(plugins ...string) Option {
-	return func(opts *Options) {
-		opts.Plugins = append(opts.Plugins, plugins...)
-	}
+func (opts Options) WithPlugins(plugins ...string) Options {
+	opts.Plugins = append(opts.Plugins, plugins...)
+
+	return opts
 }
 
 // SessionOption is a functor for modifying a [task.Session].
-type SessionOption = func(*Options, task.Session)
+type SessionOption = func(Options, task.Session)
 
 // WithLocalSession creates a [task.LocalSession] with the given options.
-func WithLocalSession(path string, options ...SessionOption) Option {
-	return func(opts *Options) {
-		sess := task.NewLocalSession(task.NewSessionID(), path)
+func (opts Options) WithLocalSession(path string, options ...SessionOption) Options {
+	sess := task.NewLocalSession(task.NewSessionID(), path)
 
-		for _, option := range options {
-			option(opts, sess)
-		}
+	for _, option := range options {
+		option(opts, sess)
 	}
+
+	return opts
 }
 
 // WithTask executes a task in the session.
@@ -75,7 +66,7 @@ func WithTask(
 	args any,
 	options ...task.Option,
 ) SessionOption {
-	return func(opts *Options, session task.Session) {
+	return func(opts Options, session task.Session) {
 		opts.Sessions[session] = append(opts.Sessions[session], task.New(
 			id,
 			session,
@@ -87,8 +78,8 @@ func WithTask(
 }
 
 // WithObservers adds observers to the execution pipeline.
-func WithObservers(observers ...observable.Observer) Option {
-	return func(opts *Options) {
-		opts.Observers = append(opts.Observers, observers...)
-	}
+func (opts Options) WithObservers(observers ...observable.Observer) Options {
+	opts.Observers = append(opts.Observers, observers...)
+
+	return opts
 }

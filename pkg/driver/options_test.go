@@ -20,9 +20,8 @@ func TestWithConcurrency(t *testing.T) {
 
 	const concurrency = uint(0xDEADBEEF)
 
-	options := MakeDefaultOptions()
-
-	WithConcurrency(concurrency)(&options)
+	options := MakeDefaultOptions().
+		WithConcurrency(concurrency)
 	require.Equal(t, concurrency, options.Concurrency)
 }
 
@@ -34,9 +33,9 @@ func TestWithExecutor(t *testing.T) {
 	mock := gomock.NewController(t)
 	exec := task.NewMockExecutor(mock)
 
-	options := MakeDefaultOptions()
+	options := MakeDefaultOptions().
+		WithExecutor(execName, exec)
 
-	WithGenericExecutor(execName, exec)(&options)
 	require.Len(t, options.Executors, 1)
 	require.Same(t, exec, options.Executors[execName])
 }
@@ -49,9 +48,9 @@ func TestWithTypedExecutor(t *testing.T) {
 	mock := gomock.NewController(t)
 	exec := argconv.NewMockTypedExecutor[any](mock)
 
-	options := MakeDefaultOptions()
+	options := MakeDefaultOptions().
+		WithExecutor(execName, argconv.BoxExecutor(exec))
 
-	WithExecutor(execName, exec)(&options)
 	require.Len(t, options.Executors, 1)
 	require.NotNil(t, options.Executors[execName])
 }
@@ -64,21 +63,20 @@ func TestWithPlugins(t *testing.T) {
 		"plugin b",
 	}
 
-	options := MakeDefaultOptions()
+	options := MakeDefaultOptions().
+		WithPlugins(plugins...)
 
-	WithPlugins(plugins...)(&options)
 	require.ElementsMatch(t, options.Plugins, plugins)
 }
 
 func TestWithLocalSession(t *testing.T) {
 	t.Parallel()
 
-	options := MakeDefaultOptions()
-
-	WithLocalSession(".",
-		WithTask("exec 0", "task 0", []string{}),
-		WithTask("exec 1", "task 1", map[string]string{}),
-	)(&options)
+	options := MakeDefaultOptions().
+		WithLocalSession(".",
+			WithTask("exec 0", "task 0", []string{}),
+			WithTask("exec 1", "task 1", map[string]string{}),
+		)
 
 	require.Len(t, options.Sessions, 1)
 	for _, tsks := range options.Sessions {
@@ -89,11 +87,10 @@ func TestWithLocalSession(t *testing.T) {
 func TestWithObservers(t *testing.T) {
 	t.Parallel()
 
-	options := MakeDefaultOptions()
-
-	WithObservers(
-		func(observable.TaskStatusMsg) {},
-	)(&options)
+	options := MakeDefaultOptions().
+		WithObservers(
+			func(observable.TaskStatusMsg) {},
+		)
 
 	require.Len(t, options.Observers, 1)
 }
