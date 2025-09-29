@@ -5,7 +5,6 @@ package bubbletea
 
 import (
 	"reflect"
-	"sync/atomic"
 
 	"github.com/charmbracelet/lipgloss/v2"
 	"github.com/davecgh/go-spew/spew"
@@ -19,9 +18,6 @@ import (
 type teaModel struct {
 	tree taskTree
 
-	tasks atomic.Int64
-
-	quitting  bool
 	debugDump bool
 }
 
@@ -50,22 +46,11 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		if msg.Key().Mod.Contains(tea.ModCtrl) && msg.Key().Code == 'c' {
-			t.quitting = true
 			cmds = append(cmds, tea.Quit)
 		}
 
-	case TaskScheduleMsg:
-		t.tasks.Add(1)
-		cmds = append(cmds, msg.GetExecCmd())
-
 	case observable.TaskStatusMsg:
-		if msg.Status != observable.StatusRunning {
-			remaining := t.tasks.Add(-1)
-			if remaining == 0 {
-				t.quitting = true
-				cmds = append(cmds, tea.Quit)
-			}
-		}
+		// noop
 
 	default:
 		if t.debugDump && reflect.TypeOf(msg).Name() != "printLineMessage" {
@@ -82,14 +67,12 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View implements tea.ViewModel.
 func (t *teaModel) View() string {
-	component := make([]string, 0, 1)
+	component := make([]string, 0, 2) //nolint:mnd
 
 	component = append(component, t.tree.View())
 
-	// Add final newline
-	if t.quitting {
-		component = append(component, "")
-	}
+	// Append empty string to get a blank line at the bottom
+	component = append(component, "")
 
 	return lipgloss.JoinVertical(lipgloss.Left, component...)
 }

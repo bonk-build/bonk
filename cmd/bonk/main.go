@@ -15,6 +15,7 @@ import (
 	"github.com/spf13/viper"
 
 	"go.bonk.build/pkg/driver"
+	"go.bonk.build/pkg/observer/bubbletea"
 	"go.bonk.build/pkg/task"
 )
 
@@ -32,7 +33,11 @@ var rootCmd = &cobra.Command{
 		cwd, err := os.Getwd()
 		cobra.CheckErr(err)
 
+		bubble := bubbletea.New(cmd.Context(), true)
+
 		err = driver.Run(cmd.Context(),
+			driver.WithConcurrency(concurrency),
+			driver.WithObservers(bubble.OnTaskStatusMsg),
 			driver.WithPlugins(
 				"go.bonk.build/plugins/test",
 				"go.bonk.build/plugins/k8s/resources",
@@ -72,6 +77,8 @@ var rootCmd = &cobra.Command{
 			),
 		)
 		cobra.CheckErr(err)
+
+		bubble.Quit()
 	},
 }
 
