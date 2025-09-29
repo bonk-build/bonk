@@ -140,3 +140,21 @@ func TestFail(t *testing.T) {
 		assert.Equal(t, 2, callCount)
 	})
 }
+
+func TestUnopened(t *testing.T) {
+	t.Parallel()
+
+	session := task.NewTestSession()
+	result := task.Result{}
+	tskID := task.NewID("testing")
+	tsk := task.New(
+		tskID,
+		session,
+		"exec",
+		nil,
+	)
+
+	obs := observable.New(nil)
+	err := obs.Execute(t.Context(), tsk, &result)
+	require.ErrorIs(t, err, observable.ErrUnopenedSession)
+}
