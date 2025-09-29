@@ -20,5 +20,6 @@ type NoopSessionManager struct{}
 // OpenSession implements Executor.
 func (n NoopSessionManager) OpenSession(context.Context, Session) error { return nil }
 
-// CloseSession implements Executor.
+// CloseSession should shutdown and free all resources created over the course of a session.
+// After this call, no outstanding goroutines should be running.
 func (n NoopSessionManager) CloseSession(context.Context, SessionID) {}

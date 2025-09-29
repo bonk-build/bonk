@@ -5,7 +5,6 @@ package observable_test
 
 import (
 	"context"
-	"sync"
 	"testing"
 	"testing/synctest"
 
@@ -48,6 +47,8 @@ func TestPass(t *testing.T) {
 		})
 		require.NoError(t, err)
 
+		exec.EXPECT().OpenSession(t.Context(), session).Times(1)
+		exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
 		exec.EXPECT().
 			Execute(t.Context(), tsk, &result).
 			Times(1).
@@ -57,18 +58,22 @@ func TestPass(t *testing.T) {
 				return nil
 			})
 
-		execWaiter := sync.WaitGroup{}
-		execWaiter.Go(func() {
+		err = obs.OpenSession(t.Context(), session)
+		require.NoError(t, err)
+
+		go func() {
 			err := obs.Execute(t.Context(), tsk, &result)
-			require.NoError(t, err)
-		})
+			assert.NoError(t, err)
+		}()
 
 		synctest.Wait()
 		assert.Equal(t, 1, callCount)
 
+		obs.CloseSession(t.Context(), session.ID())
+
 		exepectedStatus = observable.StatusSuccess
 		cont <- struct{}{}
-		execWaiter.Wait()
+		synctest.Wait()
 		assert.Equal(t, 2, callCount)
 	})
 }
@@ -105,6 +110,8 @@ func TestFail(t *testing.T) {
 		})
 		require.NoError(t, err)
 
+		exec.EXPECT().OpenSession(t.Context(), session).Times(1)
+		exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
 		exec.EXPECT().
 			Execute(t.Context(), tsk, &result).
 			Times(1).
@@ -114,18 +121,40 @@ func TestFail(t *testing.T) {
 				return assert.AnError
 			})
 
-		execWaiter := sync.WaitGroup{}
-		execWaiter.Go(func() {
+		err = obs.OpenSession(t.Context(), session)
+		require.NoError(t, err)
+
+		go func() {
 			err := obs.Execute(t.Context(), tsk, &result)
 			assert.ErrorIs(t, err, assert.AnError)
-		})
+		}()
 
 		synctest.Wait()
 		assert.Equal(t, 1, callCount)
 
+		obs.CloseSession(t.Context(), session.ID())
+
 		exepectedStatus = observable.StatusError
 		cont <- struct{}{}
-		execWaiter.Wait()
+		synctest.Wait()
 		assert.Equal(t, 2, callCount)
 	})
+}
+
+func TestUnopened(t *testing.T) {
+	t.Parallel()
+
+	session := task.NewTestSession()
+	result := task.Result{}
+	tskID := task.NewID("testing")
+	tsk := task.New(
+		tskID,
+		session,
+		"exec",
+		nil,
+	)
+
+	obs := observable.New(nil)
+	err := obs.Execute(t.Context(), tsk, &result)
+	require.ErrorIs(t, err, observable.ErrUnopenedSession)
 }
