@@ -18,20 +18,14 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func Run(ctx context.Context, options ...Option) error {
-	option := MakeDefaultOptions()
-
-	for _, opt := range options {
-		opt(&option)
-	}
-
+func Run(ctx context.Context, options Options) error {
 	pcm := plugin.NewPluginClientManager()
-	err := pcm.StartPlugins(ctx, option.Plugins...)
+	err := pcm.StartPlugins(ctx, options.Plugins...)
 	if err != nil {
 		return fmt.Errorf("failed to initialize plugins: %w", err)
 	}
 
-	for name, exec := range option.Executors {
+	for name, exec := range options.Executors {
 		multierr.AppendInto(&err, pcm.RegisterExecutor(name, exec))
 	}
 	if err != nil {
@@ -44,10 +38,10 @@ func Run(ctx context.Context, options ...Option) error {
 	// Wrap the pcm in common executors
 	exec = statecheck.New(exec)
 
-	if len(option.Observers) > 0 {
+	if len(options.Observers) > 0 {
 		obs := observable.New(exec)
 
-		for _, observer := range option.Observers {
+		for _, observer := range options.Observers {
 			multierr.AppendInto(&err, obs.Listen(observer))
 		}
 		if err != nil {
@@ -59,7 +53,7 @@ func Run(ctx context.Context, options ...Option) error {
 
 	exec = scheduler.New(exec)
 
-	for session, tasks := range option.Sessions {
+	for session, tasks := range options.Sessions {
 		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
 
 		for _, tsk := range tasks {
@@ -72,7 +66,7 @@ func Run(ctx context.Context, options ...Option) error {
 		return fmt.Errorf("failed to register tasks with scheduler: %w", err)
 	}
 
-	for session := range option.Sessions {
+	for session := range options.Sessions {
 		exec.CloseSession(ctx, session.ID())
 	}
 

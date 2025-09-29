@@ -35,15 +35,15 @@ var rootCmd = &cobra.Command{
 
 		bubble := bubbletea.New(cmd.Context(), true)
 
-		err = driver.Run(cmd.Context(),
-			driver.WithConcurrency(concurrency),
-			driver.WithObservers(bubble.OnTaskStatusMsg),
-			driver.WithPlugins(
+		err = driver.Run(cmd.Context(), driver.MakeDefaultOptions().
+			WithConcurrency(concurrency).
+			WithObservers(bubble.OnTaskStatusMsg).
+			WithPlugins(
 				"go.bonk.build/plugins/test",
 				"go.bonk.build/plugins/k8s/resources",
 				"go.bonk.build/plugins/k8s/kustomize",
-			),
-			driver.WithLocalSession(path.Join(cwd, "testdata"),
+			).
+			WithLocalSession(path.Join(cwd, "testdata"),
 				driver.WithTask(
 					task.NewID("Test", "Test"),
 					"test.Test",
@@ -74,8 +74,7 @@ var rootCmd = &cobra.Command{
 						".bonk/Test.Resources/resources.yaml",
 					),
 				),
-			),
-		)
+			))
 		cobra.CheckErr(err)
 
 		bubble.Quit()
