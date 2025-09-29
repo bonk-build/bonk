@@ -11,6 +11,7 @@ import (
 
 	context "context"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/executor/scheduler"
@@ -33,7 +34,7 @@ func Run(ctx context.Context, options Options) error {
 	}
 
 	// This is the root of the executable tree
-	var exec task.Executor = pcm
+	var exec executor.Executor = pcm
 
 	// Wrap the pcm in common executors
 	exec = statecheck.New(exec)

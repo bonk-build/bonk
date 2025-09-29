@@ -13,12 +13,13 @@ import (
 
 	"github.com/go-viper/mapstructure/v2"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
 
 //go:generate go tool mockgen -destination typedexecutor_mock.go -package argconv -copyright_file ../../../license-header.txt -typed  -write_package_comment=false . TypedExecutor
 
-// TypedExecutor is like [task.Executor] but with unboxed arguments.
+// TypedExecutor is like [executor.Executor] but with unboxed arguments.
 type TypedExecutor[Params any] interface {
 	OpenSession(ctx context.Context, session task.Session) error
 	CloseSession(ctx context.Context, sessionID task.SessionID)
@@ -85,12 +86,12 @@ type wrappedExecutor[Params any] struct {
 	TypedExecutor[Params]
 }
 
-var _ task.Executor = (*wrappedExecutor[any])(nil)
+var _ executor.Executor = (*wrappedExecutor[any])(nil)
 
 // BoxExecutor accepts a TypedExecutor and wraps it into an untyped Executor.
 func BoxExecutor[Params any](
 	impl TypedExecutor[Params],
-) task.Executor {
+) executor.Executor {
 	return wrappedExecutor[Params]{
 		TypedExecutor: impl,
 	}

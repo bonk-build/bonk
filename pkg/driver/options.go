@@ -4,6 +4,7 @@
 package driver
 
 import (
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
@@ -11,7 +12,7 @@ import (
 type Options struct {
 	Concurrency uint
 	Plugins     []string
-	Executors   map[string]task.Executor
+	Executors   map[string]executor.Executor
 	Sessions    map[task.Session][]*task.Task
 	Observers   []observable.Observer
 }
@@ -19,7 +20,7 @@ type Options struct {
 func MakeDefaultOptions() Options {
 	return Options{
 		Plugins:   make([]string, 0, 3), //nolint:mnd
-		Executors: make(map[string]task.Executor),
+		Executors: make(map[string]executor.Executor),
 		Sessions:  make(map[task.Session][]*task.Task),
 		Observers: make([]observable.Observer, 0),
 	}
@@ -32,7 +33,7 @@ func (opts Options) WithConcurrency(concurrency uint) Options {
 }
 
 // WithExecutor registers the given executor.
-func (opts Options) WithExecutor(name string, exec task.Executor) Options {
+func (opts Options) WithExecutor(name string, exec executor.Executor) Options {
 	opts.Executors[name] = exec
 
 	return opts

@@ -10,16 +10,16 @@ import (
 
 	"go.uber.org/multierr"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/tree"
-	"go.bonk.build/pkg/task"
 )
 
 // PluginClientManager manages a set of [PluginClient]s and functions as a distributing [tree.ExecutorTree].
 type PluginClientManager interface {
-	task.Executor
+	executor.Executor
 
 	// NOTE(colden): these should eventually be moved out of here
-	RegisterExecutor(name string, exec task.Executor) error
+	RegisterExecutor(name string, exec executor.Executor) error
 	UnregisterExecutors(names ...string)
 
 	StartPlugins(ctx context.Context, plugins ...string) error
@@ -85,7 +85,7 @@ func (pm *pluginClientManager) StartPlugins(ctx context.Context, pluginPath ...s
 // Shutdown does de initialization and kills all plugin processes.
 func (pm *pluginClientManager) Shutdown(context.Context) {
 	pm.mu.Lock()
-	pm.ForEachExecutor(func(name string, exec task.Executor) {
+	pm.ForEachExecutor(func(name string, exec executor.Executor) {
 		pm.UnregisterExecutors(name)
 
 		if plug, ok := exec.(*PluginClient); ok {

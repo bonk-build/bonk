@@ -18,6 +18,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/rpc"
@@ -34,7 +35,7 @@ type rpcSuite struct {
 	mock       *gomock.Controller
 	exec       *mockexec.MockExecutor
 	grpcServer *grpc.Server
-	grpcClient task.Executor
+	grpcClient executor.Executor
 	session    task.Session
 }
 

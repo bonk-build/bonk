@@ -10,13 +10,13 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/executor/tree"
-	"go.bonk.build/pkg/task"
 )
 
 // ServeTest sets up a test gRPC connection which serves plugin and returns a client executor.
-func (plugin *Plugin) ServeTest(t *testing.T) task.Executor {
+func (plugin *Plugin) ServeTest(t *testing.T) executor.Executor {
 	t.Helper()
 
 	client, server := goplugin.TestPluginGRPCConn(t, false, plugin.getPluginSet())

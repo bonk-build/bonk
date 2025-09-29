@@ -16,13 +16,14 @@ import (
 	"github.com/spf13/afero"
 
 	bonkv0 "go.bonk.build/api/bonk/v0"
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
 
 // NewGRPCClient creates an executor that forwards task invocations across a GRPC connection.
 func NewGRPCClient(
 	conn *grpc.ClientConn,
-) task.Executor {
+) executor.Executor {
 	return &grpcClient{
 		client: bonkv0.NewExecutorServiceClient(conn),
 	}
@@ -32,7 +33,7 @@ type grpcClient struct {
 	client bonkv0.ExecutorServiceClient
 }
 
-var _ task.Executor = (*grpcClient)(nil)
+var _ executor.Executor = (*grpcClient)(nil)
 
 func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
 	slog.DebugContext(ctx, "opening session", "session", session.ID())

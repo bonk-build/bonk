@@ -23,6 +23,7 @@ import (
 	slogctx "github.com/veqryn/slog-context"
 
 	bonkv0 "go.bonk.build/api/bonk/v0"
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
 
@@ -44,7 +45,7 @@ func (s grpcServerSession) LocalPath() string {
 type grpcServer struct {
 	bonkv0.UnimplementedExecutorServiceServer
 
-	executor task.Executor
+	executor executor.Executor
 
 	sessions map[task.SessionID]grpcServerSession
 }
@@ -54,7 +55,7 @@ var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
 // RegisterGRPCServer creates a GRPC server which forwards incoming task requests to an Executor.
 func RegisterGRPCServer(
 	server *grpc.Server,
-	executor task.Executor,
+	executor executor.Executor,
 ) {
 	bonkv0.RegisterExecutorServiceServer(server, &grpcServer{
 		executor: executor,

@@ -8,6 +8,7 @@ import (
 	"context"
 	"log/slog"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/task"
 )
@@ -17,7 +18,7 @@ type Params struct {
 }
 
 type ExecutorTest struct {
-	task.NoopSessionManager
+	executor.NoopSessionManager
 }
 
 func (ExecutorTest) Execute(
