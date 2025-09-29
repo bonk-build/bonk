@@ -49,6 +49,9 @@ func (s *scheduler) executeImpl(
 		errgrp.Go(func() error {
 			var res task.Result
 
+			// Update the ID to be the child of this task.
+			followup.ID = tsk.ID.GetChild(followup.ID.String())
+
 			err := s.executeImpl(errgrp, ctx, &followup, &res)
 
 			return err
