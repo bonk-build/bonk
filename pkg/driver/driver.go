@@ -13,8 +13,8 @@ import (
 
 	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/executor/plugin"
+	"go.bonk.build/pkg/executor/scheduler"
 	"go.bonk.build/pkg/executor/statecheck"
-	"go.bonk.build/pkg/scheduler/taskflow"
 	"go.bonk.build/pkg/task"
 )
 
@@ -57,21 +57,20 @@ func Run(ctx context.Context, options ...Option) error {
 		exec = obs
 	}
 
-	sched := taskflow.New(option.Concurrency)(ctx, exec)
+	exec = scheduler.New(exec)
 
 	for session, tasks := range option.Sessions {
 		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
 
 		for _, tsk := range tasks {
-			multierr.AppendInto(&err, sched.AddTask(ctx, tsk))
+			res := task.Result{}
+			multierr.AppendInto(&err, exec.Execute(ctx, tsk, &res))
 		}
 	}
 
 	if err != nil {
 		return fmt.Errorf("failed to register tasks with scheduler: %w", err)
 	}
-
-	sched.Run()
 
 	for session := range option.Sessions {
 		exec.CloseSession(ctx, session.ID())
