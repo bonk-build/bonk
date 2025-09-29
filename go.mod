@@ -26,7 +26,6 @@ require (
 	github.com/gohugoio/hashstructure v0.5.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-plugin v1.7.0
-	github.com/noneback/go-taskflow v1.1.3
 	github.com/samber/slog-multi v1.5.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.1
