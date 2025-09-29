@@ -13,6 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/scheduler"
 	"go.bonk.build/pkg/task"
 )
@@ -22,8 +23,7 @@ func TestFollowups(t *testing.T) {
 
 	const numFollowups = 3
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	session := task.NewTestSession()
 
 	sched := scheduler.New(exec)
@@ -71,8 +71,7 @@ func TestFollowups(t *testing.T) {
 func TestErrNoFollowups(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	session := task.NewTestSession()
 
 	sched := scheduler.New(exec)
@@ -117,8 +116,7 @@ func TestErrNoFollowups(t *testing.T) {
 func TestFollowupsErrs(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	session := task.NewTestSession()
 
 	sched := scheduler.New(exec)

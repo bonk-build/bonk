@@ -8,11 +8,10 @@ import (
 	"testing"
 	"testing/synctest"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/observable"
 	"go.bonk.build/pkg/task"
 )
@@ -21,8 +20,7 @@ func TestPass(t *testing.T) {
 	t.Parallel()
 
 	synctest.Test(t, func(t *testing.T) {
-		mock := gomock.NewController(t)
-		exec := task.NewMockExecutor(mock)
+		exec := mockexec.New(t)
 		session := task.NewTestSession()
 		obs := observable.New(exec)
 
@@ -82,8 +80,7 @@ func TestFail(t *testing.T) {
 	t.Parallel()
 
 	synctest.Test(t, func(t *testing.T) {
-		mock := gomock.NewController(t)
-		exec := task.NewMockExecutor(mock)
+		exec := mockexec.New(t)
 		session := task.NewTestSession()
 		obs := observable.New(exec)
 

@@ -19,6 +19,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"go.bonk.build/pkg/executor/argconv"
+	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/task"
 )
@@ -31,7 +32,7 @@ type rpcSuite struct {
 	suite.Suite
 
 	mock       *gomock.Controller
-	exec       *task.MockExecutor
+	exec       *mockexec.MockExecutor
 	grpcServer *grpc.Server
 	grpcClient task.Executor
 	session    task.Session
@@ -39,7 +40,7 @@ type rpcSuite struct {
 
 func (s *rpcSuite) SetupTest() {
 	s.mock = gomock.NewController(s.T())
-	s.exec = task.NewMockExecutor(s.mock)
+	s.exec = mockexec.NewMockExecutor(s.mock)
 
 	lis := bufconn.Listen(1024 * 1024)
 	s.grpcServer = grpc.NewServer()
