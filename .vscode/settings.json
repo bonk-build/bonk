@@ -24,6 +24,9 @@
     "fmt",
     "--stdin"
   ],
+  "go.testFlags": [
+    "-v"
+  ],
   "gopls": {
     "build.expandWorkspaceToModule": true,
     "formatting.local": "go.bonk.build",
