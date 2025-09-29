@@ -7,20 +7,17 @@ import (
 	"errors"
 	"testing"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/statecheck"
-	"go.bonk.build/pkg/task"
 )
 
 func TestStateCheck_SaveState(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 
@@ -41,8 +38,7 @@ func TestStateCheck_SaveState(t *testing.T) {
 func TestStateCheck_ExecFailure(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 
@@ -61,8 +57,7 @@ func TestStateCheck_ExecFailure(t *testing.T) {
 func TestStateCheck_StateMismatches_Args(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 

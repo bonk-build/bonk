@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor/argconv"
+	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/observable"
-	"go.bonk.build/pkg/task"
 )
 
 func TestWithConcurrency(t *testing.T) {
@@ -30,8 +30,7 @@ func TestWithExecutor(t *testing.T) {
 
 	const execName = "executor"
 
-	mock := gomock.NewController(t)
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 
 	options := MakeDefaultOptions().
 		WithExecutor(execName, exec)

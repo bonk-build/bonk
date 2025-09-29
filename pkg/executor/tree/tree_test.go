@@ -6,28 +6,19 @@ package tree_test
 import (
 	"testing"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
 )
 
-var mock *gomock.Controller
-
-func testSetup(t *testing.T) {
-	t.Helper()
-
-	mock = gomock.NewController(t)
-}
-
 func Test_Add(t *testing.T) {
 	t.Parallel()
-	testSetup(t)
+
 	const execName = "testing.child.abc"
 
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 
 	manager := tree.New()
 
@@ -48,14 +39,14 @@ func Test_Add(t *testing.T) {
 
 func Test_Call(t *testing.T) {
 	t.Parallel()
-	testSetup(t)
+
 	const execName = "testing.child.abc"
 	var result task.Result
 	tsk := task.Task{
 		Executor: execName,
 	}
 
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	exec.EXPECT().Execute(t.Context(), &tsk, &result)
 
 	manager := tree.New()
@@ -70,7 +61,6 @@ func Test_Call(t *testing.T) {
 
 func Test_Call_Fail(t *testing.T) {
 	t.Parallel()
-	testSetup(t)
 
 	const execName = "testing.child.abc"
 	var result task.Result
@@ -78,7 +68,7 @@ func Test_Call_Fail(t *testing.T) {
 		Executor: execName,
 	}
 
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	exec.EXPECT().Execute(t.Context(), &tsk, &result).Times(0)
 
 	manager := tree.New()
@@ -93,10 +83,10 @@ func Test_Call_Fail(t *testing.T) {
 
 func Test_Remove(t *testing.T) {
 	t.Parallel()
-	testSetup(t)
+
 	const execName = "testing.child.abc"
 
-	exec := task.NewMockExecutor(mock)
+	exec := mockexec.New(t)
 	manager := tree.New()
 
 	err := manager.RegisterExecutor(execName, exec)
@@ -115,7 +105,6 @@ func Test_Remove(t *testing.T) {
 
 func Test_Add_Overlap(t *testing.T) {
 	t.Parallel()
-	testSetup(t)
 
 	execNames := []string{
 		"testing.child.abc",
@@ -125,7 +114,7 @@ func Test_Add_Overlap(t *testing.T) {
 	manager := tree.New()
 
 	for _, execName := range execNames {
-		exec := task.NewMockExecutor(mock)
+		exec := mockexec.New(t)
 
 		err := manager.RegisterExecutor(execName, exec)
 		require.NoError(t, err)
