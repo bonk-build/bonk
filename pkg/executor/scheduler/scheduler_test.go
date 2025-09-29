@@ -110,3 +110,50 @@ func TestErrNoFollowups(t *testing.T) {
 	err = sched.Execute(t.Context(), tsk, &res)
 	require.ErrorIs(t, err, assert.AnError)
 }
+
+func TestFollowupsErrs(t *testing.T) {
+	t.Parallel()
+
+	mock := gomock.NewController(t)
+	exec := task.NewMockExecutor(mock)
+	session := task.NewTestSession()
+
+	sched := scheduler.New(exec)
+
+	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
+	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+
+	err := sched.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+	defer sched.CloseSession(t.Context(), session.ID())
+
+	res := task.Result{}
+	tsk := task.New(
+		task.NewID("testing"),
+		session,
+		"none",
+		nil,
+	)
+
+	exec.EXPECT().
+		Execute(gomock.Any(), tsk, &res).
+		Times(1).
+		Return(nil).
+		Do(func(ctx context.Context, t *task.Task, r *task.Result) {
+			for idx := range 3 {
+				r.FollowupTasks = append(r.FollowupTasks, *task.New(
+					task.NewID("child", strconv.Itoa(idx)),
+					t.Session,
+					"none",
+					nil,
+				))
+			}
+		})
+	exec.EXPECT().
+		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+		MaxTimes(3).
+		Return(assert.AnError)
+
+	err = sched.Execute(t.Context(), tsk, &res)
+	require.ErrorIs(t, err, assert.AnError)
+}
