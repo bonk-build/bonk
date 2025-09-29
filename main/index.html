@@ -569,18 +569,14 @@ A more complete bonk system is comprised of the bonk task scheduler and a series
 </ol>
 <h3 id="executors">Executors</h3>
 <p>This document has mentioned executors several times so far, but what is an executor?
-An executor is simply an object that conforms to the <a href="https://go.bonk.build/pkg/task#Executor">Executor interface</a> to process tasks sent to it.
+An executor is simply an object that conforms to the <a href="https://pkg.go.dev/go.bonk.build/pkg/task#Executor"><code>Executor</code> interface</a> to process tasks sent to it.
 Where this gets interesting is with the idea of <em>chaining</em> executors.
 Because executors may wrap eachother to perform pre/post-processing and forwarding, the possibilities of where/how executors run is limitless*.</p>
-<p>The bonk built-in executors include:</p>
-<ol>
-<li><a href="https://go.bonk.build/pkg/executor/tree">tree</a>: forwards tasks to the appropriate child by name.</li>
-<li><a href="https://go.bonk.build/pkg/executor/rpc">rpc</a>: forwards all tasks sent to it across a gRPC connection.</li>
-<li><a href="https://go.bonk.build/pkg/executor/plugin">plugin</a>: uses <a href="https://github.com/hashicorp/go-plugin">go-plugin</a> to spawn a subprocess and open an rpc connection.</li>
-</ol>
+<p>For more details on the built-in bonk executors, please see <a href="https://pkg.go.dev/go.bonk.build/pkg/executor">the <code>executor</code> package documentation</a>.</p>
 <h3 id="frontends">Frontends</h3>
-<p>The frontend is the "driver" of bonk. This tool is responsible for creating the required bonk infrastructure and spawning the initial task(s).</p>
-<p>This may be as simple as the built-in bonk frontend (which parses all of this information from a config file), or more opinionated for working with more established workflows.</p>
+<p>The frontend is the "driver" of bonk. This tool is responsible for creating the required bonk infrastructure and spawning the initial task(s).
+This may be as simple as the built-in bonk frontend (which parses all of this information from a config file), or more opinionated for working with more established workflows.
+An example frontend is included, and documentation for it can be found at <a href="cmd/bonk/">here</a>.</p>
 <h3 id="how-to-use-bonk">How to use bonk</h3>
 <p>You can't yet, I'm still working on it.</p>
 
