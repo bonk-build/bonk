@@ -59,7 +59,10 @@ func TestFollowups(t *testing.T) {
 		})
 	exec.EXPECT().
 		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
-		Times(numFollowups)
+		Times(numFollowups).
+		Do(func(ctx context.Context, followup *task.Task, result *task.Result) {
+			assert.Contains(t, followup.ID.String(), tsk.ID.String())
+		})
 
 	err = sched.Execute(t.Context(), tsk, &res)
 	require.NoError(t, err)
