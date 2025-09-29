@@ -9,20 +9,21 @@ import (
 	"context"
 	"log/slog"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
 
 type statechecker struct {
-	task.Executor
+	executor.Executor
 }
 
-func New(child task.Executor) task.Executor {
+func New(child executor.Executor) executor.Executor {
 	return statechecker{
 		Executor: child,
 	}
 }
 
-// Execute implements task.Executor.
+// Execute implements executor.Executor.
 func (s statechecker) Execute(
 	ctx context.Context,
 	tsk *task.Task,

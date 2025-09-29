@@ -17,6 +17,7 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/rpc"
 	"go.bonk.build/pkg/executor/tree"
@@ -32,7 +33,7 @@ type Plugin struct {
 }
 
 var (
-	_ task.Executor       = (*Plugin)(nil)
+	_ executor.Executor   = (*Plugin)(nil)
 	_ goplugin.GRPCPlugin = (*Plugin)(nil)
 )
 

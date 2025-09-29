@@ -9,7 +9,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-//go:generate go tool mockgen -destination executor_mock.go -package mockexec -copyright_file ../../../license-header.txt -typed ../../task Executor
+//go:generate go tool mockgen -destination executor_mock.go -package mockexec -copyright_file ../../../license-header.txt -typed ../ Executor
 
 func New(t *testing.T) *MockExecutor {
 	t.Helper()

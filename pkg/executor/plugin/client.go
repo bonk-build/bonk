@@ -14,8 +14,8 @@ import (
 
 	goplugin "github.com/hashicorp/go-plugin"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/rpc"
-	"go.bonk.build/pkg/task"
 )
 
 var handshake = goplugin.HandshakeConfig{
@@ -24,14 +24,14 @@ var handshake = goplugin.HandshakeConfig{
 	MagicCookieValue: "bonk the builder",
 }
 
-// PluginClient manages a [goplugin.Client] and exposes it as a [task.Executor].
+// PluginClient manages a [goplugin.Client] and exposes it as a [executor.Executor].
 type PluginClient struct {
-	task.Executor
+	executor.Executor
 
 	pluginClient *goplugin.Client
 }
 
-var _ task.Executor = (*PluginClient)(nil)
+var _ executor.Executor = (*PluginClient)(nil)
 
 // NewPluginClient starts a plugin subprocess and opens a gRPC connection to it.
 func NewPluginClient(ctx context.Context, goCmdPath string) (*PluginClient, error) {

@@ -8,20 +8,21 @@ import (
 
 	"golang.org/x/sync/errgroup"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
 
-func New(exec task.Executor) task.Executor {
+func New(exec executor.Executor) executor.Executor {
 	return &scheduler{
 		Executor: exec,
 	}
 }
 
 type scheduler struct {
-	task.Executor
+	executor.Executor
 }
 
-// Execute implements task.Executor.
+// Execute implements executor.Executor.
 // Execute will execute the task and all of it's followups, as well as wait for dependencies to resolve.
 func (s *scheduler) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
 	errgrp, ctx := errgroup.WithContext(ctx)

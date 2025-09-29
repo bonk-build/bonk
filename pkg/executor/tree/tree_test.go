@@ -8,6 +8,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
@@ -29,7 +30,7 @@ func Test_Add(t *testing.T) {
 
 	var foundName string
 	calls := 0
-	manager.ForEachExecutor(func(name string, _ task.Executor) {
+	manager.ForEachExecutor(func(name string, _ executor.Executor) {
 		foundName = name
 		calls++
 	})
@@ -97,7 +98,7 @@ func Test_Remove(t *testing.T) {
 	require.Equal(t, 0, manager.GetNumExecutors())
 
 	calls := 0
-	manager.ForEachExecutor(func(string, task.Executor) {
+	manager.ForEachExecutor(func(string, executor.Executor) {
 		calls++
 	})
 	require.Equal(t, 0, calls)
@@ -121,7 +122,7 @@ func Test_Add_Overlap(t *testing.T) {
 	}
 
 	calls := 0
-	manager.ForEachExecutor(func(string, task.Executor) {
+	manager.ForEachExecutor(func(string, executor.Executor) {
 		calls++
 	})
 	require.Equal(t, 2, calls)

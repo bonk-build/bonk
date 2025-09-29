@@ -15,6 +15,7 @@ import (
 
 	"github.com/spf13/afero"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/task"
 )
@@ -26,7 +27,7 @@ type Params struct {
 }
 
 type ExecutorKustomize struct {
-	task.NoopSessionManager
+	executor.NoopSessionManager
 }
 
 func (ExecutorKustomize) Execute(

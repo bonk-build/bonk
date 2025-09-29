@@ -10,20 +10,21 @@ import (
 	"fmt"
 	"sync"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/task"
 )
 
 type Observer = func(TaskStatusMsg)
 
 type Observable interface {
-	task.Executor
+	executor.Executor
 
 	Listen(f Observer) error
 }
 
 var ErrUnopenedSession = errors.New("task being executed for unopened session")
 
-func New(exec task.Executor) Observable {
+func New(exec executor.Executor) Observable {
 	return &observ{
 		exec:      exec,
 		sessions:  make(map[task.SessionID]*observSession, 1),
@@ -36,7 +37,7 @@ type observSession struct {
 }
 
 type observ struct {
-	exec     task.Executor
+	exec     executor.Executor
 	sessions map[task.SessionID]*observSession
 
 	listeners []Observer

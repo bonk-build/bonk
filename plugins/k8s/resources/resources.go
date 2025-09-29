@@ -13,6 +13,7 @@ import (
 	"go.uber.org/multierr"
 	"go.yaml.in/yaml/v4"
 
+	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/plugin"
 	"go.bonk.build/pkg/task"
 )
@@ -24,7 +25,7 @@ type Params struct {
 }
 
 type ExecutorResources struct {
-	task.NoopSessionManager
+	executor.NoopSessionManager
 }
 
 func (ExecutorResources) Execute(
