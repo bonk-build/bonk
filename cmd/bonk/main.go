@@ -29,9 +29,11 @@ var rootCmd = &cobra.Command{
 	Use:   "bonk",
 	Short: "A cue-based configuration build system.",
 
-	Run: func(cmd *cobra.Command, _ []string) {
+	RunE: func(cmd *cobra.Command, _ []string) error {
 		cwd, err := os.Getwd()
-		cobra.CheckErr(err)
+		if err != nil {
+			return err //nolint:wrapcheck
+		}
 
 		bubble := bubbletea.New(cmd.Context(), true)
 
@@ -75,9 +77,13 @@ var rootCmd = &cobra.Command{
 					),
 				),
 			))
-		cobra.CheckErr(err)
+		if err != nil {
+			return err //nolint:wrapcheck
+		}
 
 		bubble.Quit()
+
+		return nil
 	},
 }
 
