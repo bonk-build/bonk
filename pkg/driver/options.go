@@ -10,7 +10,7 @@ import (
 )
 
 type Options struct {
-	Concurrency uint
+	Concurrency int
 	Plugins     []string
 	Executors   map[string]executor.Executor
 	Sessions    map[task.Session][]*task.Task
@@ -26,7 +26,7 @@ func MakeDefaultOptions() Options {
 	}
 }
 
-func (opts Options) WithConcurrency(concurrency uint) Options {
+func (opts Options) WithConcurrency(concurrency int) Options {
 	opts.Concurrency = concurrency
 
 	return opts

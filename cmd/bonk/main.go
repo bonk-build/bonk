@@ -21,7 +21,7 @@ import (
 
 var (
 	cfgFile     string
-	concurrency uint
+	concurrency int
 )
 
 // rootCmd represents the base command when called without any subcommands.
@@ -85,7 +85,7 @@ func init() {
 	rootCmd.PersistentFlags().
 		StringVarP(&cfgFile, "config", "c", "", "config file (default is .bonk.yaml)")
 	rootCmd.PersistentFlags().
-		UintVarP(&concurrency, "concurrency", "j", 100, "The number of goroutines to run")
+		IntVarP(&concurrency, "concurrency", "j", 100, "The max number of goroutines to run (negative for no limit)")
 
 	if cfgFile != "" {
 		// Use config file from the flag.

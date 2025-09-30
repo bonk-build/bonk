@@ -12,20 +12,26 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func New(exec executor.Executor) executor.Executor {
+const NoConcurrencyLimit int = -1
+
+func New(exec executor.Executor, maxConcurrency int) executor.Executor {
 	return &scheduler{
-		Executor: exec,
+		Executor:       exec,
+		maxConcurrency: maxConcurrency,
 	}
 }
 
 type scheduler struct {
 	executor.Executor
+
+	maxConcurrency int
 }
 
 // Execute implements executor.Executor.
 // Execute will execute the task and all of it's followups, as well as wait for dependencies to resolve.
 func (s *scheduler) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
 	errgrp, ctx := errgroup.WithContext(ctx)
+	errgrp.SetLimit(s.maxConcurrency)
 
 	err := s.executeImpl(errgrp, ctx, tsk, result)
 	if err != nil {
