@@ -93,7 +93,7 @@ repos:
           - manual
 
   - repo: https://github.com/korandoru/hawkeye
-    rev: 77c2515a10d0133ea938118da962a2a2572cbf08
+    rev: v6.2.0
     hooks:
       - id: hawkeye-format
 
