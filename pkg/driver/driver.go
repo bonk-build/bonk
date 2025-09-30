@@ -52,7 +52,7 @@ func Run(ctx context.Context, options Options) error {
 		exec = obs
 	}
 
-	exec = scheduler.New(exec)
+	exec = scheduler.New(exec, options.Concurrency)
 
 	for session, tasks := range options.Sessions {
 		multierr.AppendInto(&err, exec.OpenSession(ctx, session))

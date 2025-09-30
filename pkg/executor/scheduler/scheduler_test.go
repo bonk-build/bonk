@@ -26,7 +26,7 @@ func TestFollowups(t *testing.T) {
 	exec := mockexec.New(t)
 	session := task.NewTestSession()
 
-	sched := scheduler.New(exec)
+	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
 	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
 	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
@@ -74,7 +74,7 @@ func TestErrNoFollowups(t *testing.T) {
 	exec := mockexec.New(t)
 	session := task.NewTestSession()
 
-	sched := scheduler.New(exec)
+	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
 	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
 	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
@@ -119,7 +119,7 @@ func TestFollowupsErrs(t *testing.T) {
 	exec := mockexec.New(t)
 	session := task.NewTestSession()
 
-	sched := scheduler.New(exec)
+	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
 	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
 	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)

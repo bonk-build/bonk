@@ -18,7 +18,7 @@ import (
 func TestWithConcurrency(t *testing.T) {
 	t.Parallel()
 
-	const concurrency = uint(0xDEADBEEF)
+	const concurrency = int(0xDEADBEEF)
 
 	options := MakeDefaultOptions().
 		WithConcurrency(concurrency)
