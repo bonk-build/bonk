@@ -18,7 +18,7 @@ require (
 	cuelang.org/go v0.14.1
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.4.0.20250911202326-439500e8e5c1
-	github.com/charmbracelet/fang v0.4.2
+	github.com/charmbracelet/fang v0.4.3
 	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elliotchance/orderedmap/v3 v3.1.0
