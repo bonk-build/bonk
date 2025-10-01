@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"runtime"
+	"sync"
 
 	"go.uber.org/multierr"
 
@@ -47,7 +48,8 @@ type grpcServer struct {
 
 	executor executor.Executor
 
-	sessions map[task.SessionID]grpcServerSession
+	sessions   map[task.SessionID]grpcServerSession
+	sessionsMu sync.RWMutex
 }
 
 var _ bonkv0.ExecutorServiceServer = (*grpcServer)(nil)
@@ -156,11 +158,13 @@ func (s *grpcServer) OpenSession(
 
 	closer := make(chan struct{})
 
+	s.sessionsMu.Lock()
 	s.sessions[sessionID] = grpcServerSession{
 		Session: session,
 		closer:  closer,
 		logger:  logger,
 	}
+	s.sessionsMu.Unlock()
 
 	slog.DebugContext(ctx, "successfully opened session", "session", sessionID)
 
@@ -177,7 +181,10 @@ func (s *grpcServer) CloseSession(
 ) (*bonkv0.CloseSessionResponse, error) {
 	// Find the relevant session
 	sessionID := uuid.MustParse(req.GetId())
+
+	s.sessionsMu.RLock()
 	session, ok := s.sessions[sessionID]
+	s.sessionsMu.RUnlock()
 	if !ok {
 		return nil, fmt.Errorf("unopened session id: %s", sessionID.String())
 	}
@@ -186,7 +193,10 @@ func (s *grpcServer) CloseSession(
 
 	// Close the session
 	s.executor.CloseSession(ctx, sessionID)
+
+	s.sessionsMu.Lock()
 	delete(s.sessions, sessionID)
+	s.sessionsMu.Unlock()
 
 	return &bonkv0.CloseSessionResponse{}, nil
 }
@@ -197,7 +207,10 @@ func (s *grpcServer) ExecuteTask(
 ) (*bonkv0.ExecuteTaskResponse, error) {
 	// Find the relevant session
 	sessionID := uuid.MustParse(req.GetSessionId())
+
+	s.sessionsMu.RLock()
 	session, ok := s.sessions[sessionID]
+	s.sessionsMu.RUnlock()
 	if !ok {
 		return nil, fmt.Errorf("unopened session id: %s", sessionID.String())
 	}
