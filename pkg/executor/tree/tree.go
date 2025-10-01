@@ -1,6 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// Package tree provides [ExecutorTree], which is meant to route tasks to child executors.
 package tree
 
 import (
@@ -15,7 +16,8 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-// ExecutorTree is a tree of Executors.
+// ExecutorTree is a tree of Executors. It is meant to route tasks to child executors,
+// and can be used for branching executor trees.
 type ExecutorTree struct {
 	children map[string]executor.Executor
 }
