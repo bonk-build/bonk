@@ -25,7 +25,8 @@
     "--stdin"
   ],
   "go.testFlags": [
-    "-v"
+    "-v",
+    "-race"
   ],
   "gopls": {
     "build.expandWorkspaceToModule": true,
