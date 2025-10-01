@@ -1,6 +1,9 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
+// Package scheduler provides an executor which executes followup tasks and resolves dependencies.
+// This executor is meant to be the root of an executor tree, as Execute will return a combined result
+// for the task executed and all followups.
 package scheduler
 
 import (
