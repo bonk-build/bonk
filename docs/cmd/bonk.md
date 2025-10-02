@@ -15,7 +15,3 @@ bonk [flags]
   -c, --config string     config file (default is .bonk.yaml)
   -h, --help              help for bonk
 ```
-
-### SEE ALSO
-
-* [bonk build](bonk_build.md)	 - A brief description of your command
