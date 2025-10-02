@@ -57,12 +57,10 @@ func TestFollowups(t *testing.T) {
 				))
 			}
 		})
-	exec.EXPECT().
-		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
-		Times(numFollowups).
-		Do(func(ctx context.Context, followup *task.Task, result *task.Result) {
-			assert.Contains(t, followup.ID.String(), tsk.ID.String())
-		})
+	for idx := range numFollowups {
+		exec.EXPECT().
+			Execute(gomock.Any(), task.TaskIDMatches(tsk.ID.GetChild("child", strconv.Itoa(idx))), gomock.Any())
+	}
 
 	err = sched.Execute(t.Context(), tsk, &res)
 	require.NoError(t, err)
