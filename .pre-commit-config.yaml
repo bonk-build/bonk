@@ -72,6 +72,8 @@ repos:
       - id: check-added-large-files
       - id: mixed-line-ending
       - id: detect-private-key
+      - id: no-commit-to-branch
+        args: [--branch, main]
 
   - repo: https://gitlab.com/bmares/check-json5
     rev: v1.0.0
