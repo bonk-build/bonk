@@ -25,8 +25,8 @@ func (plugin *Plugin) ServeTest(t *testing.T) executor.Executor {
 
 	t.Cleanup(func() {
 		// Close the GRPC infrastructure
-		require.NoError(t, client.Close())
 		server.Stop()
+		require.NoError(t, client.Close())
 	})
 
 	executorManager := tree.New()
