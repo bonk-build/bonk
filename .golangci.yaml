@@ -157,6 +157,14 @@ linters:
       ignore-decls:
         - ok bool
 
+    wrapcheck:
+      # An array of strings that specify globs of packages to ignore.
+      ignore-package-globs:
+        - go.bonk.build/pkg/*
+        - golang.org/x/sync/errgroup
+        - go.uber.org/multierr
+        - google.golang.org/grpc/status
+
 formatters:
   # Enable specific formatter.
   enable:

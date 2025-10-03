@@ -78,7 +78,7 @@ var rootCmd = &cobra.Command{
 				),
 			))
 		if err != nil {
-			return err //nolint:wrapcheck
+			return err
 		}
 
 		bubble.Quit()

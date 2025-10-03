@@ -83,7 +83,7 @@ func (s *grpcServer) OpenSession(
 		session = task.NewTestSession()
 
 	default:
-		return status.Error(codes.InvalidArgument, "unsupported workspace type") //nolint:wrapcheck
+		return status.Error(codes.InvalidArgument, "unsupported workspace type")
 	}
 
 	var logger *slog.Logger
@@ -146,7 +146,7 @@ func (s *grpcServer) OpenSession(
 	}
 	err := s.executor.OpenSession(ctx, session)
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	err = stream.Send(bonkv0.OpenSessionResponse_builder{
@@ -244,7 +244,7 @@ func (s *grpcServer) ExecuteTask(
 	var response task.Result
 	err = s.executor.Execute(ctx, &tsk, &response)
 	if err != nil {
-		return nil, status.Error(CodeExecErr, err.Error()) //nolint:wrapcheck
+		return nil, status.Error(CodeExecErr, err.Error())
 	}
 
 	res := bonkv0.ExecuteTaskResponse_builder{

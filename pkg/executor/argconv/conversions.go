@@ -107,7 +107,7 @@ func (wrapped wrappedExecutor[Params]) Execute(
 		return err
 	}
 
-	return wrapped.TypedExecutor.Execute( //nolint:wrapcheck
+	return wrapped.TypedExecutor.Execute(
 		ctx,
 		tsk,
 		unboxed,

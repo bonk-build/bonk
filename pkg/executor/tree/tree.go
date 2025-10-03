@@ -132,7 +132,7 @@ func (et *ExecutorTree) Execute(
 		err := child.Execute(ctx, tsk, result)
 		tsk.Executor = exec
 
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor)
