@@ -7,10 +7,19 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"go/build"
 	"io"
 	"os"
+	"path/filepath"
 	"sync"
 
+	"golang.org/x/tools/go/packages"
+
+	"github.com/princjef/gomarkdoc"
+	"github.com/princjef/gomarkdoc/format"
+	"github.com/princjef/gomarkdoc/lang"
+	"github.com/princjef/gomarkdoc/logger"
 	"github.com/spf13/cobra"
 	"github.com/spf13/cobra/doc"
 )
@@ -62,12 +71,79 @@ func trimFileNewlines(root *os.Root, file string) {
 	cobra.CheckErr(err)
 }
 
+type gomarkdocFormatter struct {
+	format.GitHubFlavoredMarkdown
+
+	dir string
+}
+
+func (f *gomarkdocFormatter) CodeHref(loc lang.Location) (string, error) {
+	path, err := filepath.Rel(f.dir, loc.Filepath)
+	if err != nil {
+		return "", err //nolint:wrapcheck
+	}
+
+	var locStr string
+	if loc.Start.Line == loc.End.Line {
+		locStr = fmt.Sprintf("L%d", loc.Start.Line)
+	} else {
+		locStr = fmt.Sprintf("L%d-L%d", loc.Start.Line, loc.End.Line)
+	}
+
+	return fmt.Sprintf(
+		"%s#%s",
+		filepath.ToSlash(path),
+		locStr,
+	), nil
+}
+
+func renderMarkdoc() {
+	log := logger.New(logger.InfoLevel)
+
+	pkgConfig := packages.Config{
+		Mode: packages.NeedName | packages.NeedFiles,
+	}
+	pkgs, err := packages.Load(&pkgConfig,
+		"./pkg/...",
+		"./api/...",
+	)
+	cobra.CheckErr(err)
+
+	for _, pkg := range pkgs {
+		dir, err := build.ImportDir(pkg.Dir, 0)
+		cobra.CheckErr(err)
+
+		dir.ImportPath = pkg.PkgPath
+
+		docPkg, err := lang.NewPackageFromBuild(log, dir)
+		cobra.CheckErr(err)
+
+		file := lang.NewFile("", "", []*lang.Package{docPkg})
+
+		out, err := gomarkdoc.NewRenderer(
+			gomarkdoc.WithFormat(&gomarkdocFormatter{
+				dir: pkg.Dir,
+			}),
+		)
+		cobra.CheckErr(err)
+
+		result, err := out.File(file)
+		cobra.CheckErr(err)
+
+		err = os.WriteFile(filepath.Join(pkg.Dir, "README.md"), []byte(result), 0o600)
+		cobra.CheckErr(err)
+	}
+}
+
 // docsCmd represents the docs command.
 var docsCmd = &cobra.Command{
 	Use:    "docs",
 	Short:  "Generates documentation from the command tree",
 	Hidden: true,
 	Run: func(_ *cobra.Command, _ []string) {
+		// Render package documentation
+		renderMarkdoc()
+
 		const docPath = "docs/cmd"
 		cobra.CheckErr(os.RemoveAll(docPath))
 		cobra.CheckErr(os.MkdirAll(docPath, 0o750))
