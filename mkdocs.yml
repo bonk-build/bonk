@@ -32,6 +32,8 @@ theme:
         icon: material/brightness-7
       scheme: default
       primary: red
+  features:
+    - navigation.sections
 
 plugins:
   - mike:
