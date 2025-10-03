@@ -168,7 +168,3 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Exec
 
 	forEachImpl("", false, et)
 }
-
-func (et *ExecutorTree) Shutdown() {
-	et.children = make(map[string]executor.Executor)
-}
