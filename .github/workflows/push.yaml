@@ -29,7 +29,7 @@ jobs:
 
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
         env:
-          SKIP: hawkeye-format
+          SKIP: no-commit-to-branch,hawkeye-format
 
       - uses: korandoru/hawkeye@c3d9887d4b48e5b6c77306934606a4ff4623a2d3 # v6.2.0
         with:
