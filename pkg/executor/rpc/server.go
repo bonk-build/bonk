@@ -5,7 +5,6 @@ package rpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"runtime"
@@ -14,6 +13,7 @@ import (
 	"go.uber.org/multierr"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -83,7 +83,7 @@ func (s *grpcServer) OpenSession(
 		session = task.NewTestSession()
 
 	default:
-		return errors.New("unsupported workspace type")
+		return status.Error(codes.InvalidArgument, "unsupported workspace type") //nolint:wrapcheck
 	}
 
 	var logger *slog.Logger
@@ -186,7 +186,11 @@ func (s *grpcServer) CloseSession(
 	session, ok := s.sessions[sessionID]
 	s.sessionsMu.RUnlock()
 	if !ok {
-		return nil, fmt.Errorf("unopened session id: %s", sessionID.String())
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"unopened session id: %s",
+			sessionID.String(),
+		)
 	}
 
 	session.closer <- struct{}{}
@@ -212,7 +216,11 @@ func (s *grpcServer) ExecuteTask(
 	session, ok := s.sessions[sessionID]
 	s.sessionsMu.RUnlock()
 	if !ok {
-		return nil, fmt.Errorf("unopened session id: %s", sessionID.String())
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"unopened session id: %s",
+			sessionID.String(),
+		)
 	}
 
 	ctx = slogctx.NewCtx(ctx, session.logger)
@@ -227,7 +235,11 @@ func (s *grpcServer) ExecuteTask(
 
 	err := tsk.OutputFS().MkdirAll("", 0o750)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create output directory: %w", err)
+		return nil, status.Errorf(
+			codes.Unknown,
+			"failed to create output directory: %s",
+			err,
+		)
 	}
 	var response task.Result
 	err = s.executor.Execute(ctx, &tsk, &response)
