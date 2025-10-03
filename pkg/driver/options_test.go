@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package driver
+package driver_test
 
 import (
 	"testing"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"go.bonk.build/pkg/driver"
 	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/observable"
@@ -20,7 +21,7 @@ func TestWithConcurrency(t *testing.T) {
 
 	const concurrency = int(0xDEADBEEF)
 
-	options := MakeDefaultOptions().
+	options := driver.MakeDefaultOptions().
 		WithConcurrency(concurrency)
 	require.Equal(t, concurrency, options.Concurrency)
 }
@@ -32,7 +33,7 @@ func TestWithExecutor(t *testing.T) {
 
 	exec := mockexec.New(t)
 
-	options := MakeDefaultOptions().
+	options := driver.MakeDefaultOptions().
 		WithExecutor(execName, exec)
 
 	require.Len(t, options.Executors, 1)
@@ -47,7 +48,7 @@ func TestWithTypedExecutor(t *testing.T) {
 	mock := gomock.NewController(t)
 	exec := argconv.NewMockTypedExecutor[any](mock)
 
-	options := MakeDefaultOptions().
+	options := driver.MakeDefaultOptions().
 		WithExecutor(execName, argconv.BoxExecutor(exec))
 
 	require.Len(t, options.Executors, 1)
@@ -62,7 +63,7 @@ func TestWithPlugins(t *testing.T) {
 		"plugin b",
 	}
 
-	options := MakeDefaultOptions().
+	options := driver.MakeDefaultOptions().
 		WithPlugins(plugins...)
 
 	require.ElementsMatch(t, options.Plugins, plugins)
@@ -71,10 +72,10 @@ func TestWithPlugins(t *testing.T) {
 func TestWithLocalSession(t *testing.T) {
 	t.Parallel()
 
-	options := MakeDefaultOptions().
+	options := driver.MakeDefaultOptions().
 		WithLocalSession(".",
-			WithTask("exec 0", "task 0", []string{}),
-			WithTask("exec 1", "task 1", map[string]string{}),
+			driver.WithTask("exec 0", "task 0", []string{}),
+			driver.WithTask("exec 1", "task 1", map[string]string{}),
 		)
 
 	require.Len(t, options.Sessions, 1)
@@ -86,7 +87,7 @@ func TestWithLocalSession(t *testing.T) {
 func TestWithObservers(t *testing.T) {
 	t.Parallel()
 
-	options := MakeDefaultOptions().
+	options := driver.MakeDefaultOptions().
 		WithObservers(
 			func(observable.TaskStatusMsg) {},
 		)
