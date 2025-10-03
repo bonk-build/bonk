@@ -148,3 +148,61 @@ func TestFollowupsErrs(t *testing.T) {
 	err = sched.Execute(t.Context(), session, tsk, &res)
 	require.ErrorIs(t, err, assert.AnError)
 }
+
+func TestDependenciesOrdering(t *testing.T) {
+	t.Parallel()
+
+	exec := mockexec.NewMockExecutor(t)
+	session := task.NewTestSession()
+
+	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
+
+	exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
+	exec.EXPECT().CloseSession(t.Context(), session.ID())
+
+	err := sched.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+	defer sched.CloseSession(t.Context(), session.ID())
+
+	res := task.Result{}
+	tsk := task.New(
+		task.NewID("testing"),
+		"none",
+		nil,
+	)
+
+	exec.EXPECT().
+		Execute(mock.IsType(t.Context()), session, tsk, mock.IsType(&res)).
+		Return(nil).
+		Run(func(ctx context.Context, session task.Session, tsk *task.Task, res *task.Result) {
+			for idx := range 3 {
+				options := []task.Option{}
+				if idx != 2 {
+					options = append(options, task.WithDependencies(tsk.ID.GetChild("child", "2")))
+				}
+
+				res.AddFollowupTasks(task.New(
+					task.NewID("child", strconv.Itoa(idx)),
+					"none",
+					nil,
+					options...,
+				))
+			}
+		})
+
+	child2 := exec.EXPECT().
+		Execute(mock.IsType(t.Context()), session, task.TaskIDMatches(tsk.ID.GetChild("child", "2")), mock.IsType(&res)).
+		Return(nil)
+
+	exec.EXPECT().
+		Execute(mock.IsType(t.Context()), session, task.TaskIDMatches(tsk.ID.GetChild("child", "0")), mock.IsType(&res)).
+		Return(nil).
+		NotBefore(child2.Call)
+	exec.EXPECT().
+		Execute(mock.IsType(t.Context()), session, task.TaskIDMatches(tsk.ID.GetChild("child", "1")), mock.IsType(&res)).
+		Return(nil).
+		NotBefore(child2.Call)
+
+	err = sched.Execute(t.Context(), session, tsk, &res)
+	require.NoError(t, err)
+}
