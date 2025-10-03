@@ -150,3 +150,62 @@ func TestFollowupsErrs(t *testing.T) {
 	err = sched.Execute(t.Context(), session, tsk, &res)
 	require.ErrorIs(t, err, assert.AnError)
 }
+
+func TestDependenciesOrdering(t *testing.T) {
+	t.Parallel()
+
+	exec := mockexec.New(t)
+	session := task.NewTestSession()
+
+	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
+
+	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
+	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+
+	err := sched.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+	defer sched.CloseSession(t.Context(), session.ID())
+
+	res := task.Result{}
+	tsk := task.New(
+		task.NewID("testing"),
+		"none",
+		nil,
+	)
+
+	exec.EXPECT().
+		Execute(gomock.Any(), session, tsk, &res).
+		Times(1).
+		Return(nil).
+		Do(func(ctx context.Context, session task.Session, tsk *task.Task, res *task.Result) {
+			for idx := range 3 {
+				options := []task.Option{}
+				if idx != 2 {
+					options = append(options, task.WithDependencies(tsk.ID.GetChild("child", "2")))
+				}
+
+				res.AddFollowupTasks(task.New(
+					task.NewID("child", strconv.Itoa(idx)),
+					"none",
+					nil,
+					options...,
+				))
+			}
+		})
+
+	child2 := exec.EXPECT().
+		Execute(gomock.Any(), session, task.TaskIDMatches(tsk.ID.GetChild("child", "2")), gomock.Any()).
+		Times(1)
+
+	exec.EXPECT().
+		Execute(gomock.Any(), session, task.TaskIDMatches(tsk.ID.GetChild("child", "0")), gomock.Any()).
+		Times(1).
+		After(child2)
+	exec.EXPECT().
+		Execute(gomock.Any(), session, task.TaskIDMatches(tsk.ID.GetChild("child", "1")), gomock.Any()).
+		Times(1).
+		After(child2)
+
+	err = sched.Execute(t.Context(), session, tsk, &res)
+	require.NoError(t, err)
+}
