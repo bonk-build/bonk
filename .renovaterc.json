@@ -4,6 +4,9 @@
     "config:best-practices",
     "replacements:all"
   ],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
   "packageRules": [
     {
       "description": "automerge all but major updates",
