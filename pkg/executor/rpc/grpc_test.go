@@ -39,7 +39,7 @@ type rpcSuite struct {
 	session    task.Session
 }
 
-func (s *rpcSuite) SetupTest() {
+func (s *rpcSuite) SetupSuite() {
 	s.mock = gomock.NewController(s.T())
 	s.exec = mockexec.NewMockExecutor(s.mock)
 
