@@ -4,7 +4,6 @@
 package task
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -24,8 +23,10 @@ func (id ID) String() string {
 }
 
 // GetChild returns a new TaskID which is a child of the current one.
-func (id ID) GetChild(name string) ID {
-	return ID(fmt.Sprintf("%s.%s", id, name))
+func (id ID) GetChild(names ...string) ID {
+	parts := append([]string{id.String()}, names...)
+
+	return ID(strings.Join(parts, TaskIDSep))
 }
 
 // Cut is a helper for calling [strings.Cut].
