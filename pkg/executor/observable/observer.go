@@ -55,14 +55,14 @@ func (obs *observ) Execute(ctx context.Context, tsk *task.Task, result *task.Res
 
 	obs.trigger(session, TaskFinishedMsg(tsk.ID, err))
 
-	return err //nolint:wrapcheck
+	return err
 }
 
 // OpenSession implements Observable.
 func (obs *observ) OpenSession(ctx context.Context, session task.Session) error {
 	obs.sessions[session.ID()] = &observSession{}
 
-	return obs.exec.OpenSession(ctx, session) //nolint:wrapcheck
+	return obs.exec.OpenSession(ctx, session)
 }
 
 // CloseSession implements Observable.

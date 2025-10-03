@@ -41,7 +41,7 @@ func (s *scheduler) Execute(ctx context.Context, tsk *task.Task, result *task.Re
 		return err
 	}
 
-	return errgrp.Wait() //nolint:wrapcheck
+	return errgrp.Wait()
 }
 
 func (s *scheduler) executeImpl(
@@ -52,7 +52,7 @@ func (s *scheduler) executeImpl(
 ) error {
 	err := s.Executor.Execute(ctx, tsk, result)
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	for _, followup := range result.FollowupTasks {

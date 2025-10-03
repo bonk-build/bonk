@@ -53,7 +53,7 @@ func (pm *pluginClientManager) StartPlugin(ctx context.Context, pluginPath strin
 	pm.mu.Unlock()
 
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	return nil

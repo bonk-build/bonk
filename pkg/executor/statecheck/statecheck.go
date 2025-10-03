@@ -40,7 +40,7 @@ func (s statechecker) Execute(
 
 	err := s.Executor.Execute(ctx, tsk, result)
 	if err != nil {
-		return err //nolint:wrapcheck
+		return err
 	}
 
 	slog.DebugContext(ctx, "task succeeded, saving state")
