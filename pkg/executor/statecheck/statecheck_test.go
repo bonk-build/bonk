@@ -4,10 +4,10 @@
 package statecheck_test
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor/mockexec"
@@ -42,12 +42,10 @@ func TestStateCheck_ExecFailure(t *testing.T) {
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 
-	expectederr := errors.New("failed to do thing")
-
-	exec.EXPECT().Execute(t.Context(), &tsk, &result).Return(expectederr).Times(1)
+	exec.EXPECT().Execute(t.Context(), &tsk, &result).Return(assert.AnError).Times(1)
 
 	err := checker.Execute(t.Context(), &tsk, &result)
-	require.ErrorIs(t, err, expectederr)
+	require.ErrorIs(t, err, assert.AnError)
 
 	exists, err := afero.Exists(tsk.OutputFS(), statecheck.StateFile)
 	require.NoError(t, err)
