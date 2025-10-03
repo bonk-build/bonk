@@ -69,6 +69,7 @@ var docsCmd = &cobra.Command{
 	Hidden: true,
 	Run: func(_ *cobra.Command, _ []string) {
 		const docPath = "docs/cmd"
+		cobra.CheckErr(os.RemoveAll(docPath))
 		cobra.CheckErr(os.MkdirAll(docPath, 0o750))
 		cobra.CheckErr(doc.GenMarkdownTreeCustom(rootCmd, docPath, prepender, identity))
 
