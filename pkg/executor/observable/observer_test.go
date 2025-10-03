@@ -16,9 +16,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func TestPass(t *testing.T) {
-	t.Parallel()
-
+func TestPass(t *testing.T) { //nolint:paralleltest
 	synctest.Test(t, func(t *testing.T) {
 		exec := mockexec.New(t)
 		session := task.NewTestSession()
@@ -76,9 +74,7 @@ func TestPass(t *testing.T) {
 	})
 }
 
-func TestFail(t *testing.T) {
-	t.Parallel()
-
+func TestFail(t *testing.T) { //nolint:paralleltest
 	synctest.Test(t, func(t *testing.T) {
 		exec := mockexec.New(t)
 		session := task.NewTestSession()
