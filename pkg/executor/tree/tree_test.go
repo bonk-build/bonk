@@ -6,6 +6,7 @@ package tree_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor"
@@ -36,6 +37,25 @@ func Test_Add(t *testing.T) {
 	})
 	require.Equal(t, 1, calls)
 	require.Equal(t, execName, foundName)
+}
+
+func Test_Add_Duplicate(t *testing.T) {
+	t.Parallel()
+
+	exec := mockexec.New(t)
+
+	manager := tree.New()
+
+	err := manager.RegisterExecutor("testing.child", exec)
+	require.NoError(t, err)
+
+	err = manager.RegisterExecutor("testing.child", exec)
+	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
+
+	err = manager.RegisterExecutor("testing.child.abc", exec)
+	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
+
+	require.Equal(t, 1, manager.GetNumExecutors())
 }
 
 func Test_Call(t *testing.T) {
@@ -126,4 +146,46 @@ func Test_Add_Overlap(t *testing.T) {
 		calls++
 	})
 	require.Equal(t, 2, calls)
+}
+
+func Test_OpenCloseSession(t *testing.T) {
+	t.Parallel()
+
+	const execName = "testing.child.abc"
+
+	session := task.NewTestSession()
+
+	exec := mockexec.New(t)
+	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
+	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+
+	manager := tree.New()
+
+	err := manager.RegisterExecutor(execName, exec)
+	require.NoError(t, err)
+
+	err = manager.OpenSession(t.Context(), session)
+	require.NoError(t, err)
+	defer manager.CloseSession(t.Context(), session.ID())
+}
+
+func Test_OpenCloseSession_Error(t *testing.T) {
+	t.Parallel()
+
+	const execName = "testing.child.abc"
+
+	session := task.NewTestSession()
+
+	exec := mockexec.New(t)
+	exec.EXPECT().OpenSession(t.Context(), session).Times(1).Return(assert.AnError)
+	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+
+	manager := tree.New()
+
+	err := manager.RegisterExecutor(execName, exec)
+	require.NoError(t, err)
+
+	err = manager.OpenSession(t.Context(), session)
+	require.ErrorIs(t, err, assert.AnError)
+	defer manager.CloseSession(t.Context(), session.ID())
 }
