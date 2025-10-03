@@ -23,10 +23,12 @@ type ExecutorTree struct {
 }
 
 // Note that ExecutorTree is itself an executor.
+var _ executor.Executor = (*ExecutorTree)(nil)
+
 var (
-	_ executor.Executor = (*ExecutorTree)(nil)
+	ErrDuplicateExecutor = errors.New("duplicate executor name")
+	ErrNoExecutorFound   = errors.New("no executor found")
 )
-var ErrNoExecutorFound = errors.New("no executor found")
 
 func New() ExecutorTree {
 	return ExecutorTree{
@@ -45,7 +47,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 		case needsManager && hasChild:
 			childManager, ok := child.(*ExecutorTree)
 			if !ok {
-				return fmt.Errorf("duplicate executor name: %s", before)
+				return fmt.Errorf("%w: %s", ErrDuplicateExecutor, before)
 			}
 
 			return registerImpl(childManager, after, impl)
@@ -60,7 +62,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 
 		// Doesn't need more manager tree but already has a child, error
 		case !needsManager && hasChild:
-			return fmt.Errorf("duplicate executor name: %s", before)
+			return fmt.Errorf("%w: %s", ErrDuplicateExecutor, before)
 
 		// Best case, doesn't need more tree, just register
 		case !needsManager && !hasChild:
