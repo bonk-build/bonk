@@ -38,6 +38,25 @@ func Test_Add(t *testing.T) {
 	require.Equal(t, execName, foundName)
 }
 
+func Test_Add_Duplicate(t *testing.T) {
+	t.Parallel()
+
+	exec := mockexec.New(t)
+
+	manager := tree.New()
+
+	err := manager.RegisterExecutor("testing.child", exec)
+	require.NoError(t, err)
+
+	err = manager.RegisterExecutor("testing.child", exec)
+	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
+
+	err = manager.RegisterExecutor("testing.child.abc", exec)
+	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
+
+	require.Equal(t, 1, manager.GetNumExecutors())
+}
+
 func Test_Call(t *testing.T) {
 	t.Parallel()
 
