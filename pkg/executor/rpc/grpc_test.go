@@ -5,17 +5,18 @@ package rpc_test
 
 import (
 	"context"
-	"errors"
 	"net"
 	"testing"
 	"time"
 
 	"go.uber.org/mock/gomock"
+	"golang.org/x/sync/errgroup"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/test/bufconn"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"go.bonk.build/pkg/executor"
@@ -32,14 +33,15 @@ type Args struct {
 type rpcSuite struct {
 	suite.Suite
 
-	mock       *gomock.Controller
-	exec       *mockexec.MockExecutor
-	grpcServer *grpc.Server
-	grpcClient executor.Executor
-	session    task.Session
+	mock         *gomock.Controller
+	exec         *mockexec.MockExecutor
+	grpcServer   *grpc.Server
+	grpcClient   executor.Executor
+	session      task.Session
+	serverWaiter errgroup.Group
 }
 
-func (s *rpcSuite) SetupSuite() {
+func (s *rpcSuite) SetupTest() {
 	s.mock = gomock.NewController(s.T())
 	s.exec = mockexec.NewMockExecutor(s.mock)
 
@@ -47,10 +49,9 @@ func (s *rpcSuite) SetupSuite() {
 	s.grpcServer = grpc.NewServer()
 	rpc.RegisterGRPCServer(s.grpcServer, s.exec)
 
-	go func() {
-		err := s.grpcServer.Serve(lis)
-		s.NoError(err, "Server execited with err: %v", err)
-	}()
+	s.serverWaiter.Go(func() error {
+		return s.grpcServer.Serve(lis)
+	})
 
 	bufDialer := func(context.Context, string) (net.Conn, error) {
 		return lis.Dial()
@@ -68,7 +69,12 @@ func (s *rpcSuite) SetupSuite() {
 }
 
 func (s *rpcSuite) AfterTest(_, _ string) {
-	// s.grpcServer.GracefulStop()
+	s.grpcServer.GracefulStop()
+	err := s.serverWaiter.Wait()
+	if err != nil {
+		s.ErrorIs(err, grpc.ErrServerStopped)
+	}
+
 	s.Require().Eventually(func() bool {
 		return s.mock.Satisfied()
 	}, 100*time.Millisecond, 10*time.Millisecond)
@@ -88,12 +94,11 @@ func (s *rpcSuite) Test_Session() {
 }
 
 func (s *rpcSuite) Test_Session_Fail() {
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(errors.ErrUnsupported).Times(1)
+	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(assert.AnError).Times(1)
 	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(0)
 
 	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
-	s.Require().ErrorContains(err, errors.ErrUnsupported.Error())
-	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
+	s.Require().ErrorContains(err, assert.AnError.Error())
 }
 
 func (s *rpcSuite) Test_Args() {
