@@ -12,7 +12,6 @@ nav:
     - Go: https://pkg.go.dev/go.bonk.build/
   - Command Line:
     - cmd/bonk.md
-    - cmd/bonk_build.md
 
 theme:
   name: material
