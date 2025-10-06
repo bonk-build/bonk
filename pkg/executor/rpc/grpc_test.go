@@ -6,6 +6,8 @@ package rpc_test
 import (
 	"context"
 	"net"
+	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -17,7 +19,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/argconv"
@@ -31,8 +33,6 @@ type Args struct {
 }
 
 type rpcSuite struct {
-	suite.Suite
-
 	mock         *gomock.Controller
 	exec         *mockexec.MockExecutor
 	grpcServer   *grpc.Server
@@ -41,8 +41,10 @@ type rpcSuite struct {
 	serverWaiter errgroup.Group
 }
 
-func (s *rpcSuite) SetupTest() {
-	s.mock = gomock.NewController(s.T())
+func (s *rpcSuite) SetupTest(t *testing.T) {
+	t.Helper()
+
+	s.mock = gomock.NewController(t)
 	s.exec = mockexec.NewMockExecutor(s.mock)
 
 	lis := bufconn.Listen(1024 * 1024)
@@ -61,61 +63,71 @@ func (s *rpcSuite) SetupTest() {
 		grpc.WithContextDialer(bufDialer),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
-	s.Require().NoError(err)
+	require.NoError(t, err)
 
 	s.grpcClient = rpc.NewGRPCClient(clientConn)
 
 	s.session = task.NewTestSession()
 }
 
-func (s *rpcSuite) AfterTest(_, _ string) {
+func (s *rpcSuite) AfterTest(t *testing.T) {
+	t.Helper()
+
 	s.grpcServer.GracefulStop()
 	err := s.serverWaiter.Wait()
 	if err != nil {
-		s.ErrorIs(err, grpc.ErrServerStopped)
+		require.ErrorIs(t, err, grpc.ErrServerStopped)
 	}
 
-	s.Require().Eventually(func() bool {
+	require.Eventually(t, func() bool {
 		return s.mock.Satisfied()
 	}, 100*time.Millisecond, 10*time.Millisecond)
 }
 
-func (s *rpcSuite) Test_Connection() {
-	s.NotNil(s.grpcClient)
+func (s *rpcSuite) Test_Connection(t *testing.T) {
+	t.Parallel()
+
+	assert.NotNil(t, s.grpcClient)
 }
 
-func (s *rpcSuite) Test_Session() {
+func (s *rpcSuite) Test_Session(t *testing.T) {
+	t.Parallel()
+
 	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
 	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 
-	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
-	s.Require().NoError(err)
-	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
+	err := s.grpcClient.OpenSession(t.Context(), s.session)
+	require.NoError(t, err)
+	defer s.grpcClient.CloseSession(t.Context(), s.session.ID())
 }
 
-func (s *rpcSuite) Test_Session_Fail() {
+func (s *rpcSuite) Test_Session_Fail(t *testing.T) {
+	t.Parallel()
+
 	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(assert.AnError).Times(1)
 	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(0)
 
-	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
-	s.Require().ErrorContains(err, assert.AnError.Error())
+	err := s.grpcClient.OpenSession(t.Context(), s.session)
+	require.ErrorContains(t, err, assert.AnError.Error())
 }
 
-func (s *rpcSuite) Test_Args() {
+func (s *rpcSuite) Test_Args(t *testing.T) {
+	t.Parallel()
+
 	var result task.Result
 
 	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
 	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 
-	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
-	s.Require().NoError(err)
-	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
+	err := s.grpcClient.OpenSession(t.Context(), s.session)
+	require.NoError(t, err)
+	defer s.grpcClient.CloseSession(t.Context(), s.session.ID())
 
 	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
 		Return(nil)
 
-	err = s.grpcClient.Execute(s.T().Context(), task.New(
+	err = s.grpcClient.Execute(t.Context(), task.New(
 		"test.task",
 		s.session,
 		"test.exec",
@@ -123,18 +135,20 @@ func (s *rpcSuite) Test_Args() {
 			Value: 3,
 		},
 	), &result)
-	s.Require().NoError(err)
+	require.NoError(t, err)
 }
 
-func (s *rpcSuite) Test_Followups() {
+func (s *rpcSuite) Test_Followups(t *testing.T) {
+	t.Parallel()
+
 	var result task.Result
 
 	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
 	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
 
-	err := s.grpcClient.OpenSession(s.T().Context(), s.session)
-	s.Require().NoError(err)
-	defer s.grpcClient.CloseSession(s.T().Context(), s.session.ID())
+	err := s.grpcClient.OpenSession(t.Context(), s.session)
+	require.NoError(t, err)
+	defer s.grpcClient.CloseSession(t.Context(), s.session.ID())
 
 	expectedTask := task.Task{
 		ID:       task.ID("Test.Task"),
@@ -156,7 +170,7 @@ func (s *rpcSuite) Test_Followups() {
 		}).
 		Return(nil)
 
-	err = s.grpcClient.Execute(s.T().Context(), task.New(
+	err = s.grpcClient.Execute(t.Context(), task.New(
 		"test.task",
 		s.session,
 		"test.exec",
@@ -165,16 +179,36 @@ func (s *rpcSuite) Test_Followups() {
 		},
 	), &result)
 
-	s.Require().NoError(err)
-	s.Len(result.FollowupTasks, 1)
+	require.NoError(t, err)
+	assert.Len(t, result.FollowupTasks, 1)
 
 	unboxed, err := argconv.UnboxArgs[Args](&result.FollowupTasks[0])
 
-	s.Require().NoError(err)
-	s.EqualExportedValues(expectedTask.Args, *unboxed)
+	require.NoError(t, err)
+	assert.EqualExportedValues(t, expectedTask.Args, *unboxed)
 }
 
-func TestRPC(t *testing.T) {
+func TestRPC(t *testing.T) { //nolint:tparallel
 	t.Parallel()
-	suite.Run(t, &rpcSuite{})
+
+	suiteT := reflect.TypeFor[rpcSuite]()
+
+	for idx := range suiteT.NumMethod() { //nolint:paralleltest
+		method := suiteT.Method(idx)
+		if !strings.HasPrefix(method.Name, "Test") {
+			continue
+		}
+
+		t.Run(method.Name, func(t *testing.T) {
+			suite := rpcSuite{}
+
+			suite.SetupTest(t)
+
+			method.Func.Call([]reflect.Value{
+				reflect.ValueOf(&suite),
+			})
+
+			suite.AfterTest(t)
+		})
+	}
 }
