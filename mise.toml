@@ -1,0 +1,42 @@
+# Copyright © 2025 Colden Cullen
+# SPDX-License-Identifier: MIT
+
+[settings]
+experimental = true
+all_compile = false
+python.uv_venv_auto = true
+
+[env]
+CGO_ENABLED = 1
+
+[tools]
+# Languages
+go = "1.25.1"
+cue = "0.14.1"
+buf = "1.57.2"
+
+# Development
+github-cli = "2.81.0"
+pre-commit = "4.3.0"
+golangci-lint = "2.5.0"
+"ubi:korandoru/hawkeye" = "6.3.0"
+"pipx:commitizen" = "4.9.1"
+
+# Docs
+python = "3.13.7"
+uv = "0.8.23"
+"pipx:mkdocs" = { version = "1.6.1", uvx_args = "--with mike,mkdocs-material,pymdown-extensions" }
+"pipx:mike" = { version = "2.1.3", uvx_args = "--with mkdocs-material,pymdown-extensions" }
+
+[tasks]
+generate.run = "go generate ./..."
+build.run = "go build ./..."
+test.run = "go test ./... -race -count 100 -parallel 8"
+lint.run = ["golangci-lint fmt", "golangci-lint run", "hawkeye format"]
+
+[hooks]
+postinstall = [
+  "gh extension install nektos/gh-act",
+  "gh extension install seachicken/gh-poi",
+  "pre-commit install --install-hooks",
+]

@@ -17,23 +17,15 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
       - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
+      - uses: jdx/mise-action@v3.3.1
         with:
-          python-version: 3.14
-      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
-        with:
-          go-version-file: go.mod
-      - uses: cue-lang/setup-cue@a93fa358375740cd8b0078f76355512b9208acb1 # v1.0.1
-        with:
-          version: v0.14.1
+          experimental: true
 
       - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
         env:
           SKIP: no-commit-to-branch,hawkeye-format
 
-      - uses: korandoru/hawkeye@c3d9887d4b48e5b6c77306934606a4ff4623a2d3 # v6.2.0
-        with:
-          mode: format
+      - run: hawkeye format
 
       - name: commit changed files
         uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 # v6.0.1
@@ -46,9 +38,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-      - uses: actions/setup-go@44694675825211faa026b3c33043df3e48a5fa00 # v6.0.0
+      - uses: jdx/mise-action@v3.3.1
         with:
-          go-version-file: go.mod
+          experimental: true
 
       - name: go build
         run: go build ./...
@@ -84,16 +76,11 @@ jobs:
         with:
           ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
       - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
-      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c # v6
-        id: setup-python
+      - uses: jdx/mise-action@v3.3.1
         with:
-          python-version: 3.14
+          experimental: true
 
       - run: git fetch origin gh-pages
-
-      - name: install mkdocs
-        if: steps.pipx-cache.outputs.cache-hit != 'true'
-        run: pip install mkdocs mike mkdocs-material
 
       - name: publish docs
         if: github.ref_name == 'main'
