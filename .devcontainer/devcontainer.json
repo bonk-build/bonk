@@ -1,14 +1,6 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/go
 {
-	"name": "bonk",
-	"build": {
-		"dockerfile": "Containerfile",
-		"cacheFrom": [
-			"ghcr.io/bonk-build/devcontainer-cache"
-		]
-	},
-	// Features to add to the dev container. More info: https://containers.dev/features.
+	"name": "mise",
+	"image": "mcr.microsoft.com/devcontainers/base:debian",
 	"features": {
 		"ghcr.io/devcontainers/features/common-utils:2": {
 			"installZsh": true,
@@ -16,54 +8,41 @@
 			"installOhMyZsh": true,
 			"installOhMyZshConfig": true
 		},
-		"ghcr.io/devcontainers/features/go:1": {
-			"version": "1.25"
-		},
-		"ghcr.io/devcontainers-extra/features/pre-commit:2": {},
-		"ghcr.io/devcontainers-extra/features/mkdocs:2": {
-			"plugins": "mkdocs-material pymdown-extensions"
-		},
-		"ghcr.io/devcontainers/features/github-cli:1": {},
-		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
+		"ghcr.io/devcontainers-extra/features/direnv:1": {},
+		"ghcr.io/devcontainers-extra/features/mise:1": {}
 	},
+	"containerUser": "vscode",
+	"remoteUser": "vscode",
 	"containerEnv": {
-		"PRE_COMMIT_HOME": "/pre-commit"
+		"MISE_DATA_DIR": "/mnt/mise",
+		"PRE_COMMIT_HOME": "/mnt/pre-commit"
 	},
 	"mounts": [
 		{
 			"type": "volume",
-			"source": "bonk-goroot",
-			"target": "/go"
+			"source": "mise-${devcontainerId}",
+			"target": "/mnt/mise"
 		},
 		{
 			"type": "volume",
-			"source": "bonk-precommit",
-			"target": "/pre-commit"
-		},
-		{
-			"type": "bind",
-			"source": "${localEnv:HOME}/.config/gh",
-			"target": "/home/vscode/.config/gh"
+			"source": "pre-commit-${devcontainerId}",
+			"target": "/mnt/pre-commit"
 		}
 	],
-	"onCreateCommand": {
-		"gh-exts-act": "gh extension install nektos/gh-act",
-		"gh-exts-poi": "gh extension install seachicken/gh-poi",
-		"chown-pre-commit": "sudo chown -R vscode:vscode $PRE_COMMIT_HOME"
+	"postCreateCommand": {
+		"chown": "sudo chown -R $(whoami): $MISE_DATA_DIR $PRE_COMMIT_HOME ${containerWorkspaceFolder}",
+		"direnv-hook": "echo 'eval \"$(direnv hook zsh)\"' | sudo tee -a /etc/zsh/zshrc"
 	},
 	"updateContentCommand": {
-		"pre-commit-hooks": "pre-commit install-hooks",
-		"go-get": "go get ./..."
-	},
-	"postStartCommand": {
-		"pre-commit-install": "pre-commit install"
+		"mise-install": "mise trust -a && mise install --yes --verbose && direnv allow",
+		"go-get": "mise x go -- go get ./..."
 	},
 	"customizations": {
 		"vscode": {
-			// Set *default* container specific settings.json values on container create.
-			"settings": {},
 			"extensions": [
+				"hverlin.mise-vscode",
 				"bufbuild.vscode-buf",
+				"golang.go",
 				"cuelangorg.vscode-cue",
 				"redhat.vscode-yaml"
 			]
