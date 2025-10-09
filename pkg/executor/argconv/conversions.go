@@ -23,7 +23,13 @@ import (
 type TypedExecutor[Params any] interface {
 	OpenSession(ctx context.Context, session task.Session) error
 	CloseSession(ctx context.Context, sessionID task.SessionID)
-	Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error
+	Execute(
+		ctx context.Context,
+		session task.Session,
+		tsk *task.Task,
+		args *Params,
+		result *task.Result,
+	) error
 }
 
 // UnboxArgs converts a task with generic arguments to a task with typed arguments.
@@ -99,6 +105,7 @@ func BoxExecutor[Params any](
 
 func (wrapped wrappedExecutor[Params]) Execute(
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 	result *task.Result,
 ) error {
@@ -109,6 +116,7 @@ func (wrapped wrappedExecutor[Params]) Execute(
 
 	return wrapped.TypedExecutor.Execute(
 		ctx,
+		session,
 		tsk,
 		unboxed,
 		result,

@@ -96,18 +96,20 @@ func (*Plugin) GRPCClient(
 // Execute adds some special details to the context.
 func (p *Plugin) Execute(
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 	res *task.Result,
 ) error {
 	ctx, cleanup, err := getTaskLoggingContext(
 		ctx,
+		session,
 		tsk,
 	)
 	if err != nil {
 		return err
 	}
 
-	multierr.AppendInto(&err, p.ExecutorTree.Execute(ctx, tsk, res))
+	multierr.AppendInto(&err, p.ExecutorTree.Execute(ctx, session, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err

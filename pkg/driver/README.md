@@ -83,7 +83,7 @@ func (opts Options) WithLocalSession(path string, options ...SessionOption) Opti
 WithLocalSession creates a \[task.LocalSession\] with the given options.
 
 <a name="Options.WithObservers"></a>
-### func \(Options\) [WithObservers](<options.go#L82>)
+### func \(Options\) [WithObservers](<options.go#L81>)
 
 ```go
 func (opts Options) WithObservers(observers ...observable.Observer) Options

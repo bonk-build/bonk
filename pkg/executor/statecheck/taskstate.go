@@ -32,42 +32,44 @@ type state struct {
 	FollowupChecksum  uint64 `json:"followupChecksum,omitempty"`
 }
 
-func SaveState(task *task.Task, result *task.Result) error {
-	err := task.OutputFS().MkdirAll("", 0o750)
+func SaveState(session task.Session, tsk *task.Task, result *task.Result) error {
+	taskOutput := task.OutputFS(session, tsk.ID)
+
+	err := taskOutput.MkdirAll("", 0o750)
 	if err != nil {
 		return fmt.Errorf("failed to create task directory: %w", err)
 	}
 
-	file, err := task.OutputFS().Create(StateFile)
+	file, err := taskOutput.Create(StateFile)
 	if err != nil {
 		return fmt.Errorf("failed to open state file %s: %w", StateFile, err)
 	}
 	encoder := json.NewEncoder(file)
 
 	state := state{
-		Executor: task.Executor,
-		Inputs:   task.Inputs,
+		Executor: tsk.Executor,
+		Inputs:   tsk.Inputs,
 		Result:   result,
 	}
 
 	hasher := fnv.New64()
 
 	// Hash the parameters
-	state.ArgumentsChecksum, err = hashAnyValue(hasher, task.Args)
+	state.ArgumentsChecksum, err = hashAnyValue(hasher, tsk.Args)
 	if err != nil {
 		return err
 	}
 	hasher.Reset()
 
 	// Hash the input files
-	state.InputsChecksum, err = hashFiles(hasher, task.Session.SourceFS(), task.Inputs)
+	state.InputsChecksum, err = hashFiles(hasher, session.SourceFS(), tsk.Inputs)
 	if err != nil {
 		return err
 	}
 	hasher.Reset()
 
 	// Hash the output files
-	state.OutputChecksum, err = hashFiles(hasher, task.OutputFS(), result.Outputs)
+	state.OutputChecksum, err = hashFiles(hasher, taskOutput, result.Outputs)
 	if err != nil {
 		return err
 	}
@@ -86,8 +88,10 @@ func SaveState(task *task.Task, result *task.Result) error {
 	return nil
 }
 
-func DetectStateMismatches(task *task.Task) []string {
-	file, err := task.OutputFS().Open(StateFile)
+func DetectStateMismatches(session task.Session, tsk *task.Task) []string {
+	taskOutput := task.OutputFS(session, tsk.ID)
+
+	file, err := taskOutput.Open(StateFile)
 	if err != nil {
 		return []string{"<state missing>"}
 	}
@@ -104,26 +108,26 @@ func DetectStateMismatches(task *task.Task) []string {
 	var mismatches []string
 	hasher := fnv.New64()
 
-	if task.Executor != state.Executor {
+	if tsk.Executor != state.Executor {
 		mismatches = append(mismatches, "executor")
 	}
 
-	argsChecksum, err := hashAnyValue(hasher, task.Args)
+	argsChecksum, err := hashAnyValue(hasher, tsk.Args)
 	if err != nil || argsChecksum != state.ArgumentsChecksum {
 		mismatches = append(mismatches, "arguments-checksum")
 	}
 	hasher.Reset()
 
-	if !reflect.DeepEqual(task.Inputs, state.Inputs) {
+	if !reflect.DeepEqual(tsk.Inputs, state.Inputs) {
 		mismatches = append(mismatches, "inputs")
 	}
-	inputsChecksum, err := hashFiles(hasher, task.Session.SourceFS(), task.Inputs)
+	inputsChecksum, err := hashFiles(hasher, session.SourceFS(), tsk.Inputs)
 	if err != nil || inputsChecksum != state.InputsChecksum {
 		mismatches = append(mismatches, "inputs-checksum")
 	}
 	hasher.Reset()
 
-	outputChecksum, err := hashFiles(hasher, task.OutputFS(), state.Result.Outputs)
+	outputChecksum, err := hashFiles(hasher, taskOutput, state.Result.Outputs)
 	if err != nil {
 		mismatches = append(mismatches, "!output-checksum-failed!")
 	} else if outputChecksum != state.OutputChecksum {

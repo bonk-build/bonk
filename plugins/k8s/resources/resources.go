@@ -30,15 +30,16 @@ type ExecutorResources struct {
 
 func (ExecutorResources) Execute(
 	_ context.Context,
-	task *task.Task,
+	session task.Session,
+	tsk *task.Task,
 	args *Params,
 	res *task.Result,
 ) error {
-	if len(task.Inputs) > 0 {
+	if len(tsk.Inputs) > 0 {
 		return errors.New("resources task does not accept inputs")
 	}
 
-	file, err := task.OutputFS().Create(output)
+	file, err := task.OutputFS(session, tsk.ID).Create(output)
 	if err != nil {
 		return fmt.Errorf("failed to create resources yaml: %w", err)
 	}

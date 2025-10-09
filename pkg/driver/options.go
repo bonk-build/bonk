@@ -70,7 +70,6 @@ func WithTask(
 	return func(opts Options, session task.Session) {
 		opts.Sessions[session] = append(opts.Sessions[session], task.New(
 			id,
-			session,
 			executor,
 			args,
 			options...,

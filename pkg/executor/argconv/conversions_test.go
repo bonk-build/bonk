@@ -27,8 +27,7 @@ var defaultArgs = Args{
 func Test_StraightConversion(t *testing.T) {
 	t.Parallel()
 
-	session := task.NewTestSession()
-	tsk := task.New("", session, "", defaultArgs)
+	tsk := task.New("", "", defaultArgs)
 
 	unboxed, err := argconv.UnboxArgs[Args](tsk)
 
@@ -39,8 +38,7 @@ func Test_StraightConversion(t *testing.T) {
 func Test_StringMap(t *testing.T) {
 	t.Parallel()
 
-	session := task.NewTestSession()
-	tsk := task.New("", session, "", map[string]any{
+	tsk := task.New("", "", map[string]any{
 		"Val1": defaultArgs.Val1,
 		"Val2": defaultArgs.Val2,
 	})
@@ -54,10 +52,9 @@ func Test_StringMap(t *testing.T) {
 func Test_CueConstraints(t *testing.T) {
 	t.Parallel()
 
-	session := task.NewTestSession()
 	args := defaultArgs
 	args.Val2 = 90000
-	tsk := task.New("", session, "", args)
+	tsk := task.New("", "", args)
 
 	unboxed, err := argconv.UnboxArgs[Args](tsk)
 
@@ -70,13 +67,12 @@ func Test_BoxExecutor(t *testing.T) {
 
 	mock := gomock.NewController(t)
 	exec := argconv.NewMockTypedExecutor[Args](mock)
-	session := task.NewTestSession()
 
-	tsk := task.New("", session, "", defaultArgs)
+	tsk := task.New("", "", defaultArgs)
 
-	exec.EXPECT().Execute(t.Context(), tsk, &defaultArgs, nil).Times(1)
+	exec.EXPECT().Execute(t.Context(), nil, tsk, &defaultArgs, nil).Times(1)
 
-	err := argconv.BoxExecutor(exec).Execute(t.Context(), tsk, nil)
+	err := argconv.BoxExecutor(exec).Execute(t.Context(), nil, tsk, nil)
 	require.NoError(t, err)
 }
 
@@ -86,12 +82,11 @@ func Test_BoxExecutor_Failure(t *testing.T) {
 	mock := gomock.NewController(t)
 	exec := argconv.NewMockTypedExecutor[Args](mock)
 	boxed := argconv.BoxExecutor(exec)
-	session := task.NewTestSession()
 
-	typed := task.New("", session, "", 111)
+	typed := task.New("", "", 111)
 
-	exec.EXPECT().Execute(t.Context(), typed, gomock.Any(), gomock.Any()).Times(0)
+	exec.EXPECT().Execute(t.Context(), nil, typed, gomock.Any(), nil).Times(0)
 
-	err := boxed.Execute(t.Context(), typed, nil)
+	err := boxed.Execute(t.Context(), nil, typed, nil)
 	require.ErrorContains(t, err, "failed to convert params from int to argconv_test.Args")
 }

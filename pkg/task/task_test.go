@@ -15,10 +15,8 @@ import (
 func TestNew(t *testing.T) {
 	t.Parallel()
 
-	session := task.NewTestSession()
 	tsk := task.New(
 		task.NewID("root", "child"),
-		session,
 		"exec",
 		nil,
 	)
@@ -26,7 +24,6 @@ func TestNew(t *testing.T) {
 	require.NotNil(t, tsk)
 	assert.Equal(t, tsk.ID, task.ID("root.child"))
 	assert.Equal(t, "exec", tsk.Executor)
-	assert.Same(t, tsk.Session, session)
 	assert.Nil(t, tsk.Args)
 	assert.Empty(t, tsk.Inputs)
 	assert.Empty(t, tsk.Dependencies)
@@ -35,10 +32,8 @@ func TestNew(t *testing.T) {
 func TestNewWithInputs(t *testing.T) {
 	t.Parallel()
 
-	session := task.NewTestSession()
 	tsk := task.New(
 		task.NewID("root", "child"),
-		session,
 		"exec",
 		nil,
 		task.WithInputs(
@@ -49,7 +44,6 @@ func TestNewWithInputs(t *testing.T) {
 	require.NotNil(t, tsk)
 	assert.Equal(t, tsk.ID, task.ID("root.child"))
 	assert.Equal(t, "exec", tsk.Executor)
-	assert.Same(t, tsk.Session, session)
 	assert.Nil(t, tsk.Args)
 	assert.Len(t, tsk.Inputs, 1)
 	assert.Equal(t, "InputA", tsk.Inputs[0])
@@ -59,10 +53,8 @@ func TestNewWithInputs(t *testing.T) {
 func TestNewWithDependencies(t *testing.T) {
 	t.Parallel()
 
-	session := task.NewTestSession()
 	tsk := task.New(
 		task.NewID("root", "child"),
-		session,
 		"exec",
 		nil,
 		task.WithDependencies(
@@ -73,7 +65,6 @@ func TestNewWithDependencies(t *testing.T) {
 	require.NotNil(t, tsk)
 	require.Equal(t, tsk.ID, task.ID("root.child"))
 	require.Equal(t, "exec", tsk.Executor)
-	require.Same(t, tsk.Session, session)
 	require.Nil(t, tsk.Args)
 	require.Empty(t, tsk.Inputs)
 	require.Len(t, tsk.Dependencies, 1)

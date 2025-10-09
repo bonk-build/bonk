@@ -123,13 +123,12 @@ func (s *rpcSuite) Test_Args(t *testing.T) {
 	require.NoError(t, err)
 	defer s.grpcClient.CloseSession(t.Context(), s.session.ID())
 
-	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
 		Return(nil)
 
-	err = s.grpcClient.Execute(t.Context(), task.New(
+	err = s.grpcClient.Execute(t.Context(), s.session, task.New(
 		"test.task",
-		s.session,
 		"test.exec",
 		Args{
 			Value: 3,
@@ -150,29 +149,27 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 	require.NoError(t, err)
 	defer s.grpcClient.CloseSession(t.Context(), s.session.ID())
 
-	expectedTask := task.Task{
-		ID:       task.ID("Test.Task"),
-		Executor: "Test.Executor",
-		Session:  s.session,
-		Inputs: []string{
-			"File1.txt",
-			"File2.txt",
-		},
-		Args: Args{
+	expectedTask := task.New(
+		task.ID("Test.Task"),
+		"Test.Executor",
+		Args{
 			Value: 69420,
 		},
-	}
+		task.WithInputs(
+			"File1.txt",
+			"File2.txt",
+		),
+	)
 
-	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
 		Do(func(_ context.Context, _ *task.Task, res *task.Result) {
-			res.FollowupTasks = append(res.FollowupTasks, expectedTask)
+			res.FollowupTasks = append(res.FollowupTasks, *expectedTask)
 		}).
 		Return(nil)
 
-	err = s.grpcClient.Execute(t.Context(), task.New(
-		"test.task",
-		s.session,
+	err = s.grpcClient.Execute(t.Context(), s.session, task.New(
+		task.NewID("test", "task"),
 		"test.exec",
 		Args{
 			Value: 3,

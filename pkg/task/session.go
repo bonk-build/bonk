@@ -26,6 +26,11 @@ type Session interface {
 	OutputFS() afero.Fs
 }
 
+// OutputFS returns the output filesystem for the given task.
+func OutputFS(session Session, id ID) afero.Fs {
+	return afero.NewBasePathFs(session.OutputFS(), id.String())
+}
+
 // LocalSession is a session that is being executed on the local machine.
 type LocalSession interface {
 	Session

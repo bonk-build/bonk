@@ -26,10 +26,11 @@ func New(child executor.Executor) executor.Executor {
 // Execute implements executor.Executor.
 func (s statechecker) Execute(
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 	result *task.Result,
 ) error {
-	mismatches := DetectStateMismatches(tsk)
+	mismatches := DetectStateMismatches(session, tsk)
 	if mismatches == nil {
 		slog.DebugContext(ctx, "states match, skipping task")
 
@@ -38,14 +39,14 @@ func (s statechecker) Execute(
 
 	slog.DebugContext(ctx, "state mismatch, running task", "mismatches", mismatches)
 
-	err := s.Executor.Execute(ctx, tsk, result)
+	err := s.Executor.Execute(ctx, session, tsk, result)
 	if err != nil {
 		return err
 	}
 
 	slog.DebugContext(ctx, "task succeeded, saving state")
 
-	err = SaveState(tsk, result)
+	err = SaveState(session, tsk, result)
 	if err != nil {
 		slog.WarnContext(ctx, "failed to save task state", "error", err)
 

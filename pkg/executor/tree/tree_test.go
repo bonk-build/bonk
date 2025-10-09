@@ -62,20 +62,21 @@ func Test_Call(t *testing.T) {
 	t.Parallel()
 
 	const execName = "testing.child.abc"
+	session := task.NewTestSession()
 	var result task.Result
 	tsk := task.Task{
 		Executor: execName,
 	}
 
 	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), &tsk, &result)
+	exec.EXPECT().Execute(t.Context(), session, &tsk, &result)
 
 	manager := tree.New()
 
 	err := manager.RegisterExecutor(execName, exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), &tsk, &result)
+	err = manager.Execute(t.Context(), session, &tsk, &result)
 	require.NoError(t, err)
 	require.Equal(t, execName, tsk.Executor)
 }
@@ -84,20 +85,21 @@ func Test_Call_Fail(t *testing.T) {
 	t.Parallel()
 
 	const execName = "testing.child.abc"
+	session := task.NewTestSession()
 	var result task.Result
 	tsk := task.Task{
 		Executor: execName,
 	}
 
 	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), &tsk, &result).Times(0)
+	exec.EXPECT().Execute(t.Context(), session, &tsk, &result).Times(0)
 
 	manager := tree.New()
 
 	err := manager.RegisterExecutor("something.else", exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), &tsk, &result)
+	err = manager.Execute(t.Context(), session, &tsk, &result)
 	require.Error(t, err)
 	require.ErrorIs(t, err, tree.ErrNoExecutorFound)
 }

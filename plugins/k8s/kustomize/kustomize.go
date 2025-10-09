@@ -32,15 +32,16 @@ type ExecutorKustomize struct {
 
 func (ExecutorKustomize) Execute(
 	_ context.Context,
-	task *task.Task,
+	session task.Session,
+	tsk *task.Task,
 	args *Params,
 	res *task.Result,
 ) error {
 	// Apply resources and any needed fixes
-	args.Kustomization.Resources = task.Inputs
+	args.Kustomization.Resources = tsk.Inputs
 	args.Kustomization.FixKustomization()
 
-	kustomFs := afero.NewCopyOnWriteFs(task.Session.SourceFS(), afero.NewMemMapFs())
+	kustomFs := afero.NewCopyOnWriteFs(session.SourceFS(), afero.NewMemMapFs())
 
 	// Write out the kustomization.yaml file
 	kustFile, err := kustomFs.Create("/" + konfig.DefaultKustomizationFileName())
@@ -80,7 +81,7 @@ func (ExecutorKustomize) Execute(
 		return fmt.Errorf("failed to encode kustomized content as yaml: %w", err)
 	}
 
-	outFile, err := task.OutputFS().Create(output)
+	outFile, err := task.OutputFS(session, tsk.ID).Create(output)
 	if err != nil {
 		return fmt.Errorf("failed to create kustomized file: %w", err)
 	}
