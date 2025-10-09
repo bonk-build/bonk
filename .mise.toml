@@ -24,7 +24,7 @@ golangci-lint = "2.5.0"
 "pipx:commitizen" = "4.9.1"
 
 # Docs
-python = "3.13.7"
+python = "3.14.0"
 uv = "0.8.23"
 "pipx:mkdocs" = { version = "1.6.1", uvx_args = "--with mike,mkdocs-material,pymdown-extensions" }
 "pipx:mike" = { version = "2.1.3", uvx_args = "--with mkdocs-material,pymdown-extensions" }
