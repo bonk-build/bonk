@@ -11,6 +11,9 @@
       "source.organizeImports": "explicit"
     }
   },
+  "mise.configureExtensionsAutomatically": false,
+  "mise.configureExtensionsUseSymLinks": true,
+  "go.goroot": "${workspaceFolder}/.vscode/mise-tools/goRoot",
   "go.lintTool": "golangci-lint",
   "go.lintFlags": [
     "--path-mode=abs",
