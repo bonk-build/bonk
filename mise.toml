@@ -8,6 +8,7 @@ python.uv_venv_auto = true
 
 [env]
 CGO_ENABLED = 1
+PRE_COMMIT_HOME = "{{ env.MISE_DATA_DIR | default(value=xdg_data_home ~ '/mise') }}/pre-commit-hooks"
 
 [tools]
 # Languages

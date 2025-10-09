@@ -14,19 +14,13 @@
 	"containerUser": "vscode",
 	"remoteUser": "vscode",
 	"containerEnv": {
-		"MISE_DATA_DIR": "/mnt/mise",
-		"PRE_COMMIT_HOME": "/mnt/pre-commit"
+		"MISE_DATA_DIR": "/mnt/mise"
 	},
 	"mounts": [
 		{
 			"type": "volume",
 			"source": "mise-${devcontainerId}",
 			"target": "/mnt/mise"
-		},
-		{
-			"type": "volume",
-			"source": "pre-commit-${devcontainerId}",
-			"target": "/mnt/pre-commit"
 		}
 	],
 	"postCreateCommand": {
