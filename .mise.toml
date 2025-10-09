@@ -12,7 +12,7 @@ PRE_COMMIT_HOME = "{{ env.MISE_DATA_DIR | default(value=xdg_data_home ~ '/mise')
 
 [tools]
 # Languages
-go = "1.25.1"
+go = "1.25.2"
 cue = "0.14.1"
 buf = "1.57.2"
 
