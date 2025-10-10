@@ -48,6 +48,12 @@
       ".renovaterc.json"
     ]
   },
+  "mise": {
+    "managerFilePatterns": [
+      "/(^|/)\\.?mise/config\\.toml$/",
+      "/(^|/)\\.?mise/config\\.\\w+\\.toml$/"
+    ]
+  },
   "pre-commit": {
     "commitMessageTopic": "pre-commit hook {{depName}}",
     "enabled": true,

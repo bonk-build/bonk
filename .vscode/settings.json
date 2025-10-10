@@ -13,6 +13,7 @@
   },
   "mise.configureExtensionsAutomatically": false,
   "mise.configureExtensionsUseSymLinks": true,
+  "mise.miseEnv": "vscode",
   "go.goroot": "${workspaceFolder}/.vscode/mise-tools/goRoot",
   "go.lintTool": "golangci-lint",
   "go.lintFlags": [

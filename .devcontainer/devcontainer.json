@@ -28,7 +28,7 @@
 		"direnv-hook": "echo 'eval \"$(direnv hook zsh)\"' | sudo tee -a /etc/zsh/zshrc"
 	},
 	"updateContentCommand": {
-		"mise-install": "mise trust -a && mise install --yes --verbose && direnv allow",
+		"mise-install": "mise trust -a && MISE_ENV=vscode mise install --yes --verbose && direnv allow",
 		"go-get": "mise x go -- go get ./..."
 	},
 	"customizations": {
@@ -39,7 +39,10 @@
 				"golang.go",
 				"cuelangorg.vscode-cue",
 				"redhat.vscode-yaml"
-			]
+			],
+			"settings": {
+				"mise.checkForNewMiseVersion": false
+			}
 		}
 	}
 }
