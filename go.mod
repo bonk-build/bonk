@@ -15,7 +15,7 @@ tool (
 )
 
 require (
-	cuelang.org/go v0.14.1
+	cuelang.org/go v0.14.2
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.4.0.20250911202326-439500e8e5c1
 	github.com/charmbracelet/fang v0.4.3
