@@ -80,17 +80,17 @@ func (c *MockTypedExecutorCloseSessionCall[Params]) DoAndReturn(f func(context.C
 }
 
 // Execute mocks base method.
-func (m *MockTypedExecutor[Params]) Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error {
+func (m *MockTypedExecutor[Params]) Execute(ctx context.Context, session task.Session, tsk *task.Task, args *Params, result *task.Result) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Execute", ctx, tsk, args, result)
+	ret := m.ctrl.Call(m, "Execute", ctx, session, tsk, args, result)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Execute indicates an expected call of Execute.
-func (mr *MockTypedExecutorMockRecorder[Params]) Execute(ctx, tsk, args, result any) *MockTypedExecutorExecuteCall[Params] {
+func (mr *MockTypedExecutorMockRecorder[Params]) Execute(ctx, session, tsk, args, result any) *MockTypedExecutorExecuteCall[Params] {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockTypedExecutor[Params])(nil).Execute), ctx, tsk, args, result)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockTypedExecutor[Params])(nil).Execute), ctx, session, tsk, args, result)
 	return &MockTypedExecutorExecuteCall[Params]{Call: call}
 }
 
@@ -106,13 +106,13 @@ func (c *MockTypedExecutorExecuteCall[Params]) Return(arg0 error) *MockTypedExec
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTypedExecutorExecuteCall[Params]) Do(f func(context.Context, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params] {
+func (c *MockTypedExecutorExecuteCall[Params]) Do(f func(context.Context, task.Session, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params] {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTypedExecutorExecuteCall[Params]) DoAndReturn(f func(context.Context, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params] {
+func (c *MockTypedExecutorExecuteCall[Params]) DoAndReturn(f func(context.Context, task.Session, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params] {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

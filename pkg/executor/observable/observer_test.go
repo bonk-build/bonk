@@ -28,7 +28,6 @@ func TestPass(t *testing.T) { //nolint:paralleltest
 		tskID := task.NewID("testing")
 		tsk := task.New(
 			tskID,
-			session,
 			"exec",
 			nil,
 		)
@@ -46,9 +45,9 @@ func TestPass(t *testing.T) { //nolint:paralleltest
 		exec.EXPECT().OpenSession(t.Context(), session).Times(1)
 		exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
 		exec.EXPECT().
-			Execute(t.Context(), tsk, &result).
+			Execute(t.Context(), session, tsk, &result).
 			Times(1).
-			DoAndReturn(func(context.Context, *task.Task, *task.Result) error {
+			DoAndReturn(func(context.Context, task.Session, *task.Task, *task.Result) error {
 				<-cont
 
 				return nil
@@ -58,7 +57,7 @@ func TestPass(t *testing.T) { //nolint:paralleltest
 		require.NoError(t, err)
 
 		go func() {
-			err := obs.Execute(t.Context(), tsk, &result)
+			err := obs.Execute(t.Context(), session, tsk, &result)
 			assert.NoError(t, err)
 		}()
 
@@ -86,7 +85,6 @@ func TestFail(t *testing.T) { //nolint:paralleltest
 		tskID := task.NewID("testing")
 		tsk := task.New(
 			tskID,
-			session,
 			"exec",
 			nil,
 		)
@@ -106,9 +104,9 @@ func TestFail(t *testing.T) { //nolint:paralleltest
 		exec.EXPECT().OpenSession(t.Context(), session).Times(1)
 		exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
 		exec.EXPECT().
-			Execute(t.Context(), tsk, &result).
+			Execute(t.Context(), session, tsk, &result).
 			Times(1).
-			DoAndReturn(func(context.Context, *task.Task, *task.Result) error {
+			DoAndReturn(func(context.Context, task.Session, *task.Task, *task.Result) error {
 				<-cont
 
 				return assert.AnError
@@ -118,7 +116,7 @@ func TestFail(t *testing.T) { //nolint:paralleltest
 		require.NoError(t, err)
 
 		go func() {
-			err := obs.Execute(t.Context(), tsk, &result)
+			err := obs.Execute(t.Context(), session, tsk, &result)
 			assert.ErrorIs(t, err, assert.AnError)
 		}()
 
@@ -142,12 +140,11 @@ func TestUnopened(t *testing.T) {
 	tskID := task.NewID("testing")
 	tsk := task.New(
 		tskID,
-		session,
 		"exec",
 		nil,
 	)
 
 	obs := observable.New(nil)
-	err := obs.Execute(t.Context(), tsk, &result)
+	err := obs.Execute(t.Context(), session, tsk, &result)
 	require.ErrorIs(t, err, observable.ErrUnopenedSession)
 }

@@ -272,7 +272,7 @@ TypedExecutor is like \[executor.Executor\] but with unboxed arguments.
 type TypedExecutor[Params any] interface {
     OpenSession(ctx context.Context, session task.Session) error
     CloseSession(ctx context.Context, sessionID task.SessionID)
-    Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error
+    Execute(ctx context.Context, session task.Session, tsk *task.Task, args *Params, result *task.Result) error
 }
 ```
 

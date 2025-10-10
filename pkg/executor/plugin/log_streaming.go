@@ -44,18 +44,21 @@ func init() {
 
 func getTaskLoggingContext(
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 ) (context.Context, func() error, error) {
+	taskOutput := task.OutputFS(session, tsk.ID)
+
 	// Open log txt and json files
-	err := tsk.OutputFS().MkdirAll("", 0o750)
+	err := taskOutput.MkdirAll("", 0o750)
 	if err != nil {
 		return nil, nil, errors.New("failed to create task directory")
 	}
-	logFileText, err := tsk.OutputFS().Create("log.txt")
+	logFileText, err := taskOutput.Create("log.txt")
 	if err != nil {
 		return nil, nil, errors.New("failed to open log txt file")
 	}
-	logFileJSON, err := tsk.OutputFS().Create("log.jsonl")
+	logFileJSON, err := taskOutput.Create("log.jsonl")
 	if err != nil {
 		return nil, nil, errors.New("failed to open log json file")
 	}

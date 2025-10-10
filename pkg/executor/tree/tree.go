@@ -120,6 +120,7 @@ func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.Session
 
 func (et *ExecutorTree) Execute(
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 	result *task.Result,
 ) error {
@@ -129,7 +130,7 @@ func (et *ExecutorTree) Execute(
 
 	if ok {
 		tsk.Executor = after
-		err := child.Execute(ctx, tsk, result)
+		err := child.Execute(ctx, session, tsk, result)
 		tsk.Executor = exec
 
 		return err

@@ -43,17 +43,22 @@ type observ struct {
 	listeners []Observer
 }
 
-func (obs *observ) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
-	session, ok := obs.sessions[tsk.Session.ID()]
+func (obs *observ) Execute(
+	ctx context.Context,
+	session task.Session,
+	tsk *task.Task,
+	result *task.Result,
+) error {
+	obsSession, ok := obs.sessions[session.ID()]
 	if !ok {
-		return fmt.Errorf("%w: %s", ErrUnopenedSession, tsk.Session.ID())
+		return fmt.Errorf("%w: %s", ErrUnopenedSession, session.ID())
 	}
 
-	obs.trigger(session, TaskRunningMsg(tsk.ID))
+	obs.trigger(obsSession, TaskRunningMsg(tsk.ID))
 
-	err := obs.exec.Execute(ctx, tsk, result)
+	err := obs.exec.Execute(ctx, session, tsk, result)
 
-	obs.trigger(session, TaskFinishedMsg(tsk.ID, err))
+	obs.trigger(obsSession, TaskFinishedMsg(tsk.ID, err))
 
 	return err
 }

@@ -12,7 +12,7 @@ Package plugin provides an executor which uses go\-plugin to launch gRPC subproc
 
 - [type Plugin](<#Plugin>)
   - [func NewPlugin\(name string, initializers ...PluginOption\) \*Plugin](<#NewPlugin>)
-  - [func \(p \*Plugin\) Execute\(ctx context.Context, tsk \*task.Task, res \*task.Result\) error](<#Plugin.Execute>)
+  - [func \(p \*Plugin\) Execute\(ctx context.Context, session task.Session, tsk \*task.Task, res \*task.Result\) error](<#Plugin.Execute>)
   - [func \(\*Plugin\) GRPCClient\(context.Context, \*goplugin.GRPCBroker, \*grpc.ClientConn\) \(any, error\)](<#Plugin.GRPCClient>)
   - [func \(p \*Plugin\) GRPCServer\(\_ \*goplugin.GRPCBroker, server \*grpc.Server\) error](<#Plugin.GRPCServer>)
   - [func \(p \*Plugin\) Name\(\) string](<#Plugin.Name>)
@@ -50,10 +50,10 @@ func NewPlugin(name string, initializers ...PluginOption) *Plugin
 NewPlugin creates a new [Plugin](<#Plugin>) from the given options.
 
 <a name="Plugin.Execute"></a>
-### func \(\*Plugin\) [Execute](<server.go#L97-L101>)
+### func \(\*Plugin\) [Execute](<server.go#L97-L102>)
 
 ```go
-func (p *Plugin) Execute(ctx context.Context, tsk *task.Task, res *task.Result) error
+func (p *Plugin) Execute(ctx context.Context, session task.Session, tsk *task.Task, res *task.Result) error
 ```
 
 Execute adds some special details to the context.

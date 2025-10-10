@@ -11,6 +11,7 @@ Package task contains the core structures needed define a bonk pipeline. For mor
 ## Index
 
 - [Constants](<#constants>)
+- [func OutputFS\(session Session, id ID\) afero.Fs](<#OutputFS>)
 - [func TaskIDMatches\(id ID\) gomock.Matcher](<#TaskIDMatches>)
 - [type DefaultSession](<#DefaultSession>)
   - [func \(ds \*DefaultSession\) ID\(\) SessionID](<#DefaultSession.ID>)
@@ -32,8 +33,7 @@ Package task contains the core structures needed define a bonk pipeline. For mor
 - [type SessionID](<#SessionID>)
   - [func NewSessionID\(\) SessionID](<#NewSessionID>)
 - [type Task](<#Task>)
-  - [func New\(id ID, session Session, executor string, args any, options ...Option\) \*Task](<#New>)
-  - [func \(tsk \*Task\) OutputFS\(\) afero.Fs](<#Task.OutputFS>)
+  - [func New\(id ID, executor string, args any, options ...Option\) \*Task](<#New>)
 
 
 ## Constants
@@ -43,6 +43,15 @@ Package task contains the core structures needed define a bonk pipeline. For mor
 ```go
 const TaskIDSep = "."
 ```
+
+<a name="OutputFS"></a>
+## func [OutputFS](<session.go#L30>)
+
+```go
+func OutputFS(session Session, id ID) afero.Fs
+```
+
+OutputFS returns the output filesystem for the given task.
 
 <a name="TaskIDMatches"></a>
 ## func [TaskIDMatches](<testing.go#L38>)
@@ -54,7 +63,7 @@ func TaskIDMatches(id ID) gomock.Matcher
 
 
 <a name="DefaultSession"></a>
-## type [DefaultSession](<session.go#L38-L42>)
+## type [DefaultSession](<session.go#L43-L47>)
 
 DefaultSession is a default implementation of Session that stores its parameters in members.
 
@@ -67,7 +76,7 @@ type DefaultSession struct {
 ```
 
 <a name="DefaultSession.ID"></a>
-### func \(\*DefaultSession\) [ID](<session.go#L50>)
+### func \(\*DefaultSession\) [ID](<session.go#L55>)
 
 ```go
 func (ds *DefaultSession) ID() SessionID
@@ -76,7 +85,7 @@ func (ds *DefaultSession) ID() SessionID
 ID returns a unique identifier per\-session.
 
 <a name="DefaultSession.OutputFS"></a>
-### func \(\*DefaultSession\) [OutputFS](<session.go#L60>)
+### func \(\*DefaultSession\) [OutputFS](<session.go#L65>)
 
 ```go
 func (ds *DefaultSession) OutputFS() afero.Fs
@@ -85,7 +94,7 @@ func (ds *DefaultSession) OutputFS() afero.Fs
 OutputFS returns an \[afero.Fs\] referring to session's output directory.
 
 <a name="DefaultSession.SourceFS"></a>
-### func \(\*DefaultSession\) [SourceFS](<session.go#L55>)
+### func \(\*DefaultSession\) [SourceFS](<session.go#L60>)
 
 ```go
 func (ds *DefaultSession) SourceFS() afero.Fs
@@ -139,7 +148,7 @@ func (id ID) String() string
 
 
 <a name="LocalSession"></a>
-## type [LocalSession](<session.go#L30-L35>)
+## type [LocalSession](<session.go#L35-L40>)
 
 LocalSession is a session that is being executed on the local machine.
 
@@ -153,7 +162,7 @@ type LocalSession interface {
 ```
 
 <a name="NewLocalSession"></a>
-### func [NewLocalSession](<session.go#L73>)
+### func [NewLocalSession](<session.go#L78>)
 
 ```go
 func NewLocalSession(id SessionID, localPath string) LocalSession
@@ -162,7 +171,7 @@ func NewLocalSession(id SessionID, localPath string) LocalSession
 NewLocalSession creates a session describing a project source on the current local machine.
 
 <a name="Option"></a>
-## type [Option](<task.go#L27>)
+## type [Option](<task.go#L21>)
 
 
 
@@ -171,7 +180,7 @@ type Option func(*Task)
 ```
 
 <a name="WithDependencies"></a>
-### func [WithDependencies](<task.go#L59>)
+### func [WithDependencies](<task.go#L51>)
 
 ```go
 func WithDependencies(dependencies ...ID) Option
@@ -180,7 +189,7 @@ func WithDependencies(dependencies ...ID) Option
 WithDependencies appends input specifiers to this task.
 
 <a name="WithInputs"></a>
-### func [WithInputs](<task.go#L52>)
+### func [WithInputs](<task.go#L44>)
 
 ```go
 func WithInputs(inputs ...string) Option
@@ -246,7 +255,7 @@ func NewSessionID() SessionID
 NewSessionID creates a new unique session identifier which may be sorted in order of creation time.
 
 <a name="Task"></a>
-## type [Task](<task.go#L11-L25>)
+## type [Task](<task.go#L7-L19>)
 
 Task represents a unit of work to be executed.
 
@@ -256,8 +265,6 @@ type Task struct {
     ID  ID  `json:"id"`
     // Executor describes where to route this task for execution.
     Executor string `json:"executor"`
-    // Session manages the filesystem access for this task.
-    Session Session `json:"-"`
 
     // Inputs describes any files that may be consumed by this task (relative to [Session.SourceFS]).
     Inputs []string `json:"inputs,omitempty"`
@@ -269,21 +276,12 @@ type Task struct {
 ```
 
 <a name="New"></a>
-### func [New](<task.go#L30-L36>)
+### func [New](<task.go#L24-L29>)
 
 ```go
-func New(id ID, session Session, executor string, args any, options ...Option) *Task
+func New(id ID, executor string, args any, options ...Option) *Task
 ```
 
 New creates a new task with the given parameters.
-
-<a name="Task.OutputFS"></a>
-### func \(\*Task\) [OutputFS](<task.go#L66>)
-
-```go
-func (tsk *Task) OutputFS() afero.Fs
-```
-
-OutputFS returns the output filesystem for this task.
 
 Generated by [gomarkdoc](<https://github.com/princjef/gomarkdoc>)

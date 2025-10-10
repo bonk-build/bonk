@@ -90,10 +90,11 @@ func (pb *grpcClient) CloseSession(ctx context.Context, sessionID task.SessionID
 
 func (pb *grpcClient) Execute(
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 	result *task.Result,
 ) error {
-	sessionIDStr := tsk.Session.ID().String()
+	sessionIDStr := session.ID().String()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
 		SessionId: &sessionIDStr,
 		Id:        (*string)(&tsk.ID),
@@ -123,7 +124,6 @@ func (pb *grpcClient) Execute(
 		// Create the new task and append it
 		result.FollowupTasks[ii] = *task.New(
 			task.NewID(followup.GetId()),
-			tsk.Session,
 			followup.GetExecutor(),
 			followup.GetArguments().AsInterface(),
 			task.WithInputs(followup.GetInputs()...),

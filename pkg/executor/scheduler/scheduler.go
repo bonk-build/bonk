@@ -32,11 +32,16 @@ type scheduler struct {
 
 // Execute implements executor.Executor.
 // Execute will execute the task and all of it's followups, as well as wait for dependencies to resolve.
-func (s *scheduler) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
+func (s *scheduler) Execute(
+	ctx context.Context,
+	session task.Session,
+	tsk *task.Task,
+	result *task.Result,
+) error {
 	errgrp, ctx := errgroup.WithContext(ctx)
 	errgrp.SetLimit(s.maxConcurrency)
 
-	err := s.executeImpl(errgrp, ctx, tsk, result)
+	err := s.executeImpl(errgrp, ctx, session, tsk, result)
 	if err != nil {
 		return err
 	}
@@ -47,10 +52,11 @@ func (s *scheduler) Execute(ctx context.Context, tsk *task.Task, result *task.Re
 func (s *scheduler) executeImpl(
 	errgrp *errgroup.Group,
 	ctx context.Context,
+	session task.Session,
 	tsk *task.Task,
 	result *task.Result,
 ) error {
-	err := s.Executor.Execute(ctx, tsk, result)
+	err := s.Executor.Execute(ctx, session, tsk, result)
 	if err != nil {
 		return err
 	}
@@ -62,7 +68,7 @@ func (s *scheduler) executeImpl(
 			// Update the ID to be the child of this task.
 			followup.ID = tsk.ID.GetChild(followup.ID.String())
 
-			err := s.executeImpl(errgrp, ctx, &followup, &res)
+			err := s.executeImpl(errgrp, ctx, session, &followup, &res)
 
 			return err
 		})

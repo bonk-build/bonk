@@ -228,12 +228,13 @@ func (s *grpcServer) ExecuteTask(
 	tsk := task.Task{
 		ID:       task.ID(req.GetId()),
 		Executor: req.GetExecutor(),
-		Session:  session,
 		Inputs:   req.GetInputs(),
 		Args:     req.GetArguments().AsInterface(),
 	}
 
-	err := tsk.OutputFS().MkdirAll("", 0o750)
+	taskOutputFs := task.OutputFS(session.Session, tsk.ID)
+
+	err := taskOutputFs.MkdirAll("", 0o750)
 	if err != nil {
 		return nil, status.Errorf(
 			codes.Unknown,
@@ -242,7 +243,7 @@ func (s *grpcServer) ExecuteTask(
 		)
 	}
 	var response task.Result
-	err = s.executor.Execute(ctx, &tsk, &response)
+	err = s.executor.Execute(ctx, session, &tsk, &response)
 	if err != nil {
 		return nil, status.Error(CodeExecErr, err.Error())
 	}

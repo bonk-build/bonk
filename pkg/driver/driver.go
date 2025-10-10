@@ -59,7 +59,7 @@ func Run(ctx context.Context, options Options) error {
 
 		for _, tsk := range tasks {
 			res := task.Result{}
-			multierr.AppendInto(&err, exec.Execute(ctx, tsk, &res))
+			multierr.AppendInto(&err, exec.Execute(ctx, session, tsk, &res))
 		}
 	}
 

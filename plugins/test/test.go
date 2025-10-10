@@ -23,6 +23,7 @@ type ExecutorTest struct {
 
 func (ExecutorTest) Execute(
 	ctx context.Context,
+	_ task.Session,
 	_ *task.Task,
 	args *Params,
 	_ *task.Result,

@@ -11,9 +11,9 @@ Package statecheck provides an executor that avoids re\-running tasks if they ar
 ## Index
 
 - [Constants](<#constants>)
-- [func DetectStateMismatches\(task \*task.Task\) \[\]string](<#DetectStateMismatches>)
+- [func DetectStateMismatches\(session task.Session, tsk \*task.Task\) \[\]string](<#DetectStateMismatches>)
 - [func New\(child executor.Executor\) executor.Executor](<#New>)
-- [func SaveState\(task \*task.Task, result \*task.Result\) error](<#SaveState>)
+- [func SaveState\(session task.Session, tsk \*task.Task, result \*task.Result\) error](<#SaveState>)
 
 
 ## Constants
@@ -25,10 +25,10 @@ const StateFile = "state.json"
 ```
 
 <a name="DetectStateMismatches"></a>
-## func [DetectStateMismatches](<taskstate.go#L89>)
+## func [DetectStateMismatches](<taskstate.go#L91>)
 
 ```go
-func DetectStateMismatches(task *task.Task) []string
+func DetectStateMismatches(session task.Session, tsk *task.Task) []string
 ```
 
 
@@ -46,7 +46,7 @@ func New(child executor.Executor) executor.Executor
 ## func [SaveState](<taskstate.go#L35>)
 
 ```go
-func SaveState(task *task.Task, result *task.Result) error
+func SaveState(session task.Session, tsk *task.Task, result *task.Result) error
 ```
 
 

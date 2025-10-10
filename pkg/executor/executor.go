@@ -17,7 +17,7 @@ import (
 // Executor is the interface required to execute tasks.
 type Executor interface {
 	// Execute is given a task to execute and expected to populate result with the outcome.
-	Execute(ctx context.Context, tsk *task.Task, result *task.Result) error
+	Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
 	// OpenSession is called before any tasks are executed, and can be used to do things such as
 	// initializing caches, etc.
 	OpenSession(ctx context.Context, session task.Session) error

@@ -81,17 +81,17 @@ func (c *MockExecutorCloseSessionCall) DoAndReturn(f func(context.Context, task.
 }
 
 // Execute mocks base method.
-func (m *MockExecutor) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error {
+func (m *MockExecutor) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Execute", ctx, tsk, result)
+	ret := m.ctrl.Call(m, "Execute", ctx, session, tsk, result)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Execute indicates an expected call of Execute.
-func (mr *MockExecutorMockRecorder) Execute(ctx, tsk, result any) *MockExecutorExecuteCall {
+func (mr *MockExecutorMockRecorder) Execute(ctx, session, tsk, result any) *MockExecutorExecuteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor)(nil).Execute), ctx, tsk, result)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Execute", reflect.TypeOf((*MockExecutor)(nil).Execute), ctx, session, tsk, result)
 	return &MockExecutorExecuteCall{Call: call}
 }
 
@@ -107,13 +107,13 @@ func (c *MockExecutorExecuteCall) Return(arg0 error) *MockExecutorExecuteCall {
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockExecutorExecuteCall) Do(f func(context.Context, *task.Task, *task.Result) error) *MockExecutorExecuteCall {
+func (c *MockExecutorExecuteCall) Do(f func(context.Context, task.Session, *task.Task, *task.Result) error) *MockExecutorExecuteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockExecutorExecuteCall) DoAndReturn(f func(context.Context, *task.Task, *task.Result) error) *MockExecutorExecuteCall {
+func (c *MockExecutorExecuteCall) DoAndReturn(f func(context.Context, task.Session, *task.Task, *task.Result) error) *MockExecutorExecuteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

@@ -38,20 +38,18 @@ func TestFollowups(t *testing.T) {
 	res := task.Result{}
 	tsk := task.New(
 		task.NewID("testing"),
-		session,
 		"none",
 		nil,
 	)
 
 	exec.EXPECT().
-		Execute(gomock.Any(), tsk, &res).
+		Execute(gomock.Any(), session, tsk, &res).
 		Times(1).
 		Return(nil).
-		Do(func(ctx context.Context, t *task.Task, r *task.Result) {
+		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range numFollowups {
 				r.FollowupTasks = append(r.FollowupTasks, *task.New(
 					task.NewID("child", strconv.Itoa(idx)),
-					t.Session,
 					"none",
 					nil,
 				))
@@ -59,10 +57,10 @@ func TestFollowups(t *testing.T) {
 		})
 	for idx := range numFollowups {
 		exec.EXPECT().
-			Execute(gomock.Any(), task.TaskIDMatches(tsk.ID.GetChild("child", strconv.Itoa(idx))), gomock.Any())
+			Execute(gomock.Any(), session, task.TaskIDMatches(tsk.ID.GetChild("child", strconv.Itoa(idx))), gomock.Any())
 	}
 
-	err = sched.Execute(t.Context(), tsk, &res)
+	err = sched.Execute(t.Context(), session, tsk, &res)
 	require.NoError(t, err)
 }
 
@@ -84,30 +82,28 @@ func TestErrNoFollowups(t *testing.T) {
 	res := task.Result{}
 	tsk := task.New(
 		task.NewID("testing"),
-		session,
 		"none",
 		nil,
 	)
 
 	exec.EXPECT().
-		Execute(gomock.Any(), tsk, &res).
+		Execute(gomock.Any(), session, tsk, &res).
 		Times(1).
 		Return(assert.AnError).
-		Do(func(ctx context.Context, t *task.Task, r *task.Result) {
+		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range 3 {
 				r.FollowupTasks = append(r.FollowupTasks, *task.New(
 					task.NewID("child", strconv.Itoa(idx)),
-					t.Session,
 					"none",
 					nil,
 				))
 			}
 		})
 	exec.EXPECT().
-		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+		Execute(gomock.Any(), session, gomock.Any(), gomock.Any()).
 		Times(0)
 
-	err = sched.Execute(t.Context(), tsk, &res)
+	err = sched.Execute(t.Context(), session, tsk, &res)
 	require.ErrorIs(t, err, assert.AnError)
 }
 
@@ -129,30 +125,28 @@ func TestFollowupsErrs(t *testing.T) {
 	res := task.Result{}
 	tsk := task.New(
 		task.NewID("testing"),
-		session,
 		"none",
 		nil,
 	)
 
 	exec.EXPECT().
-		Execute(gomock.Any(), tsk, &res).
+		Execute(gomock.Any(), session, tsk, &res).
 		Times(1).
 		Return(nil).
-		Do(func(ctx context.Context, t *task.Task, r *task.Result) {
+		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range 3 {
 				r.FollowupTasks = append(r.FollowupTasks, *task.New(
 					task.NewID("child", strconv.Itoa(idx)),
-					t.Session,
 					"none",
 					nil,
 				))
 			}
 		})
 	exec.EXPECT().
-		Execute(gomock.Any(), gomock.Any(), gomock.Any()).
+		Execute(gomock.Any(), session, gomock.Any(), gomock.Any()).
 		MaxTimes(3).
 		Return(assert.AnError)
 
-	err = sched.Execute(t.Context(), tsk, &res)
+	err = sched.Execute(t.Context(), session, tsk, &res)
 	require.ErrorIs(t, err, assert.AnError)
 }

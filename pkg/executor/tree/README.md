@@ -14,7 +14,7 @@ Package tree provides [ExecutorTree](<#ExecutorTree>), which is meant to route t
 - [type ExecutorTree](<#ExecutorTree>)
   - [func New\(\) ExecutorTree](<#New>)
   - [func \(et \*ExecutorTree\) CloseSession\(ctx context.Context, sessionId task.SessionID\)](<#ExecutorTree.CloseSession>)
-  - [func \(et \*ExecutorTree\) Execute\(ctx context.Context, tsk \*task.Task, result \*task.Result\) error](<#ExecutorTree.Execute>)
+  - [func \(et \*ExecutorTree\) Execute\(ctx context.Context, session task.Session, tsk \*task.Task, result \*task.Result\) error](<#ExecutorTree.Execute>)
   - [func \(et \*ExecutorTree\) ForEachExecutor\(fun func\(name string, exec executor.Executor\)\)](<#ExecutorTree.ForEachExecutor>)
   - [func \(et \*ExecutorTree\) GetNumExecutors\(\) int](<#ExecutorTree.GetNumExecutors>)
   - [func \(et \*ExecutorTree\) OpenSession\(ctx context.Context, session task.Session\) error](<#ExecutorTree.OpenSession>)
@@ -63,16 +63,16 @@ func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.Session
 
 
 <a name="ExecutorTree.Execute"></a>
-### func \(\*ExecutorTree\) [Execute](<tree.go#L121-L125>)
+### func \(\*ExecutorTree\) [Execute](<tree.go#L121-L126>)
 
 ```go
-func (et *ExecutorTree) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error
+func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
 ```
 
 
 
 <a name="ExecutorTree.ForEachExecutor"></a>
-### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L150>)
+### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L151>)
 
 ```go
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor))
@@ -81,7 +81,7 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Exec
 
 
 <a name="ExecutorTree.GetNumExecutors"></a>
-### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L141>)
+### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L142>)
 
 ```go
 func (et *ExecutorTree) GetNumExecutors() int
