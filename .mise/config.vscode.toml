@@ -1,0 +1,7 @@
+# Copyright © 2025 Colden Cullen
+# SPDX-License-Identifier: MIT
+
+[tools]
+# Usually used via go tool, but necessary for extensions
+cue = "0.14.1"
+buf = "1.58.0"
