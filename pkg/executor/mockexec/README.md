@@ -15,19 +15,19 @@ Package mockexec is a generated GoMock package.
   - [func NewMockExecutor\(ctrl \*gomock.Controller\) \*MockExecutor](<#NewMockExecutor>)
   - [func \(m \*MockExecutor\) CloseSession\(ctx context.Context, sessionID task.SessionID\)](<#MockExecutor.CloseSession>)
   - [func \(m \*MockExecutor\) EXPECT\(\) \*MockExecutorMockRecorder](<#MockExecutor.EXPECT>)
-  - [func \(m \*MockExecutor\) Execute\(ctx context.Context, tsk \*task.Task, result \*task.Result\) error](<#MockExecutor.Execute>)
+  - [func \(m \*MockExecutor\) Execute\(ctx context.Context, session task.Session, tsk \*task.Task, result \*task.Result\) error](<#MockExecutor.Execute>)
   - [func \(m \*MockExecutor\) OpenSession\(ctx context.Context, session task.Session\) error](<#MockExecutor.OpenSession>)
 - [type MockExecutorCloseSessionCall](<#MockExecutorCloseSessionCall>)
   - [func \(c \*MockExecutorCloseSessionCall\) Do\(f func\(context.Context, task.SessionID\)\) \*MockExecutorCloseSessionCall](<#MockExecutorCloseSessionCall.Do>)
   - [func \(c \*MockExecutorCloseSessionCall\) DoAndReturn\(f func\(context.Context, task.SessionID\)\) \*MockExecutorCloseSessionCall](<#MockExecutorCloseSessionCall.DoAndReturn>)
   - [func \(c \*MockExecutorCloseSessionCall\) Return\(\) \*MockExecutorCloseSessionCall](<#MockExecutorCloseSessionCall.Return>)
 - [type MockExecutorExecuteCall](<#MockExecutorExecuteCall>)
-  - [func \(c \*MockExecutorExecuteCall\) Do\(f func\(context.Context, \*task.Task, \*task.Result\) error\) \*MockExecutorExecuteCall](<#MockExecutorExecuteCall.Do>)
-  - [func \(c \*MockExecutorExecuteCall\) DoAndReturn\(f func\(context.Context, \*task.Task, \*task.Result\) error\) \*MockExecutorExecuteCall](<#MockExecutorExecuteCall.DoAndReturn>)
+  - [func \(c \*MockExecutorExecuteCall\) Do\(f func\(context.Context, task.Session, \*task.Task, \*task.Result\) error\) \*MockExecutorExecuteCall](<#MockExecutorExecuteCall.Do>)
+  - [func \(c \*MockExecutorExecuteCall\) DoAndReturn\(f func\(context.Context, task.Session, \*task.Task, \*task.Result\) error\) \*MockExecutorExecuteCall](<#MockExecutorExecuteCall.DoAndReturn>)
   - [func \(c \*MockExecutorExecuteCall\) Return\(arg0 error\) \*MockExecutorExecuteCall](<#MockExecutorExecuteCall.Return>)
 - [type MockExecutorMockRecorder](<#MockExecutorMockRecorder>)
   - [func \(mr \*MockExecutorMockRecorder\) CloseSession\(ctx, sessionID any\) \*MockExecutorCloseSessionCall](<#MockExecutorMockRecorder.CloseSession>)
-  - [func \(mr \*MockExecutorMockRecorder\) Execute\(ctx, tsk, result any\) \*MockExecutorExecuteCall](<#MockExecutorMockRecorder.Execute>)
+  - [func \(mr \*MockExecutorMockRecorder\) Execute\(ctx, session, tsk, result any\) \*MockExecutorExecuteCall](<#MockExecutorMockRecorder.Execute>)
   - [func \(mr \*MockExecutorMockRecorder\) OpenSession\(ctx, session any\) \*MockExecutorOpenSessionCall](<#MockExecutorMockRecorder.OpenSession>)
 - [type MockExecutorOpenSessionCall](<#MockExecutorOpenSessionCall>)
   - [func \(c \*MockExecutorOpenSessionCall\) Do\(f func\(context.Context, task.Session\) error\) \*MockExecutorOpenSessionCall](<#MockExecutorOpenSessionCall.Do>)
@@ -86,7 +86,7 @@ EXPECT returns an object that allows the caller to indicate expected use.
 ### func \(\*MockExecutor\) [Execute](<executor_mock.go#L84>)
 
 ```go
-func (m *MockExecutor) Execute(ctx context.Context, tsk *task.Task, result *task.Result) error
+func (m *MockExecutor) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
 ```
 
 Execute mocks base method.
@@ -153,7 +153,7 @@ type MockExecutorExecuteCall struct {
 ### func \(\*MockExecutorExecuteCall\) [Do](<executor_mock.go#L110>)
 
 ```go
-func (c *MockExecutorExecuteCall) Do(f func(context.Context, *task.Task, *task.Result) error) *MockExecutorExecuteCall
+func (c *MockExecutorExecuteCall) Do(f func(context.Context, task.Session, *task.Task, *task.Result) error) *MockExecutorExecuteCall
 ```
 
 Do rewrite \*gomock.Call.Do
@@ -162,7 +162,7 @@ Do rewrite \*gomock.Call.Do
 ### func \(\*MockExecutorExecuteCall\) [DoAndReturn](<executor_mock.go#L116>)
 
 ```go
-func (c *MockExecutorExecuteCall) DoAndReturn(f func(context.Context, *task.Task, *task.Result) error) *MockExecutorExecuteCall
+func (c *MockExecutorExecuteCall) DoAndReturn(f func(context.Context, task.Session, *task.Task, *task.Result) error) *MockExecutorExecuteCall
 ```
 
 DoAndReturn rewrite \*gomock.Call.DoAndReturn
@@ -200,7 +200,7 @@ CloseSession indicates an expected call of CloseSession.
 ### func \(\*MockExecutorMockRecorder\) [Execute](<executor_mock.go#L92>)
 
 ```go
-func (mr *MockExecutorMockRecorder) Execute(ctx, tsk, result any) *MockExecutorExecuteCall
+func (mr *MockExecutorMockRecorder) Execute(ctx, session, tsk, result any) *MockExecutorExecuteCall
 ```
 
 Execute indicates an expected call of Execute.

@@ -16,19 +16,19 @@ Package argconv provides an executor for automatically unboxing task parameters.
   - [func NewMockTypedExecutor\[Params any\]\(ctrl \*gomock.Controller\) \*MockTypedExecutor\[Params\]](<#NewMockTypedExecutor>)
   - [func \(m \*MockTypedExecutor\[Params\]\) CloseSession\(ctx context.Context, sessionID task.SessionID\)](<#MockTypedExecutor[Params].CloseSession>)
   - [func \(m \*MockTypedExecutor\[Params\]\) EXPECT\(\) \*MockTypedExecutorMockRecorder\[Params\]](<#MockTypedExecutor[Params].EXPECT>)
-  - [func \(m \*MockTypedExecutor\[Params\]\) Execute\(ctx context.Context, tsk \*task.Task, args \*Params, result \*task.Result\) error](<#MockTypedExecutor[Params].Execute>)
+  - [func \(m \*MockTypedExecutor\[Params\]\) Execute\(ctx context.Context, session task.Session, tsk \*task.Task, args \*Params, result \*task.Result\) error](<#MockTypedExecutor[Params].Execute>)
   - [func \(m \*MockTypedExecutor\[Params\]\) OpenSession\(ctx context.Context, session task.Session\) error](<#MockTypedExecutor[Params].OpenSession>)
 - [type MockTypedExecutorCloseSessionCall](<#MockTypedExecutorCloseSessionCall>)
   - [func \(c \*MockTypedExecutorCloseSessionCall\[Params\]\) Do\(f func\(context.Context, task.SessionID\)\) \*MockTypedExecutorCloseSessionCall\[Params\]](<#MockTypedExecutorCloseSessionCall[Params].Do>)
   - [func \(c \*MockTypedExecutorCloseSessionCall\[Params\]\) DoAndReturn\(f func\(context.Context, task.SessionID\)\) \*MockTypedExecutorCloseSessionCall\[Params\]](<#MockTypedExecutorCloseSessionCall[Params].DoAndReturn>)
   - [func \(c \*MockTypedExecutorCloseSessionCall\[Params\]\) Return\(\) \*MockTypedExecutorCloseSessionCall\[Params\]](<#MockTypedExecutorCloseSessionCall[Params].Return>)
 - [type MockTypedExecutorExecuteCall](<#MockTypedExecutorExecuteCall>)
-  - [func \(c \*MockTypedExecutorExecuteCall\[Params\]\) Do\(f func\(context.Context, \*task.Task, \*Params, \*task.Result\) error\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorExecuteCall[Params].Do>)
-  - [func \(c \*MockTypedExecutorExecuteCall\[Params\]\) DoAndReturn\(f func\(context.Context, \*task.Task, \*Params, \*task.Result\) error\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorExecuteCall[Params].DoAndReturn>)
+  - [func \(c \*MockTypedExecutorExecuteCall\[Params\]\) Do\(f func\(context.Context, task.Session, \*task.Task, \*Params, \*task.Result\) error\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorExecuteCall[Params].Do>)
+  - [func \(c \*MockTypedExecutorExecuteCall\[Params\]\) DoAndReturn\(f func\(context.Context, task.Session, \*task.Task, \*Params, \*task.Result\) error\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorExecuteCall[Params].DoAndReturn>)
   - [func \(c \*MockTypedExecutorExecuteCall\[Params\]\) Return\(arg0 error\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorExecuteCall[Params].Return>)
 - [type MockTypedExecutorMockRecorder](<#MockTypedExecutorMockRecorder>)
   - [func \(mr \*MockTypedExecutorMockRecorder\[Params\]\) CloseSession\(ctx, sessionID any\) \*MockTypedExecutorCloseSessionCall\[Params\]](<#MockTypedExecutorMockRecorder[Params].CloseSession>)
-  - [func \(mr \*MockTypedExecutorMockRecorder\[Params\]\) Execute\(ctx, tsk, args, result any\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorMockRecorder[Params].Execute>)
+  - [func \(mr \*MockTypedExecutorMockRecorder\[Params\]\) Execute\(ctx, session, tsk, args, result any\) \*MockTypedExecutorExecuteCall\[Params\]](<#MockTypedExecutorMockRecorder[Params].Execute>)
   - [func \(mr \*MockTypedExecutorMockRecorder\[Params\]\) OpenSession\(ctx, session any\) \*MockTypedExecutorOpenSessionCall\[Params\]](<#MockTypedExecutorMockRecorder[Params].OpenSession>)
 - [type MockTypedExecutorOpenSessionCall](<#MockTypedExecutorOpenSessionCall>)
   - [func \(c \*MockTypedExecutorOpenSessionCall\[Params\]\) Do\(f func\(context.Context, task.Session\) error\) \*MockTypedExecutorOpenSessionCall\[Params\]](<#MockTypedExecutorOpenSessionCall[Params].Do>)
@@ -38,7 +38,7 @@ Package argconv provides an executor for automatically unboxing task parameters.
 
 
 <a name="BoxExecutor"></a>
-## func [BoxExecutor](<conversions.go#L92-L94>)
+## func [BoxExecutor](<conversions.go#L98-L100>)
 
 ```go
 func BoxExecutor[Params any](impl TypedExecutor[Params]) executor.Executor
@@ -47,7 +47,7 @@ func BoxExecutor[Params any](impl TypedExecutor[Params]) executor.Executor
 BoxExecutor accepts a TypedExecutor and wraps it into an untyped Executor.
 
 <a name="UnboxArgs"></a>
-## func [UnboxArgs](<conversions.go#L30>)
+## func [UnboxArgs](<conversions.go#L36>)
 
 ```go
 func UnboxArgs[Params any](tsk *task.Task) (*Params, error)
@@ -97,7 +97,7 @@ EXPECT returns an object that allows the caller to indicate expected use.
 ### func \(\*MockTypedExecutor\[Params\]\) [Execute](<typedexecutor_mock.go#L83>)
 
 ```go
-func (m *MockTypedExecutor[Params]) Execute(ctx context.Context, tsk *task.Task, args *Params, result *task.Result) error
+func (m *MockTypedExecutor[Params]) Execute(ctx context.Context, session task.Session, tsk *task.Task, args *Params, result *task.Result) error
 ```
 
 Execute mocks base method.
@@ -164,7 +164,7 @@ type MockTypedExecutorExecuteCall[Params any] struct {
 ### func \(\*MockTypedExecutorExecuteCall\[Params\]\) [Do](<typedexecutor_mock.go#L109>)
 
 ```go
-func (c *MockTypedExecutorExecuteCall[Params]) Do(f func(context.Context, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params]
+func (c *MockTypedExecutorExecuteCall[Params]) Do(f func(context.Context, task.Session, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params]
 ```
 
 Do rewrite \*gomock.Call.Do
@@ -173,7 +173,7 @@ Do rewrite \*gomock.Call.Do
 ### func \(\*MockTypedExecutorExecuteCall\[Params\]\) [DoAndReturn](<typedexecutor_mock.go#L115>)
 
 ```go
-func (c *MockTypedExecutorExecuteCall[Params]) DoAndReturn(f func(context.Context, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params]
+func (c *MockTypedExecutorExecuteCall[Params]) DoAndReturn(f func(context.Context, task.Session, *task.Task, *Params, *task.Result) error) *MockTypedExecutorExecuteCall[Params]
 ```
 
 DoAndReturn rewrite \*gomock.Call.DoAndReturn
@@ -211,7 +211,7 @@ CloseSession indicates an expected call of CloseSession.
 ### func \(\*MockTypedExecutorMockRecorder\[Params\]\) [Execute](<typedexecutor_mock.go#L91>)
 
 ```go
-func (mr *MockTypedExecutorMockRecorder[Params]) Execute(ctx, tsk, args, result any) *MockTypedExecutorExecuteCall[Params]
+func (mr *MockTypedExecutorMockRecorder[Params]) Execute(ctx, session, tsk, args, result any) *MockTypedExecutorExecuteCall[Params]
 ```
 
 Execute indicates an expected call of Execute.
@@ -264,7 +264,7 @@ func (c *MockTypedExecutorOpenSessionCall[Params]) Return(arg0 error) *MockTyped
 Return rewrite \*gomock.Call.Return
 
 <a name="TypedExecutor"></a>
-## type [TypedExecutor](<conversions.go#L23-L27>)
+## type [TypedExecutor](<conversions.go#L23-L33>)
 
 TypedExecutor is like \[executor.Executor\] but with unboxed arguments.
 
@@ -272,7 +272,13 @@ TypedExecutor is like \[executor.Executor\] but with unboxed arguments.
 type TypedExecutor[Params any] interface {
     OpenSession(ctx context.Context, session task.Session) error
     CloseSession(ctx context.Context, sessionID task.SessionID)
-    Execute(ctx context.Context, session task.Session, tsk *task.Task, args *Params, result *task.Result) error
+    Execute(
+        ctx context.Context,
+        session task.Session,
+        tsk *task.Task,
+        args *Params,
+        result *task.Result,
+    ) error
 }
 ```
 
