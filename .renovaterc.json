@@ -23,6 +23,8 @@
       "matchManagers": [
         "pre-commit"
       ],
+      "groupName": "pre-commit hooks",
+      "groupSlug": "pre-commit-hooks",
       "schedule": [
         "* * * * 0"
       ]
