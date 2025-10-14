@@ -66,26 +66,42 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./junit.xml
 
-  publish-docs:
+  build-docs:
     runs-on: ubuntu-latest
-    needs:
-      - pre-commit
-      - build
+
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
-        with:
-          ssh-key: ${{ secrets.DOCS_DEPLOY_KEY }}
-      - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
       - uses: jdx/mise-action@e3d7b8d67a7958d1207f6ed871e83b1ea780e7b0 # v3.3.1
         with:
           experimental: true
 
-      - run: git fetch origin gh-pages
-
-      - name: publish docs
-        if: github.ref_name == 'main'
-        run: mike deploy --push ${{ github.ref_name }}
-
       - name: build docs
-        if: github.ref_name != 'main'
         run: mkdocs build
+
+      - name: upload docs
+        uses: actions/upload-pages-artifact@v4.0.0
+        with:
+          path: site/
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+
+    # Only deploy from main (this will be later replaced by previews)
+    if: github.ref_name == 'main'
+
+    needs:
+      - build-docs
+
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: deploy pages
+        id: deployment
+        uses: actions/deploy-pages@v4.0.5
