@@ -9,9 +9,9 @@ repo_name: bonk-build/bonk
 nav:
   - README.md
   - API:
-    - Go: https://pkg.go.dev/go.bonk.build/
+      - Go: https://pkg.go.dev/go.bonk.build/
   - Command Line:
-    - cmd/bonk.md
+      - cmd/bonk.md
 
 theme:
   name: material
@@ -33,16 +33,6 @@ theme:
       primary: red
   features:
     - navigation.sections
-
-plugins:
-  - mike:
-      canonical_version: latest
-      version_selector: true
-
-extra:
-  version:
-    provider: mike
-    alias: true
 
 extra_css:
   - stylesheets/extra.css
