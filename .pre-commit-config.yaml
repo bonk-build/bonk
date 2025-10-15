@@ -10,6 +10,14 @@ default_install_hook_types:
   - pre-commit
   - pre-push
 
+ci:
+  autofix_commit_msg: "fix(pre-commit): auto fixes from pre-commit.com hooks"
+  autoupdate_commit_msg: "chore(deps): pre-commit autoupdate"
+  skip:
+    - no-commit-to-branch
+    - renovate-config-validator
+    - hawkeye-format
+
 repos:
   - repo: local
     hooks:
@@ -55,6 +63,11 @@ repos:
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
+
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.6.1
+    hooks:
+      - id: check-pre-commit-ci-config
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
