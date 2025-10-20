@@ -4,4 +4,4 @@
 [tools]
 # Usually used via go tool, but necessary for extensions
 cue = "0.14.1"
-buf = "1.58.0"
+buf = "1.59.0"
