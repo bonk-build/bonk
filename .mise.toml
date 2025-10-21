@@ -39,5 +39,4 @@ postinstall = [
 
   "gh extension install nektos/gh-act",
   "gh extension install seachicken/gh-poi",
-  "pre-commit install --install-hooks",
 ]
