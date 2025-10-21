@@ -10,19 +10,29 @@ default_install_hook_types:
   - pre-commit
   - pre-push
 
-repos:
-  - repo: local
-    hooks:
-      - id: go-generate
-        name: go generate
-        language: system
-        entry: go generate ./...
-        pass_filenames: false
+ci:
+  autofix_commit_msg: "fix(pre-commit): auto fixes from pre-commit hooks"
+  autoupdate_commit_msg: "chore(deps): pre-commit autoupdate"
+  skip:
+    - no-commit-to-branch
+    - renovate-config-validator
+    - hawkeye-format
+    - golangci-lint-config-verify
+    - golangci-lint-full
+    - golangci-lint-fmt
+    - buf-lint
+    - buf-format
 
+repos:
   - repo: meta
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
+
+  - repo: https://github.com/pre-commit-ci/pre-commit-ci-config
+    rev: v1.6.1
+    hooks:
+      - id: check-pre-commit-ci-config
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
