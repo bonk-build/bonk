@@ -90,3 +90,18 @@ func Test_BoxExecutor_Failure(t *testing.T) {
 	err := boxed.Execute(t.Context(), nil, typed, nil)
 	require.ErrorContains(t, err, "failed to convert params from int to argconv_test.Args")
 }
+
+func Test_Nil(t *testing.T) {
+	t.Parallel()
+
+	mock := gomock.NewController(t)
+	exec := argconv.NewMockTypedExecutor[Args](mock)
+	boxed := argconv.BoxExecutor(exec)
+
+	typed := task.New("", "", nil)
+
+	exec.EXPECT().Execute(t.Context(), nil, typed, nil, nil).Times(1)
+
+	err := boxed.Execute(t.Context(), nil, typed, nil)
+	require.NoError(t, err)
+}

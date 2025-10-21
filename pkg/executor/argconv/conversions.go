@@ -34,6 +34,10 @@ type TypedExecutor[Params any] interface {
 
 // UnboxArgs converts a task with generic arguments to a task with typed arguments.
 func UnboxArgs[Params any](tsk *task.Task) (*Params, error) {
+	if tsk.Args == nil {
+		return nil, nil //nolint:nilnil
+	}
+
 	paramsT := reflect.TypeFor[Params]()
 	argsV := reflect.ValueOf(tsk.Args)
 	argsT := argsV.Type()

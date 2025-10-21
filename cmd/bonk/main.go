@@ -71,7 +71,7 @@ var rootCmd = &cobra.Command{
 				task.New(
 					task.NewID("Test", "Kustomize"),
 					"kustomize.Kustomize",
-					map[string]any{},
+					nil,
 					task.WithInputs(
 						".bonk/Test.Resources/resources.yaml",
 					),
