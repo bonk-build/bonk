@@ -50,31 +50,11 @@ func (opts Options) WithPlugins(plugins ...string) Options {
 type SessionOption = func(Options, task.Session)
 
 // WithLocalSession creates a [task.LocalSession] with the given options.
-func (opts Options) WithLocalSession(path string, options ...SessionOption) Options {
+func (opts Options) WithLocalSession(path string, tasks ...*task.Task) Options {
 	sess := task.NewLocalSession(task.NewSessionID(), path)
-
-	for _, option := range options {
-		option(opts, sess)
-	}
+	opts.Sessions[sess] = tasks
 
 	return opts
-}
-
-// WithTask executes a task in the session.
-func WithTask(
-	id task.ID,
-	executor string,
-	args any,
-	options ...task.Option,
-) SessionOption {
-	return func(opts Options, session task.Session) {
-		opts.Sessions[session] = append(opts.Sessions[session], task.New(
-			id,
-			executor,
-			args,
-			options...,
-		))
-	}
 }
 
 // WithObservers adds observers to the execution pipeline.
