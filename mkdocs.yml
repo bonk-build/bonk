@@ -35,7 +35,7 @@ theme:
     - navigation.sections
 
 extra_css:
-  - stylesheets/extra.css
+  - assets/stylesheets/extra.css
 
 markdown_extensions:
   - markdown.extensions.tables
