@@ -23,7 +23,7 @@ jobs:
 
       - run: mise exec pre-commit -- pre-commit run --show-diff-on-failure --color=always
         env:
-          SKIP: no-commit-to-branch,hawkeye-format
+          SKIP: no-commit-to-branch,hawkeye-format,buf-lint,buf-format
 
       - run: hawkeye format
 
@@ -41,6 +41,13 @@ jobs:
       - uses: jdx/mise-action@e3d7b8d67a7958d1207f6ed871e83b1ea780e7b0 # v3.3.1
         with:
           experimental: true
+
+      - name: buf build
+        uses: bufbuild/buf-action@v1.3.0
+        with:
+          lint: true
+          format: true
+          push: false
 
       - name: go mod tidy
         run: go mod tidy -diff
