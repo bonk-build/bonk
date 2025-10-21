@@ -42,6 +42,9 @@ jobs:
         with:
           experimental: true
 
+      - name: go mod tidy
+        run: go mod tidy -diff
+
       - name: go build
         run: go build ./...
 
