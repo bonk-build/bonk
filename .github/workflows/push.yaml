@@ -23,7 +23,7 @@ jobs:
 
       - run: mise exec pre-commit -- pre-commit run --show-diff-on-failure --color=always
         env:
-          SKIP: no-commit-to-branch,hawkeye-format,buf-lint,buf-format
+          SKIP: no-commit-to-branch,hawkeye-format,golangci-lint-config-verify,golangci-lint-full,golangci-lint-fmt,buf-lint,buf-format
 
       - run: hawkeye format
 
@@ -34,8 +34,13 @@ jobs:
           add_options: --all
         if: always()
 
-  build:
+  lint:
     runs-on: ubuntu-latest
+    permissions:
+      # Required: allow read access to the content for analysis.
+      contents: read
+      # Optional: allow read access to pull requests. Use with `only-new-issues` option.
+      pull-requests: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - uses: jdx/mise-action@e3d7b8d67a7958d1207f6ed871e83b1ea780e7b0 # v3.3.1
@@ -48,6 +53,20 @@ jobs:
           lint: true
           format: true
           push: false
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          install-mode: none
+          only-new-issues: true
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: jdx/mise-action@e3d7b8d67a7958d1207f6ed871e83b1ea780e7b0 # v3.3.1
+        with:
+          experimental: true
 
       - name: go mod tidy
         run: go mod tidy -diff
