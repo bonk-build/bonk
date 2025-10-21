@@ -43,7 +43,7 @@ jobs:
           experimental: true
 
       - name: buf build
-        uses: bufbuild/buf-action@v1.3.0
+        uses: bufbuild/buf-action@8f4a1456a0ab6a1eb80ba68e53832e6fcfacc16c # v1.3.0
         with:
           lint: true
           format: true
