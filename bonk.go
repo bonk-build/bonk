@@ -4,7 +4,7 @@
 package bonk
 
 // Generate proto code
-//go:generate go tool buf generate
+//go:generate buf generate
 
 // Docs
 //go:generate go run -tags docs ./cmd/bonk docs

@@ -41,13 +41,13 @@ repos:
       - id: buf-fmt
         name: buf format
         language: system
-        entry: go tool buf format
+        entry: buf format
         types: [proto]
         pass_filenames: false
       - id: buf-lint
         name: buf lint
         language: system
-        entry: go tool buf lint
+        entry: buf lint
         types: [proto]
         pass_filenames: false
 
