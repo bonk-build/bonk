@@ -14,6 +14,7 @@ import (
 	"go.bonk.build/pkg/executor/argconv"
 	"go.bonk.build/pkg/executor/mockexec"
 	"go.bonk.build/pkg/executor/observable"
+	"go.bonk.build/pkg/task"
 )
 
 func TestWithConcurrency(t *testing.T) {
@@ -74,8 +75,8 @@ func TestWithLocalSession(t *testing.T) {
 
 	options := driver.MakeDefaultOptions().
 		WithLocalSession(".",
-			driver.WithTask("exec 0", "task 0", []string{}),
-			driver.WithTask("exec 1", "task 1", map[string]string{}),
+			task.New("exec 0", "task 0", []string{}),
+			task.New("exec 1", "task 1", map[string]string{}),
 		)
 
 	require.Len(t, options.Sessions, 1)

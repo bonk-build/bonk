@@ -46,14 +46,14 @@ var rootCmd = &cobra.Command{
 				"go.bonk.build/plugins/k8s/kustomize",
 			).
 			WithLocalSession(path.Join(cwd, "testdata"),
-				driver.WithTask(
+				task.New(
 					task.NewID("Test", "Test"),
 					"test.Test",
 					map[string]any{
 						"value": 3,
 					},
 				),
-				driver.WithTask(
+				task.New(
 					task.NewID("Test", "Resources"),
 					"resources.Resources",
 					map[string]any{
@@ -68,7 +68,7 @@ var rootCmd = &cobra.Command{
 						},
 					},
 				),
-				driver.WithTask(
+				task.New(
 					task.NewID("Test", "Kustomize"),
 					"kustomize.Kustomize",
 					map[string]any{},
