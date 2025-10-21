@@ -24,14 +24,6 @@ ci:
     - buf-format
 
 repos:
-  - repo: local
-    hooks:
-      - id: go-generate
-        name: go generate
-        language: system
-        entry: go generate ./...
-        pass_filenames: false
-
   - repo: meta
     hooks:
       - id: check-hooks-apply

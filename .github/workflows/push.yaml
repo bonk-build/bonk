@@ -6,7 +6,7 @@ on:
   - push
 
 jobs:
-  pre-commit:
+  generate:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,16 +21,14 @@ jobs:
         with:
           experimental: true
 
-      - run: mise exec pre-commit -- pre-commit run --show-diff-on-failure --color=always
-        env:
-          SKIP: no-commit-to-branch,hawkeye-format,golangci-lint-config-verify,golangci-lint-full,golangci-lint-fmt,buf-lint,buf-format
+      - run: go generate ./...
 
       - run: hawkeye format
 
       - name: commit changed files
         uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7.0.0
         with:
-          commit_message: "fix(pre-commit): auto-commit"
+          commit_message: "chore: run go-generate"
           add_options: --all
         if: always()
 
