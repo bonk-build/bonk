@@ -23,8 +23,6 @@ jobs:
 
       - run: go generate ./...
 
-      - run: hawkeye format
-
       - name: commit changed files
         uses: stefanzweifel/git-auto-commit-action@28e16e81777b558cc906c8750092100bbb34c5e3 # v7.0.0
         with:
@@ -44,6 +42,8 @@ jobs:
       - uses: jdx/mise-action@e3d7b8d67a7958d1207f6ed871e83b1ea780e7b0 # v3.3.1
         with:
           experimental: true
+
+      - run: hawkeye check
 
       - name: buf build
         uses: bufbuild/buf-action@8f4a1456a0ab6a1eb80ba68e53832e6fcfacc16c # v1.3.0
