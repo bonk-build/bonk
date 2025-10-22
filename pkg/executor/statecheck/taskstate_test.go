@@ -53,12 +53,12 @@ func TestTaskState_StateMismatches_Args(t *testing.T) {
 	err := statecheck.SaveState(session, tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
 	require.Empty(t, mismatches)
 
 	tsk.Args = 12
 
-	mismatches = statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ = statecheck.DetectStateMismatches(session, tsk)
 	require.Len(t, mismatches, 1)
 	require.Contains(t, mismatches, "arguments-checksum")
 }
@@ -75,7 +75,7 @@ func TestTaskState_StateMismatches_Inputs(t *testing.T) {
 	err := statecheck.SaveState(session, tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
 	require.Empty(t, mismatches)
 
 	tsk.Inputs = []string{inputFileName}
@@ -87,7 +87,7 @@ func TestTaskState_StateMismatches_Inputs(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, len(inputFileContents), written)
 
-	mismatches = statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ = statecheck.DetectStateMismatches(session, tsk)
 	require.Len(t, mismatches, 2)
 	require.Contains(t, mismatches, "inputs")
 	require.Contains(t, mismatches, "inputs-checksum")
@@ -114,14 +114,14 @@ func TestTaskState_StateMismatches_InputsChecksum(t *testing.T) {
 	err = statecheck.SaveState(session, tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
 	require.Empty(t, mismatches)
 
 	written, err = inputFile.WriteString(inputFileContents1)
 	require.NoError(t, err)
 	require.Equal(t, len(inputFileContents2), written)
 
-	mismatches = statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ = statecheck.DetectStateMismatches(session, tsk)
 	require.Len(t, mismatches, 1)
 	require.Contains(t, mismatches, "inputs-checksum")
 }
@@ -135,12 +135,12 @@ func TestTaskState_StateMismatches_Executor(t *testing.T) {
 	err := statecheck.SaveState(session, tsk, &result)
 	require.NoError(t, err)
 
-	mismatches := statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
 	require.Empty(t, mismatches)
 
 	tsk.Executor = "Different"
 
-	mismatches = statecheck.DetectStateMismatches(session, tsk)
+	mismatches, _ = statecheck.DetectStateMismatches(session, tsk)
 	require.Len(t, mismatches, 1)
 	require.Contains(t, mismatches, "executor")
 }
