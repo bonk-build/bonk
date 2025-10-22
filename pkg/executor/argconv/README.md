@@ -38,7 +38,7 @@ Package argconv provides an executor for automatically unboxing task parameters.
 
 
 <a name="BoxExecutor"></a>
-## func [BoxExecutor](<conversions.go#L98-L100>)
+## func [BoxExecutor](<conversions.go#L102-L104>)
 
 ```go
 func BoxExecutor[Params any](impl TypedExecutor[Params]) executor.Executor

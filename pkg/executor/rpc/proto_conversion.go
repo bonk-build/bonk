@@ -14,6 +14,10 @@ import (
 
 // ToProtoValue wraps any value into a [structpb.Value].
 func ToProtoValue(value any) (*structpb.Value, error) {
+	if value == nil {
+		return structpb.NewNullValue(), nil
+	}
+
 	return toProtoValue(reflect.ValueOf(value))
 }
 
