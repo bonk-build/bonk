@@ -17,7 +17,7 @@ pipx = "1.8.0"
 
 # Development
 buf = "1.59.0"
-github-cli = "2.82.0"
+github-cli = "2.82.1"
 pre-commit = "4.3.0"
 golangci-lint = "2.5.0"
 "ubi:korandoru/hawkeye" = "6.3.0"
