@@ -37,6 +37,10 @@ func (ExecutorKustomize) Execute(
 	args *Params,
 	res *task.Result,
 ) error {
+	if args == nil {
+		args = &Params{}
+	}
+
 	// Apply resources and any needed fixes
 	args.Kustomization.Resources = tsk.Inputs
 	args.Kustomization.FixKustomization()
