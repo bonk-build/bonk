@@ -88,21 +88,21 @@ func SaveState(session task.Session, tsk *task.Task, result *task.Result) error 
 	return nil
 }
 
-func DetectStateMismatches(session task.Session, tsk *task.Task) []string {
+func DetectStateMismatches(session task.Session, tsk *task.Task) ([]string, *task.Result) {
 	taskOutput := task.OutputFS(session, tsk.ID)
 
 	file, err := taskOutput.Open(StateFile)
 	if err != nil {
-		return []string{"<state missing>"}
+		return []string{"<state missing>"}, nil
 	}
-	encoder := json.NewDecoder(file)
+	decoder := json.NewDecoder(file)
 
 	state := state{}
-	err = encoder.Decode(&state)
+	err = decoder.Decode(&state)
 	if err != nil {
 		slog.Error("failed to decode json state", "error", err)
 
-		return []string{"<state decode failed>"}
+		return []string{"<state decode failed>"}, nil
 	}
 
 	var mismatches []string
@@ -143,7 +143,7 @@ func DetectStateMismatches(session task.Session, tsk *task.Task) []string {
 	}
 	hasher.Reset()
 
-	return mismatches
+	return mismatches, state.Result
 }
 
 func hashAnyValue(hasher hash.Hash64, params any) (uint64, error) {

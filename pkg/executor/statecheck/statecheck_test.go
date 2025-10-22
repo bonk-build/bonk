@@ -33,8 +33,11 @@ func TestStateCheck_SaveState(t *testing.T) {
 	require.True(t, exists)
 
 	// Run again, ensure no error and that task was only executed once
-	err = checker.Execute(t.Context(), session, tsk, &result)
+	followupRes := task.Result{}
+	err = checker.Execute(t.Context(), session, tsk, &followupRes)
 	require.NoError(t, err)
+	// Verify that the result returned is the same the second time as the first
+	assert.Equal(t, result, followupRes)
 }
 
 func TestStateCheck_ExecFailure(t *testing.T) {
