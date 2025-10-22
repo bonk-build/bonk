@@ -22,10 +22,6 @@ import (
 
 const output = "kustomized.yaml"
 
-type Params struct {
-	Kustomization types.Kustomization `json:"-"`
-}
-
 type ExecutorKustomize struct {
 	executor.NoopSessionManager
 }
@@ -34,16 +30,16 @@ func (ExecutorKustomize) Execute(
 	_ context.Context,
 	session task.Session,
 	tsk *task.Task,
-	args *Params,
+	args *types.Kustomization,
 	res *task.Result,
 ) error {
 	if args == nil {
-		args = &Params{}
+		args = &types.Kustomization{}
 	}
 
 	// Apply resources and any needed fixes
-	args.Kustomization.Resources = tsk.Inputs
-	args.Kustomization.FixKustomization()
+	args.Resources = tsk.Inputs
+	args.FixKustomization()
 
 	kustomFs := afero.NewCopyOnWriteFs(session.SourceFS(), afero.NewMemMapFs())
 
@@ -55,7 +51,7 @@ func (ExecutorKustomize) Execute(
 
 	enc := yaml.NewEncoder(kustFile)
 
-	err = enc.Encode(args.Kustomization)
+	err = enc.Encode(args)
 	if err != nil {
 		return fmt.Errorf("failed to encode kustomization file as yaml: %w", err)
 	}
