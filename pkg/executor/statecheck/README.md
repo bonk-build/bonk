@@ -11,7 +11,7 @@ Package statecheck provides an executor that avoids re\-running tasks if they ar
 ## Index
 
 - [Constants](<#constants>)
-- [func DetectStateMismatches\(session task.Session, tsk \*task.Task\) \[\]string](<#DetectStateMismatches>)
+- [func DetectStateMismatches\(session task.Session, tsk \*task.Task\) \(\[\]string, \*task.Result\)](<#DetectStateMismatches>)
 - [func New\(child executor.Executor\) executor.Executor](<#New>)
 - [func SaveState\(session task.Session, tsk \*task.Task, result \*task.Result\) error](<#SaveState>)
 
@@ -28,7 +28,7 @@ const StateFile = "state.json"
 ## func [DetectStateMismatches](<taskstate.go#L91>)
 
 ```go
-func DetectStateMismatches(session task.Session, tsk *task.Task) []string
+func DetectStateMismatches(session task.Session, tsk *task.Task) ([]string, *task.Result)
 ```
 
 
