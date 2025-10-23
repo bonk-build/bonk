@@ -19,7 +19,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func Run(ctx context.Context, options Options) error {
+func Run(ctx context.Context, result *task.Result, options Options) error {
 	pcm := plugin.NewPluginClientManager()
 	err := pcm.StartPlugins(ctx, options.Plugins...)
 	if err != nil {
@@ -58,8 +58,7 @@ func Run(ctx context.Context, options Options) error {
 		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
 
 		for _, tsk := range tasks {
-			res := task.Result{}
-			multierr.AppendInto(&err, exec.Execute(ctx, session, tsk, &res))
+			multierr.AppendInto(&err, exec.Execute(ctx, session, tsk, result))
 		}
 	}
 

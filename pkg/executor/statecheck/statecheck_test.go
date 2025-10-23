@@ -23,9 +23,9 @@ func TestStateCheck_SaveState(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(t.Context(), session, tsk, &result).Return(nil).Times(1)
+	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(nil).Times(1)
 
-	err := checker.Execute(t.Context(), session, tsk, &result)
+	err := checker.Execute(t.Context(), session, tsk, result)
 	require.NoError(t, err)
 
 	exists, err := afero.Exists(task.OutputFS(session, tsk.ID), statecheck.StateFile)
@@ -37,7 +37,7 @@ func TestStateCheck_SaveState(t *testing.T) {
 	err = checker.Execute(t.Context(), session, tsk, &followupRes)
 	require.NoError(t, err)
 	// Verify that the result returned is the same the second time as the first
-	assert.Equal(t, result, followupRes)
+	assert.Equal(t, result, &followupRes)
 }
 
 func TestStateCheck_ExecFailure(t *testing.T) {
@@ -48,9 +48,9 @@ func TestStateCheck_ExecFailure(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(t.Context(), session, tsk, &result).Return(assert.AnError).Times(1)
+	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(assert.AnError).Times(1)
 
-	err := checker.Execute(t.Context(), session, tsk, &result)
+	err := checker.Execute(t.Context(), session, tsk, result)
 	require.ErrorIs(t, err, assert.AnError)
 
 	exists, err := afero.Exists(task.OutputFS(session, tsk.ID), statecheck.StateFile)
@@ -66,9 +66,9 @@ func TestStateCheck_StateMismatches_Args(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(t.Context(), session, tsk, &result).Return(nil).Times(2)
+	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(nil).Times(2)
 
-	err := checker.Execute(t.Context(), session, tsk, &result)
+	err := checker.Execute(t.Context(), session, tsk, result)
 	require.NoError(t, err)
 
 	exists, err := afero.Exists(task.OutputFS(session, tsk.ID), statecheck.StateFile)
@@ -78,6 +78,6 @@ func TestStateCheck_StateMismatches_Args(t *testing.T) {
 	tsk.Args = 12
 
 	// Run again, ensure no error and that task was only executed once
-	err = checker.Execute(t.Context(), session, tsk, &result)
+	err = checker.Execute(t.Context(), session, tsk, result)
 	require.NoError(t, err)
 }

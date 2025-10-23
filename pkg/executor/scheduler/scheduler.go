@@ -61,16 +61,14 @@ func (s *scheduler) executeImpl(
 		return err
 	}
 
-	for _, followup := range result.FollowupTasks {
+	for _, followup := range result.GetFollowupTasks() {
 		errgrp.Go(func() error {
 			var res task.Result
 
 			// Update the ID to be the child of this task.
 			followup.ID = tsk.ID.GetChild(followup.ID.String())
 
-			err := s.executeImpl(errgrp, ctx, session, &followup, &res)
-
-			return err
+			return s.executeImpl(errgrp, ctx, session, followup, &res)
 		})
 	}
 

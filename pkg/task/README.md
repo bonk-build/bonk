@@ -28,6 +28,13 @@ Package task contains the core structures needed define a bonk pipeline. For mor
   - [func WithDependencies\(dependencies ...ID\) Option](<#WithDependencies>)
   - [func WithInputs\(inputs ...string\) Option](<#WithInputs>)
 - [type Result](<#Result>)
+  - [func \(r \*Result\) AddFollowupTasks\(tasks ...\*Task\)](<#Result.AddFollowupTasks>)
+  - [func \(r \*Result\) AddOutputs\(outputs ...string\)](<#Result.AddOutputs>)
+  - [func \(r \*Result\) Append\(other \*Result\)](<#Result.Append>)
+  - [func \(r \*Result\) GetFollowupTasks\(\) \[\]\*Task](<#Result.GetFollowupTasks>)
+  - [func \(r \*Result\) GetOutputs\(\) \[\]string](<#Result.GetOutputs>)
+  - [func \(r \*Result\) MarshalJSON\(\) \(\[\]byte, error\)](<#Result.MarshalJSON>)
+  - [func \(r \*Result\) UnmarshalJSON\(data \[\]byte\) error](<#Result.UnmarshalJSON>)
 - [type Session](<#Session>)
   - [func NewTestSession\(\) Session](<#NewTestSession>)
 - [type SessionID](<#SessionID>)
@@ -198,18 +205,78 @@ func WithInputs(inputs ...string) Option
 WithInputs appends input specifiers to this task.
 
 <a name="Result"></a>
-## type [Result](<result.go#L7-L12>)
+## type [Result](<result.go#L12-L19>)
 
 Result describes the outputs of a task's execution.
 
 ```go
 type Result struct {
-    // Outputs describes any files that have been emitted by the task relative to [Session.OutputFS].
-    Outputs []string `json:"outputs"`
-    // FollowupTasks is a list of tasks to be executed after this task completes.
-    FollowupTasks []Task `json:"followupTasks"`
+    // contains filtered or unexported fields
 }
 ```
+
+<a name="Result.AddFollowupTasks"></a>
+### func \(\*Result\) [AddFollowupTasks](<result.go#L69>)
+
+```go
+func (r *Result) AddFollowupTasks(tasks ...*Task)
+```
+
+
+
+<a name="Result.AddOutputs"></a>
+### func \(\*Result\) [AddOutputs](<result.go#L42>)
+
+```go
+func (r *Result) AddOutputs(outputs ...string)
+```
+
+
+
+<a name="Result.Append"></a>
+### func \(\*Result\) [Append](<result.go#L86>)
+
+```go
+func (r *Result) Append(other *Result)
+```
+
+
+
+<a name="Result.GetFollowupTasks"></a>
+### func \(\*Result\) [GetFollowupTasks](<result.go#L53>)
+
+```go
+func (r *Result) GetFollowupTasks() []*Task
+```
+
+
+
+<a name="Result.GetOutputs"></a>
+### func \(\*Result\) [GetOutputs](<result.go#L31>)
+
+```go
+func (r *Result) GetOutputs() []string
+```
+
+
+
+<a name="Result.MarshalJSON"></a>
+### func \(\*Result\) [MarshalJSON](<result.go#L101>)
+
+```go
+func (r *Result) MarshalJSON() ([]byte, error)
+```
+
+MarshalJSON implements json.Marshaler.
+
+<a name="Result.UnmarshalJSON"></a>
+### func \(\*Result\) [UnmarshalJSON](<result.go#L113>)
+
+```go
+func (r *Result) UnmarshalJSON(data []byte) error
+```
+
+UnmarshalJSON implements json.Unmarshaler.
 
 <a name="Session"></a>
 ## type [Session](<session.go#L20-L27>)

@@ -37,7 +37,7 @@ var rootCmd = &cobra.Command{
 
 		bubble := bubbletea.New(cmd.Context(), true)
 
-		err = driver.Run(cmd.Context(), driver.MakeDefaultOptions().
+		err = driver.Run(cmd.Context(), nil, driver.MakeDefaultOptions().
 			WithConcurrency(concurrency).
 			WithObservers(bubble.OnTaskStatusMsg).
 			WithPlugins(

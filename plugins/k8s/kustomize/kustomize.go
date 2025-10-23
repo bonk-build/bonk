@@ -90,7 +90,7 @@ func (ExecutorKustomize) Execute(
 		return fmt.Errorf("failed to write kustomized content to file: %w", err)
 	}
 
-	res.Outputs = []string{output}
+	res.AddOutputs(output)
 
 	return nil
 }

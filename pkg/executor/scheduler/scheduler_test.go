@@ -48,7 +48,7 @@ func TestFollowups(t *testing.T) {
 		Return(nil).
 		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range numFollowups {
-				r.FollowupTasks = append(r.FollowupTasks, *task.New(
+				r.AddFollowupTasks(task.New(
 					task.NewID("child", strconv.Itoa(idx)),
 					"none",
 					nil,
@@ -92,7 +92,7 @@ func TestErrNoFollowups(t *testing.T) {
 		Return(assert.AnError).
 		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range 3 {
-				r.FollowupTasks = append(r.FollowupTasks, *task.New(
+				r.AddFollowupTasks(task.New(
 					task.NewID("child", strconv.Itoa(idx)),
 					"none",
 					nil,
@@ -135,7 +135,7 @@ func TestFollowupsErrs(t *testing.T) {
 		Return(nil).
 		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range 3 {
-				r.FollowupTasks = append(r.FollowupTasks, *task.New(
+				r.AddFollowupTasks(task.New(
 					task.NewID("child", strconv.Itoa(idx)),
 					"none",
 					nil,
