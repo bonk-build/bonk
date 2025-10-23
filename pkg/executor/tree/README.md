@@ -54,7 +54,7 @@ func New() ExecutorTree
 
 
 <a name="ExecutorTree.CloseSession"></a>
-### func \(\*ExecutorTree\) [CloseSession](<tree.go#L115>)
+### func \(\*ExecutorTree\) [CloseSession](<tree.go#L123>)
 
 ```go
 func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionID)
@@ -63,7 +63,7 @@ func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.Session
 
 
 <a name="ExecutorTree.Execute"></a>
-### func \(\*ExecutorTree\) [Execute](<tree.go#L121-L126>)
+### func \(\*ExecutorTree\) [Execute](<tree.go#L129-L134>)
 
 ```go
 func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
@@ -72,7 +72,7 @@ func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *
 
 
 <a name="ExecutorTree.ForEachExecutor"></a>
-### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L151>)
+### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L161>)
 
 ```go
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor))
@@ -81,7 +81,7 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Exec
 
 
 <a name="ExecutorTree.GetNumExecutors"></a>
-### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L142>)
+### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L152>)
 
 ```go
 func (et *ExecutorTree) GetNumExecutors() int
@@ -90,7 +90,7 @@ func (et *ExecutorTree) GetNumExecutors() int
 
 
 <a name="ExecutorTree.OpenSession"></a>
-### func \(\*ExecutorTree\) [OpenSession](<tree.go#L106>)
+### func \(\*ExecutorTree\) [OpenSession](<tree.go#L114>)
 
 ```go
 func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) error
@@ -108,7 +108,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 
 
 <a name="ExecutorTree.UnregisterExecutors"></a>
-### func \(\*ExecutorTree\) [UnregisterExecutors](<tree.go#L81>)
+### func \(\*ExecutorTree\) [UnregisterExecutors](<tree.go#L89>)
 
 ```go
 func (et *ExecutorTree) UnregisterExecutors(names ...string)
