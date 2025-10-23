@@ -248,12 +248,13 @@ func (s *grpcServer) ExecuteTask(
 		return nil, status.Error(CodeExecErr, err.Error())
 	}
 
+	followups := response.GetFollowupTasks()
 	res := bonkv0.ExecuteTaskResponse_builder{
-		Output:        response.Outputs,
-		FollowupTasks: make([]*bonkv0.ExecuteTaskResponse_FollowupTask, len(response.FollowupTasks)),
+		Output:        response.GetOutputs(),
+		FollowupTasks: make([]*bonkv0.ExecuteTaskResponse_FollowupTask, len(followups)),
 	}
 
-	for idx, followup := range response.FollowupTasks {
+	for idx, followup := range followups {
 		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
 			Id:       (*string)(&followup.ID),
 			Executor: &followup.Executor,

@@ -118,17 +118,18 @@ func (pb *grpcClient) Execute(
 		return fmt.Errorf("unknown error performing task: %w", err)
 	}
 
-	result.Outputs = res.GetOutput()
-	result.FollowupTasks = make([]task.Task, len(res.GetFollowupTasks()))
+	result.AddOutputs(res.GetOutput()...)
+	followups := make([]*task.Task, len(res.GetFollowupTasks()))
 	for ii, followup := range res.GetFollowupTasks() {
 		// Create the new task and append it
-		result.FollowupTasks[ii] = *task.New(
+		followups[ii] = task.New(
 			task.NewID(followup.GetId()),
 			followup.GetExecutor(),
 			followup.GetArguments().AsInterface(),
 			task.WithInputs(followup.GetInputs()...),
 		)
 	}
+	result.AddFollowupTasks(followups...)
 
 	return nil
 }

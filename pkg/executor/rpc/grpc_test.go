@@ -164,7 +164,7 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Times(1).
 		Do(func(_ context.Context, _ *task.Task, res *task.Result) {
-			res.FollowupTasks = append(res.FollowupTasks, *expectedTask)
+			res.AddFollowupTasks(expectedTask)
 		}).
 		Return(nil)
 
@@ -177,9 +177,9 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 	), &result)
 
 	require.NoError(t, err)
-	assert.Len(t, result.FollowupTasks, 1)
+	assert.Len(t, result.GetFollowupTasks(), 1)
 
-	unboxed, err := argconv.UnboxArgs[Args](&result.FollowupTasks[0])
+	unboxed, err := argconv.UnboxArgs[Args](result.GetFollowupTasks()[0])
 
 	require.NoError(t, err)
 	assert.EqualExportedValues(t, expectedTask.Args, *unboxed)

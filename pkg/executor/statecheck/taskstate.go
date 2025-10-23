@@ -69,12 +69,12 @@ func SaveState(session task.Session, tsk *task.Task, result *task.Result) error 
 	hasher.Reset()
 
 	// Hash the output files
-	state.OutputChecksum, err = hashFiles(hasher, taskOutput, result.Outputs)
+	state.OutputChecksum, err = hashFiles(hasher, taskOutput, result.GetOutputs())
 	if err != nil {
 		return err
 	}
 
-	state.FollowupChecksum, err = hashAnyValue(hasher, result.FollowupTasks)
+	state.FollowupChecksum, err = hashAnyValue(hasher, result.GetFollowupTasks())
 	if err != nil {
 		return err
 	}
@@ -127,7 +127,7 @@ func DetectStateMismatches(session task.Session, tsk *task.Task) ([]string, *tas
 	}
 	hasher.Reset()
 
-	outputChecksum, err := hashFiles(hasher, taskOutput, state.Result.Outputs)
+	outputChecksum, err := hashFiles(hasher, taskOutput, state.Result.GetOutputs())
 	if err != nil {
 		mismatches = append(mismatches, "!output-checksum-failed!")
 	} else if outputChecksum != state.OutputChecksum {
@@ -135,7 +135,7 @@ func DetectStateMismatches(session task.Session, tsk *task.Task) ([]string, *tas
 	}
 	hasher.Reset()
 
-	followupChecksum, err := hashAnyValue(hasher, state.Result.FollowupTasks)
+	followupChecksum, err := hashAnyValue(hasher, state.Result.GetFollowupTasks())
 	if err != nil {
 		mismatches = append(mismatches, "!followup-checksum-failed!")
 	} else if followupChecksum != state.FollowupChecksum {

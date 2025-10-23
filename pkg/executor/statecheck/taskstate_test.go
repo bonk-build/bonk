@@ -13,7 +13,7 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-func makeTestTask(t *testing.T) (*task.Task, task.Result) {
+func makeTestTask(t *testing.T) (*task.Task, *task.Result) {
 	t.Helper()
 
 	tsk := task.New(
@@ -21,11 +21,10 @@ func makeTestTask(t *testing.T) (*task.Task, task.Result) {
 		"test.abc.def",
 		nil,
 	)
-	result := task.Result{
-		Outputs: []string{
-			"output-file",
-		},
-	}
+	result := &task.Result{}
+	result.AddOutputs(
+		"output-file",
+	)
 
 	return tsk, result
 }
@@ -36,7 +35,7 @@ func TestTaskState_SaveState(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	err := statecheck.SaveState(session, tsk, &result)
+	err := statecheck.SaveState(session, tsk, result)
 	require.NoError(t, err)
 
 	exists, err := afero.Exists(task.OutputFS(session, tsk.ID), statecheck.StateFile)
@@ -50,7 +49,7 @@ func TestTaskState_StateMismatches_Args(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	err := statecheck.SaveState(session, tsk, &result)
+	err := statecheck.SaveState(session, tsk, result)
 	require.NoError(t, err)
 
 	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
@@ -72,7 +71,7 @@ func TestTaskState_StateMismatches_Inputs(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	err := statecheck.SaveState(session, tsk, &result)
+	err := statecheck.SaveState(session, tsk, result)
 	require.NoError(t, err)
 
 	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
@@ -111,7 +110,7 @@ func TestTaskState_StateMismatches_InputsChecksum(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, len(inputFileContents1), written)
 
-	err = statecheck.SaveState(session, tsk, &result)
+	err = statecheck.SaveState(session, tsk, result)
 	require.NoError(t, err)
 
 	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
@@ -132,7 +131,7 @@ func TestTaskState_StateMismatches_Executor(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	err := statecheck.SaveState(session, tsk, &result)
+	err := statecheck.SaveState(session, tsk, result)
 	require.NoError(t, err)
 
 	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)

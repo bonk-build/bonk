@@ -33,8 +33,7 @@ func (s statechecker) Execute(
 	mismatches, res := DetectStateMismatches(session, tsk)
 	if mismatches == nil {
 		slog.DebugContext(ctx, "states match, skipping task")
-		result.Outputs = append(result.Outputs, res.Outputs...)
-		result.FollowupTasks = append(result.FollowupTasks, res.FollowupTasks...)
+		result.Append(res)
 
 		return nil
 	}

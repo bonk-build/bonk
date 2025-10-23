@@ -63,7 +63,7 @@ func (ExecutorResources) Execute(
 		}
 	}
 
-	res.Outputs = []string{output}
+	res.AddOutputs(output)
 
 	multierr.AppendInto(&err, encoder.Close())
 	multierr.AppendInto(&err, file.Close())
