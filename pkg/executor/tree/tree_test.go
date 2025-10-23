@@ -6,6 +6,8 @@ package tree_test
 import (
 	"testing"
 
+	"go.uber.org/mock/gomock"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -53,9 +55,12 @@ func Test_Add_Duplicate(t *testing.T) {
 	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
 
 	err = manager.RegisterExecutor("testing.child.abc", exec)
+	require.NoError(t, err)
+
+	err = manager.RegisterExecutor("testing.child", exec)
 	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
 
-	require.Equal(t, 1, manager.GetNumExecutors())
+	require.Equal(t, 2, manager.GetNumExecutors())
 }
 
 func Test_Call(t *testing.T) {
@@ -79,6 +84,27 @@ func Test_Call(t *testing.T) {
 	err = manager.Execute(t.Context(), session, &tsk, &result)
 	require.NoError(t, err)
 	require.Equal(t, execName, tsk.Executor)
+}
+
+func Test_Call_Wildcard(t *testing.T) {
+	t.Parallel()
+
+	session := task.NewTestSession()
+	var result task.Result
+	tsk := task.Task{
+		Executor: "testing.child.abc",
+	}
+
+	exec := mockexec.New(t)
+	exec.EXPECT().Execute(t.Context(), session, &tsk, &result)
+
+	manager := tree.New()
+
+	err := manager.RegisterExecutor("testing.*.abc", exec)
+	require.NoError(t, err)
+
+	err = manager.Execute(t.Context(), session, &tsk, &result)
+	require.NoError(t, err)
 }
 
 func Test_Call_Fail(t *testing.T) {
@@ -132,6 +158,7 @@ func Test_Add_Overlap(t *testing.T) {
 	execNames := []string{
 		"testing.child.abc",
 		"testing.sibling",
+		"testing.child",
 	}
 
 	manager := tree.New()
@@ -147,7 +174,37 @@ func Test_Add_Overlap(t *testing.T) {
 	manager.ForEachExecutor(func(string, executor.Executor) {
 		calls++
 	})
-	require.Equal(t, 2, calls)
+	require.Equal(t, 3, calls)
+}
+
+func Test_Call_Overlap(t *testing.T) {
+	t.Parallel()
+
+	execNames := []string{
+		"testing.child.abc",
+		"testing.sibling",
+	}
+
+	manager := tree.New()
+
+	for _, execName := range execNames {
+		exec := mockexec.New(t)
+		exec.EXPECT().Execute(t.Context(), nil, gomock.Any(), nil).Times(0)
+
+		err := manager.RegisterExecutor(execName, exec)
+		require.NoError(t, err)
+	}
+
+	exec := mockexec.New(t)
+	exec.EXPECT().Execute(t.Context(), nil, gomock.Any(), nil).Times(1)
+
+	err := manager.RegisterExecutor("testing.child", exec)
+	require.NoError(t, err)
+
+	err = manager.Execute(t.Context(), nil, &task.Task{
+		Executor: "testing.child",
+	}, nil)
+	require.NoError(t, err)
 }
 
 func Test_OpenCloseSession(t *testing.T) {

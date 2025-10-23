@@ -37,45 +37,53 @@ func New() ExecutorTree {
 }
 
 func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) error {
-	var registerImpl func(manager *ExecutorTree, name string, impl executor.Executor) error
-	registerImpl = func(manager *ExecutorTree, name string, impl executor.Executor) error {
-		before, after, needsManager := strings.Cut(name, task.TaskIDSep)
-		child, hasChild := manager.children[before]
+	before, after, needsManager := strings.Cut(name, task.TaskIDSep)
+	child, hasChild := et.children[before]
 
-		switch {
-		// Needs & has manager, just recurse
-		case needsManager && hasChild:
-			childManager, ok := child.(*ExecutorTree)
-			if !ok {
-				return fmt.Errorf("%w: %s", ErrDuplicateExecutor, before)
+	switch {
+	// Needs & has manager, just recurse
+	case needsManager && hasChild:
+		childManager, ok := child.(*ExecutorTree)
+		if !ok {
+			// If there's a child that isn't a manager, replace it with a manager and recurse.
+			childManager = &ExecutorTree{
+				make(map[string]executor.Executor, 1),
 			}
-
-			return registerImpl(childManager, after, impl)
-
-		// Needs & doesn't have manager, add manager and retry
-		case needsManager && !hasChild:
-			manager.children[before] = &ExecutorTree{
-				children: make(map[string]executor.Executor, 1),
+			et.children[before] = childManager
+			// Re-register the old child as a nameless.
+			err := childManager.RegisterExecutor("", child)
+			if err != nil {
+				return err
 			}
-
-			return registerImpl(manager, name, impl)
-
-		// Doesn't need more manager tree but already has a child, error
-		case !needsManager && hasChild:
-			return fmt.Errorf("%w: %s", ErrDuplicateExecutor, before)
-
-		// Best case, doesn't need more tree, just register
-		case !needsManager && !hasChild:
-			manager.children[before] = impl
-
-			return nil
-
-		default:
-			panic("unreachable")
 		}
-	}
 
-	return registerImpl(et, name, exec)
+		return childManager.RegisterExecutor(after, exec)
+
+	// Needs & doesn't have manager, add manager and retry
+	case needsManager && !hasChild:
+		et.children[before] = &ExecutorTree{
+			children: make(map[string]executor.Executor, 1),
+		}
+
+		return et.RegisterExecutor(name, exec)
+
+	// Doesn't need more manager tree but already has a child, error
+	case !needsManager && hasChild:
+		if childManager, ok := child.(*ExecutorTree); ok {
+			return childManager.RegisterExecutor(after, exec)
+		}
+
+		return fmt.Errorf("%w: %s", ErrDuplicateExecutor, before)
+
+	// Best case, doesn't need more tree, just register
+	case !needsManager && !hasChild:
+		et.children[before] = exec
+
+		return nil
+
+	default:
+		panic("unreachable")
+	}
 }
 
 func (et *ExecutorTree) UnregisterExecutors(names ...string) {
@@ -126,14 +134,16 @@ func (et *ExecutorTree) Execute(
 ) error {
 	exec := tsk.Executor
 	before, after, _ := strings.Cut(exec, task.TaskIDSep)
-	child, ok := et.children[before]
 
-	if ok {
-		tsk.Executor = after
-		err := child.Execute(ctx, session, tsk, result)
-		tsk.Executor = exec
+	// Check for the original key and the wildcard key.
+	for _, searchKey := range []string{before, "*"} {
+		if child, ok := et.children[searchKey]; ok {
+			tsk.Executor = after
+			err := child.Execute(ctx, session, tsk, result)
+			tsk.Executor = exec
 
-		return err
+			return err
+		}
 	}
 
 	return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor)
