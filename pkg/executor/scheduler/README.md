@@ -11,7 +11,10 @@ Package scheduler provides an executor which executes followup tasks and resolve
 ## Index
 
 - [Constants](<#constants>)
-- [func New\(exec executor.Executor, maxConcurrency int\) executor.Executor](<#New>)
+- [type Scheduler](<#Scheduler>)
+  - [func New\(exec executor.Executor, maxConcurrency int\) \*Scheduler](<#New>)
+  - [func \(s \*Scheduler\) Execute\(ctx context.Context, session task.Session, tsk \*task.Task, result \*task.Result\) error](<#Scheduler.Execute>)
+  - [func \(s \*Scheduler\) ExecuteMany\(ctx context.Context, session task.Session, tsks \[\]\*task.Task, result \*task.Result\) error](<#Scheduler.ExecuteMany>)
 
 
 ## Constants
@@ -22,11 +25,41 @@ Package scheduler provides an executor which executes followup tasks and resolve
 const NoConcurrencyLimit int = -1
 ```
 
-<a name="New"></a>
-## func [New](<scheduler.go#L20>)
+<a name="Scheduler"></a>
+## type [Scheduler](<scheduler.go#L27-L31>)
+
+
 
 ```go
-func New(exec executor.Executor, maxConcurrency int) executor.Executor
+type Scheduler struct {
+    executor.Executor
+    // contains filtered or unexported fields
+}
+```
+
+<a name="New"></a>
+### func [New](<scheduler.go#L20>)
+
+```go
+func New(exec executor.Executor, maxConcurrency int) *Scheduler
+```
+
+
+
+<a name="Scheduler.Execute"></a>
+### func \(\*Scheduler\) [Execute](<scheduler.go#L35-L40>)
+
+```go
+func (s *Scheduler) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
+```
+
+Execute implements executor.Executor. Execute will execute the task and all of it's followups, as well as wait for dependencies to resolve.
+
+<a name="Scheduler.ExecuteMany"></a>
+### func \(\*Scheduler\) [ExecuteMany](<scheduler.go#L52-L57>)
+
+```go
+func (s *Scheduler) ExecuteMany(ctx context.Context, session task.Session, tsks []*task.Task, result *task.Result) error
 ```
 
 

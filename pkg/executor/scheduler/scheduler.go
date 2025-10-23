@@ -17,14 +17,14 @@ import (
 
 const NoConcurrencyLimit int = -1
 
-func New(exec executor.Executor, maxConcurrency int) executor.Executor {
-	return &scheduler{
+func New(exec executor.Executor, maxConcurrency int) *Scheduler {
+	return &Scheduler{
 		Executor:       exec,
 		maxConcurrency: maxConcurrency,
 	}
 }
 
-type scheduler struct {
+type Scheduler struct {
 	executor.Executor
 
 	maxConcurrency int
@@ -32,7 +32,7 @@ type scheduler struct {
 
 // Execute implements executor.Executor.
 // Execute will execute the task and all of it's followups, as well as wait for dependencies to resolve.
-func (s *scheduler) Execute(
+func (s *Scheduler) Execute(
 	ctx context.Context,
 	session task.Session,
 	tsk *task.Task,
@@ -49,28 +49,49 @@ func (s *scheduler) Execute(
 	return errgrp.Wait()
 }
 
-func (s *scheduler) executeImpl(
+func (s *Scheduler) ExecuteMany(
+	ctx context.Context,
+	session task.Session,
+	tsks []*task.Task,
+	result *task.Result,
+) error {
+	errgrp, ctx := errgroup.WithContext(ctx)
+	errgrp.SetLimit(s.maxConcurrency)
+
+	for _, tsk := range tsks {
+		errgrp.Go(func() error {
+			return s.executeImpl(errgrp, ctx, session, tsk, result)
+		})
+	}
+
+	return errgrp.Wait()
+}
+
+func (s *Scheduler) executeImpl(
 	errgrp *errgroup.Group,
 	ctx context.Context,
 	session task.Session,
 	tsk *task.Task,
 	result *task.Result,
 ) error {
-	err := s.Executor.Execute(ctx, session, tsk, result)
+	localRes := task.Result{}
+
+	err := s.Executor.Execute(ctx, session, tsk, &localRes)
 	if err != nil {
 		return err
 	}
 
-	for _, followup := range result.GetFollowupTasks() {
+	for _, followup := range localRes.GetFollowupTasks() {
 		errgrp.Go(func() error {
-			var res task.Result
-
 			// Update the ID to be the child of this task.
 			followup.ID = tsk.ID.GetChild(followup.ID.String())
 
-			return s.executeImpl(errgrp, ctx, session, followup, &res)
+			return s.executeImpl(errgrp, ctx, session, followup, &localRes)
 		})
 	}
+
+	// Only append outputs, as we've handled followups
+	result.AddOutputs(localRes.GetOutputs()...)
 
 	return nil
 }
