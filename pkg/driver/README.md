@@ -10,7 +10,7 @@ Package driver provides an interface for defining a driver to perform a bonk pip
 
 ## Index
 
-- [func Run\(ctx context.Context, options Options\) error](<#Run>)
+- [func Run\(ctx context.Context, result \*task.Result, options Options\) error](<#Run>)
 - [type Options](<#Options>)
   - [func MakeDefaultOptions\(\) Options](<#MakeDefaultOptions>)
   - [func \(opts Options\) WithConcurrency\(concurrency int\) Options](<#Options.WithConcurrency>)
@@ -25,7 +25,7 @@ Package driver provides an interface for defining a driver to perform a bonk pip
 ## func [Run](<driver.go#L22>)
 
 ```go
-func Run(ctx context.Context, options Options) error
+func Run(ctx context.Context, result *task.Result, options Options) error
 ```
 
 
