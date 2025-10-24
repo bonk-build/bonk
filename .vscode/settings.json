@@ -15,7 +15,7 @@
   "mise.configureExtensionsUseSymLinks": true,
   "mise.miseEnv": "vscode",
   "go.goroot": "${workspaceFolder}/.vscode/mise-tools/goRoot",
-  "go.lintTool": "golangci-lint",
+  "go.lintTool": "golangci-lint-v2",
   "go.lintFlags": [
     "--path-mode=abs",
     "--fast-only"
