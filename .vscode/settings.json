@@ -11,18 +11,21 @@
       "source.organizeImports": "explicit"
     }
   },
-  "mise.configureExtensionsAutomatically": false,
+  "mise.configureExtensionsAutomatically": true,
   "mise.configureExtensionsUseSymLinks": true,
   "mise.miseEnv": "vscode",
   "go.goroot": "${workspaceFolder}/.vscode/mise-tools/goRoot",
-  "go.lintTool": "golangci-lint",
+  "go.lintTool": "golangci-lint-v2",
   "go.lintFlags": [
     "--path-mode=abs",
     "--fast-only"
   ],
   "go.formatTool": "custom",
   "go.alternateTools": {
-    "customFormatter": "golangci-lint"
+    "customFormatter": "golangci-lint",
+    "go": "${workspaceFolder}/.vscode/mise-tools/go",
+    "dlv": "${workspaceFolder}/.vscode/mise-tools/dlv",
+    "gopls": "${workspaceFolder}/.vscode/mise-tools/gopls"
   },
   "go.formatFlags": [
     "fmt",
@@ -40,6 +43,7 @@
       "docs"
     ]
   },
+  "buf.commandLine.path": "${workspaceFolder}/.vscode/mise-tools/buf",
   "yaml.schemas": {
     "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml",
     "https://golangci-lint.run/jsonschema/golangci.jsonschema.json": ".golangci.yaml"
