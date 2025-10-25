@@ -21,10 +21,7 @@ type teaModel struct {
 	debugDump bool
 }
 
-var (
-	_ tea.Model     = (*teaModel)(nil)
-	_ tea.ViewModel = (*teaModel)(nil)
-)
+var _ tea.Model = (*teaModel)(nil)
 
 // Init implements tea.Model.
 func (t *teaModel) Init() tea.Cmd {
@@ -66,13 +63,13 @@ func (t *teaModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View implements tea.ViewModel.
-func (t *teaModel) View() string {
+func (t *teaModel) View() tea.View {
 	component := make([]string, 0, 2) //nolint:mnd
 
-	component = append(component, t.tree.View())
+	component = append(component, t.tree.String())
 
 	// Append empty string to get a blank line at the bottom
 	component = append(component, "")
 
-	return lipgloss.JoinVertical(lipgloss.Left, component...)
+	return tea.NewView(lipgloss.JoinVertical(lipgloss.Left, component...))
 }

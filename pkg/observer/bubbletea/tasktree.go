@@ -17,10 +17,7 @@ type taskTree struct {
 	tree.Tree
 }
 
-var (
-	_ tea.Model     = (*taskTree)(nil)
-	_ tea.ViewModel = (*taskTree)(nil)
-)
+var _ tea.Model = (*taskTree)(nil)
 
 func newTaskTree() taskTree {
 	return taskTree{
@@ -89,6 +86,6 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View implements tea.ViewModel.
-func (t *taskTree) View() string {
-	return t.String()
+func (t *taskTree) View() tea.View {
+	return tea.NewView(t.String())
 }
