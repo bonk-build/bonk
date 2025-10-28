@@ -91,21 +91,23 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 func (et *ExecutorTree) UnregisterExecutors(names ...string) {
 	var unregisterImpl func(manager *ExecutorTree, name string)
 	unregisterImpl = func(manager *ExecutorTree, name string) {
-		before, after, hasChild := strings.Cut(name, task.TaskIDSep)
+		before, after, _ := strings.Cut(name, task.TaskIDSep)
 		child, ok := manager.children[before]
-
-		switch {
-		case !ok:
+		if !ok {
 			return
-
-		case hasChild:
-			if childManager, ok := child.(*ExecutorTree); ok {
-				unregisterImpl(childManager, after)
-			}
-
-		default:
-			delete(manager.children, name)
 		}
+
+		if child, ok := child.(*ExecutorTree); ok {
+			unregisterImpl(child, after)
+
+			// If children remain, return so as to not remove
+			if len(child.children) > 0 {
+				return
+			}
+		}
+
+		// Remove the child
+		delete(manager.children, name)
 	}
 
 	for _, name := range names {
