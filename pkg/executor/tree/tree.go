@@ -89,27 +89,24 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 }
 
 func (et *ExecutorTree) UnregisterExecutors(names ...string) {
-	var unregisterImpl func(manager *ExecutorTree, name string)
-	unregisterImpl = func(manager *ExecutorTree, name string) {
-		before, after, hasChild := strings.Cut(name, task.TaskIDSep)
-		child, ok := manager.children[before]
-
-		switch {
-		case !ok:
-			return
-
-		case hasChild:
-			if childManager, ok := child.(*ExecutorTree); ok {
-				unregisterImpl(childManager, after)
-			}
-
-		default:
-			delete(manager.children, name)
-		}
-	}
-
 	for _, name := range names {
-		unregisterImpl(et, name)
+		before, after, _ := strings.Cut(name, task.TaskIDSep)
+		child, ok := et.children[before]
+		if !ok {
+			return
+		}
+
+		if child, ok := child.(*ExecutorTree); ok {
+			child.UnregisterExecutors(after)
+
+			// If children remain, return so as to not remove
+			if len(child.children) > 0 {
+				return
+			}
+		}
+
+		// Remove the child
+		delete(et.children, name)
 	}
 }
 
@@ -161,27 +158,29 @@ func (et *ExecutorTree) GetNumExecutors() int {
 }
 
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor)) {
-	var forEachImpl func(name string, appendName bool, child executor.Executor)
-	forEachImpl = func(name string, appendName bool, child executor.Executor) {
-		if childManager, ok := child.(*ExecutorTree); ok {
-			for childName, childExec := range childManager.children {
-				var pathParts []string
-				if appendName {
-					if childName != "" {
-						pathParts = []string{name, childName}
-					} else {
-						pathParts = []string{name}
-					}
-				} else {
-					pathParts = []string{childName}
-				}
-
-				forEachImpl(strings.Join(pathParts, task.TaskIDSep), true, childExec)
-			}
-		} else {
-			fun(name, child)
-		}
+	for name, exec := range et.children {
+		forEachExecutorImpl(name, exec, fun)
 	}
+}
 
-	forEachImpl("", false, et)
+func forEachExecutorImpl(
+	workingName string,
+	exec executor.Executor,
+	fun func(string, executor.Executor),
+) {
+	switch exec := exec.(type) {
+	case *ExecutorTree:
+		for name, child := range exec.children {
+			if name == "" {
+				name = workingName
+			} else {
+				name = strings.Join([]string{workingName, name}, task.TaskIDSep)
+			}
+
+			forEachExecutorImpl(name, child, fun)
+		}
+
+	default:
+		fun(workingName, exec)
+	}
 }

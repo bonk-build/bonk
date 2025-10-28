@@ -4,6 +4,7 @@
 package tree_test
 
 import (
+	"slices"
 	"testing"
 
 	"go.uber.org/mock/gomock"
@@ -66,8 +67,10 @@ func Test_Add(t *testing.T) {
 	manager.CloseSession(t.Context(), session.ID())
 
 	// Validate unregistration
-	manager.UnregisterExecutors(execNames[:]...)
-	assert.Equal(t, 0, manager.GetNumExecutors())
+	for idx, name := range slices.Backward(execNames[:]) {
+		manager.UnregisterExecutors(name)
+		assert.Equal(t, idx, manager.GetNumExecutors())
+	}
 }
 
 func Test_Call(t *testing.T) {
