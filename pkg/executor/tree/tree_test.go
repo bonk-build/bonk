@@ -4,6 +4,7 @@
 package tree_test
 
 import (
+	"maps"
 	"slices"
 	"sync"
 	"testing"
@@ -22,25 +23,36 @@ import (
 func Test_Add(t *testing.T) {
 	t.Parallel()
 
-	execNames := [...]string{
-		"testing.child.abc",
-		"testing.child",
-		"testing.sibling",
-		"unrelated",
-		"super.*",
+	mock := gomock.NewController(t)
+
+	executors := map[string]*mockexec.MockExecutor{
+		"testing.child.abc": mockexec.NewMockExecutor(mock),
+		"testing.child":     mockexec.NewMockExecutor(mock),
+		"testing.sibling":   mockexec.NewMockExecutor(mock),
+		"unrelated":         mockexec.NewMockExecutor(mock),
+		"super.*":           mockexec.NewMockExecutor(mock),
 	}
 
 	execErrs := map[string]error{
 		"testing.child": tree.ErrDuplicateExecutor,
 	}
 
-	exec := mockexec.New(t)
+	taskRoutings := map[string]string{
+		"testing.child.abc": "testing.child.abc",
+		"testing.child":     "testing.child",
+		"testing.child.def": "testing.child",
+		"super.testing":     "super.*",
+	}
+
 	manager := tree.New()
 	session := task.NewTestSession()
 
 	// Validate expected successful registrations
 	waiter := sync.WaitGroup{}
-	for _, name := range execNames {
+	for name, exec := range executors {
+		exec.EXPECT().OpenSession(t.Context(), session)
+		exec.EXPECT().CloseSession(t.Context(), session.ID())
+
 		waiter.Go(func() {
 			err := manager.RegisterExecutor(name, exec)
 			assert.NoError(t, err)
@@ -51,33 +63,49 @@ func Test_Add(t *testing.T) {
 	// Validate expected errors
 	for name, expectedErr := range execErrs {
 		waiter.Go(func() {
-			err := manager.RegisterExecutor(name, exec)
+			err := manager.RegisterExecutor(name, nil)
 			require.ErrorIs(t, err, expectedErr)
 		})
 	}
 	waiter.Wait()
 
 	// Validate session opening
-	exec.EXPECT().OpenSession(t.Context(), session).Times(len(execNames))
 	err := manager.OpenSession(t.Context(), session)
 	require.NoError(t, err)
 
 	// Validate resulting tree
-	assert.Equal(t, len(execNames), manager.GetNumExecutors())
-	found := make([]string, 0, len(execNames))
+	assert.Equal(t, len(executors), manager.GetNumExecutors())
+	found := make([]string, 0, len(executors))
 	manager.ForEachExecutor(func(name string, _ executor.Executor) {
 		found = append(found, name)
 	})
-	assert.ElementsMatch(t, execNames, found)
+	assert.ElementsMatch(t, slices.Collect(maps.Keys(executors)), found)
+
+	// Validate task delivery
+	for sent, receive := range taskRoutings {
+		tsk := task.New(
+			task.NewID("testing"),
+			sent,
+			nil,
+		)
+
+		exec := executors[receive]
+		exec.EXPECT().Execute(t.Context(), session, tsk, nil)
+
+		err := manager.Execute(t.Context(), session, tsk, nil)
+		require.NoError(t, err)
+	}
 
 	// Validate session closing
-	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(len(execNames))
 	manager.CloseSession(t.Context(), session.ID())
 
 	// Validate unregistration
-	for idx, name := range slices.Backward(execNames[:]) {
+	numExecs := manager.GetNumExecutors()
+	for name := range executors {
 		manager.UnregisterExecutors(name)
-		assert.Equal(t, idx, manager.GetNumExecutors())
+		numExecs--
+
+		assert.Equal(t, numExecs, manager.GetNumExecutors())
 	}
 }
 
