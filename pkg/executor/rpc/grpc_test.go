@@ -93,8 +93,8 @@ func (s *rpcSuite) Test_Connection(t *testing.T) {
 func (s *rpcSuite) Test_Session(t *testing.T) {
 	t.Parallel()
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
+	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any())
+	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID())
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.NoError(t, err)
@@ -104,7 +104,7 @@ func (s *rpcSuite) Test_Session(t *testing.T) {
 func (s *rpcSuite) Test_Session_Fail(t *testing.T) {
 	t.Parallel()
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(assert.AnError).Times(1)
+	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(assert.AnError)
 	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(0)
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
@@ -116,8 +116,8 @@ func (s *rpcSuite) Test_Args(t *testing.T) {
 
 	var result task.Result
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
+	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any())
+	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID())
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.NoError(t, err)
@@ -142,8 +142,8 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 
 	var result task.Result
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Times(1)
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(1)
+	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any())
+	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID())
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.NoError(t, err)

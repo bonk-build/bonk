@@ -70,7 +70,7 @@ func Test_BoxExecutor(t *testing.T) {
 
 	tsk := task.New("", "", defaultArgs)
 
-	exec.EXPECT().Execute(t.Context(), nil, tsk, &defaultArgs, nil).Times(1)
+	exec.EXPECT().Execute(t.Context(), nil, tsk, &defaultArgs, nil)
 
 	err := argconv.BoxExecutor(exec).Execute(t.Context(), nil, tsk, nil)
 	require.NoError(t, err)
@@ -100,7 +100,7 @@ func Test_Nil(t *testing.T) {
 
 	typed := task.New("", "", nil)
 
-	exec.EXPECT().Execute(t.Context(), nil, typed, nil, nil).Times(1)
+	exec.EXPECT().Execute(t.Context(), nil, typed, nil, nil)
 
 	err := boxed.Execute(t.Context(), nil, typed, nil)
 	require.NoError(t, err)

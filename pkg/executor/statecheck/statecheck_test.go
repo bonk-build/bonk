@@ -23,7 +23,7 @@ func TestStateCheck_SaveState(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(nil).Times(1)
+	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(nil)
 
 	err := checker.Execute(t.Context(), session, tsk, result)
 	require.NoError(t, err)
@@ -48,7 +48,7 @@ func TestStateCheck_ExecFailure(t *testing.T) {
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
 
-	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(assert.AnError).Times(1)
+	exec.EXPECT().Execute(t.Context(), session, tsk, result).Return(assert.AnError)
 
 	err := checker.Execute(t.Context(), session, tsk, result)
 	require.ErrorIs(t, err, assert.AnError)

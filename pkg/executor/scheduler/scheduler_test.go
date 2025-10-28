@@ -28,8 +28,8 @@ func TestFollowups(t *testing.T) {
 
 	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
-	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
-	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+	exec.EXPECT().OpenSession(t.Context(), session)
+	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	err := sched.OpenSession(t.Context(), session)
 	require.NoError(t, err)
@@ -72,8 +72,8 @@ func TestErrNoFollowups(t *testing.T) {
 
 	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
-	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
-	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+	exec.EXPECT().OpenSession(t.Context(), session)
+	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	err := sched.OpenSession(t.Context(), session)
 	require.NoError(t, err)
@@ -115,8 +115,8 @@ func TestFollowupsErrs(t *testing.T) {
 
 	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
-	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
-	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+	exec.EXPECT().OpenSession(t.Context(), session)
+	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	err := sched.OpenSession(t.Context(), session)
 	require.NoError(t, err)
