@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"sync"
 
 	"go.uber.org/multierr"
 
@@ -20,6 +21,7 @@ import (
 // and can be used for branching executor trees.
 type ExecutorTree struct {
 	children map[string]executor.Executor
+	mu       sync.RWMutex
 }
 
 const Wildcard = "*"
@@ -39,6 +41,9 @@ func New() ExecutorTree {
 }
 
 func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) error {
+	et.mu.Lock()
+	defer et.mu.Unlock()
+
 	before, after, needsManager := strings.Cut(name, task.TaskIDSep)
 	child, hasChild := et.children[before]
 
@@ -49,7 +54,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 		if !ok {
 			// If there's a child that isn't a manager, replace it with a manager and recurse.
 			childManager = &ExecutorTree{
-				make(map[string]executor.Executor, 1),
+				children: make(map[string]executor.Executor, 1),
 			}
 			et.children[before] = childManager
 			// Re-register the old child as a nameless.
@@ -63,11 +68,12 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 
 	// Needs & doesn't have manager, add manager and retry
 	case needsManager && !hasChild:
-		et.children[before] = &ExecutorTree{
+		childManager := &ExecutorTree{
 			children: make(map[string]executor.Executor, 1),
 		}
+		et.children[before] = childManager
 
-		return et.RegisterExecutor(name, exec)
+		return childManager.RegisterExecutor(after, exec)
 
 	// Doesn't need more manager tree but already has a child, error
 	case !needsManager && hasChild:
@@ -89,6 +95,9 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 }
 
 func (et *ExecutorTree) UnregisterExecutors(names ...string) {
+	et.mu.Lock()
+	defer et.mu.Unlock()
+
 	for _, name := range names {
 		before, after, _ := strings.Cut(name, task.TaskIDSep)
 		child, ok := et.children[before]
@@ -111,6 +120,9 @@ func (et *ExecutorTree) UnregisterExecutors(names ...string) {
 }
 
 func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) error {
+	et.mu.RLock()
+	defer et.mu.RUnlock()
+
 	var err error
 	et.ForEachExecutor(func(_ string, exec executor.Executor) {
 		multierr.AppendInto(&err, exec.OpenSession(ctx, session))
@@ -120,6 +132,9 @@ func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) e
 }
 
 func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionID) {
+	et.mu.RLock()
+	defer et.mu.RUnlock()
+
 	et.ForEachExecutor(func(_ string, exec executor.Executor) {
 		exec.CloseSession(ctx, sessionId)
 	})
@@ -131,6 +146,9 @@ func (et *ExecutorTree) Execute(
 	tsk *task.Task,
 	result *task.Result,
 ) error {
+	et.mu.RLock()
+	defer et.mu.RUnlock()
+
 	exec := tsk.Executor
 	before, after, _ := strings.Cut(exec, task.TaskIDSep)
 
@@ -158,6 +176,9 @@ func (et *ExecutorTree) GetNumExecutors() int {
 }
 
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor)) {
+	et.mu.RLock()
+	defer et.mu.RUnlock()
+
 	for name, exec := range et.children {
 		forEachExecutorImpl(name, exec, fun)
 	}

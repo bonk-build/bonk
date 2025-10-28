@@ -5,6 +5,7 @@ package tree_test
 
 import (
 	"slices"
+	"sync"
 	"testing"
 
 	"go.uber.org/mock/gomock"
@@ -38,16 +39,23 @@ func Test_Add(t *testing.T) {
 	session := task.NewTestSession()
 
 	// Validate expected successful registrations
+	waiter := sync.WaitGroup{}
 	for _, name := range execNames {
-		err := manager.RegisterExecutor(name, exec)
-		require.NoError(t, err)
+		waiter.Go(func() {
+			err := manager.RegisterExecutor(name, exec)
+			assert.NoError(t, err)
+		})
 	}
+	waiter.Wait()
 
 	// Validate expected errors
 	for name, expectedErr := range execErrs {
-		err := manager.RegisterExecutor(name, exec)
-		require.ErrorIs(t, err, expectedErr)
+		waiter.Go(func() {
+			err := manager.RegisterExecutor(name, exec)
+			require.ErrorIs(t, err, expectedErr)
+		})
 	}
+	waiter.Wait()
 
 	// Validate session opening
 	exec.EXPECT().OpenSession(t.Context(), session).Times(len(execNames))
