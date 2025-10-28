@@ -40,8 +40,8 @@ func Test_Add(t *testing.T) {
 	taskRoutings := map[string]string{
 		"testing.child.abc": "testing.child.abc",
 		"testing.child":     "testing.child",
-		// "testing.child.def": "testing.child",
-		"super.testing": "super.*",
+		"testing.child.def": "testing.child",
+		"super.testing":     "super.*",
 	}
 
 	manager := tree.New()

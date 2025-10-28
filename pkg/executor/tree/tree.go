@@ -163,6 +163,10 @@ func (et *ExecutorTree) Execute(
 		}
 	}
 
+	if fallback, ok := et.children[""]; ok {
+		return fallback.Execute(ctx, session, tsk, result)
+	}
+
 	return fmt.Errorf("%w: %s", ErrNoExecutorFound, tsk.Executor)
 }
 
