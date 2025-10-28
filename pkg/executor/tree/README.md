@@ -43,7 +43,7 @@ var (
 ```
 
 <a name="ExecutorTree"></a>
-## type [ExecutorTree](<tree.go#L21-L23>)
+## type [ExecutorTree](<tree.go#L22-L25>)
 
 ExecutorTree is a tree of Executors. It is meant to route tasks to child executors, and can be used for branching executor trees.
 
@@ -54,7 +54,7 @@ type ExecutorTree struct {
 ```
 
 <a name="New"></a>
-### func [New](<tree.go#L35>)
+### func [New](<tree.go#L37>)
 
 ```go
 func New() ExecutorTree
@@ -63,7 +63,7 @@ func New() ExecutorTree
 
 
 <a name="ExecutorTree.CloseSession"></a>
-### func \(\*ExecutorTree\) [CloseSession](<tree.go#L122>)
+### func \(\*ExecutorTree\) [CloseSession](<tree.go#L133>)
 
 ```go
 func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionID)
@@ -72,7 +72,7 @@ func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.Session
 
 
 <a name="ExecutorTree.Execute"></a>
-### func \(\*ExecutorTree\) [Execute](<tree.go#L128-L133>)
+### func \(\*ExecutorTree\) [Execute](<tree.go#L142-L147>)
 
 ```go
 func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
@@ -81,7 +81,7 @@ func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *
 
 
 <a name="ExecutorTree.ForEachExecutor"></a>
-### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L160>)
+### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L177>)
 
 ```go
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor))
@@ -90,7 +90,7 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Exec
 
 
 <a name="ExecutorTree.GetNumExecutors"></a>
-### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L151>)
+### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L168>)
 
 ```go
 func (et *ExecutorTree) GetNumExecutors() int
@@ -99,7 +99,7 @@ func (et *ExecutorTree) GetNumExecutors() int
 
 
 <a name="ExecutorTree.OpenSession"></a>
-### func \(\*ExecutorTree\) [OpenSession](<tree.go#L113>)
+### func \(\*ExecutorTree\) [OpenSession](<tree.go#L121>)
 
 ```go
 func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) error
@@ -108,7 +108,7 @@ func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) e
 
 
 <a name="ExecutorTree.RegisterExecutor"></a>
-### func \(\*ExecutorTree\) [RegisterExecutor](<tree.go#L41>)
+### func \(\*ExecutorTree\) [RegisterExecutor](<tree.go#L43>)
 
 ```go
 func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) error
@@ -117,7 +117,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 
 
 <a name="ExecutorTree.UnregisterExecutors"></a>
-### func \(\*ExecutorTree\) [UnregisterExecutors](<tree.go#L91>)
+### func \(\*ExecutorTree\) [UnregisterExecutors](<tree.go#L96>)
 
 ```go
 func (et *ExecutorTree) UnregisterExecutors(names ...string)
