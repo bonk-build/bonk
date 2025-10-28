@@ -20,47 +20,54 @@ import (
 func Test_Add(t *testing.T) {
 	t.Parallel()
 
-	const execName = "testing.child.abc"
+	execNames := [...]string{
+		"testing.child.abc",
+		"testing.child",
+		"testing.sibling",
+		"unrelated",
+		"super.*",
+	}
+
+	execErrs := map[string]error{
+		"testing.child": tree.ErrDuplicateExecutor,
+	}
 
 	exec := mockexec.New(t)
-
 	manager := tree.New()
+	session := task.NewTestSession()
 
-	err := manager.RegisterExecutor(execName, exec)
+	// Validate expected successful registrations
+	for _, name := range execNames {
+		err := manager.RegisterExecutor(name, exec)
+		require.NoError(t, err)
+	}
+
+	// Validate expected errors
+	for name, expectedErr := range execErrs {
+		err := manager.RegisterExecutor(name, exec)
+		require.ErrorIs(t, err, expectedErr)
+	}
+
+	// Validate session opening
+	exec.EXPECT().OpenSession(t.Context(), session).Times(len(execNames))
+	err := manager.OpenSession(t.Context(), session)
 	require.NoError(t, err)
 
-	require.Equal(t, 1, manager.GetNumExecutors())
-
-	var foundName string
-	calls := 0
+	// Validate resulting tree
+	assert.Equal(t, len(execNames), manager.GetNumExecutors())
+	found := make([]string, 0, len(execNames))
 	manager.ForEachExecutor(func(name string, _ executor.Executor) {
-		foundName = name
-		calls++
+		found = append(found, name)
 	})
-	require.Equal(t, 1, calls)
-	require.Equal(t, execName, foundName)
-}
+	assert.ElementsMatch(t, execNames, found)
 
-func Test_Add_Duplicate(t *testing.T) {
-	t.Parallel()
+	// Validate session closing
+	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(len(execNames))
+	manager.CloseSession(t.Context(), session.ID())
 
-	exec := mockexec.New(t)
-
-	manager := tree.New()
-
-	err := manager.RegisterExecutor("testing.child", exec)
-	require.NoError(t, err)
-
-	err = manager.RegisterExecutor("testing.child", exec)
-	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
-
-	err = manager.RegisterExecutor("testing.child.abc", exec)
-	require.NoError(t, err)
-
-	err = manager.RegisterExecutor("testing.child", exec)
-	require.ErrorIs(t, err, tree.ErrDuplicateExecutor)
-
-	require.Equal(t, 2, manager.GetNumExecutors())
+	// Validate unregistration
+	manager.UnregisterExecutors(execNames[:]...)
+	assert.Equal(t, 0, manager.GetNumExecutors())
 }
 
 func Test_Call(t *testing.T) {
@@ -130,53 +137,6 @@ func Test_Call_Fail(t *testing.T) {
 	require.ErrorIs(t, err, tree.ErrNoExecutorFound)
 }
 
-func Test_Remove(t *testing.T) {
-	t.Parallel()
-
-	const execName = "testing.child.abc"
-
-	exec := mockexec.New(t)
-	manager := tree.New()
-
-	err := manager.RegisterExecutor(execName, exec)
-	require.NoError(t, err)
-
-	manager.UnregisterExecutors(execName)
-
-	require.Equal(t, 0, manager.GetNumExecutors())
-
-	calls := 0
-	manager.ForEachExecutor(func(string, executor.Executor) {
-		calls++
-	})
-	require.Equal(t, 0, calls)
-}
-
-func Test_Add_Overlap(t *testing.T) {
-	t.Parallel()
-
-	execNames := []string{
-		"testing.child.abc",
-		"testing.sibling",
-		"testing.child",
-	}
-
-	manager := tree.New()
-
-	for _, execName := range execNames {
-		exec := mockexec.New(t)
-
-		err := manager.RegisterExecutor(execName, exec)
-		require.NoError(t, err)
-	}
-
-	calls := 0
-	manager.ForEachExecutor(func(string, executor.Executor) {
-		calls++
-	})
-	require.Equal(t, 3, calls)
-}
-
 func Test_Call_Overlap(t *testing.T) {
 	t.Parallel()
 
@@ -205,27 +165,6 @@ func Test_Call_Overlap(t *testing.T) {
 		Executor: "testing.child",
 	}, nil)
 	require.NoError(t, err)
-}
-
-func Test_OpenCloseSession(t *testing.T) {
-	t.Parallel()
-
-	const execName = "testing.child.abc"
-
-	session := task.NewTestSession()
-
-	exec := mockexec.New(t)
-	exec.EXPECT().OpenSession(t.Context(), session).Times(1)
-	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
-
-	manager := tree.New()
-
-	err := manager.RegisterExecutor(execName, exec)
-	require.NoError(t, err)
-
-	err = manager.OpenSession(t.Context(), session)
-	require.NoError(t, err)
-	defer manager.CloseSession(t.Context(), session.ID())
 }
 
 func Test_OpenCloseSession_Error(t *testing.T) {
