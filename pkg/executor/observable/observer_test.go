@@ -42,8 +42,8 @@ func TestPass(t *testing.T) { //nolint:paralleltest
 		})
 		require.NoError(t, err)
 
-		exec.EXPECT().OpenSession(t.Context(), session).Times(1)
-		exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+		exec.EXPECT().OpenSession(t.Context(), session)
+		exec.EXPECT().CloseSession(t.Context(), session.ID())
 		exec.EXPECT().
 			Execute(t.Context(), session, tsk, &result).
 			Times(1).
@@ -101,8 +101,8 @@ func TestFail(t *testing.T) { //nolint:paralleltest
 		})
 		require.NoError(t, err)
 
-		exec.EXPECT().OpenSession(t.Context(), session).Times(1)
-		exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+		exec.EXPECT().OpenSession(t.Context(), session)
+		exec.EXPECT().CloseSession(t.Context(), session.ID())
 		exec.EXPECT().
 			Execute(t.Context(), session, tsk, &result).
 			Times(1).

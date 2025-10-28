@@ -195,7 +195,7 @@ func Test_Call_Overlap(t *testing.T) {
 	}
 
 	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), nil, gomock.Any(), nil).Times(1)
+	exec.EXPECT().Execute(t.Context(), nil, gomock.Any(), nil)
 
 	err := manager.RegisterExecutor("testing.child", exec)
 	require.NoError(t, err)
@@ -214,8 +214,8 @@ func Test_OpenCloseSession_Error(t *testing.T) {
 	session := task.NewTestSession()
 
 	exec := mockexec.New(t)
-	exec.EXPECT().OpenSession(t.Context(), session).Times(1).Return(assert.AnError)
-	exec.EXPECT().CloseSession(t.Context(), session.ID()).Times(1)
+	exec.EXPECT().OpenSession(t.Context(), session).Return(assert.AnError)
+	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	manager := tree.New()
 
