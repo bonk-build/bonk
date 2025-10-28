@@ -15,7 +15,6 @@ ci:
   autoupdate_commit_msg: "chore(deps): pre-commit autoupdate"
   skip:
     - no-commit-to-branch
-    - renovate-config-validator
     - hawkeye-format
     - golangci-lint-config-verify
     - golangci-lint-full
@@ -51,18 +50,11 @@ repos:
       - id: mixed-line-ending
       - id: detect-private-key
       - id: no-commit-to-branch
-        args: [--branch, main]
 
   - repo: https://gitlab.com/bmares/check-json5
     rev: v1.0.0
     hooks:
       - id: check-json5
-
-  - repo: https://github.com/renovatebot/pre-commit-hooks
-    rev: 41.162.2
-    hooks:
-      - id: renovate-config-validator
-        args: [--strict]
 
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v4.9.1
