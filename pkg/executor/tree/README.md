@@ -10,6 +10,7 @@ Package tree provides [ExecutorTree](<#ExecutorTree>), which is meant to route t
 
 ## Index
 
+- [Constants](<#constants>)
 - [Variables](<#variables>)
 - [type ExecutorTree](<#ExecutorTree>)
   - [func New\(\) ExecutorTree](<#New>)
@@ -21,6 +22,14 @@ Package tree provides [ExecutorTree](<#ExecutorTree>), which is meant to route t
   - [func \(et \*ExecutorTree\) RegisterExecutor\(name string, exec executor.Executor\) error](<#ExecutorTree.RegisterExecutor>)
   - [func \(et \*ExecutorTree\) UnregisterExecutors\(names ...string\)](<#ExecutorTree.UnregisterExecutors>)
 
+
+## Constants
+
+<a name="Wildcard"></a>
+
+```go
+const Wildcard = "*"
+```
 
 ## Variables
 
@@ -45,7 +54,7 @@ type ExecutorTree struct {
 ```
 
 <a name="New"></a>
-### func [New](<tree.go#L33>)
+### func [New](<tree.go#L35>)
 
 ```go
 func New() ExecutorTree
@@ -54,7 +63,7 @@ func New() ExecutorTree
 
 
 <a name="ExecutorTree.CloseSession"></a>
-### func \(\*ExecutorTree\) [CloseSession](<tree.go#L123>)
+### func \(\*ExecutorTree\) [CloseSession](<tree.go#L125>)
 
 ```go
 func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.SessionID)
@@ -63,7 +72,7 @@ func (et *ExecutorTree) CloseSession(ctx context.Context, sessionId task.Session
 
 
 <a name="ExecutorTree.Execute"></a>
-### func \(\*ExecutorTree\) [Execute](<tree.go#L129-L134>)
+### func \(\*ExecutorTree\) [Execute](<tree.go#L131-L136>)
 
 ```go
 func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *task.Task, result *task.Result) error
@@ -72,7 +81,7 @@ func (et *ExecutorTree) Execute(ctx context.Context, session task.Session, tsk *
 
 
 <a name="ExecutorTree.ForEachExecutor"></a>
-### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L161>)
+### func \(\*ExecutorTree\) [ForEachExecutor](<tree.go#L163>)
 
 ```go
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor))
@@ -81,7 +90,7 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Exec
 
 
 <a name="ExecutorTree.GetNumExecutors"></a>
-### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L152>)
+### func \(\*ExecutorTree\) [GetNumExecutors](<tree.go#L154>)
 
 ```go
 func (et *ExecutorTree) GetNumExecutors() int
@@ -90,7 +99,7 @@ func (et *ExecutorTree) GetNumExecutors() int
 
 
 <a name="ExecutorTree.OpenSession"></a>
-### func \(\*ExecutorTree\) [OpenSession](<tree.go#L114>)
+### func \(\*ExecutorTree\) [OpenSession](<tree.go#L116>)
 
 ```go
 func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) error
@@ -99,7 +108,7 @@ func (et *ExecutorTree) OpenSession(ctx context.Context, session task.Session) e
 
 
 <a name="ExecutorTree.RegisterExecutor"></a>
-### func \(\*ExecutorTree\) [RegisterExecutor](<tree.go#L39>)
+### func \(\*ExecutorTree\) [RegisterExecutor](<tree.go#L41>)
 
 ```go
 func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) error
@@ -108,7 +117,7 @@ func (et *ExecutorTree) RegisterExecutor(name string, exec executor.Executor) er
 
 
 <a name="ExecutorTree.UnregisterExecutors"></a>
-### func \(\*ExecutorTree\) [UnregisterExecutors](<tree.go#L89>)
+### func \(\*ExecutorTree\) [UnregisterExecutors](<tree.go#L91>)
 
 ```go
 func (et *ExecutorTree) UnregisterExecutors(names ...string)
