@@ -158,27 +158,29 @@ func (et *ExecutorTree) GetNumExecutors() int {
 }
 
 func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Executor)) {
-	var forEachImpl func(name string, appendName bool, child executor.Executor)
-	forEachImpl = func(name string, appendName bool, child executor.Executor) {
-		if childManager, ok := child.(*ExecutorTree); ok {
-			for childName, childExec := range childManager.children {
-				var pathParts []string
-				if appendName {
-					if childName != "" {
-						pathParts = []string{name, childName}
-					} else {
-						pathParts = []string{name}
-					}
-				} else {
-					pathParts = []string{childName}
-				}
-
-				forEachImpl(strings.Join(pathParts, task.TaskIDSep), true, childExec)
-			}
-		} else {
-			fun(name, child)
-		}
+	for name, exec := range et.children {
+		forEachExecutorImpl(name, exec, fun)
 	}
+}
 
-	forEachImpl("", false, et)
+func forEachExecutorImpl(
+	workingName string,
+	exec executor.Executor,
+	fun func(string, executor.Executor),
+) {
+	switch exec := exec.(type) {
+	case *ExecutorTree:
+		for name, child := range exec.children {
+			if name == "" {
+				name = workingName
+			} else {
+				name = strings.Join([]string{workingName, name}, task.TaskIDSep)
+			}
+
+			forEachExecutorImpl(name, child, fun)
+		}
+
+	default:
+		fun(workingName, exec)
+	}
 }
