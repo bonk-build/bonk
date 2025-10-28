@@ -22,10 +22,12 @@ type ExecutorTree struct {
 	children map[string]executor.Executor
 }
 
-// Note that ExecutorTree is itself an executor.
-var _ executor.Executor = (*ExecutorTree)(nil)
+const Wildcard = "*"
 
 var (
+	// Note that ExecutorTree is itself an executor.
+	_ executor.Executor = (*ExecutorTree)(nil)
+
 	ErrDuplicateExecutor = errors.New("duplicate executor name")
 	ErrNoExecutorFound   = errors.New("no executor found")
 )
@@ -164,8 +166,12 @@ func (et *ExecutorTree) ForEachExecutor(fun func(name string, exec executor.Exec
 		if childManager, ok := child.(*ExecutorTree); ok {
 			for childName, childExec := range childManager.children {
 				var pathParts []string
-				if appendName && childName != "" {
-					pathParts = []string{name, childName}
+				if appendName {
+					if childName != "" {
+						pathParts = []string{name, childName}
+					} else {
+						pathParts = []string{name}
+					}
 				} else {
 					pathParts = []string{childName}
 				}
