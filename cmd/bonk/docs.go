@@ -51,7 +51,7 @@ func trimFileNewlines(root *os.Root, file string) {
 		if read != 1 {
 			cobra.CheckErr(errors.New("failed to read byte in file"))
 		}
-		char := readBuf[0]
+		char := readBuf[0] //nolint:gosec
 
 		if char == '\n' {
 			_, err = entryFile.Seek(-2, io.SeekCurrent)
