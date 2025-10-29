@@ -86,7 +86,7 @@ func (s *Scheduler) executeImpl(
 			// Update the ID to be the child of this task.
 			followup.ID = tsk.ID.GetChild(followup.ID.String())
 
-			return s.executeImpl(errgrp, ctx, session, followup, &localRes)
+			return s.executeImpl(errgrp, ctx, session, followup, result)
 		})
 	}
 
