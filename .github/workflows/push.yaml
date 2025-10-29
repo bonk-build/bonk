@@ -76,11 +76,13 @@ jobs:
         run: go tool gotestsum --packages="./..." --junitfile junit.xml --jsonfile gotest.json -- -coverprofile=coverage.txt -race -count 100 -parallel $(nproc)
 
       - name: process results for summary
+        if: ${{ !cancelled() }}
         uses: robherley/go-test-action@b19f6aadabfb1ad85079065b21aa2af132466468 # v0.6.0
         with:
           fromJSONFile: gotest.json
 
       - name: upload coverage reports to Codecov
+        if: ${{ !cancelled() }}
         uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
