@@ -7,7 +7,6 @@ go 1.25.0
 
 tool (
 	cuelang.org/go/cmd/cue
-	go.uber.org/mock/mockgen
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	google.golang.org/protobuf/cmd/protoc-gen-go
 	gotest.tools/gotestsum
@@ -32,7 +31,6 @@ require (
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	github.com/veqryn/slog-context v0.8.0
-	go.uber.org/mock v0.6.0
 	go.uber.org/multierr v1.11.0
 	go.yaml.in/yaml/v4 v4.0.0-rc.2
 	golang.org/x/sync v0.17.0
@@ -132,6 +130,7 @@ require (
 	github.com/skeema/knownhosts v1.3.2 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect

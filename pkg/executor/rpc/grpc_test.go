@@ -9,9 +9,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-	"time"
 
-	"go.uber.org/mock/gomock"
 	"golang.org/x/sync/errgroup"
 
 	"google.golang.org/grpc"
@@ -19,6 +17,7 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor"
@@ -33,7 +32,6 @@ type Args struct {
 }
 
 type rpcSuite struct {
-	mock         *gomock.Controller
 	exec         *mockexec.MockExecutor
 	grpcServer   *grpc.Server
 	grpcClient   executor.Executor
@@ -44,8 +42,7 @@ type rpcSuite struct {
 func (s *rpcSuite) SetupTest(t *testing.T) {
 	t.Helper()
 
-	s.mock = gomock.NewController(t)
-	s.exec = mockexec.NewMockExecutor(s.mock)
+	s.exec = mockexec.NewMockExecutor(t)
 
 	lis := bufconn.Listen(1024 * 1024)
 	s.grpcServer = grpc.NewServer()
@@ -78,10 +75,6 @@ func (s *rpcSuite) AfterTest(t *testing.T) {
 	if err != nil {
 		require.ErrorIs(t, err, grpc.ErrServerStopped)
 	}
-
-	require.Eventually(t, func() bool {
-		return s.mock.Satisfied()
-	}, 100*time.Millisecond, 10*time.Millisecond)
 }
 
 func (s *rpcSuite) Test_Connection(t *testing.T) {
@@ -93,8 +86,8 @@ func (s *rpcSuite) Test_Connection(t *testing.T) {
 func (s *rpcSuite) Test_Session(t *testing.T) {
 	t.Parallel()
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any())
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID())
+	s.exec.EXPECT().OpenSession(mock.Anything, mock.Anything)
+	s.exec.EXPECT().CloseSession(mock.Anything, s.session.ID())
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.NoError(t, err)
@@ -104,8 +97,7 @@ func (s *rpcSuite) Test_Session(t *testing.T) {
 func (s *rpcSuite) Test_Session_Fail(t *testing.T) {
 	t.Parallel()
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any()).Return(assert.AnError)
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID()).Times(0)
+	s.exec.EXPECT().OpenSession(mock.Anything, mock.Anything).Return(assert.AnError)
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.ErrorContains(t, err, assert.AnError.Error())
@@ -116,16 +108,14 @@ func (s *rpcSuite) Test_Args(t *testing.T) {
 
 	var result task.Result
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any())
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID())
+	s.exec.EXPECT().OpenSession(mock.Anything, mock.Anything)
+	s.exec.EXPECT().CloseSession(mock.Anything, s.session.ID())
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.NoError(t, err)
 	defer s.grpcClient.CloseSession(t.Context(), s.session.ID())
 
-	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-		Times(1).
-		Return(nil)
+	s.exec.EXPECT().Execute(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	err = s.grpcClient.Execute(t.Context(), s.session, task.New(
 		"test.task",
@@ -142,8 +132,8 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 
 	var result task.Result
 
-	s.exec.EXPECT().OpenSession(gomock.Any(), gomock.Any())
-	s.exec.EXPECT().CloseSession(gomock.Any(), s.session.ID())
+	s.exec.EXPECT().OpenSession(mock.Anything, mock.Anything)
+	s.exec.EXPECT().CloseSession(mock.Anything, s.session.ID())
 
 	err := s.grpcClient.OpenSession(t.Context(), s.session)
 	require.NoError(t, err)
@@ -161,9 +151,8 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 		),
 	)
 
-	s.exec.EXPECT().Execute(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-		Times(1).
-		Do(func(_ context.Context, _ *task.Task, res *task.Result) {
+	s.exec.EXPECT().Execute(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+		Run(func(_ context.Context, session task.Session, _ *task.Task, res *task.Result) {
 			res.AddFollowupTasks(expectedTask)
 		}).
 		Return(nil)

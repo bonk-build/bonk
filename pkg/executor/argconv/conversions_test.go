@@ -6,8 +6,6 @@ package argconv_test
 import (
 	"testing"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor/argconv"
@@ -65,12 +63,11 @@ func Test_CueConstraints(t *testing.T) {
 func Test_BoxExecutor(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := argconv.NewMockTypedExecutor[Args](mock)
+	exec := argconv.NewMockTypedExecutor[Args](t)
 
 	tsk := task.New("", "", defaultArgs)
 
-	exec.EXPECT().Execute(t.Context(), nil, tsk, &defaultArgs, nil)
+	exec.EXPECT().Execute(t.Context(), nil, tsk, &defaultArgs, (*task.Result)(nil)).Return(nil)
 
 	err := argconv.BoxExecutor(exec).Execute(t.Context(), nil, tsk, nil)
 	require.NoError(t, err)
@@ -79,13 +76,10 @@ func Test_BoxExecutor(t *testing.T) {
 func Test_BoxExecutor_Failure(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := argconv.NewMockTypedExecutor[Args](mock)
+	exec := argconv.NewMockTypedExecutor[Args](t)
 	boxed := argconv.BoxExecutor(exec)
 
 	typed := task.New("", "", 111)
-
-	exec.EXPECT().Execute(t.Context(), nil, typed, gomock.Any(), nil).Times(0)
 
 	err := boxed.Execute(t.Context(), nil, typed, nil)
 	require.ErrorContains(t, err, "failed to convert params from int to argconv_test.Args")
@@ -94,13 +88,14 @@ func Test_BoxExecutor_Failure(t *testing.T) {
 func Test_Nil(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-	exec := argconv.NewMockTypedExecutor[Args](mock)
+	exec := argconv.NewMockTypedExecutor[Args](t)
 	boxed := argconv.BoxExecutor(exec)
 
 	typed := task.New("", "", nil)
 
-	exec.EXPECT().Execute(t.Context(), nil, typed, nil, nil)
+	exec.EXPECT().
+		Execute(t.Context(), nil, typed, (*Args)(nil), (*task.Result)(nil)).
+		Return(nil)
 
 	err := boxed.Execute(t.Context(), nil, typed, nil)
 	require.NoError(t, err)

@@ -17,8 +17,6 @@ import (
 	"go.bonk.build/pkg/task"
 )
 
-//go:generate go tool mockgen -destination typedexecutor_mock.go -package argconv -copyright_file ../../../license-header.txt -typed  -write_package_comment=false . TypedExecutor
-
 // TypedExecutor is like [executor.Executor] but with unboxed arguments.
 type TypedExecutor[Params any] interface {
 	OpenSession(ctx context.Context, session task.Session) error

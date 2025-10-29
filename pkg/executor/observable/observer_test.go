@@ -18,7 +18,7 @@ import (
 
 func TestPass(t *testing.T) { //nolint:paralleltest
 	synctest.Test(t, func(t *testing.T) {
-		exec := mockexec.New(t)
+		exec := mockexec.NewMockExecutor(t)
 		session := task.NewTestSession()
 		obs := observable.New(exec)
 
@@ -42,12 +42,11 @@ func TestPass(t *testing.T) { //nolint:paralleltest
 		})
 		require.NoError(t, err)
 
-		exec.EXPECT().OpenSession(t.Context(), session)
+		exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
 		exec.EXPECT().CloseSession(t.Context(), session.ID())
 		exec.EXPECT().
 			Execute(t.Context(), session, tsk, &result).
-			Times(1).
-			DoAndReturn(func(context.Context, task.Session, *task.Task, *task.Result) error {
+			RunAndReturn(func(context.Context, task.Session, *task.Task, *task.Result) error {
 				<-cont
 
 				return nil
@@ -75,7 +74,7 @@ func TestPass(t *testing.T) { //nolint:paralleltest
 
 func TestFail(t *testing.T) { //nolint:paralleltest
 	synctest.Test(t, func(t *testing.T) {
-		exec := mockexec.New(t)
+		exec := mockexec.NewMockExecutor(t)
 		session := task.NewTestSession()
 		obs := observable.New(exec)
 
@@ -101,12 +100,11 @@ func TestFail(t *testing.T) { //nolint:paralleltest
 		})
 		require.NoError(t, err)
 
-		exec.EXPECT().OpenSession(t.Context(), session)
+		exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
 		exec.EXPECT().CloseSession(t.Context(), session.ID())
 		exec.EXPECT().
 			Execute(t.Context(), session, tsk, &result).
-			Times(1).
-			DoAndReturn(func(context.Context, task.Session, *task.Task, *task.Result) error {
+			RunAndReturn(func(context.Context, task.Session, *task.Task, *task.Result) error {
 				<-cont
 
 				return assert.AnError

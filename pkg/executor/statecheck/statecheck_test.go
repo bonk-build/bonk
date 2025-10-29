@@ -18,7 +18,7 @@ import (
 func TestStateCheck_SaveState(t *testing.T) {
 	t.Parallel()
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
@@ -43,7 +43,7 @@ func TestStateCheck_SaveState(t *testing.T) {
 func TestStateCheck_ExecFailure(t *testing.T) {
 	t.Parallel()
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
@@ -61,7 +61,7 @@ func TestStateCheck_ExecFailure(t *testing.T) {
 func TestStateCheck_StateMismatches_Args(t *testing.T) {
 	t.Parallel()
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	checker := statecheck.New(exec)
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()

@@ -8,9 +8,8 @@ import (
 	"strconv"
 	"testing"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor/mockexec"
@@ -23,12 +22,12 @@ func TestFollowups(t *testing.T) {
 
 	const numFollowups = 3
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	session := task.NewTestSession()
 
 	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
-	exec.EXPECT().OpenSession(t.Context(), session)
+	exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
 	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	err := sched.OpenSession(t.Context(), session)
@@ -43,10 +42,9 @@ func TestFollowups(t *testing.T) {
 	)
 
 	exec.EXPECT().
-		Execute(gomock.Any(), session, tsk, &res).
-		Times(1).
+		Execute(mock.IsType(t.Context()), session, tsk, mock.IsType(&res)).
 		Return(nil).
-		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
+		Run(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range numFollowups {
 				r.AddFollowupTasks(task.New(
 					task.NewID("child", strconv.Itoa(idx)),
@@ -57,7 +55,13 @@ func TestFollowups(t *testing.T) {
 		})
 	for idx := range numFollowups {
 		exec.EXPECT().
-			Execute(gomock.Any(), session, task.TaskIDMatches(tsk.ID.GetChild("child", strconv.Itoa(idx))), gomock.Any())
+			Execute(
+				mock.IsType(t.Context()),
+				session,
+				task.TaskIDMatches(tsk.ID.GetChild("child", strconv.Itoa(idx))),
+				mock.IsType(&res),
+			).
+			Return(nil)
 	}
 
 	err = sched.Execute(t.Context(), session, tsk, &res)
@@ -67,12 +71,12 @@ func TestFollowups(t *testing.T) {
 func TestErrNoFollowups(t *testing.T) {
 	t.Parallel()
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	session := task.NewTestSession()
 
 	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
-	exec.EXPECT().OpenSession(t.Context(), session)
+	exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
 	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	err := sched.OpenSession(t.Context(), session)
@@ -87,10 +91,9 @@ func TestErrNoFollowups(t *testing.T) {
 	)
 
 	exec.EXPECT().
-		Execute(gomock.Any(), session, tsk, &res).
-		Times(1).
+		Execute(mock.IsType(t.Context()), session, tsk, mock.IsType(&res)).
 		Return(assert.AnError).
-		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
+		Run(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range 3 {
 				r.AddFollowupTasks(task.New(
 					task.NewID("child", strconv.Itoa(idx)),
@@ -99,9 +102,6 @@ func TestErrNoFollowups(t *testing.T) {
 				))
 			}
 		})
-	exec.EXPECT().
-		Execute(gomock.Any(), session, gomock.Any(), gomock.Any()).
-		Times(0)
 
 	err = sched.Execute(t.Context(), session, tsk, &res)
 	require.ErrorIs(t, err, assert.AnError)
@@ -110,12 +110,12 @@ func TestErrNoFollowups(t *testing.T) {
 func TestFollowupsErrs(t *testing.T) {
 	t.Parallel()
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	session := task.NewTestSession()
 
 	sched := scheduler.New(exec, scheduler.NoConcurrencyLimit)
 
-	exec.EXPECT().OpenSession(t.Context(), session)
+	exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
 	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 	err := sched.OpenSession(t.Context(), session)
@@ -130,10 +130,9 @@ func TestFollowupsErrs(t *testing.T) {
 	)
 
 	exec.EXPECT().
-		Execute(gomock.Any(), session, tsk, &res).
-		Times(1).
+		Execute(mock.IsType(t.Context()), session, tsk, mock.IsType(&res)).
 		Return(nil).
-		Do(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
+		Run(func(ctx context.Context, _ task.Session, t *task.Task, r *task.Result) {
 			for idx := range 3 {
 				r.AddFollowupTasks(task.New(
 					task.NewID("child", strconv.Itoa(idx)),
@@ -143,8 +142,7 @@ func TestFollowupsErrs(t *testing.T) {
 			}
 		})
 	exec.EXPECT().
-		Execute(gomock.Any(), session, gomock.Any(), gomock.Any()).
-		MaxTimes(3).
+		Execute(mock.IsType(t.Context()), session, mock.IsType(tsk), mock.IsType(&res)).
 		Return(assert.AnError)
 
 	err = sched.Execute(t.Context(), session, tsk, &res)
