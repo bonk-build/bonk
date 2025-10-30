@@ -11,10 +11,10 @@ import (
 	"go.uber.org/multierr"
 
 	"go.bonk.build/pkg/executor"
-	"go.bonk.build/pkg/executor/tree"
+	"go.bonk.build/pkg/executor/router"
 )
 
-// PluginClientManager manages a set of [PluginClient]s and functions as a distributing [tree.ExecutorTree].
+// PluginClientManager manages a set of [PluginClient]s and functions as a distributing [router.Router].
 type PluginClientManager interface {
 	executor.Executor
 
@@ -27,7 +27,7 @@ type PluginClientManager interface {
 }
 
 type pluginClientManager struct {
-	tree.ExecutorTree
+	router.Router
 
 	mu sync.Mutex
 }
@@ -35,7 +35,7 @@ type pluginClientManager struct {
 // NewPluginClientManager creates a new empty [PluginClientManager].
 func NewPluginClientManager() PluginClientManager {
 	return &pluginClientManager{
-		ExecutorTree: tree.New(),
+		Router: router.New(),
 	}
 }
 

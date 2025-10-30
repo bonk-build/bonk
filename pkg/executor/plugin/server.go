@@ -19,14 +19,14 @@ import (
 
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/argconv"
+	"go.bonk.build/pkg/executor/router"
 	"go.bonk.build/pkg/executor/rpc"
-	"go.bonk.build/pkg/executor/tree"
 	"go.bonk.build/pkg/task"
 )
 
 // Plugin describes a plugin and the services it provides.
 type Plugin struct {
-	tree.ExecutorTree
+	router.Router
 	goplugin.NetRPCUnsupportedPlugin
 
 	name string
@@ -43,8 +43,8 @@ type PluginOption func(plugin *Plugin) error
 // NewPlugin creates a new [Plugin] from the given options.
 func NewPlugin(name string, initializers ...PluginOption) *Plugin {
 	plugin := &Plugin{
-		ExecutorTree: tree.New(),
-		name:         name,
+		Router: router.New(),
+		name:   name,
 	}
 
 	for _, initializer := range initializers {
@@ -109,7 +109,7 @@ func (p *Plugin) Execute(
 		return err
 	}
 
-	multierr.AppendInto(&err, p.ExecutorTree.Execute(ctx, session, tsk, res))
+	multierr.AppendInto(&err, p.Router.Execute(ctx, session, tsk, res))
 	multierr.AppendInto(&err, cleanup())
 
 	return err

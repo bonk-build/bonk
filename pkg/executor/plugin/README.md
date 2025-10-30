@@ -34,7 +34,7 @@ Plugin describes a plugin and the services it provides.
 
 ```go
 type Plugin struct {
-    tree.ExecutorTree
+    router.Router
     goplugin.NetRPCUnsupportedPlugin
     // contains filtered or unexported fields
 }
@@ -136,7 +136,7 @@ Shutdown kills the subprocess.
 <a name="PluginClientManager"></a>
 ## type [PluginClientManager](<client_manager.go#L18-L27>)
 
-PluginClientManager manages a set of \[PluginClient\]s and functions as a distributing \[tree.ExecutorTree\].
+PluginClientManager manages a set of \[PluginClient\]s and functions as a distributing \[router.Router\].
 
 ```go
 type PluginClientManager interface {

@@ -11,8 +11,8 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 
 	"go.bonk.build/pkg/executor"
+	"go.bonk.build/pkg/executor/router"
 	"go.bonk.build/pkg/executor/rpc"
-	"go.bonk.build/pkg/executor/tree"
 )
 
 // ServeTest sets up a test gRPC connection which serves plugin and returns a client executor.
@@ -29,8 +29,8 @@ func (plugin *Plugin) ServeTest(t *testing.T) executor.Executor {
 		require.NoError(t, client.Close())
 	})
 
-	executorManager := tree.New()
-	require.NoError(t, executorManager.RegisterExecutor(plugin.Name(), pluginClient))
+	rtr := router.New()
+	require.NoError(t, rtr.RegisterExecutor(plugin.Name(), pluginClient))
 
-	return &executorManager
+	return &rtr
 }
