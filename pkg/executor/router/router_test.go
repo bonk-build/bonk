@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package tree_test
+package router_test
 
 import (
 	"maps"
@@ -15,7 +15,7 @@ import (
 
 	"go.bonk.build/pkg/executor"
 	"go.bonk.build/pkg/executor/mockexec"
-	"go.bonk.build/pkg/executor/tree"
+	"go.bonk.build/pkg/executor/router"
 	"go.bonk.build/pkg/task"
 )
 
@@ -31,7 +31,7 @@ func Test_Add(t *testing.T) {
 	}
 
 	execErrs := map[string]error{
-		"testing.child": tree.ErrDuplicateExecutor,
+		"testing.child": router.ErrDuplicateExecutor,
 	}
 
 	taskRoutings := map[string]string{
@@ -41,7 +41,7 @@ func Test_Add(t *testing.T) {
 		"super.testing":     "super.*",
 	}
 
-	manager := tree.New()
+	rtr := router.New()
 	session := task.NewTestSession()
 
 	// Validate expected successful registrations
@@ -51,7 +51,7 @@ func Test_Add(t *testing.T) {
 		exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 		waiter.Go(func() {
-			err := manager.RegisterExecutor(name, exec)
+			err := rtr.RegisterExecutor(name, exec)
 			assert.NoError(t, err)
 		})
 	}
@@ -60,20 +60,20 @@ func Test_Add(t *testing.T) {
 	// Validate expected errors
 	for name, expectedErr := range execErrs {
 		waiter.Go(func() {
-			err := manager.RegisterExecutor(name, nil)
+			err := rtr.RegisterExecutor(name, nil)
 			require.ErrorIs(t, err, expectedErr)
 		})
 	}
 	waiter.Wait()
 
 	// Validate session opening
-	err := manager.OpenSession(t.Context(), session)
+	err := rtr.OpenSession(t.Context(), session)
 	require.NoError(t, err)
 
-	// Validate resulting tree
-	assert.Equal(t, len(executors), manager.GetNumExecutors())
+	// Validate resulting router
+	assert.Equal(t, len(executors), rtr.GetNumExecutors())
 	found := make([]string, 0, len(executors))
-	manager.ForEachExecutor(func(name string, _ executor.Executor) {
+	rtr.ForEachExecutor(func(name string, _ executor.Executor) {
 		found = append(found, name)
 	})
 	assert.ElementsMatch(t, slices.Collect(maps.Keys(executors)), found)
@@ -89,20 +89,20 @@ func Test_Add(t *testing.T) {
 		exec := executors[receive]
 		exec.EXPECT().Execute(t.Context(), session, tsk, (*task.Result)(nil)).Return(nil)
 
-		err := manager.Execute(t.Context(), session, tsk, nil)
+		err := rtr.Execute(t.Context(), session, tsk, nil)
 		require.NoError(t, err)
 	}
 
 	// Validate session closing
-	manager.CloseSession(t.Context(), session.ID())
+	rtr.CloseSession(t.Context(), session.ID())
 
 	// Validate unregistration
-	numExecs := manager.GetNumExecutors()
+	numExecs := rtr.GetNumExecutors()
 	for name := range executors {
-		manager.UnregisterExecutors(name)
+		rtr.UnregisterExecutors(name)
 		numExecs--
 
-		assert.Equal(t, numExecs, manager.GetNumExecutors())
+		assert.Equal(t, numExecs, rtr.GetNumExecutors())
 	}
 }
 
@@ -119,12 +119,12 @@ func Test_Call(t *testing.T) {
 	exec := mockexec.NewMockExecutor(t)
 	exec.EXPECT().Execute(t.Context(), session, &tsk, &result).Return(nil)
 
-	manager := tree.New()
+	rtr := router.New()
 
-	err := manager.RegisterExecutor(execName, exec)
+	err := rtr.RegisterExecutor(execName, exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), session, &tsk, &result)
+	err = rtr.Execute(t.Context(), session, &tsk, &result)
 	require.NoError(t, err)
 	require.Equal(t, execName, tsk.Executor)
 }
@@ -141,12 +141,12 @@ func Test_Call_Wildcard(t *testing.T) {
 	exec := mockexec.NewMockExecutor(t)
 	exec.EXPECT().Execute(t.Context(), session, &tsk, &result).Return(nil)
 
-	manager := tree.New()
+	rtr := router.New()
 
-	err := manager.RegisterExecutor("testing.*.abc", exec)
+	err := rtr.RegisterExecutor("testing.*.abc", exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), session, &tsk, &result)
+	err = rtr.Execute(t.Context(), session, &tsk, &result)
 	require.NoError(t, err)
 }
 
@@ -162,14 +162,14 @@ func Test_Call_Fail(t *testing.T) {
 
 	exec := mockexec.NewMockExecutor(t)
 
-	manager := tree.New()
+	rtr := router.New()
 
-	err := manager.RegisterExecutor("something.else", exec)
+	err := rtr.RegisterExecutor("something.else", exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), session, &tsk, &result)
+	err = rtr.Execute(t.Context(), session, &tsk, &result)
 	require.Error(t, err)
-	require.ErrorIs(t, err, tree.ErrNoExecutorFound)
+	require.ErrorIs(t, err, router.ErrNoExecutorFound)
 }
 
 func Test_Call_Overlap(t *testing.T) {
@@ -180,22 +180,22 @@ func Test_Call_Overlap(t *testing.T) {
 		"testing.sibling",
 	}
 
-	manager := tree.New()
+	rtr := router.New()
 
 	for _, execName := range execNames {
 		exec := mockexec.NewMockExecutor(t)
 
-		err := manager.RegisterExecutor(execName, exec)
+		err := rtr.RegisterExecutor(execName, exec)
 		require.NoError(t, err)
 	}
 
 	exec := mockexec.NewMockExecutor(t)
 	exec.EXPECT().Execute(t.Context(), nil, mock.Anything, (*task.Result)(nil)).Return(nil)
 
-	err := manager.RegisterExecutor("testing.child", exec)
+	err := rtr.RegisterExecutor("testing.child", exec)
 	require.NoError(t, err)
 
-	err = manager.Execute(t.Context(), nil, &task.Task{
+	err = rtr.Execute(t.Context(), nil, &task.Task{
 		Executor: "testing.child",
 	}, nil)
 	require.NoError(t, err)
@@ -212,12 +212,12 @@ func Test_OpenCloseSession_Error(t *testing.T) {
 	exec.EXPECT().OpenSession(t.Context(), session).Return(assert.AnError)
 	exec.EXPECT().CloseSession(t.Context(), session.ID())
 
-	manager := tree.New()
+	rtr := router.New()
 
-	err := manager.RegisterExecutor(execName, exec)
+	err := rtr.RegisterExecutor(execName, exec)
 	require.NoError(t, err)
 
-	err = manager.OpenSession(t.Context(), session)
+	err = rtr.OpenSession(t.Context(), session)
 	require.ErrorIs(t, err, assert.AnError)
-	defer manager.CloseSession(t.Context(), session.ID())
+	defer rtr.CloseSession(t.Context(), session.ID())
 }
