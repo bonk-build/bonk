@@ -1,0 +1,21 @@
+# Copyright © 2025 Colden Cullen
+# SPDX-License-Identifier: MIT
+
+template: testify
+template-data:
+  # boilerplate-file: ./license-header.txt
+
+filename: "{{lower .InterfaceName}}.mock.go"
+formatter: gofmt
+
+packages:
+  go.bonk.build/pkg/executor/argconv:
+    interfaces:
+      TypedExecutor:
+
+  go.bonk.build/pkg/executor:
+    interfaces:
+      Executor:
+        config:
+          filename: mockexec/executor.mock.go
+          pkgname: mockexec

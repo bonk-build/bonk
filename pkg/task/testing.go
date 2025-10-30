@@ -4,12 +4,9 @@
 package task
 
 import (
-	"fmt"
-
-	"go.uber.org/mock/gomock"
-
 	"github.com/google/uuid"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
 )
 
 type testSession struct {
@@ -35,27 +32,8 @@ func (ts *testSession) OutputFS() afero.Fs {
 	return afero.NewBasePathFs(ts.SourceFS(), ".bonk-test")
 }
 
-func TaskIDMatches(id ID) gomock.Matcher {
-	return taskIDMatcher{
-		id: id,
-	}
-}
-
-type taskIDMatcher struct {
-	id ID
-}
-
-// Matches implements gomock.Matcher.
-func (t taskIDMatcher) Matches(x any) bool {
-	tsk, ok := x.(*Task)
-	if !ok {
-		return false
-	}
-
-	return tsk.ID == t.id
-}
-
-// String implements gomock.Matcher.
-func (t taskIDMatcher) String() string {
-	return fmt.Sprintf("is task with id %s", t.id)
+func TaskIDMatches(id ID) any {
+	return mock.MatchedBy(func(tsk *Task) bool {
+		return tsk.ID == id
+	})
 }

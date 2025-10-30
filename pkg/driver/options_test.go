@@ -6,8 +6,6 @@ package driver_test
 import (
 	"testing"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/driver"
@@ -32,7 +30,7 @@ func TestWithExecutor(t *testing.T) {
 
 	const execName = "executor"
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 
 	options := driver.MakeDefaultOptions().
 		WithExecutor(execName, exec)
@@ -46,8 +44,7 @@ func TestWithTypedExecutor(t *testing.T) {
 
 	const execName = "executor"
 
-	mock := gomock.NewController(t)
-	exec := argconv.NewMockTypedExecutor[any](mock)
+	exec := argconv.NewMockTypedExecutor[any](t)
 
 	options := driver.MakeDefaultOptions().
 		WithExecutor(execName, argconv.BoxExecutor(exec))

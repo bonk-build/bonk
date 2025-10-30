@@ -9,9 +9,8 @@ import (
 	"sync"
 	"testing"
 
-	"go.uber.org/mock/gomock"
-
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
 	"go.bonk.build/pkg/executor"
@@ -23,14 +22,12 @@ import (
 func Test_Add(t *testing.T) {
 	t.Parallel()
 
-	mock := gomock.NewController(t)
-
 	executors := map[string]*mockexec.MockExecutor{
-		"testing.child.abc": mockexec.NewMockExecutor(mock),
-		"testing.child":     mockexec.NewMockExecutor(mock),
-		"testing.sibling":   mockexec.NewMockExecutor(mock),
-		"unrelated":         mockexec.NewMockExecutor(mock),
-		"super.*":           mockexec.NewMockExecutor(mock),
+		"testing.child.abc": mockexec.NewMockExecutor(t),
+		"testing.child":     mockexec.NewMockExecutor(t),
+		"testing.sibling":   mockexec.NewMockExecutor(t),
+		"unrelated":         mockexec.NewMockExecutor(t),
+		"super.*":           mockexec.NewMockExecutor(t),
 	}
 
 	execErrs := map[string]error{
@@ -50,7 +47,7 @@ func Test_Add(t *testing.T) {
 	// Validate expected successful registrations
 	waiter := sync.WaitGroup{}
 	for name, exec := range executors {
-		exec.EXPECT().OpenSession(t.Context(), session)
+		exec.EXPECT().OpenSession(t.Context(), session).Return(nil)
 		exec.EXPECT().CloseSession(t.Context(), session.ID())
 
 		waiter.Go(func() {
@@ -90,7 +87,7 @@ func Test_Add(t *testing.T) {
 		)
 
 		exec := executors[receive]
-		exec.EXPECT().Execute(t.Context(), session, tsk, nil)
+		exec.EXPECT().Execute(t.Context(), session, tsk, (*task.Result)(nil)).Return(nil)
 
 		err := manager.Execute(t.Context(), session, tsk, nil)
 		require.NoError(t, err)
@@ -119,8 +116,8 @@ func Test_Call(t *testing.T) {
 		Executor: execName,
 	}
 
-	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), session, &tsk, &result)
+	exec := mockexec.NewMockExecutor(t)
+	exec.EXPECT().Execute(t.Context(), session, &tsk, &result).Return(nil)
 
 	manager := tree.New()
 
@@ -141,8 +138,8 @@ func Test_Call_Wildcard(t *testing.T) {
 		Executor: "testing.child.abc",
 	}
 
-	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), session, &tsk, &result)
+	exec := mockexec.NewMockExecutor(t)
+	exec.EXPECT().Execute(t.Context(), session, &tsk, &result).Return(nil)
 
 	manager := tree.New()
 
@@ -163,8 +160,7 @@ func Test_Call_Fail(t *testing.T) {
 		Executor: execName,
 	}
 
-	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), session, &tsk, &result).Times(0)
+	exec := mockexec.NewMockExecutor(t)
 
 	manager := tree.New()
 
@@ -187,15 +183,14 @@ func Test_Call_Overlap(t *testing.T) {
 	manager := tree.New()
 
 	for _, execName := range execNames {
-		exec := mockexec.New(t)
-		exec.EXPECT().Execute(t.Context(), nil, gomock.Any(), nil).Times(0)
+		exec := mockexec.NewMockExecutor(t)
 
 		err := manager.RegisterExecutor(execName, exec)
 		require.NoError(t, err)
 	}
 
-	exec := mockexec.New(t)
-	exec.EXPECT().Execute(t.Context(), nil, gomock.Any(), nil)
+	exec := mockexec.NewMockExecutor(t)
+	exec.EXPECT().Execute(t.Context(), nil, mock.Anything, (*task.Result)(nil)).Return(nil)
 
 	err := manager.RegisterExecutor("testing.child", exec)
 	require.NoError(t, err)
@@ -213,7 +208,7 @@ func Test_OpenCloseSession_Error(t *testing.T) {
 
 	session := task.NewTestSession()
 
-	exec := mockexec.New(t)
+	exec := mockexec.NewMockExecutor(t)
 	exec.EXPECT().OpenSession(t.Context(), session).Return(assert.AnError)
 	exec.EXPECT().CloseSession(t.Context(), session.ID())
 

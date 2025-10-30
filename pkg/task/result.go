@@ -5,6 +5,8 @@ package task
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 	"sync"
 )
 
@@ -26,6 +28,7 @@ type resultJson struct {
 var (
 	_ json.Marshaler   = (*Result)(nil)
 	_ json.Unmarshaler = (*Result)(nil)
+	_ fmt.Stringer     = (*Result)(nil)
 )
 
 func (r *Result) GetOutputs() []string {
@@ -121,4 +124,20 @@ func (r *Result) UnmarshalJSON(data []byte) error {
 	r.AddFollowupTasks(res.FollowupTasks...)
 
 	return nil
+}
+
+func (r *Result) String() string {
+	if r == nil {
+		return "<nil>"
+	}
+
+	propStrings := make([]string, 0, 2) //nolint:mnd
+	if outputs := r.GetOutputs(); len(outputs) > 0 {
+		propStrings = append(propStrings, fmt.Sprintf("Outputs: %v", outputs))
+	}
+	if followups := r.GetFollowupTasks(); len(followups) > 0 {
+		propStrings = append(propStrings, fmt.Sprintf("Followups: %v", followups))
+	}
+
+	return fmt.Sprintf("Result{%s}", strings.Join(propStrings, ", "))
 }

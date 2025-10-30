@@ -12,7 +12,7 @@ Package task contains the core structures needed define a bonk pipeline. For mor
 
 - [Constants](<#constants>)
 - [func OutputFS\(session Session, id ID\) afero.Fs](<#OutputFS>)
-- [func TaskIDMatches\(id ID\) gomock.Matcher](<#TaskIDMatches>)
+- [func TaskIDMatches\(id ID\) any](<#TaskIDMatches>)
 - [type DefaultSession](<#DefaultSession>)
   - [func \(ds \*DefaultSession\) ID\(\) SessionID](<#DefaultSession.ID>)
   - [func \(ds \*DefaultSession\) OutputFS\(\) afero.Fs](<#DefaultSession.OutputFS>)
@@ -34,6 +34,7 @@ Package task contains the core structures needed define a bonk pipeline. For mor
   - [func \(r \*Result\) GetFollowupTasks\(\) \[\]\*Task](<#Result.GetFollowupTasks>)
   - [func \(r \*Result\) GetOutputs\(\) \[\]string](<#Result.GetOutputs>)
   - [func \(r \*Result\) MarshalJSON\(\) \(\[\]byte, error\)](<#Result.MarshalJSON>)
+  - [func \(r \*Result\) String\(\) string](<#Result.String>)
   - [func \(r \*Result\) UnmarshalJSON\(data \[\]byte\) error](<#Result.UnmarshalJSON>)
 - [type Session](<#Session>)
   - [func NewTestSession\(\) Session](<#NewTestSession>)
@@ -61,10 +62,10 @@ func OutputFS(session Session, id ID) afero.Fs
 OutputFS returns the output filesystem for the given task.
 
 <a name="TaskIDMatches"></a>
-## func [TaskIDMatches](<testing.go#L38>)
+## func [TaskIDMatches](<testing.go#L35>)
 
 ```go
-func TaskIDMatches(id ID) gomock.Matcher
+func TaskIDMatches(id ID) any
 ```
 
 
@@ -205,7 +206,7 @@ func WithInputs(inputs ...string) Option
 WithInputs appends input specifiers to this task.
 
 <a name="Result"></a>
-## type [Result](<result.go#L12-L19>)
+## type [Result](<result.go#L14-L21>)
 
 Result describes the outputs of a task's execution.
 
@@ -216,7 +217,7 @@ type Result struct {
 ```
 
 <a name="Result.AddFollowupTasks"></a>
-### func \(\*Result\) [AddFollowupTasks](<result.go#L69>)
+### func \(\*Result\) [AddFollowupTasks](<result.go#L72>)
 
 ```go
 func (r *Result) AddFollowupTasks(tasks ...*Task)
@@ -225,7 +226,7 @@ func (r *Result) AddFollowupTasks(tasks ...*Task)
 
 
 <a name="Result.AddOutputs"></a>
-### func \(\*Result\) [AddOutputs](<result.go#L42>)
+### func \(\*Result\) [AddOutputs](<result.go#L45>)
 
 ```go
 func (r *Result) AddOutputs(outputs ...string)
@@ -234,7 +235,7 @@ func (r *Result) AddOutputs(outputs ...string)
 
 
 <a name="Result.Append"></a>
-### func \(\*Result\) [Append](<result.go#L86>)
+### func \(\*Result\) [Append](<result.go#L89>)
 
 ```go
 func (r *Result) Append(other *Result)
@@ -243,7 +244,7 @@ func (r *Result) Append(other *Result)
 
 
 <a name="Result.GetFollowupTasks"></a>
-### func \(\*Result\) [GetFollowupTasks](<result.go#L53>)
+### func \(\*Result\) [GetFollowupTasks](<result.go#L56>)
 
 ```go
 func (r *Result) GetFollowupTasks() []*Task
@@ -252,7 +253,7 @@ func (r *Result) GetFollowupTasks() []*Task
 
 
 <a name="Result.GetOutputs"></a>
-### func \(\*Result\) [GetOutputs](<result.go#L31>)
+### func \(\*Result\) [GetOutputs](<result.go#L34>)
 
 ```go
 func (r *Result) GetOutputs() []string
@@ -261,7 +262,7 @@ func (r *Result) GetOutputs() []string
 
 
 <a name="Result.MarshalJSON"></a>
-### func \(\*Result\) [MarshalJSON](<result.go#L101>)
+### func \(\*Result\) [MarshalJSON](<result.go#L104>)
 
 ```go
 func (r *Result) MarshalJSON() ([]byte, error)
@@ -269,8 +270,17 @@ func (r *Result) MarshalJSON() ([]byte, error)
 
 MarshalJSON implements json.Marshaler.
 
+<a name="Result.String"></a>
+### func \(\*Result\) [String](<result.go#L129>)
+
+```go
+func (r *Result) String() string
+```
+
+
+
 <a name="Result.UnmarshalJSON"></a>
-### func \(\*Result\) [UnmarshalJSON](<result.go#L113>)
+### func \(\*Result\) [UnmarshalJSON](<result.go#L116>)
 
 ```go
 func (r *Result) UnmarshalJSON(data []byte) error
@@ -295,7 +305,7 @@ type Session interface {
 ```
 
 <a name="NewTestSession"></a>
-### func [NewTestSession](<testing.go#L20>)
+### func [NewTestSession](<testing.go#L17>)
 
 ```go
 func NewTestSession() Session
