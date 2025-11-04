@@ -19,7 +19,7 @@ buf = "1.59.0"
 "ubi:vektra/mockery" = "3.5.5"
 github-cli = "2.82.1"
 pre-commit = "4.3.0"
-golangci-lint = "2.6.0"
+golangci-lint = "2.6.1"
 "ubi:korandoru/hawkeye" = "6.3.0"
 "pipx:commitizen" = "4.9.1"
 # Docs
