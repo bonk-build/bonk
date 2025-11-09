@@ -11,7 +11,7 @@ PRE_COMMIT_HOME = "{{ env.MISE_DATA_DIR | default(value=xdg_data_home ~ '/mise')
 
 [tools]
 # Languages
-go = "1.25.3"
+go = "1.25.4"
 python = "3.14.0"
 pipx = "1.8.0"
 # Development
