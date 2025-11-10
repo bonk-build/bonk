@@ -21,7 +21,7 @@ github-cli = "2.83.0"
 pre-commit = "4.4.0"
 golangci-lint = "2.6.1"
 "ubi:korandoru/hawkeye" = "6.3.0"
-"pipx:commitizen" = "4.9.1"
+"pipx:commitizen" = "4.10.0"
 # Docs
 "pipx:mkdocs" = { version = "1.6.1", pipx_args = "--system-site-packages" }
 
