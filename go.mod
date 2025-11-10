@@ -13,7 +13,7 @@ tool (
 )
 
 require (
-	cuelang.org/go v0.14.2
+	cuelang.org/go v0.15.0
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.6
 	github.com/charmbracelet/fang v0.4.3
