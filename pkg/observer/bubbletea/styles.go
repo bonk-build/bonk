@@ -4,7 +4,7 @@
 package bubbletea
 
 import (
-	"github.com/charmbracelet/lipgloss/v2"
+	"charm.land/lipgloss/v2"
 
 	"go.bonk.build/pkg/executor/observable"
 )

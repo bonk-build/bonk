@@ -13,11 +13,11 @@ tool (
 )
 
 require (
+	charm.land/bubbletea/v2 v2.0.0-rc.1
+	charm.land/fang/v2 v2.0.0-20251110204320-f80f0990c76f
+	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251110212127-b1610b7ee9cc
 	cuelang.org/go v0.15.0
 	github.com/ValerySidorin/shclog v0.0.1
-	github.com/charmbracelet/bubbletea/v2 v2.0.0-beta.6
-	github.com/charmbracelet/fang v0.4.3
-	github.com/charmbracelet/lipgloss/v2 v2.0.0-beta1
 	github.com/davecgh/go-spew v1.1.1
 	github.com/elliotchance/orderedmap/v3 v3.1.0
 	github.com/go-viper/mapstructure/v2 v2.4.0
@@ -49,16 +49,16 @@ require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/bitfield/gotestdox v0.2.2 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
-	github.com/charmbracelet/colorprofile v0.3.2 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20251027184610-54aaed923e4e // indirect
-	github.com/charmbracelet/x/ansi v0.10.2 // indirect
-	github.com/charmbracelet/x/cellbuf v0.0.13 // indirect
+	github.com/charmbracelet/colorprofile v0.3.3 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20251106193841-7889546fc720 // indirect
+	github.com/charmbracelet/x/ansi v0.11.0 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20251031172406-4542a189d0fb // indirect
 	github.com/charmbracelet/x/exp/color v0.0.0-20251006100439-2151805163c8 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/cheggaaa/pb/v3 v3.1.7 // indirect
+	github.com/clipperhouse/displaywidth v0.4.1 // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
