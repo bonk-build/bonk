@@ -6,8 +6,9 @@ package bubbletea
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss/v2"
-	"github.com/charmbracelet/lipgloss/v2/tree"
+	"charm.land/lipgloss/v2"
+	"charm.land/lipgloss/v2/tree"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/elliotchance/orderedmap/v3"
 

@@ -6,9 +6,9 @@ package bubbletea
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss/v2/tree"
+	"charm.land/lipgloss/v2/tree"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
+	tea "charm.land/bubbletea/v2"
 
 	"go.bonk.build/pkg/executor/observable"
 )

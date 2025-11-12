@@ -10,7 +10,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/charmbracelet/fang"
+	"charm.land/fang/v2"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 

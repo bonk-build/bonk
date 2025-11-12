@@ -6,10 +6,11 @@ package bubbletea
 import (
 	"reflect"
 
-	"github.com/charmbracelet/lipgloss/v2"
+	"charm.land/lipgloss/v2"
+
 	"github.com/davecgh/go-spew/spew"
 
-	tea "github.com/charmbracelet/bubbletea/v2"
+	tea "charm.land/bubbletea/v2"
 
 	"go.bonk.build/pkg/executor/observable"
 )
