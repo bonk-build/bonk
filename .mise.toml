@@ -23,7 +23,7 @@ golangci-lint = "2.6.1"
 "ubi:korandoru/hawkeye" = "6.3.0"
 "pipx:commitizen" = "4.10.0"
 # Docs
-"pipx:mkdocs" = { version = "1.6.1", pipx_args = "--system-site-packages" }
+"pipx:zensical" = "0.0.7"
 
 [tasks]
 generate.run = "go generate ./..."
@@ -33,8 +33,6 @@ lint.run = ["golangci-lint fmt", "golangci-lint run", "hawkeye format"]
 
 [hooks]
 postinstall = [
-  # mkdocs dependencies
-  "pip install pymdown-extensions mkdocs-material",
   "gh extension install nektos/gh-act",
   "gh extension install seachicken/gh-poi",
 ]
