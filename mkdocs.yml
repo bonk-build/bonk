@@ -15,6 +15,7 @@ nav:
 
 theme:
   name: material
+  variant: classic
   logo: assets/bonk.png
   favicon: assets/bonk.png
   palette:
