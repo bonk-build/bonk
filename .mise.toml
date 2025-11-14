@@ -15,7 +15,7 @@ go = "1.25.4"
 python = "3.14.0"
 pipx = "1.8.0"
 # Development
-buf = "1.59.0"
+buf = "1.60.0"
 "ubi:vektra/mockery" = "3.6.0"
 github-cli = "2.83.1"
 pre-commit = "4.4.0"
