@@ -69,14 +69,14 @@ repos:
       - id: hawkeye-format
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.6.1
+    rev: v2.6.2
     hooks:
       - id: golangci-lint-config-verify
       - id: golangci-lint-full
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.59.0
+    rev: v1.60.0
     hooks:
       - id: buf-lint
       - id: buf-format
