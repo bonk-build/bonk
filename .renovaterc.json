@@ -37,6 +37,12 @@
       "matchDepTypes": [
         "indirect"
       ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch",
+        "pin",
+        "digest"
+      ],
       "enabled": true,
       "groupName": "go indirect dependencies",
       "groupSlug": "go-indirect",
