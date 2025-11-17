@@ -166,8 +166,8 @@ github.com/hashicorp/go-plugin v1.7.0 h1:YghfQH/0QmPNc/AZMTFE3ac8fipZyZECHdDPshf
 github.com/hashicorp/go-plugin v1.7.0/go.mod h1:BExt6KEaIYx804z8k4gRzRLEvxKVb+kn0NMcihqOqb8=
 github.com/hashicorp/yamux v0.1.2 h1:XtB8kyFOyHXYVFnwT5C3+Bdo8gArse7j2AQ0DA0Uey8=
 github.com/hashicorp/yamux v0.1.2/go.mod h1:C+zze2n6e/7wshOZep2A70/aQU6QBRWJO/G6FT1wIns=
-github.com/holos-run/holos v0.104.3 h1:FL6a7k0nmS86LcJH2YOhwg9Tol22gthpF5XtzjWJtq4=
-github.com/holos-run/holos v0.104.3/go.mod h1:oGQtGyiScSFmnxMxYuyh6pQNO8cwW8sZ22VcnuWxYM0=
+github.com/holos-run/holos v0.105.1 h1:Tj4n1uPWod5tqBT3zCl+zXPKr58yRCHWBbY9AWFluQw=
+github.com/holos-run/holos v0.105.1/go.mod h1:fmwXxIxRqd5YxIHxnyxmfX0GyGQD28Ri/I/H83O4DaY=
 github.com/inconshreveable/mousetrap v1.1.0 h1:wN+x4NVGpMsO7ErUn/mUI3vEoE6Jt13X2s0bqwp9tc8=
 github.com/inconshreveable/mousetrap v1.1.0/go.mod h1:vpF70FUmC8bwa3OWnCshd2FqLfsEA9PFc4w1p2J65bw=
 github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 h1:BQSFePA1RWJOlocH6Fxy8MmwDt+yVQYULKfN0RoTN8A=

@@ -24,7 +24,7 @@ require (
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-plugin v1.7.0
-	github.com/holos-run/holos v0.104.3
+	github.com/holos-run/holos v0.105.1
 	github.com/princjef/gomarkdoc v1.1.0
 	github.com/samber/slog-multi v1.6.0
 	github.com/spf13/afero v1.15.0
