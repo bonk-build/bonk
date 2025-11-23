@@ -18,7 +18,7 @@ buf = "1.60.0"
 # Developer tools
 "ubi:vektra/mockery" = "3.6.1"
 github-cli = "2.83.1"
-pre-commit = "4.4.0"
+pre-commit = "4.5.0"
 golangci-lint = "2.6.2"
 "ubi:korandoru/hawkeye" = "6.3.0"
 "pipx:commitizen" = "4.10.0"
