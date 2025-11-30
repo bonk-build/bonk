@@ -76,7 +76,7 @@ repos:
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.60.0
+    rev: v1.61.0
     hooks:
       - id: buf-lint
       - id: buf-format
