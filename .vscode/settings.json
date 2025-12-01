@@ -43,6 +43,7 @@
     ]
   },
   "buf.commandLine.path": "${workspaceFolder}/.vscode/mise-tools/buf",
+  "python.defaultInterpreterPath": "${workspaceFolder}/.vscode/mise-tools/python",
   "yaml.schemas": {
     "https://squidfunk.github.io/mkdocs-material/schema.json": "mkdocs.yml",
     "https://golangci-lint.run/jsonschema/golangci.jsonschema.json": ".golangci.yaml"
