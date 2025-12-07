@@ -69,7 +69,7 @@ repos:
       - id: hawkeye-format
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.7.1
+    rev: v2.7.2
     hooks:
       - id: golangci-lint-config-verify
       - id: golangci-lint-full
