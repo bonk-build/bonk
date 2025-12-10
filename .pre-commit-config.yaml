@@ -21,6 +21,7 @@ ci:
     - golangci-lint-fmt
     - buf-lint
     - buf-format
+    - zizmor
 
 repos:
   - repo: meta
@@ -85,3 +86,8 @@ repos:
     rev: v1.7.9
     hooks:
       - id: actionlint
+
+  - repo: https://github.com/zizmorcore/zizmor-pre-commit
+    rev: v1.18.0
+    hooks:
+      - id: zizmor
