@@ -18,6 +18,7 @@ import (
 // teaModel is responsible for handling task invocation and status tracking.
 type teaModel struct {
 	tree taskTree
+	view tea.View
 
 	debugDump bool
 }
@@ -30,6 +31,8 @@ func (t *teaModel) Init() tea.Cmd {
 
 	t.tree = newTaskTree()
 	cmds = append(cmds, t.tree.Init())
+
+	t.view = tea.NewView(nil)
 
 	return tea.Batch(cmds...)
 }
@@ -72,5 +75,6 @@ func (t *teaModel) View() tea.View {
 	// Append empty string to get a blank line at the bottom
 	component = append(component, "")
 
-	return tea.NewView(lipgloss.JoinVertical(lipgloss.Left, component...))
+	t.view.SetContent(lipgloss.JoinVertical(lipgloss.Left, component...))
+	return t.view
 }
