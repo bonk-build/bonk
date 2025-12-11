@@ -22,7 +22,7 @@ func makeTestTask(t *testing.T) (*task.Task, *task.Result) {
 		nil,
 	)
 	result := &task.Result{}
-	result.AddOutputs(
+	result.AddOutputPaths(
 		"output-file",
 	)
 
@@ -77,7 +77,9 @@ func TestTaskState_StateMismatches_Inputs(t *testing.T) {
 	mismatches, _ := statecheck.DetectStateMismatches(session, tsk)
 	require.Empty(t, mismatches)
 
-	tsk.Inputs = []string{inputFileName}
+	tsk.Inputs = []task.FileReference{
+		task.SourceFile(inputFileName),
+	}
 
 	inputFile, err := session.SourceFS().Create(inputFileName)
 	require.NoError(t, err)
@@ -101,7 +103,9 @@ func TestTaskState_StateMismatches_InputsChecksum(t *testing.T) {
 
 	tsk, result := makeTestTask(t)
 	session := task.NewTestSession()
-	tsk.Inputs = []string{inputFileName}
+	tsk.Inputs = []task.FileReference{
+		task.SourceFile(inputFileName),
+	}
 
 	inputFile, err := session.SourceFS().Create(inputFileName)
 	require.NoError(t, err)

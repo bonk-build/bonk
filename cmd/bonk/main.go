@@ -74,7 +74,7 @@ var rootCmd = &cobra.Command{
 					"kustomize.Kustomize",
 					nil,
 					task.WithInputs(
-						".bonk/Test.Resources/resources.yaml",
+						task.SourceFile(".bonk/Test.Resources/resources.yaml"),
 					),
 				),
 			))

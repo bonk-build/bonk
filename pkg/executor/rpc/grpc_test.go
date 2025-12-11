@@ -146,8 +146,8 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 			Value: 69420,
 		},
 		task.WithInputs(
-			"File1.txt",
-			"File2.txt",
+			task.SourceFile("File1.txt"),
+			task.SourceFile("File2.txt"),
 		),
 	)
 

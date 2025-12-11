@@ -99,7 +99,15 @@ func (pb *grpcClient) Execute(
 		SessionId: &sessionIDStr,
 		Id:        (*string)(&tsk.ID),
 		Executor:  &tsk.Executor,
-		Inputs:    tsk.Inputs,
+		Inputs:    make([]*bonkv0.FileReference, len(tsk.Inputs)),
+	}
+
+	for idx, input := range tsk.Inputs {
+		protoFileSystem := bonkv0.FileReference_FileSystemType(input.FileSystem)
+		taskReqBuilder.Inputs[idx] = bonkv0.FileReference_builder{
+			FileSystem: &protoFileSystem,
+			Path: &input.Path,
+		}.Build()
 	}
 
 	var err error
@@ -118,7 +126,15 @@ func (pb *grpcClient) Execute(
 		return fmt.Errorf("unknown error performing task: %w", err)
 	}
 
-	result.AddOutputs(res.GetOutput()...)
+	outputs := make([]task.FileReference, len(res.GetOutput()))
+	for idx, output := range res.GetOutput() {
+		outputs[idx] = task.FileReference{
+			FileSystem: task.FileSystemType(output.GetFileSystem()),
+			Path: output.GetPath(),
+		}
+	}
+	result.AddOutputs(outputs...)
+
 	followups := make([]*task.Task, len(res.GetFollowupTasks()))
 	for ii, followup := range res.GetFollowupTasks() {
 		// Create the new task and append it
@@ -126,8 +142,14 @@ func (pb *grpcClient) Execute(
 			task.NewID(followup.GetId()),
 			followup.GetExecutor(),
 			followup.GetArguments().AsInterface(),
-			task.WithInputs(followup.GetInputs()...),
 		)
+		followups[ii].Inputs = make([]task.FileReference, len(followup.GetInputs()))
+		for idx, input := range followup.GetInputs() {
+			followups[ii].Inputs[idx] = task.FileReference{
+				FileSystem: task.FileSystemType(input.GetFileSystem()),
+				Path: input.GetPath(),
+			}
+		}
 	}
 	result.AddFollowupTasks(followups...)
 

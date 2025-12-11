@@ -71,7 +71,7 @@ func (exe Executor_RenderPlatform) Execute(
 			task.NewID("component", component.Name),
 			"holos.RenderComponent",
 			component,
-			task.WithInputs(component.Path+"/*.cue"),
+			task.WithInputs(task.SourceFile(component.Path+"/*.cue")),
 		))
 	}
 

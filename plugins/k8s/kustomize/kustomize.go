@@ -38,7 +38,7 @@ func (ExecutorKustomize) Execute(
 	}
 
 	// Apply resources and any needed fixes
-	args.Resources = tsk.Inputs
+	args.Resources = tsk.ResolveFiles(session)
 	args.FixKustomization()
 
 	kustomFs := afero.NewCopyOnWriteFs(session.SourceFS(), afero.NewMemMapFs())
@@ -90,7 +90,7 @@ func (ExecutorKustomize) Execute(
 		return fmt.Errorf("failed to write kustomized content to file: %w", err)
 	}
 
-	res.AddOutputs(output)
+	res.AddOutputPaths(output)
 
 	return nil
 }

@@ -228,8 +228,15 @@ func (s *grpcServer) ExecuteTask(
 	tsk := task.Task{
 		ID:       task.ID(req.GetId()),
 		Executor: req.GetExecutor(),
-		Inputs:   req.GetInputs(),
+		Inputs:   make([]task.FileReference, len(req.GetInputs())),
 		Args:     req.GetArguments().AsInterface(),
+	}
+
+	for idx, input := range req.GetInputs() {
+		tsk.Inputs[idx] = task.FileReference{
+			FileSystem: task.FileSystemType(input.GetFileSystem()),
+			Path: input.GetPath(),
+		}
 	}
 
 	taskOutputFs := task.OutputFS(session.Session, tsk.ID)
@@ -250,15 +257,31 @@ func (s *grpcServer) ExecuteTask(
 
 	followups := response.GetFollowupTasks()
 	res := bonkv0.ExecuteTaskResponse_builder{
-		Output:        response.GetOutputs(),
+		Output:        make([]*bonkv0.FileReference, len(response.GetOutputs())),
 		FollowupTasks: make([]*bonkv0.ExecuteTaskResponse_FollowupTask, len(followups)),
+	}
+
+	for idx, output := range response.GetOutputs() {
+		protoFs := bonkv0.FileReference_FileSystemType(output.FileSystem)
+		res.Output[idx] = bonkv0.FileReference_builder{
+			FileSystem: &protoFs,
+			Path: &output.Path,
+		}.Build()
 	}
 
 	for idx, followup := range followups {
 		taskProto := bonkv0.ExecuteTaskResponse_FollowupTask_builder{
 			Id:       (*string)(&followup.ID),
 			Executor: &followup.Executor,
-			Inputs:   followup.Inputs,
+		}
+
+		taskProto.Inputs = make([]*bonkv0.FileReference, len(followup.Inputs))
+		for idx, input := range followup.Inputs {
+			protoFs := bonkv0.FileReference_FileSystemType(input.FileSystem)
+			taskProto.Inputs[idx] = bonkv0.FileReference_builder{
+				FileSystem: &protoFs,
+				Path: &input.Path,
+			}.Build()
 		}
 
 		var newValErr error

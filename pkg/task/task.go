@@ -3,6 +3,10 @@
 
 package task
 
+import (
+	"github.com/spf13/afero"
+)
+
 // Task represents a unit of work to be executed.
 type Task struct {
 	// ID describes how this task is addressed.
@@ -11,7 +15,7 @@ type Task struct {
 	Executor string `json:"executor"`
 
 	// Inputs describes any files that may be consumed by this task (relative to [Session.SourceFS]).
-	Inputs []string `json:"inputs,omitempty"`
+	Inputs []FileReference `json:"inputs,omitempty"`
 	// Dependencies contains a list of tasks which must be completed before this task can run.
 	Dependencies []ID `json:"dependencies,omitempty"`
 	// Args contains any arguments that may be passed to the executor.
@@ -41,7 +45,7 @@ func New(
 }
 
 // WithInputs appends input specifiers to this task.
-func WithInputs(inputs ...string) Option {
+func WithInputs(inputs ...FileReference) Option {
 	return func(tsk *Task) {
 		tsk.Inputs = append(tsk.Inputs, inputs...)
 	}
@@ -52,4 +56,23 @@ func WithDependencies(dependencies ...ID) Option {
 	return func(tsk *Task) {
 		tsk.Dependencies = append(tsk.Dependencies, dependencies...)
 	}
+}
+
+func (tsk *Task) OpenInputs(session Session) ([]afero.File, error) {
+	result := make([]afero.File, len(tsk.Inputs))
+	for idx, file := range tsk.Inputs {
+		var err error
+		switch file.FileSystem {
+		case FsSource:
+			result[idx], err = session.SourceFS().Open(file.Path)
+
+		case FsOutput:
+			result[idx], err = OutputFS(session, tsk.ID).Open(file.Path)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	return result, nil
 }

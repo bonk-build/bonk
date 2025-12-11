@@ -22,9 +22,9 @@ const StateFile = "state.json"
 
 type state struct {
 	// Cache provided executor & outputs
-	Executor string       `json:"executor,omitempty"`
-	Inputs   []string     `json:"inputs,omitempty"`
-	Result   *task.Result `json:"result,omitempty"`
+	Executor string               `json:"executor,omitempty"`
+	Inputs   []task.FileReference `json:"inputs,omitempty"`
+	Result   *task.Result         `json:"result,omitempty"`
 
 	ArgumentsChecksum uint64 `json:"argumentsChecksum,omitempty"`
 	InputsChecksum    uint64 `json:"inputChecksum,omitempty"`
@@ -156,11 +156,11 @@ func hashAnyValue(hasher hash.Hash64, params any) (uint64, error) {
 	})
 }
 
-func hashFiles(hasher hash.Hash64, root afero.Fs, files []string) (uint64, error) {
+func hashFiles(hasher hash.Hash64, root afero.Fs, files []task.FileReference) (uint64, error) {
 	for _, pattern := range files {
-		matches, err := afero.Glob(root, pattern)
+		matches, err := afero.Glob(root, pattern.Path)
 		if err != nil {
-			return 0, fmt.Errorf("failed to expand glob '%s': %w", pattern, err)
+			return 0, fmt.Errorf("failed to expand glob '%s': %w", pattern.Path, err)
 		}
 
 		for _, fileName := range matches {

@@ -22,6 +22,157 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type FileReference_FileSystemType int32
+
+const (
+	FileReference_Local  FileReference_FileSystemType = 0
+	FileReference_Output FileReference_FileSystemType = 1
+)
+
+// Enum value maps for FileReference_FileSystemType.
+var (
+	FileReference_FileSystemType_name = map[int32]string{
+		0: "Local",
+		1: "Output",
+	}
+	FileReference_FileSystemType_value = map[string]int32{
+		"Local":  0,
+		"Output": 1,
+	}
+)
+
+func (x FileReference_FileSystemType) Enum() *FileReference_FileSystemType {
+	p := new(FileReference_FileSystemType)
+	*p = x
+	return p
+}
+
+func (x FileReference_FileSystemType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (FileReference_FileSystemType) Descriptor() protoreflect.EnumDescriptor {
+	return file_bonk_v0_bonk_proto_enumTypes[0].Descriptor()
+}
+
+func (FileReference_FileSystemType) Type() protoreflect.EnumType {
+	return &file_bonk_v0_bonk_proto_enumTypes[0]
+}
+
+func (x FileReference_FileSystemType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+type FileReference struct {
+	state                  protoimpl.MessageState       `protogen:"opaque.v1"`
+	xxx_hidden_FileSystem  FileReference_FileSystemType `protobuf:"varint,1,opt,name=FileSystem,enum=bonk.v0.FileReference_FileSystemType"`
+	xxx_hidden_Path        *string                      `protobuf:"bytes,2,opt,name=Path"`
+	XXX_raceDetectHookData protoimpl.RaceDetectHookData
+	XXX_presence           [1]uint32
+	unknownFields          protoimpl.UnknownFields
+	sizeCache              protoimpl.SizeCache
+}
+
+func (x *FileReference) Reset() {
+	*x = FileReference{}
+	mi := &file_bonk_v0_bonk_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FileReference) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FileReference) ProtoMessage() {}
+
+func (x *FileReference) ProtoReflect() protoreflect.Message {
+	mi := &file_bonk_v0_bonk_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+func (x *FileReference) GetFileSystem() FileReference_FileSystemType {
+	if x != nil {
+		if protoimpl.X.Present(&(x.XXX_presence[0]), 0) {
+			return x.xxx_hidden_FileSystem
+		}
+	}
+	return FileReference_Local
+}
+
+func (x *FileReference) GetPath() string {
+	if x != nil {
+		if x.xxx_hidden_Path != nil {
+			return *x.xxx_hidden_Path
+		}
+		return ""
+	}
+	return ""
+}
+
+func (x *FileReference) SetFileSystem(v FileReference_FileSystemType) {
+	x.xxx_hidden_FileSystem = v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 0, 2)
+}
+
+func (x *FileReference) SetPath(v string) {
+	x.xxx_hidden_Path = &v
+	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 2)
+}
+
+func (x *FileReference) HasFileSystem() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 0)
+}
+
+func (x *FileReference) HasPath() bool {
+	if x == nil {
+		return false
+	}
+	return protoimpl.X.Present(&(x.XXX_presence[0]), 1)
+}
+
+func (x *FileReference) ClearFileSystem() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 0)
+	x.xxx_hidden_FileSystem = FileReference_Local
+}
+
+func (x *FileReference) ClearPath() {
+	protoimpl.X.ClearPresent(&(x.XXX_presence[0]), 1)
+	x.xxx_hidden_Path = nil
+}
+
+type FileReference_builder struct {
+	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
+
+	FileSystem *FileReference_FileSystemType
+	Path       *string
+}
+
+func (b0 FileReference_builder) Build() *FileReference {
+	m0 := &FileReference{}
+	b, x := &b0, m0
+	_, _ = b, x
+	if b.FileSystem != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 0, 2)
+		x.xxx_hidden_FileSystem = *b.FileSystem
+	}
+	if b.Path != nil {
+		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 2)
+		x.xxx_hidden_Path = b.Path
+	}
+	return m0
+}
+
 type OpenSessionRequest struct {
 	state                           protoimpl.MessageState                    `protogen:"opaque.v1"`
 	xxx_hidden_SessionId            *string                                   `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
@@ -35,7 +186,7 @@ type OpenSessionRequest struct {
 
 func (x *OpenSessionRequest) Reset() {
 	*x = OpenSessionRequest{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[0]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -47,7 +198,7 @@ func (x *OpenSessionRequest) String() string {
 func (*OpenSessionRequest) ProtoMessage() {}
 
 func (x *OpenSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[0]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -230,7 +381,7 @@ func (b0 OpenSessionRequest_builder) Build() *OpenSessionRequest {
 type case_OpenSessionRequest_WorkspaceDescription protoreflect.FieldNumber
 
 func (x case_OpenSessionRequest_WorkspaceDescription) String() string {
-	md := file_bonk_v0_bonk_proto_msgTypes[0].Descriptor()
+	md := file_bonk_v0_bonk_proto_msgTypes[1].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -262,7 +413,7 @@ type OpenSessionResponse struct {
 
 func (x *OpenSessionResponse) Reset() {
 	*x = OpenSessionResponse{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[1]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -274,7 +425,7 @@ func (x *OpenSessionResponse) String() string {
 func (*OpenSessionResponse) ProtoMessage() {}
 
 func (x *OpenSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[1]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -401,7 +552,7 @@ func (b0 OpenSessionResponse_builder) Build() *OpenSessionResponse {
 type case_OpenSessionResponse_Message protoreflect.FieldNumber
 
 func (x case_OpenSessionResponse_Message) String() string {
-	md := file_bonk_v0_bonk_proto_msgTypes[1].Descriptor()
+	md := file_bonk_v0_bonk_proto_msgTypes[2].Descriptor()
 	if x == 0 {
 		return "not set"
 	}
@@ -435,7 +586,7 @@ type CloseSessionRequest struct {
 
 func (x *CloseSessionRequest) Reset() {
 	*x = CloseSessionRequest{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[2]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -447,7 +598,7 @@ func (x *CloseSessionRequest) String() string {
 func (*CloseSessionRequest) ProtoMessage() {}
 
 func (x *CloseSessionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[2]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -510,7 +661,7 @@ type CloseSessionResponse struct {
 
 func (x *CloseSessionResponse) Reset() {
 	*x = CloseSessionResponse{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[3]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -522,7 +673,7 @@ func (x *CloseSessionResponse) String() string {
 func (*CloseSessionResponse) ProtoMessage() {}
 
 func (x *CloseSessionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[3]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -550,7 +701,7 @@ type ExecuteTaskRequest struct {
 	xxx_hidden_SessionId   *string                `protobuf:"bytes,1,opt,name=session_id,json=sessionId"`
 	xxx_hidden_Id          *string                `protobuf:"bytes,2,opt,name=id"`
 	xxx_hidden_Executor    *string                `protobuf:"bytes,3,opt,name=executor"`
-	xxx_hidden_Inputs      []string               `protobuf:"bytes,4,rep,name=inputs"`
+	xxx_hidden_Inputs      *[]*FileReference      `protobuf:"bytes,4,rep,name=inputs"`
 	xxx_hidden_Arguments   *structpb.Value        `protobuf:"bytes,5,opt,name=arguments"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -560,7 +711,7 @@ type ExecuteTaskRequest struct {
 
 func (x *ExecuteTaskRequest) Reset() {
 	*x = ExecuteTaskRequest{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[4]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -572,7 +723,7 @@ func (x *ExecuteTaskRequest) String() string {
 func (*ExecuteTaskRequest) ProtoMessage() {}
 
 func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[4]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -613,9 +764,11 @@ func (x *ExecuteTaskRequest) GetExecutor() string {
 	return ""
 }
 
-func (x *ExecuteTaskRequest) GetInputs() []string {
+func (x *ExecuteTaskRequest) GetInputs() []*FileReference {
 	if x != nil {
-		return x.xxx_hidden_Inputs
+		if x.xxx_hidden_Inputs != nil {
+			return *x.xxx_hidden_Inputs
+		}
 	}
 	return nil
 }
@@ -642,8 +795,8 @@ func (x *ExecuteTaskRequest) SetExecutor(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 2, 5)
 }
 
-func (x *ExecuteTaskRequest) SetInputs(v []string) {
-	x.xxx_hidden_Inputs = v
+func (x *ExecuteTaskRequest) SetInputs(v []*FileReference) {
+	x.xxx_hidden_Inputs = &v
 }
 
 func (x *ExecuteTaskRequest) SetArguments(v *structpb.Value) {
@@ -703,7 +856,7 @@ type ExecuteTaskRequest_builder struct {
 	SessionId *string
 	Id        *string
 	Executor  *string
-	Inputs    []string
+	Inputs    []*FileReference
 	Arguments *structpb.Value
 }
 
@@ -723,14 +876,14 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest {
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 2, 5)
 		x.xxx_hidden_Executor = b.Executor
 	}
-	x.xxx_hidden_Inputs = b.Inputs
+	x.xxx_hidden_Inputs = &b.Inputs
 	x.xxx_hidden_Arguments = b.Arguments
 	return m0
 }
 
 type ExecuteTaskResponse struct {
 	state                    protoimpl.MessageState               `protogen:"opaque.v1"`
-	xxx_hidden_Output        []string                             `protobuf:"bytes,1,rep,name=output"`
+	xxx_hidden_Output        *[]*FileReference                    `protobuf:"bytes,1,rep,name=output"`
 	xxx_hidden_FollowupTasks *[]*ExecuteTaskResponse_FollowupTask `protobuf:"bytes,2,rep,name=followup_tasks,json=followupTasks"`
 	unknownFields            protoimpl.UnknownFields
 	sizeCache                protoimpl.SizeCache
@@ -738,7 +891,7 @@ type ExecuteTaskResponse struct {
 
 func (x *ExecuteTaskResponse) Reset() {
 	*x = ExecuteTaskResponse{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[5]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -750,7 +903,7 @@ func (x *ExecuteTaskResponse) String() string {
 func (*ExecuteTaskResponse) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[5]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -761,9 +914,11 @@ func (x *ExecuteTaskResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-func (x *ExecuteTaskResponse) GetOutput() []string {
+func (x *ExecuteTaskResponse) GetOutput() []*FileReference {
 	if x != nil {
-		return x.xxx_hidden_Output
+		if x.xxx_hidden_Output != nil {
+			return *x.xxx_hidden_Output
+		}
 	}
 	return nil
 }
@@ -777,8 +932,8 @@ func (x *ExecuteTaskResponse) GetFollowupTasks() []*ExecuteTaskResponse_Followup
 	return nil
 }
 
-func (x *ExecuteTaskResponse) SetOutput(v []string) {
-	x.xxx_hidden_Output = v
+func (x *ExecuteTaskResponse) SetOutput(v []*FileReference) {
+	x.xxx_hidden_Output = &v
 }
 
 func (x *ExecuteTaskResponse) SetFollowupTasks(v []*ExecuteTaskResponse_FollowupTask) {
@@ -788,7 +943,7 @@ func (x *ExecuteTaskResponse) SetFollowupTasks(v []*ExecuteTaskResponse_Followup
 type ExecuteTaskResponse_builder struct {
 	_ [0]func() // Prevents comparability and use of unkeyed literals for the builder.
 
-	Output        []string
+	Output        []*FileReference
 	FollowupTasks []*ExecuteTaskResponse_FollowupTask
 }
 
@@ -796,7 +951,7 @@ func (b0 ExecuteTaskResponse_builder) Build() *ExecuteTaskResponse {
 	m0 := &ExecuteTaskResponse{}
 	b, x := &b0, m0
 	_, _ = b, x
-	x.xxx_hidden_Output = b.Output
+	x.xxx_hidden_Output = &b.Output
 	x.xxx_hidden_FollowupTasks = &b.FollowupTasks
 	return m0
 }
@@ -813,7 +968,7 @@ type OpenSessionRequest_LogStreamingOptions struct {
 
 func (x *OpenSessionRequest_LogStreamingOptions) Reset() {
 	*x = OpenSessionRequest_LogStreamingOptions{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[6]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -825,7 +980,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) String() string {
 func (*OpenSessionRequest_LogStreamingOptions) ProtoMessage() {}
 
 func (x *OpenSessionRequest_LogStreamingOptions) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[6]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -917,7 +1072,7 @@ type OpenSessionRequest_WorkspaceDescriptionLocal struct {
 
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) Reset() {
 	*x = OpenSessionRequest_WorkspaceDescriptionLocal{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[7]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -929,7 +1084,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) String() string {
 func (*OpenSessionRequest_WorkspaceDescriptionLocal) ProtoMessage() {}
 
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[7]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -992,7 +1147,7 @@ type OpenSessionRequest_WorkspaceDescriptionTest struct {
 
 func (x *OpenSessionRequest_WorkspaceDescriptionTest) Reset() {
 	*x = OpenSessionRequest_WorkspaceDescriptionTest{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[8]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1004,7 +1159,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionTest) String() string {
 func (*OpenSessionRequest_WorkspaceDescriptionTest) ProtoMessage() {}
 
 func (x *OpenSessionRequest_WorkspaceDescriptionTest) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[8]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1035,7 +1190,7 @@ type OpenSessionResponse_Ack struct {
 
 func (x *OpenSessionResponse_Ack) Reset() {
 	*x = OpenSessionResponse_Ack{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[9]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1047,7 +1202,7 @@ func (x *OpenSessionResponse_Ack) String() string {
 func (*OpenSessionResponse_Ack) ProtoMessage() {}
 
 func (x *OpenSessionResponse_Ack) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[9]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1085,7 +1240,7 @@ type OpenSessionResponse_LogRecord struct {
 
 func (x *OpenSessionResponse_LogRecord) Reset() {
 	*x = OpenSessionResponse_LogRecord{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[10]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1097,7 +1252,7 @@ func (x *OpenSessionResponse_LogRecord) String() string {
 func (*OpenSessionResponse_LogRecord) ProtoMessage() {}
 
 func (x *OpenSessionResponse_LogRecord) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[10]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1222,7 +1377,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 	state                  protoimpl.MessageState `protogen:"opaque.v1"`
 	xxx_hidden_Id          *string                `protobuf:"bytes,1,opt,name=id"`
 	xxx_hidden_Executor    *string                `protobuf:"bytes,2,opt,name=executor"`
-	xxx_hidden_Inputs      []string               `protobuf:"bytes,3,rep,name=inputs"`
+	xxx_hidden_Inputs      *[]*FileReference      `protobuf:"bytes,3,rep,name=inputs"`
 	xxx_hidden_Arguments   *structpb.Value        `protobuf:"bytes,4,opt,name=arguments"`
 	XXX_raceDetectHookData protoimpl.RaceDetectHookData
 	XXX_presence           [1]uint32
@@ -1232,7 +1387,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 
 func (x *ExecuteTaskResponse_FollowupTask) Reset() {
 	*x = ExecuteTaskResponse_FollowupTask{}
-	mi := &file_bonk_v0_bonk_proto_msgTypes[12]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1244,7 +1399,7 @@ func (x *ExecuteTaskResponse_FollowupTask) String() string {
 func (*ExecuteTaskResponse_FollowupTask) ProtoMessage() {}
 
 func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message {
-	mi := &file_bonk_v0_bonk_proto_msgTypes[12]
+	mi := &file_bonk_v0_bonk_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1275,9 +1430,11 @@ func (x *ExecuteTaskResponse_FollowupTask) GetExecutor() string {
 	return ""
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) GetInputs() []string {
+func (x *ExecuteTaskResponse_FollowupTask) GetInputs() []*FileReference {
 	if x != nil {
-		return x.xxx_hidden_Inputs
+		if x.xxx_hidden_Inputs != nil {
+			return *x.xxx_hidden_Inputs
+		}
 	}
 	return nil
 }
@@ -1299,8 +1456,8 @@ func (x *ExecuteTaskResponse_FollowupTask) SetExecutor(v string) {
 	protoimpl.X.SetPresent(&(x.XXX_presence[0]), 1, 4)
 }
 
-func (x *ExecuteTaskResponse_FollowupTask) SetInputs(v []string) {
-	x.xxx_hidden_Inputs = v
+func (x *ExecuteTaskResponse_FollowupTask) SetInputs(v []*FileReference) {
+	x.xxx_hidden_Inputs = &v
 }
 
 func (x *ExecuteTaskResponse_FollowupTask) SetArguments(v *structpb.Value) {
@@ -1347,7 +1504,7 @@ type ExecuteTaskResponse_FollowupTask_builder struct {
 
 	Id        *string
 	Executor  *string
-	Inputs    []string
+	Inputs    []*FileReference
 	Arguments *structpb.Value
 }
 
@@ -1363,7 +1520,7 @@ func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_
 		protoimpl.X.SetPresentNonAtomic(&(x.XXX_presence[0]), 1, 4)
 		x.xxx_hidden_Executor = b.Executor
 	}
-	x.xxx_hidden_Inputs = b.Inputs
+	x.xxx_hidden_Inputs = &b.Inputs
 	x.xxx_hidden_Arguments = b.Arguments
 	return m0
 }
@@ -1372,7 +1529,16 @@ var File_bonk_v0_bonk_proto protoreflect.FileDescriptor
 
 const file_bonk_v0_bonk_proto_rawDesc = "" +
 	"\n" +
-	"\x12bonk/v0/bonk.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xe7\x03\n" +
+	"\x12bonk/v0/bonk.proto\x12\abonk.v0\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x01\n" +
+	"\rFileReference\x12E\n" +
+	"\n" +
+	"FileSystem\x18\x01 \x01(\x0e2%.bonk.v0.FileReference.FileSystemTypeR\n" +
+	"FileSystem\x12\x12\n" +
+	"\x04Path\x18\x02 \x01(\tR\x04Path\"'\n" +
+	"\x0eFileSystemType\x12\t\n" +
+	"\x05Local\x10\x00\x12\n" +
+	"\n" +
+	"\x06Output\x10\x01\"\xe7\x03\n" +
 	"\x12OpenSessionRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12T\n" +
@@ -1404,21 +1570,21 @@ const file_bonk_v0_bonk_proto_rawDesc = "" +
 	"\amessage\"%\n" +
 	"\x13CloseSessionRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\"\x16\n" +
-	"\x14CloseSessionResponse\"\xad\x01\n" +
+	"\x14CloseSessionResponse\"\xc5\x01\n" +
 	"\x12ExecuteTaskRequest\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x0e\n" +
 	"\x02id\x18\x02 \x01(\tR\x02id\x12\x1a\n" +
-	"\bexecutor\x18\x03 \x01(\tR\bexecutor\x12\x16\n" +
-	"\x06inputs\x18\x04 \x03(\tR\x06inputs\x124\n" +
-	"\targuments\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\targuments\"\x8a\x02\n" +
-	"\x13ExecuteTaskResponse\x12\x16\n" +
-	"\x06output\x18\x01 \x03(\tR\x06output\x12P\n" +
-	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\x88\x01\n" +
+	"\bexecutor\x18\x03 \x01(\tR\bexecutor\x12.\n" +
+	"\x06inputs\x18\x04 \x03(\v2\x16.bonk.v0.FileReferenceR\x06inputs\x124\n" +
+	"\targuments\x18\x05 \x01(\v2\x16.google.protobuf.ValueR\targuments\"\xba\x02\n" +
+	"\x13ExecuteTaskResponse\x12.\n" +
+	"\x06output\x18\x01 \x03(\v2\x16.bonk.v0.FileReferenceR\x06output\x12P\n" +
+	"\x0efollowup_tasks\x18\x02 \x03(\v2).bonk.v0.ExecuteTaskResponse.FollowupTaskR\rfollowupTasks\x1a\xa0\x01\n" +
 	"\fFollowupTask\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1a\n" +
-	"\bexecutor\x18\x02 \x01(\tR\bexecutor\x12\x16\n" +
-	"\x06inputs\x18\x03 \x03(\tR\x06inputs\x124\n" +
+	"\bexecutor\x18\x02 \x01(\tR\bexecutor\x12.\n" +
+	"\x06inputs\x18\x03 \x03(\v2\x16.bonk.v0.FileReferenceR\x06inputs\x124\n" +
 	"\targuments\x18\x04 \x01(\v2\x16.google.protobuf.ValueR\targuments2\xf4\x01\n" +
 	"\x0fExecutorService\x12J\n" +
 	"\vOpenSession\x12\x1b.bonk.v0.OpenSessionRequest\x1a\x1c.bonk.v0.OpenSessionResponse0\x01\x12K\n" +
@@ -1426,47 +1592,54 @@ const file_bonk_v0_bonk_proto_rawDesc = "" +
 	"\vExecuteTask\x12\x1b.bonk.v0.ExecuteTaskRequest\x1a\x1c.bonk.v0.ExecuteTaskResponseBs\n" +
 	"\vcom.bonk.v0B\tBonkProtoP\x01Z\x1cgo.bonk.build/api/go/bonk/v0\xa2\x02\x03BVX\xaa\x02\aBonk.V0\xca\x02\aBonk\\V0\xe2\x02\x13Bonk\\V0\\GPBMetadata\xea\x02\bBonk::V0b\beditionsp\xe8\a"
 
-var file_bonk_v0_bonk_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_bonk_v0_bonk_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_bonk_v0_bonk_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
 var file_bonk_v0_bonk_proto_goTypes = []any{
-	(*OpenSessionRequest)(nil),                           // 0: bonk.v0.OpenSessionRequest
-	(*OpenSessionResponse)(nil),                          // 1: bonk.v0.OpenSessionResponse
-	(*CloseSessionRequest)(nil),                          // 2: bonk.v0.CloseSessionRequest
-	(*CloseSessionResponse)(nil),                         // 3: bonk.v0.CloseSessionResponse
-	(*ExecuteTaskRequest)(nil),                           // 4: bonk.v0.ExecuteTaskRequest
-	(*ExecuteTaskResponse)(nil),                          // 5: bonk.v0.ExecuteTaskResponse
-	(*OpenSessionRequest_LogStreamingOptions)(nil),       // 6: bonk.v0.OpenSessionRequest.LogStreamingOptions
-	(*OpenSessionRequest_WorkspaceDescriptionLocal)(nil), // 7: bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
-	(*OpenSessionRequest_WorkspaceDescriptionTest)(nil),  // 8: bonk.v0.OpenSessionRequest.WorkspaceDescriptionTest
-	(*OpenSessionResponse_Ack)(nil),                      // 9: bonk.v0.OpenSessionResponse.Ack
-	(*OpenSessionResponse_LogRecord)(nil),                // 10: bonk.v0.OpenSessionResponse.LogRecord
-	nil,                                                  // 11: bonk.v0.OpenSessionResponse.LogRecord.AttrsEntry
-	(*ExecuteTaskResponse_FollowupTask)(nil),             // 12: bonk.v0.ExecuteTaskResponse.FollowupTask
-	(*structpb.Value)(nil),                               // 13: google.protobuf.Value
-	(*timestamppb.Timestamp)(nil),                        // 14: google.protobuf.Timestamp
+	(FileReference_FileSystemType)(0),                    // 0: bonk.v0.FileReference.FileSystemType
+	(*FileReference)(nil),                                // 1: bonk.v0.FileReference
+	(*OpenSessionRequest)(nil),                           // 2: bonk.v0.OpenSessionRequest
+	(*OpenSessionResponse)(nil),                          // 3: bonk.v0.OpenSessionResponse
+	(*CloseSessionRequest)(nil),                          // 4: bonk.v0.CloseSessionRequest
+	(*CloseSessionResponse)(nil),                         // 5: bonk.v0.CloseSessionResponse
+	(*ExecuteTaskRequest)(nil),                           // 6: bonk.v0.ExecuteTaskRequest
+	(*ExecuteTaskResponse)(nil),                          // 7: bonk.v0.ExecuteTaskResponse
+	(*OpenSessionRequest_LogStreamingOptions)(nil),       // 8: bonk.v0.OpenSessionRequest.LogStreamingOptions
+	(*OpenSessionRequest_WorkspaceDescriptionLocal)(nil), // 9: bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
+	(*OpenSessionRequest_WorkspaceDescriptionTest)(nil),  // 10: bonk.v0.OpenSessionRequest.WorkspaceDescriptionTest
+	(*OpenSessionResponse_Ack)(nil),                      // 11: bonk.v0.OpenSessionResponse.Ack
+	(*OpenSessionResponse_LogRecord)(nil),                // 12: bonk.v0.OpenSessionResponse.LogRecord
+	nil,                                                  // 13: bonk.v0.OpenSessionResponse.LogRecord.AttrsEntry
+	(*ExecuteTaskResponse_FollowupTask)(nil),             // 14: bonk.v0.ExecuteTaskResponse.FollowupTask
+	(*structpb.Value)(nil),                               // 15: google.protobuf.Value
+	(*timestamppb.Timestamp)(nil),                        // 16: google.protobuf.Timestamp
 }
 var file_bonk_v0_bonk_proto_depIdxs = []int32{
-	6,  // 0: bonk.v0.OpenSessionRequest.log_streaming:type_name -> bonk.v0.OpenSessionRequest.LogStreamingOptions
-	7,  // 1: bonk.v0.OpenSessionRequest.local:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
-	8,  // 2: bonk.v0.OpenSessionRequest.test:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionTest
-	9,  // 3: bonk.v0.OpenSessionResponse.ack:type_name -> bonk.v0.OpenSessionResponse.Ack
-	10, // 4: bonk.v0.OpenSessionResponse.log_record:type_name -> bonk.v0.OpenSessionResponse.LogRecord
-	13, // 5: bonk.v0.ExecuteTaskRequest.arguments:type_name -> google.protobuf.Value
-	12, // 6: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
-	14, // 7: bonk.v0.OpenSessionResponse.LogRecord.time:type_name -> google.protobuf.Timestamp
-	11, // 8: bonk.v0.OpenSessionResponse.LogRecord.attrs:type_name -> bonk.v0.OpenSessionResponse.LogRecord.AttrsEntry
-	13, // 9: bonk.v0.OpenSessionResponse.LogRecord.AttrsEntry.value:type_name -> google.protobuf.Value
-	13, // 10: bonk.v0.ExecuteTaskResponse.FollowupTask.arguments:type_name -> google.protobuf.Value
-	0,  // 11: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
-	2,  // 12: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
-	4,  // 13: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest
-	1,  // 14: bonk.v0.ExecutorService.OpenSession:output_type -> bonk.v0.OpenSessionResponse
-	3,  // 15: bonk.v0.ExecutorService.CloseSession:output_type -> bonk.v0.CloseSessionResponse
-	5,  // 16: bonk.v0.ExecutorService.ExecuteTask:output_type -> bonk.v0.ExecuteTaskResponse
-	14, // [14:17] is the sub-list for method output_type
-	11, // [11:14] is the sub-list for method input_type
-	11, // [11:11] is the sub-list for extension type_name
-	11, // [11:11] is the sub-list for extension extendee
-	0,  // [0:11] is the sub-list for field type_name
+	0,  // 0: bonk.v0.FileReference.FileSystem:type_name -> bonk.v0.FileReference.FileSystemType
+	8,  // 1: bonk.v0.OpenSessionRequest.log_streaming:type_name -> bonk.v0.OpenSessionRequest.LogStreamingOptions
+	9,  // 2: bonk.v0.OpenSessionRequest.local:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionLocal
+	10, // 3: bonk.v0.OpenSessionRequest.test:type_name -> bonk.v0.OpenSessionRequest.WorkspaceDescriptionTest
+	11, // 4: bonk.v0.OpenSessionResponse.ack:type_name -> bonk.v0.OpenSessionResponse.Ack
+	12, // 5: bonk.v0.OpenSessionResponse.log_record:type_name -> bonk.v0.OpenSessionResponse.LogRecord
+	1,  // 6: bonk.v0.ExecuteTaskRequest.inputs:type_name -> bonk.v0.FileReference
+	15, // 7: bonk.v0.ExecuteTaskRequest.arguments:type_name -> google.protobuf.Value
+	1,  // 8: bonk.v0.ExecuteTaskResponse.output:type_name -> bonk.v0.FileReference
+	14, // 9: bonk.v0.ExecuteTaskResponse.followup_tasks:type_name -> bonk.v0.ExecuteTaskResponse.FollowupTask
+	16, // 10: bonk.v0.OpenSessionResponse.LogRecord.time:type_name -> google.protobuf.Timestamp
+	13, // 11: bonk.v0.OpenSessionResponse.LogRecord.attrs:type_name -> bonk.v0.OpenSessionResponse.LogRecord.AttrsEntry
+	15, // 12: bonk.v0.OpenSessionResponse.LogRecord.AttrsEntry.value:type_name -> google.protobuf.Value
+	1,  // 13: bonk.v0.ExecuteTaskResponse.FollowupTask.inputs:type_name -> bonk.v0.FileReference
+	15, // 14: bonk.v0.ExecuteTaskResponse.FollowupTask.arguments:type_name -> google.protobuf.Value
+	2,  // 15: bonk.v0.ExecutorService.OpenSession:input_type -> bonk.v0.OpenSessionRequest
+	4,  // 16: bonk.v0.ExecutorService.CloseSession:input_type -> bonk.v0.CloseSessionRequest
+	6,  // 17: bonk.v0.ExecutorService.ExecuteTask:input_type -> bonk.v0.ExecuteTaskRequest
+	3,  // 18: bonk.v0.ExecutorService.OpenSession:output_type -> bonk.v0.OpenSessionResponse
+	5,  // 19: bonk.v0.ExecutorService.CloseSession:output_type -> bonk.v0.CloseSessionResponse
+	7,  // 20: bonk.v0.ExecutorService.ExecuteTask:output_type -> bonk.v0.ExecuteTaskResponse
+	18, // [18:21] is the sub-list for method output_type
+	15, // [15:18] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_bonk_v0_bonk_proto_init() }
@@ -1474,11 +1647,11 @@ func file_bonk_v0_bonk_proto_init() {
 	if File_bonk_v0_bonk_proto != nil {
 		return
 	}
-	file_bonk_v0_bonk_proto_msgTypes[0].OneofWrappers = []any{
+	file_bonk_v0_bonk_proto_msgTypes[1].OneofWrappers = []any{
 		(*openSessionRequest_Local)(nil),
 		(*openSessionRequest_Test)(nil),
 	}
-	file_bonk_v0_bonk_proto_msgTypes[1].OneofWrappers = []any{
+	file_bonk_v0_bonk_proto_msgTypes[2].OneofWrappers = []any{
 		(*openSessionResponse_Ack_)(nil),
 		(*openSessionResponse_LogRecord_)(nil),
 	}
@@ -1487,13 +1660,14 @@ func file_bonk_v0_bonk_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_bonk_v0_bonk_proto_rawDesc), len(file_bonk_v0_bonk_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   13,
+			NumEnums:      1,
+			NumMessages:   14,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_bonk_v0_bonk_proto_goTypes,
 		DependencyIndexes: file_bonk_v0_bonk_proto_depIdxs,
+		EnumInfos:         file_bonk_v0_bonk_proto_enumTypes,
 		MessageInfos:      file_bonk_v0_bonk_proto_msgTypes,
 	}.Build()
 	File_bonk_v0_bonk_proto = out.File

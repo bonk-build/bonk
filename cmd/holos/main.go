@@ -51,7 +51,7 @@ var rootCmd = &cobra.Command{
 					map[string]any{
 						"platform": platform,
 					},
-					task.WithInputs(path.Join(platform, "*.cue")),
+					task.WithInputs(task.SourceFile(path.Join(platform, "*.cue"))),
 				),
 			))
 		if err != nil {

@@ -37,7 +37,7 @@ func TestNewWithInputs(t *testing.T) {
 		"exec",
 		nil,
 		task.WithInputs(
-			"InputA",
+			task.SourceFile("InputA"),
 		),
 	)
 
@@ -46,7 +46,7 @@ func TestNewWithInputs(t *testing.T) {
 	assert.Equal(t, "exec", tsk.Executor)
 	assert.Nil(t, tsk.Args)
 	assert.Len(t, tsk.Inputs, 1)
-	assert.Equal(t, "InputA", tsk.Inputs[0])
+	assert.Equal(t, task.SourceFile("InputA"), tsk.Inputs[0])
 	assert.Empty(t, tsk.Dependencies)
 }
 

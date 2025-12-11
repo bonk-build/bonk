@@ -6,6 +6,7 @@ package task
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"sync"
 )
@@ -15,14 +16,14 @@ type Result struct {
 	mu sync.RWMutex
 
 	// outputs describes any files that have been emitted by the task relative to [Session.OutputFS].
-	outputs []string
+	outputs []FileReference
 	// followupTasks is a list of tasks to be executed after this task completes.
 	followupTasks []Task
 }
 
 type resultJson struct {
-	Outputs       []string `json:"outputs"`
-	FollowupTasks []*Task  `json:"followupTasks"`
+	Outputs       []FileReference `json:"outputs"`
+	FollowupTasks []*Task         `json:"followupTasks"`
 }
 
 var (
@@ -31,9 +32,9 @@ var (
 	_ fmt.Stringer     = (*Result)(nil)
 )
 
-func (r *Result) GetOutputs() []string {
+func (r *Result) GetOutputs() []FileReference {
 	if r == nil {
-		return []string{}
+		return []FileReference{}
 	}
 
 	r.mu.RLock()
@@ -42,15 +43,36 @@ func (r *Result) GetOutputs() []string {
 	return r.outputs
 }
 
-func (r *Result) AddOutputs(outputs ...string) {
+func (r *Result) AddOutputs(outputs ...FileReference) []FileReference {
 	if r == nil {
-		return
+		return []FileReference{}
 	}
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	r.outputs = append(r.outputs, outputs...)
+
+	return r.outputs[len(r.outputs)-len(outputs):]
+}
+
+func (r *Result) AddOutputPaths(outputPaths ...string) []FileReference {
+	if r == nil {
+		return []FileReference{}
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	r.outputs = slices.Grow(r.outputs, len(outputPaths))
+	for _, outPath := range outputPaths {
+		r.outputs = append(r.outputs, FileReference{
+			FileSystem: FsOutput,
+			Path:       outPath,
+		})
+	}
+
+	return r.outputs[len(r.outputs)-len(outputPaths):]
 }
 
 func (r *Result) GetFollowupTasks() []*Task {
@@ -120,7 +142,7 @@ func (r *Result) UnmarshalJSON(data []byte) error {
 		return err //nolint:wrapcheck
 	}
 
-	r.AddOutputs(res.Outputs...)
+	r.outputs = res.Outputs
 	r.AddFollowupTasks(res.FollowupTasks...)
 
 	return nil

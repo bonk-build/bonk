@@ -7,6 +7,16 @@ package bonk.v0;
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
+message FileReference {
+  enum FileSystemType {
+    Local = 0;
+    Output = 1;
+  }
+
+  FileSystemType FileSystem = 1;
+  string Path = 2;
+}
+
 message OpenSessionRequest {
   message LogStreamingOptions {
     int64 level = 1;
@@ -56,7 +66,7 @@ message ExecuteTaskRequest {
   string session_id = 1;
   string id = 2;
   string executor = 3;
-  repeated string inputs = 4;
+  repeated FileReference inputs = 4;
   google.protobuf.Value arguments = 5;
 }
 
@@ -64,11 +74,11 @@ message ExecuteTaskResponse {
   message FollowupTask {
     string id = 1;
     string executor = 2;
-    repeated string inputs = 3;
+    repeated FileReference inputs = 3;
     google.protobuf.Value arguments = 4;
   }
 
-  repeated string output = 1;
+  repeated FileReference output = 1;
   repeated FollowupTask followup_tasks = 2;
 }
 
