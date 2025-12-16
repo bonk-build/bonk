@@ -92,5 +92,6 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View implements tea.ViewModel.
 func (t *taskTree) View() tea.View {
 	t.view.SetContent(t)
+
 	return t.view
 }

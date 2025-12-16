@@ -76,5 +76,6 @@ func (t *teaModel) View() tea.View {
 	component = append(component, "")
 
 	t.view.SetContent(lipgloss.JoinVertical(lipgloss.Left, component...))
+
 	return t.view
 }
