@@ -14,7 +14,7 @@ tool (
 
 require (
 	charm.land/bubbletea/v2 v2.0.0-rc.2
-	charm.land/fang/v2 v2.0.0-20251110204320-f80f0990c76f
+	charm.land/fang/v2 3b93b3b1c60f
 	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251110212127-b1610b7ee9cc
 	cuelang.org/go v0.15.1
 	github.com/ValerySidorin/shclog v0.0.1
