@@ -23,7 +23,7 @@ golangci-lint = "2.7.2"
 "ubi:korandoru/hawkeye" = "6.3.0"
 "pipx:commitizen" = "4.10.1"
 # Docs
-"pipx:zensical" = "0.0.14"
+"pipx:zensical" = "0.0.15"
 
 [tasks]
 generate.run = "go generate ./..."
