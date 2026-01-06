@@ -26,7 +26,7 @@ require (
 	github.com/hashicorp/go-plugin v1.7.0
 	github.com/holos-run/holos v0.106.0
 	github.com/princjef/gomarkdoc v1.1.0
-	github.com/samber/slog-multi v1.6.0
+	github.com/samber/slog-multi v1.7.0
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
