@@ -70,14 +70,14 @@ repos:
       - id: hawkeye-format
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.7.2
+    rev: v2.8.0
     hooks:
       - id: golangci-lint-config-verify
       - id: golangci-lint-full
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.62.1
+    rev: v1.63.0
     hooks:
       - id: buf-lint
       - id: buf-format
@@ -88,6 +88,6 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.19.0
+    rev: v1.20.0
     hooks:
       - id: zizmor
