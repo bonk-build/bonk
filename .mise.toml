@@ -20,7 +20,7 @@ buf = "1.63.0"
 github-cli = "2.83.2"
 "pipx:pre-commit" = "4.5.1"
 golangci-lint = "2.8.0"
-"ubi:korandoru/hawkeye" = "6.3.0"
+"ubi:korandoru/hawkeye" = "6.4.0"
 "pipx:commitizen" = "4.11.2"
 # Docs
 "pipx:zensical" = "0.0.15"
