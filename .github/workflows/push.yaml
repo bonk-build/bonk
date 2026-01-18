@@ -59,7 +59,7 @@ jobs:
           only-new-issues: true
 
       - name: zizmor
-        uses: zizmorcore/zizmor-action@706c51b5bce7adb027de71ab36d865f5d3fcc7b7
+        uses: zizmorcore/zizmor-action@7462f075f718787753331c6d98ca9ef8eb41e735
 
   build:
     runs-on: ubuntu-latest
