@@ -57,7 +57,7 @@ repos:
       - id: check-json5
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.11.1
+    rev: v4.11.6
     hooks:
       - id: commitizen
         stages:
@@ -65,7 +65,7 @@ repos:
           - manual
 
   - repo: https://github.com/korandoru/hawkeye
-    rev: v6.3.0
+    rev: v6.4.1
     hooks:
       - id: hawkeye-format
 
@@ -88,6 +88,6 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.20.0
+    rev: v1.22.0
     hooks:
       - id: zizmor
