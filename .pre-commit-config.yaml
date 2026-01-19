@@ -57,7 +57,7 @@ repos:
       - id: check-json5
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.11.6
+    rev: v4.12.0
     hooks:
       - id: commitizen
         stages:
