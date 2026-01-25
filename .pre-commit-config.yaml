@@ -57,7 +57,7 @@ repos:
       - id: check-json5
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.11.6
+    rev: v4.12.1
     hooks:
       - id: commitizen
         stages:
@@ -77,7 +77,7 @@ repos:
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.63.0
+    rev: v1.64.0
     hooks:
       - id: buf-lint
       - id: buf-format
