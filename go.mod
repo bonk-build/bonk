@@ -16,7 +16,7 @@ require (
 	charm.land/bubbletea/v2 v2.0.0-rc.2
 	charm.land/fang/v2 v2.0.0-20251110204320-f80f0990c76f
 	charm.land/lipgloss/v2 v2.0.0-beta.3.0.20251110212127-b1610b7ee9cc
-	cuelang.org/go v0.15.3
+	cuelang.org/go v0.15.4
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/elliotchance/orderedmap/v3 v3.1.0
