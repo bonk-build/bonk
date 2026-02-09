@@ -57,7 +57,7 @@ repos:
       - id: check-json5
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.6
+    rev: v4.13.7
     hooks:
       - id: commitizen
         stages:
@@ -65,7 +65,7 @@ repos:
           - manual
 
   - repo: https://github.com/korandoru/hawkeye
-    rev: v6.4.2
+    rev: v6
     hooks:
       - id: hawkeye-format
 
