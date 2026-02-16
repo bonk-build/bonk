@@ -179,8 +179,7 @@ func TestRPC(t *testing.T) { //nolint:tparallel
 
 	suiteT := reflect.TypeFor[rpcSuite]()
 
-	for idx := range suiteT.NumMethod() { //nolint:paralleltest
-		method := suiteT.Method(idx)
+	for method := range suiteT.Methods() { //nolint:paralleltest
 		if !strings.HasPrefix(method.Name, "Test") {
 			continue
 		}
