@@ -113,11 +113,10 @@ func (s *grpcServer) OpenSession(
 						}))
 					}
 
-					level := int64(record.Level)
 					logInstance := bonkv0.OpenSessionResponse_LogRecord_builder{
 						Time:    timestamppb.New(record.Time),
 						Message: &record.Message,
-						Level:   &level,
+						Level:   new(int64(record.Level)),
 						Attrs:   make(map[string]*structpb.Value, record.NumAttrs()),
 					}
 

@@ -38,21 +38,18 @@ var _ executor.Executor = (*grpcClient)(nil)
 func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) error {
 	slog.DebugContext(ctx, "opening session", "session", session.ID())
 
-	sessionIDString := session.ID().String()
-	defaultLevel := int64(slog.LevelInfo)
-	addSource := false
 	openSessionRequest := bonkv0.OpenSessionRequest_builder{
-		SessionId: &sessionIDString,
+		SessionId: new(session.ID().String()),
 		LogStreaming: bonkv0.OpenSessionRequest_LogStreamingOptions_builder{
-			Level:     &defaultLevel,
-			AddSource: &addSource,
+			Level:     new(int64(slog.LevelInfo)),
+			AddSource: new(false),
 		}.Build(),
 	}
 
+	//nolint:staticcheck // This is supported in the next staticcheck version
 	if localSession, ok := session.(task.LocalSession); ok {
-		localPath := localSession.LocalPath()
 		openSessionRequest.Local = bonkv0.OpenSessionRequest_WorkspaceDescriptionLocal_builder{
-			AbsolutePath: &localPath,
+			AbsolutePath: new(localSession.LocalPath()),
 		}.Build()
 	}
 	if _, ok := session.SourceFS().(*afero.MemMapFs); ok {
@@ -79,9 +76,8 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 }
 
 func (pb *grpcClient) CloseSession(ctx context.Context, sessionID task.SessionID) {
-	sessionIDString := sessionID.String()
 	_, err := pb.client.CloseSession(ctx, bonkv0.CloseSessionRequest_builder{
-		Id: &sessionIDString,
+		Id: new(sessionID.String()),
 	}.Build())
 	if err != nil {
 		slog.ErrorContext(ctx, "got error closing session", "session", sessionID, "error", err)
@@ -94,9 +90,8 @@ func (pb *grpcClient) Execute(
 	tsk *task.Task,
 	result *task.Result,
 ) error {
-	sessionIDStr := session.ID().String()
 	taskReqBuilder := bonkv0.ExecuteTaskRequest_builder{
-		SessionId: &sessionIDStr,
+		SessionId: new(session.ID().String()),
 		Id:        (*string)(&tsk.ID),
 		Executor:  &tsk.Executor,
 		Inputs:    tsk.Inputs,
