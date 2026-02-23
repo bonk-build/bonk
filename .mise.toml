@@ -17,7 +17,7 @@ uv = "0.10.4"
 buf = "1.65.0"
 # Developer tools
 "github:vektra/mockery" = "3.6.4"
-"github:cli/cli" = "2.87.2"
+"github:cli/cli" = "2.87.3"
 "pipx:pre-commit" = "4.5.1"
 golangci-lint = "2.10.1"
 "github:korandoru/hawkeye" = "6.5.1"
