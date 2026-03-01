@@ -13,7 +13,7 @@ tool (
 )
 
 require (
-	charm.land/bubbletea/v2 v2.0.0-rc.2
+	charm.land/bubbletea/v2 v2.0.0
 	charm.land/fang/v2 v2.0.0-20251110204320-f80f0990c76f
 	charm.land/lipgloss/v2 v2.0.0
 	cuelang.org/go v0.15.4
@@ -51,7 +51,7 @@ require (
 	github.com/bitfield/gotestdox v0.2.2 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
 	github.com/charmbracelet/colorprofile v0.4.2 // indirect
-	github.com/charmbracelet/ultraviolet v0.0.0-20251205161215-1948445e3318 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8 // indirect
 	github.com/charmbracelet/x/ansi v0.11.6 // indirect
 	github.com/charmbracelet/x/exp/charmtone v0.0.0-20251110210702-903592506081 // indirect
 	github.com/charmbracelet/x/exp/color v0.0.0-20251006100439-2151805163c8 // indirect
