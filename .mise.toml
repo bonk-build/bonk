@@ -14,7 +14,7 @@ PRE_COMMIT_HOME = "{{ env.MISE_DATA_DIR | default(value=xdg_data_home ~ '/mise')
 go = "1.26.0"
 python = "3.14.3"
 uv = "0.10.7"
-buf = "1.65.0"
+buf = "1.66.0"
 # Developer tools
 "github:vektra/mockery" = "3.6.4"
 "github:cli/cli" = "2.87.3"
