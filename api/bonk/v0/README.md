@@ -251,7 +251,7 @@ var File_bonk_v0_bonk_proto protoreflect.FileDescriptor
 ```
 
 <a name="RegisterExecutorServiceServer"></a>
-## func [RegisterExecutorServiceServer](<bonk_grpc.pb.go#L123>)
+## func [RegisterExecutorServiceServer](<bonk_grpc.pb.go#L126>)
 
 ```go
 func RegisterExecutorServiceServer(s grpc.ServiceRegistrar, srv ExecutorServiceServer)
@@ -260,7 +260,7 @@ func RegisterExecutorServiceServer(s grpc.ServiceRegistrar, srv ExecutorServiceS
 
 
 <a name="CloseSessionRequest"></a>
-## type [CloseSessionRequest](<bonk.pb.go#L427-L434>)
+## type [CloseSessionRequest](<bonk.pb.go#L430-L437>)
 
 
 
@@ -273,7 +273,7 @@ type CloseSessionRequest struct {
 ```
 
 <a name="CloseSessionRequest.ClearId"></a>
-### func \(\*CloseSessionRequest\) [ClearId](<bonk.pb.go#L483>)
+### func \(\*CloseSessionRequest\) [ClearId](<bonk.pb.go#L486>)
 
 ```go
 func (x *CloseSessionRequest) ClearId()
@@ -282,7 +282,7 @@ func (x *CloseSessionRequest) ClearId()
 
 
 <a name="CloseSessionRequest.GetId"></a>
-### func \(\*CloseSessionRequest\) [GetId](<bonk.pb.go#L461>)
+### func \(\*CloseSessionRequest\) [GetId](<bonk.pb.go#L464>)
 
 ```go
 func (x *CloseSessionRequest) GetId() string
@@ -291,7 +291,7 @@ func (x *CloseSessionRequest) GetId() string
 
 
 <a name="CloseSessionRequest.HasId"></a>
-### func \(\*CloseSessionRequest\) [HasId](<bonk.pb.go#L476>)
+### func \(\*CloseSessionRequest\) [HasId](<bonk.pb.go#L479>)
 
 ```go
 func (x *CloseSessionRequest) HasId() bool
@@ -300,7 +300,7 @@ func (x *CloseSessionRequest) HasId() bool
 
 
 <a name="CloseSessionRequest.ProtoMessage"></a>
-### func \(\*CloseSessionRequest\) [ProtoMessage](<bonk.pb.go#L447>)
+### func \(\*CloseSessionRequest\) [ProtoMessage](<bonk.pb.go#L450>)
 
 ```go
 func (*CloseSessionRequest) ProtoMessage()
@@ -309,7 +309,7 @@ func (*CloseSessionRequest) ProtoMessage()
 
 
 <a name="CloseSessionRequest.ProtoReflect"></a>
-### func \(\*CloseSessionRequest\) [ProtoReflect](<bonk.pb.go#L449>)
+### func \(\*CloseSessionRequest\) [ProtoReflect](<bonk.pb.go#L452>)
 
 ```go
 func (x *CloseSessionRequest) ProtoReflect() protoreflect.Message
@@ -318,7 +318,7 @@ func (x *CloseSessionRequest) ProtoReflect() protoreflect.Message
 
 
 <a name="CloseSessionRequest.Reset"></a>
-### func \(\*CloseSessionRequest\) [Reset](<bonk.pb.go#L436>)
+### func \(\*CloseSessionRequest\) [Reset](<bonk.pb.go#L439>)
 
 ```go
 func (x *CloseSessionRequest) Reset()
@@ -327,7 +327,7 @@ func (x *CloseSessionRequest) Reset()
 
 
 <a name="CloseSessionRequest.SetId"></a>
-### func \(\*CloseSessionRequest\) [SetId](<bonk.pb.go#L471>)
+### func \(\*CloseSessionRequest\) [SetId](<bonk.pb.go#L474>)
 
 ```go
 func (x *CloseSessionRequest) SetId(v string)
@@ -336,7 +336,7 @@ func (x *CloseSessionRequest) SetId(v string)
 
 
 <a name="CloseSessionRequest.String"></a>
-### func \(\*CloseSessionRequest\) [String](<bonk.pb.go#L443>)
+### func \(\*CloseSessionRequest\) [String](<bonk.pb.go#L446>)
 
 ```go
 func (x *CloseSessionRequest) String() string
@@ -345,7 +345,7 @@ func (x *CloseSessionRequest) String() string
 
 
 <a name="CloseSessionRequest_builder"></a>
-## type [CloseSessionRequest\\\_builder](<bonk.pb.go#L488-L492>)
+## type [CloseSessionRequest\\\_builder](<bonk.pb.go#L491-L495>)
 
 
 
@@ -357,7 +357,7 @@ type CloseSessionRequest_builder struct {
 ```
 
 <a name="CloseSessionRequest_builder.Build"></a>
-### func \(CloseSessionRequest\_builder\) [Build](<bonk.pb.go#L494>)
+### func \(CloseSessionRequest\_builder\) [Build](<bonk.pb.go#L497>)
 
 ```go
 func (b0 CloseSessionRequest_builder) Build() *CloseSessionRequest
@@ -366,7 +366,7 @@ func (b0 CloseSessionRequest_builder) Build() *CloseSessionRequest
 
 
 <a name="CloseSessionResponse"></a>
-## type [CloseSessionResponse](<bonk.pb.go#L505-L509>)
+## type [CloseSessionResponse](<bonk.pb.go#L508-L512>)
 
 
 
@@ -377,7 +377,7 @@ type CloseSessionResponse struct {
 ```
 
 <a name="CloseSessionResponse.ProtoMessage"></a>
-### func \(\*CloseSessionResponse\) [ProtoMessage](<bonk.pb.go#L522>)
+### func \(\*CloseSessionResponse\) [ProtoMessage](<bonk.pb.go#L525>)
 
 ```go
 func (*CloseSessionResponse) ProtoMessage()
@@ -386,7 +386,7 @@ func (*CloseSessionResponse) ProtoMessage()
 
 
 <a name="CloseSessionResponse.ProtoReflect"></a>
-### func \(\*CloseSessionResponse\) [ProtoReflect](<bonk.pb.go#L524>)
+### func \(\*CloseSessionResponse\) [ProtoReflect](<bonk.pb.go#L527>)
 
 ```go
 func (x *CloseSessionResponse) ProtoReflect() protoreflect.Message
@@ -395,7 +395,7 @@ func (x *CloseSessionResponse) ProtoReflect() protoreflect.Message
 
 
 <a name="CloseSessionResponse.Reset"></a>
-### func \(\*CloseSessionResponse\) [Reset](<bonk.pb.go#L511>)
+### func \(\*CloseSessionResponse\) [Reset](<bonk.pb.go#L514>)
 
 ```go
 func (x *CloseSessionResponse) Reset()
@@ -404,7 +404,7 @@ func (x *CloseSessionResponse) Reset()
 
 
 <a name="CloseSessionResponse.String"></a>
-### func \(\*CloseSessionResponse\) [String](<bonk.pb.go#L518>)
+### func \(\*CloseSessionResponse\) [String](<bonk.pb.go#L521>)
 
 ```go
 func (x *CloseSessionResponse) String() string
@@ -413,7 +413,7 @@ func (x *CloseSessionResponse) String() string
 
 
 <a name="CloseSessionResponse_builder"></a>
-## type [CloseSessionResponse\\\_builder](<bonk.pb.go#L536-L539>)
+## type [CloseSessionResponse\\\_builder](<bonk.pb.go#L539-L542>)
 
 
 
@@ -424,7 +424,7 @@ type CloseSessionResponse_builder struct {
 ```
 
 <a name="CloseSessionResponse_builder.Build"></a>
-### func \(CloseSessionResponse\_builder\) [Build](<bonk.pb.go#L541>)
+### func \(CloseSessionResponse\_builder\) [Build](<bonk.pb.go#L544>)
 
 ```go
 func (b0 CloseSessionResponse_builder) Build() *CloseSessionResponse
@@ -433,7 +433,7 @@ func (b0 CloseSessionResponse_builder) Build() *CloseSessionResponse
 
 
 <a name="ExecuteTaskRequest"></a>
-## type [ExecuteTaskRequest](<bonk.pb.go#L548-L559>)
+## type [ExecuteTaskRequest](<bonk.pb.go#L551-L562>)
 
 
 
@@ -446,7 +446,7 @@ type ExecuteTaskRequest struct {
 ```
 
 <a name="ExecuteTaskRequest.ClearArguments"></a>
-### func \(\*ExecuteTaskRequest\) [ClearArguments](<bonk.pb.go#L696>)
+### func \(\*ExecuteTaskRequest\) [ClearArguments](<bonk.pb.go#L699>)
 
 ```go
 func (x *ExecuteTaskRequest) ClearArguments()
@@ -455,7 +455,7 @@ func (x *ExecuteTaskRequest) ClearArguments()
 
 
 <a name="ExecuteTaskRequest.ClearExecutor"></a>
-### func \(\*ExecuteTaskRequest\) [ClearExecutor](<bonk.pb.go#L691>)
+### func \(\*ExecuteTaskRequest\) [ClearExecutor](<bonk.pb.go#L694>)
 
 ```go
 func (x *ExecuteTaskRequest) ClearExecutor()
@@ -464,7 +464,7 @@ func (x *ExecuteTaskRequest) ClearExecutor()
 
 
 <a name="ExecuteTaskRequest.ClearId"></a>
-### func \(\*ExecuteTaskRequest\) [ClearId](<bonk.pb.go#L686>)
+### func \(\*ExecuteTaskRequest\) [ClearId](<bonk.pb.go#L689>)
 
 ```go
 func (x *ExecuteTaskRequest) ClearId()
@@ -473,7 +473,7 @@ func (x *ExecuteTaskRequest) ClearId()
 
 
 <a name="ExecuteTaskRequest.ClearSessionId"></a>
-### func \(\*ExecuteTaskRequest\) [ClearSessionId](<bonk.pb.go#L681>)
+### func \(\*ExecuteTaskRequest\) [ClearSessionId](<bonk.pb.go#L684>)
 
 ```go
 func (x *ExecuteTaskRequest) ClearSessionId()
@@ -482,7 +482,7 @@ func (x *ExecuteTaskRequest) ClearSessionId()
 
 
 <a name="ExecuteTaskRequest.GetArguments"></a>
-### func \(\*ExecuteTaskRequest\) [GetArguments](<bonk.pb.go#L623>)
+### func \(\*ExecuteTaskRequest\) [GetArguments](<bonk.pb.go#L626>)
 
 ```go
 func (x *ExecuteTaskRequest) GetArguments() *structpb.Value
@@ -491,7 +491,7 @@ func (x *ExecuteTaskRequest) GetArguments() *structpb.Value
 
 
 <a name="ExecuteTaskRequest.GetExecutor"></a>
-### func \(\*ExecuteTaskRequest\) [GetExecutor](<bonk.pb.go#L606>)
+### func \(\*ExecuteTaskRequest\) [GetExecutor](<bonk.pb.go#L609>)
 
 ```go
 func (x *ExecuteTaskRequest) GetExecutor() string
@@ -500,7 +500,7 @@ func (x *ExecuteTaskRequest) GetExecutor() string
 
 
 <a name="ExecuteTaskRequest.GetId"></a>
-### func \(\*ExecuteTaskRequest\) [GetId](<bonk.pb.go#L596>)
+### func \(\*ExecuteTaskRequest\) [GetId](<bonk.pb.go#L599>)
 
 ```go
 func (x *ExecuteTaskRequest) GetId() string
@@ -509,7 +509,7 @@ func (x *ExecuteTaskRequest) GetId() string
 
 
 <a name="ExecuteTaskRequest.GetInputs"></a>
-### func \(\*ExecuteTaskRequest\) [GetInputs](<bonk.pb.go#L616>)
+### func \(\*ExecuteTaskRequest\) [GetInputs](<bonk.pb.go#L619>)
 
 ```go
 func (x *ExecuteTaskRequest) GetInputs() []string
@@ -518,7 +518,7 @@ func (x *ExecuteTaskRequest) GetInputs() []string
 
 
 <a name="ExecuteTaskRequest.GetSessionId"></a>
-### func \(\*ExecuteTaskRequest\) [GetSessionId](<bonk.pb.go#L586>)
+### func \(\*ExecuteTaskRequest\) [GetSessionId](<bonk.pb.go#L589>)
 
 ```go
 func (x *ExecuteTaskRequest) GetSessionId() string
@@ -527,7 +527,7 @@ func (x *ExecuteTaskRequest) GetSessionId() string
 
 
 <a name="ExecuteTaskRequest.HasArguments"></a>
-### func \(\*ExecuteTaskRequest\) [HasArguments](<bonk.pb.go#L674>)
+### func \(\*ExecuteTaskRequest\) [HasArguments](<bonk.pb.go#L677>)
 
 ```go
 func (x *ExecuteTaskRequest) HasArguments() bool
@@ -536,7 +536,7 @@ func (x *ExecuteTaskRequest) HasArguments() bool
 
 
 <a name="ExecuteTaskRequest.HasExecutor"></a>
-### func \(\*ExecuteTaskRequest\) [HasExecutor](<bonk.pb.go#L667>)
+### func \(\*ExecuteTaskRequest\) [HasExecutor](<bonk.pb.go#L670>)
 
 ```go
 func (x *ExecuteTaskRequest) HasExecutor() bool
@@ -545,7 +545,7 @@ func (x *ExecuteTaskRequest) HasExecutor() bool
 
 
 <a name="ExecuteTaskRequest.HasId"></a>
-### func \(\*ExecuteTaskRequest\) [HasId](<bonk.pb.go#L660>)
+### func \(\*ExecuteTaskRequest\) [HasId](<bonk.pb.go#L663>)
 
 ```go
 func (x *ExecuteTaskRequest) HasId() bool
@@ -554,7 +554,7 @@ func (x *ExecuteTaskRequest) HasId() bool
 
 
 <a name="ExecuteTaskRequest.HasSessionId"></a>
-### func \(\*ExecuteTaskRequest\) [HasSessionId](<bonk.pb.go#L653>)
+### func \(\*ExecuteTaskRequest\) [HasSessionId](<bonk.pb.go#L656>)
 
 ```go
 func (x *ExecuteTaskRequest) HasSessionId() bool
@@ -563,7 +563,7 @@ func (x *ExecuteTaskRequest) HasSessionId() bool
 
 
 <a name="ExecuteTaskRequest.ProtoMessage"></a>
-### func \(\*ExecuteTaskRequest\) [ProtoMessage](<bonk.pb.go#L572>)
+### func \(\*ExecuteTaskRequest\) [ProtoMessage](<bonk.pb.go#L575>)
 
 ```go
 func (*ExecuteTaskRequest) ProtoMessage()
@@ -572,7 +572,7 @@ func (*ExecuteTaskRequest) ProtoMessage()
 
 
 <a name="ExecuteTaskRequest.ProtoReflect"></a>
-### func \(\*ExecuteTaskRequest\) [ProtoReflect](<bonk.pb.go#L574>)
+### func \(\*ExecuteTaskRequest\) [ProtoReflect](<bonk.pb.go#L577>)
 
 ```go
 func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message
@@ -581,7 +581,7 @@ func (x *ExecuteTaskRequest) ProtoReflect() protoreflect.Message
 
 
 <a name="ExecuteTaskRequest.Reset"></a>
-### func \(\*ExecuteTaskRequest\) [Reset](<bonk.pb.go#L561>)
+### func \(\*ExecuteTaskRequest\) [Reset](<bonk.pb.go#L564>)
 
 ```go
 func (x *ExecuteTaskRequest) Reset()
@@ -590,7 +590,7 @@ func (x *ExecuteTaskRequest) Reset()
 
 
 <a name="ExecuteTaskRequest.SetArguments"></a>
-### func \(\*ExecuteTaskRequest\) [SetArguments](<bonk.pb.go#L649>)
+### func \(\*ExecuteTaskRequest\) [SetArguments](<bonk.pb.go#L652>)
 
 ```go
 func (x *ExecuteTaskRequest) SetArguments(v *structpb.Value)
@@ -599,7 +599,7 @@ func (x *ExecuteTaskRequest) SetArguments(v *structpb.Value)
 
 
 <a name="ExecuteTaskRequest.SetExecutor"></a>
-### func \(\*ExecuteTaskRequest\) [SetExecutor](<bonk.pb.go#L640>)
+### func \(\*ExecuteTaskRequest\) [SetExecutor](<bonk.pb.go#L643>)
 
 ```go
 func (x *ExecuteTaskRequest) SetExecutor(v string)
@@ -608,7 +608,7 @@ func (x *ExecuteTaskRequest) SetExecutor(v string)
 
 
 <a name="ExecuteTaskRequest.SetId"></a>
-### func \(\*ExecuteTaskRequest\) [SetId](<bonk.pb.go#L635>)
+### func \(\*ExecuteTaskRequest\) [SetId](<bonk.pb.go#L638>)
 
 ```go
 func (x *ExecuteTaskRequest) SetId(v string)
@@ -617,7 +617,7 @@ func (x *ExecuteTaskRequest) SetId(v string)
 
 
 <a name="ExecuteTaskRequest.SetInputs"></a>
-### func \(\*ExecuteTaskRequest\) [SetInputs](<bonk.pb.go#L645>)
+### func \(\*ExecuteTaskRequest\) [SetInputs](<bonk.pb.go#L648>)
 
 ```go
 func (x *ExecuteTaskRequest) SetInputs(v []string)
@@ -626,7 +626,7 @@ func (x *ExecuteTaskRequest) SetInputs(v []string)
 
 
 <a name="ExecuteTaskRequest.SetSessionId"></a>
-### func \(\*ExecuteTaskRequest\) [SetSessionId](<bonk.pb.go#L630>)
+### func \(\*ExecuteTaskRequest\) [SetSessionId](<bonk.pb.go#L633>)
 
 ```go
 func (x *ExecuteTaskRequest) SetSessionId(v string)
@@ -635,7 +635,7 @@ func (x *ExecuteTaskRequest) SetSessionId(v string)
 
 
 <a name="ExecuteTaskRequest.String"></a>
-### func \(\*ExecuteTaskRequest\) [String](<bonk.pb.go#L568>)
+### func \(\*ExecuteTaskRequest\) [String](<bonk.pb.go#L571>)
 
 ```go
 func (x *ExecuteTaskRequest) String() string
@@ -644,7 +644,7 @@ func (x *ExecuteTaskRequest) String() string
 
 
 <a name="ExecuteTaskRequest_builder"></a>
-## type [ExecuteTaskRequest\\\_builder](<bonk.pb.go#L700-L708>)
+## type [ExecuteTaskRequest\\\_builder](<bonk.pb.go#L703-L711>)
 
 
 
@@ -660,7 +660,7 @@ type ExecuteTaskRequest_builder struct {
 ```
 
 <a name="ExecuteTaskRequest_builder.Build"></a>
-### func \(ExecuteTaskRequest\_builder\) [Build](<bonk.pb.go#L710>)
+### func \(ExecuteTaskRequest\_builder\) [Build](<bonk.pb.go#L713>)
 
 ```go
 func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest
@@ -669,7 +669,7 @@ func (b0 ExecuteTaskRequest_builder) Build() *ExecuteTaskRequest
 
 
 <a name="ExecuteTaskResponse"></a>
-## type [ExecuteTaskResponse](<bonk.pb.go#L731-L737>)
+## type [ExecuteTaskResponse](<bonk.pb.go#L734-L740>)
 
 
 
@@ -680,7 +680,7 @@ type ExecuteTaskResponse struct {
 ```
 
 <a name="ExecuteTaskResponse.GetFollowupTasks"></a>
-### func \(\*ExecuteTaskResponse\) [GetFollowupTasks](<bonk.pb.go#L771>)
+### func \(\*ExecuteTaskResponse\) [GetFollowupTasks](<bonk.pb.go#L774>)
 
 ```go
 func (x *ExecuteTaskResponse) GetFollowupTasks() []*ExecuteTaskResponse_FollowupTask
@@ -689,7 +689,7 @@ func (x *ExecuteTaskResponse) GetFollowupTasks() []*ExecuteTaskResponse_Followup
 
 
 <a name="ExecuteTaskResponse.GetOutput"></a>
-### func \(\*ExecuteTaskResponse\) [GetOutput](<bonk.pb.go#L764>)
+### func \(\*ExecuteTaskResponse\) [GetOutput](<bonk.pb.go#L767>)
 
 ```go
 func (x *ExecuteTaskResponse) GetOutput() []string
@@ -698,7 +698,7 @@ func (x *ExecuteTaskResponse) GetOutput() []string
 
 
 <a name="ExecuteTaskResponse.ProtoMessage"></a>
-### func \(\*ExecuteTaskResponse\) [ProtoMessage](<bonk.pb.go#L750>)
+### func \(\*ExecuteTaskResponse\) [ProtoMessage](<bonk.pb.go#L753>)
 
 ```go
 func (*ExecuteTaskResponse) ProtoMessage()
@@ -707,7 +707,7 @@ func (*ExecuteTaskResponse) ProtoMessage()
 
 
 <a name="ExecuteTaskResponse.ProtoReflect"></a>
-### func \(\*ExecuteTaskResponse\) [ProtoReflect](<bonk.pb.go#L752>)
+### func \(\*ExecuteTaskResponse\) [ProtoReflect](<bonk.pb.go#L755>)
 
 ```go
 func (x *ExecuteTaskResponse) ProtoReflect() protoreflect.Message
@@ -716,7 +716,7 @@ func (x *ExecuteTaskResponse) ProtoReflect() protoreflect.Message
 
 
 <a name="ExecuteTaskResponse.Reset"></a>
-### func \(\*ExecuteTaskResponse\) [Reset](<bonk.pb.go#L739>)
+### func \(\*ExecuteTaskResponse\) [Reset](<bonk.pb.go#L742>)
 
 ```go
 func (x *ExecuteTaskResponse) Reset()
@@ -725,7 +725,7 @@ func (x *ExecuteTaskResponse) Reset()
 
 
 <a name="ExecuteTaskResponse.SetFollowupTasks"></a>
-### func \(\*ExecuteTaskResponse\) [SetFollowupTasks](<bonk.pb.go#L784>)
+### func \(\*ExecuteTaskResponse\) [SetFollowupTasks](<bonk.pb.go#L787>)
 
 ```go
 func (x *ExecuteTaskResponse) SetFollowupTasks(v []*ExecuteTaskResponse_FollowupTask)
@@ -734,7 +734,7 @@ func (x *ExecuteTaskResponse) SetFollowupTasks(v []*ExecuteTaskResponse_Followup
 
 
 <a name="ExecuteTaskResponse.SetOutput"></a>
-### func \(\*ExecuteTaskResponse\) [SetOutput](<bonk.pb.go#L780>)
+### func \(\*ExecuteTaskResponse\) [SetOutput](<bonk.pb.go#L783>)
 
 ```go
 func (x *ExecuteTaskResponse) SetOutput(v []string)
@@ -743,7 +743,7 @@ func (x *ExecuteTaskResponse) SetOutput(v []string)
 
 
 <a name="ExecuteTaskResponse.String"></a>
-### func \(\*ExecuteTaskResponse\) [String](<bonk.pb.go#L746>)
+### func \(\*ExecuteTaskResponse\) [String](<bonk.pb.go#L749>)
 
 ```go
 func (x *ExecuteTaskResponse) String() string
@@ -752,7 +752,7 @@ func (x *ExecuteTaskResponse) String() string
 
 
 <a name="ExecuteTaskResponse_FollowupTask"></a>
-## type [ExecuteTaskResponse\\\_FollowupTask](<bonk.pb.go#L1221-L1231>)
+## type [ExecuteTaskResponse\\\_FollowupTask](<bonk.pb.go#L1224-L1234>)
 
 
 
@@ -765,7 +765,7 @@ type ExecuteTaskResponse_FollowupTask struct {
 ```
 
 <a name="ExecuteTaskResponse_FollowupTask.ClearArguments"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [ClearArguments](<bonk.pb.go#L1341>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [ClearArguments](<bonk.pb.go#L1344>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) ClearArguments()
@@ -774,7 +774,7 @@ func (x *ExecuteTaskResponse_FollowupTask) ClearArguments()
 
 
 <a name="ExecuteTaskResponse_FollowupTask.ClearExecutor"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [ClearExecutor](<bonk.pb.go#L1336>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [ClearExecutor](<bonk.pb.go#L1339>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) ClearExecutor()
@@ -783,7 +783,7 @@ func (x *ExecuteTaskResponse_FollowupTask) ClearExecutor()
 
 
 <a name="ExecuteTaskResponse_FollowupTask.ClearId"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [ClearId](<bonk.pb.go#L1331>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [ClearId](<bonk.pb.go#L1334>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) ClearId()
@@ -792,7 +792,7 @@ func (x *ExecuteTaskResponse_FollowupTask) ClearId()
 
 
 <a name="ExecuteTaskResponse_FollowupTask.GetArguments"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetArguments](<bonk.pb.go#L1285>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetArguments](<bonk.pb.go#L1288>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) GetArguments() *structpb.Value
@@ -801,7 +801,7 @@ func (x *ExecuteTaskResponse_FollowupTask) GetArguments() *structpb.Value
 
 
 <a name="ExecuteTaskResponse_FollowupTask.GetExecutor"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetExecutor](<bonk.pb.go#L1268>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetExecutor](<bonk.pb.go#L1271>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) GetExecutor() string
@@ -810,7 +810,7 @@ func (x *ExecuteTaskResponse_FollowupTask) GetExecutor() string
 
 
 <a name="ExecuteTaskResponse_FollowupTask.GetId"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetId](<bonk.pb.go#L1258>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetId](<bonk.pb.go#L1261>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) GetId() string
@@ -819,7 +819,7 @@ func (x *ExecuteTaskResponse_FollowupTask) GetId() string
 
 
 <a name="ExecuteTaskResponse_FollowupTask.GetInputs"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetInputs](<bonk.pb.go#L1278>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [GetInputs](<bonk.pb.go#L1281>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) GetInputs() []string
@@ -828,7 +828,7 @@ func (x *ExecuteTaskResponse_FollowupTask) GetInputs() []string
 
 
 <a name="ExecuteTaskResponse_FollowupTask.HasArguments"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [HasArguments](<bonk.pb.go#L1324>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [HasArguments](<bonk.pb.go#L1327>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) HasArguments() bool
@@ -837,7 +837,7 @@ func (x *ExecuteTaskResponse_FollowupTask) HasArguments() bool
 
 
 <a name="ExecuteTaskResponse_FollowupTask.HasExecutor"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [HasExecutor](<bonk.pb.go#L1317>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [HasExecutor](<bonk.pb.go#L1320>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) HasExecutor() bool
@@ -846,7 +846,7 @@ func (x *ExecuteTaskResponse_FollowupTask) HasExecutor() bool
 
 
 <a name="ExecuteTaskResponse_FollowupTask.HasId"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [HasId](<bonk.pb.go#L1310>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [HasId](<bonk.pb.go#L1313>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) HasId() bool
@@ -855,7 +855,7 @@ func (x *ExecuteTaskResponse_FollowupTask) HasId() bool
 
 
 <a name="ExecuteTaskResponse_FollowupTask.ProtoMessage"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [ProtoMessage](<bonk.pb.go#L1244>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [ProtoMessage](<bonk.pb.go#L1247>)
 
 ```go
 func (*ExecuteTaskResponse_FollowupTask) ProtoMessage()
@@ -864,7 +864,7 @@ func (*ExecuteTaskResponse_FollowupTask) ProtoMessage()
 
 
 <a name="ExecuteTaskResponse_FollowupTask.ProtoReflect"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [ProtoReflect](<bonk.pb.go#L1246>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [ProtoReflect](<bonk.pb.go#L1249>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message
@@ -873,7 +873,7 @@ func (x *ExecuteTaskResponse_FollowupTask) ProtoReflect() protoreflect.Message
 
 
 <a name="ExecuteTaskResponse_FollowupTask.Reset"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [Reset](<bonk.pb.go#L1233>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [Reset](<bonk.pb.go#L1236>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) Reset()
@@ -882,7 +882,7 @@ func (x *ExecuteTaskResponse_FollowupTask) Reset()
 
 
 <a name="ExecuteTaskResponse_FollowupTask.SetArguments"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetArguments](<bonk.pb.go#L1306>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetArguments](<bonk.pb.go#L1309>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) SetArguments(v *structpb.Value)
@@ -891,7 +891,7 @@ func (x *ExecuteTaskResponse_FollowupTask) SetArguments(v *structpb.Value)
 
 
 <a name="ExecuteTaskResponse_FollowupTask.SetExecutor"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetExecutor](<bonk.pb.go#L1297>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetExecutor](<bonk.pb.go#L1300>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) SetExecutor(v string)
@@ -900,7 +900,7 @@ func (x *ExecuteTaskResponse_FollowupTask) SetExecutor(v string)
 
 
 <a name="ExecuteTaskResponse_FollowupTask.SetId"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetId](<bonk.pb.go#L1292>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetId](<bonk.pb.go#L1295>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) SetId(v string)
@@ -909,7 +909,7 @@ func (x *ExecuteTaskResponse_FollowupTask) SetId(v string)
 
 
 <a name="ExecuteTaskResponse_FollowupTask.SetInputs"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetInputs](<bonk.pb.go#L1302>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [SetInputs](<bonk.pb.go#L1305>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) SetInputs(v []string)
@@ -918,7 +918,7 @@ func (x *ExecuteTaskResponse_FollowupTask) SetInputs(v []string)
 
 
 <a name="ExecuteTaskResponse_FollowupTask.String"></a>
-### func \(\*ExecuteTaskResponse\_FollowupTask\) [String](<bonk.pb.go#L1240>)
+### func \(\*ExecuteTaskResponse\_FollowupTask\) [String](<bonk.pb.go#L1243>)
 
 ```go
 func (x *ExecuteTaskResponse_FollowupTask) String() string
@@ -927,7 +927,7 @@ func (x *ExecuteTaskResponse_FollowupTask) String() string
 
 
 <a name="ExecuteTaskResponse_FollowupTask_builder"></a>
-## type [ExecuteTaskResponse\\\_FollowupTask\\\_builder](<bonk.pb.go#L1345-L1352>)
+## type [ExecuteTaskResponse\\\_FollowupTask\\\_builder](<bonk.pb.go#L1348-L1355>)
 
 
 
@@ -942,7 +942,7 @@ type ExecuteTaskResponse_FollowupTask_builder struct {
 ```
 
 <a name="ExecuteTaskResponse_FollowupTask_builder.Build"></a>
-### func \(ExecuteTaskResponse\_FollowupTask\_builder\) [Build](<bonk.pb.go#L1354>)
+### func \(ExecuteTaskResponse\_FollowupTask\_builder\) [Build](<bonk.pb.go#L1357>)
 
 ```go
 func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_FollowupTask
@@ -951,7 +951,7 @@ func (b0 ExecuteTaskResponse_FollowupTask_builder) Build() *ExecuteTaskResponse_
 
 
 <a name="ExecuteTaskResponse_builder"></a>
-## type [ExecuteTaskResponse\\\_builder](<bonk.pb.go#L788-L793>)
+## type [ExecuteTaskResponse\\\_builder](<bonk.pb.go#L791-L796>)
 
 
 
@@ -964,7 +964,7 @@ type ExecuteTaskResponse_builder struct {
 ```
 
 <a name="ExecuteTaskResponse_builder.Build"></a>
-### func \(ExecuteTaskResponse\_builder\) [Build](<bonk.pb.go#L795>)
+### func \(ExecuteTaskResponse\_builder\) [Build](<bonk.pb.go#L798>)
 
 ```go
 func (b0 ExecuteTaskResponse_builder) Build() *ExecuteTaskResponse
@@ -973,7 +973,7 @@ func (b0 ExecuteTaskResponse_builder) Build() *ExecuteTaskResponse
 
 
 <a name="ExecutorServiceClient"></a>
-## type [ExecutorServiceClient](<bonk_grpc.pb.go#L30-L36>)
+## type [ExecutorServiceClient](<bonk_grpc.pb.go#L33-L39>)
 
 ExecutorServiceClient is the client API for ExecutorService service.
 
@@ -990,7 +990,7 @@ type ExecutorServiceClient interface {
 ```
 
 <a name="NewExecutorServiceClient"></a>
-### func [NewExecutorServiceClient](<bonk_grpc.pb.go#L42>)
+### func [NewExecutorServiceClient](<bonk_grpc.pb.go#L45>)
 
 ```go
 func NewExecutorServiceClient(cc grpc.ClientConnInterface) ExecutorServiceClient
@@ -999,7 +999,7 @@ func NewExecutorServiceClient(cc grpc.ClientConnInterface) ExecutorServiceClient
 
 
 <a name="ExecutorServiceServer"></a>
-## type [ExecutorServiceServer](<bonk_grpc.pb.go#L88-L95>)
+## type [ExecutorServiceServer](<bonk_grpc.pb.go#L91-L98>)
 
 ExecutorServiceServer is the server API for ExecutorService service. All implementations must embed UnimplementedExecutorServiceServer for forward compatibility.
 
@@ -1015,7 +1015,7 @@ type ExecutorServiceServer interface {
 ```
 
 <a name="ExecutorService_OpenSessionClient"></a>
-## type [ExecutorService\\\_OpenSessionClient](<bonk_grpc.pb.go#L63>)
+## type [ExecutorService\\\_OpenSessionClient](<bonk_grpc.pb.go#L66>)
 
 This type alias is provided for backwards compatibility with existing code that references the prior non\-generic stream type by name.
 
@@ -1024,7 +1024,7 @@ type ExecutorService_OpenSessionClient = grpc.ServerStreamingClient[OpenSessionR
 ```
 
 <a name="ExecutorService_OpenSessionServer"></a>
-## type [ExecutorService\\\_OpenSessionServer](<bonk_grpc.pb.go#L143>)
+## type [ExecutorService\\\_OpenSessionServer](<bonk_grpc.pb.go#L146>)
 
 This type alias is provided for backwards compatibility with existing code that references the prior non\-generic stream type by name.
 
@@ -1033,7 +1033,7 @@ type ExecutorService_OpenSessionServer = grpc.ServerStreamingServer[OpenSessionR
 ```
 
 <a name="OpenSessionRequest"></a>
-## type [OpenSessionRequest](<bonk.pb.go#L25-L34>)
+## type [OpenSessionRequest](<bonk.pb.go#L28-L37>)
 
 
 
@@ -1046,7 +1046,7 @@ type OpenSessionRequest struct {
 ```
 
 <a name="OpenSessionRequest.ClearLocal"></a>
-### func \(\*OpenSessionRequest\) [ClearLocal](<bonk.pb.go#L171>)
+### func \(\*OpenSessionRequest\) [ClearLocal](<bonk.pb.go#L174>)
 
 ```go
 func (x *OpenSessionRequest) ClearLocal()
@@ -1055,7 +1055,7 @@ func (x *OpenSessionRequest) ClearLocal()
 
 
 <a name="OpenSessionRequest.ClearLogStreaming"></a>
-### func \(\*OpenSessionRequest\) [ClearLogStreaming](<bonk.pb.go#L163>)
+### func \(\*OpenSessionRequest\) [ClearLogStreaming](<bonk.pb.go#L166>)
 
 ```go
 func (x *OpenSessionRequest) ClearLogStreaming()
@@ -1064,7 +1064,7 @@ func (x *OpenSessionRequest) ClearLogStreaming()
 
 
 <a name="OpenSessionRequest.ClearSessionId"></a>
-### func \(\*OpenSessionRequest\) [ClearSessionId](<bonk.pb.go#L158>)
+### func \(\*OpenSessionRequest\) [ClearSessionId](<bonk.pb.go#L161>)
 
 ```go
 func (x *OpenSessionRequest) ClearSessionId()
@@ -1073,7 +1073,7 @@ func (x *OpenSessionRequest) ClearSessionId()
 
 
 <a name="OpenSessionRequest.ClearTest"></a>
-### func \(\*OpenSessionRequest\) [ClearTest](<bonk.pb.go#L177>)
+### func \(\*OpenSessionRequest\) [ClearTest](<bonk.pb.go#L180>)
 
 ```go
 func (x *OpenSessionRequest) ClearTest()
@@ -1082,7 +1082,7 @@ func (x *OpenSessionRequest) ClearTest()
 
 
 <a name="OpenSessionRequest.ClearWorkspaceDescription"></a>
-### func \(\*OpenSessionRequest\) [ClearWorkspaceDescription](<bonk.pb.go#L167>)
+### func \(\*OpenSessionRequest\) [ClearWorkspaceDescription](<bonk.pb.go#L170>)
 
 ```go
 func (x *OpenSessionRequest) ClearWorkspaceDescription()
@@ -1091,7 +1091,7 @@ func (x *OpenSessionRequest) ClearWorkspaceDescription()
 
 
 <a name="OpenSessionRequest.GetLocal"></a>
-### func \(\*OpenSessionRequest\) [GetLocal](<bonk.pb.go#L78>)
+### func \(\*OpenSessionRequest\) [GetLocal](<bonk.pb.go#L81>)
 
 ```go
 func (x *OpenSessionRequest) GetLocal() *OpenSessionRequest_WorkspaceDescriptionLocal
@@ -1100,7 +1100,7 @@ func (x *OpenSessionRequest) GetLocal() *OpenSessionRequest_WorkspaceDescription
 
 
 <a name="OpenSessionRequest.GetLogStreaming"></a>
-### func \(\*OpenSessionRequest\) [GetLogStreaming](<bonk.pb.go#L71>)
+### func \(\*OpenSessionRequest\) [GetLogStreaming](<bonk.pb.go#L74>)
 
 ```go
 func (x *OpenSessionRequest) GetLogStreaming() *OpenSessionRequest_LogStreamingOptions
@@ -1109,7 +1109,7 @@ func (x *OpenSessionRequest) GetLogStreaming() *OpenSessionRequest_LogStreamingO
 
 
 <a name="OpenSessionRequest.GetSessionId"></a>
-### func \(\*OpenSessionRequest\) [GetSessionId](<bonk.pb.go#L61>)
+### func \(\*OpenSessionRequest\) [GetSessionId](<bonk.pb.go#L64>)
 
 ```go
 func (x *OpenSessionRequest) GetSessionId() string
@@ -1118,7 +1118,7 @@ func (x *OpenSessionRequest) GetSessionId() string
 
 
 <a name="OpenSessionRequest.GetTest"></a>
-### func \(\*OpenSessionRequest\) [GetTest](<bonk.pb.go#L87>)
+### func \(\*OpenSessionRequest\) [GetTest](<bonk.pb.go#L90>)
 
 ```go
 func (x *OpenSessionRequest) GetTest() *OpenSessionRequest_WorkspaceDescriptionTest
@@ -1127,7 +1127,7 @@ func (x *OpenSessionRequest) GetTest() *OpenSessionRequest_WorkspaceDescriptionT
 
 
 <a name="OpenSessionRequest.HasLocal"></a>
-### func \(\*OpenSessionRequest\) [HasLocal](<bonk.pb.go#L142>)
+### func \(\*OpenSessionRequest\) [HasLocal](<bonk.pb.go#L145>)
 
 ```go
 func (x *OpenSessionRequest) HasLocal() bool
@@ -1136,7 +1136,7 @@ func (x *OpenSessionRequest) HasLocal() bool
 
 
 <a name="OpenSessionRequest.HasLogStreaming"></a>
-### func \(\*OpenSessionRequest\) [HasLogStreaming](<bonk.pb.go#L128>)
+### func \(\*OpenSessionRequest\) [HasLogStreaming](<bonk.pb.go#L131>)
 
 ```go
 func (x *OpenSessionRequest) HasLogStreaming() bool
@@ -1145,7 +1145,7 @@ func (x *OpenSessionRequest) HasLogStreaming() bool
 
 
 <a name="OpenSessionRequest.HasSessionId"></a>
-### func \(\*OpenSessionRequest\) [HasSessionId](<bonk.pb.go#L121>)
+### func \(\*OpenSessionRequest\) [HasSessionId](<bonk.pb.go#L124>)
 
 ```go
 func (x *OpenSessionRequest) HasSessionId() bool
@@ -1154,7 +1154,7 @@ func (x *OpenSessionRequest) HasSessionId() bool
 
 
 <a name="OpenSessionRequest.HasTest"></a>
-### func \(\*OpenSessionRequest\) [HasTest](<bonk.pb.go#L150>)
+### func \(\*OpenSessionRequest\) [HasTest](<bonk.pb.go#L153>)
 
 ```go
 func (x *OpenSessionRequest) HasTest() bool
@@ -1163,7 +1163,7 @@ func (x *OpenSessionRequest) HasTest() bool
 
 
 <a name="OpenSessionRequest.HasWorkspaceDescription"></a>
-### func \(\*OpenSessionRequest\) [HasWorkspaceDescription](<bonk.pb.go#L135>)
+### func \(\*OpenSessionRequest\) [HasWorkspaceDescription](<bonk.pb.go#L138>)
 
 ```go
 func (x *OpenSessionRequest) HasWorkspaceDescription() bool
@@ -1172,7 +1172,7 @@ func (x *OpenSessionRequest) HasWorkspaceDescription() bool
 
 
 <a name="OpenSessionRequest.ProtoMessage"></a>
-### func \(\*OpenSessionRequest\) [ProtoMessage](<bonk.pb.go#L47>)
+### func \(\*OpenSessionRequest\) [ProtoMessage](<bonk.pb.go#L50>)
 
 ```go
 func (*OpenSessionRequest) ProtoMessage()
@@ -1181,7 +1181,7 @@ func (*OpenSessionRequest) ProtoMessage()
 
 
 <a name="OpenSessionRequest.ProtoReflect"></a>
-### func \(\*OpenSessionRequest\) [ProtoReflect](<bonk.pb.go#L49>)
+### func \(\*OpenSessionRequest\) [ProtoReflect](<bonk.pb.go#L52>)
 
 ```go
 func (x *OpenSessionRequest) ProtoReflect() protoreflect.Message
@@ -1190,7 +1190,7 @@ func (x *OpenSessionRequest) ProtoReflect() protoreflect.Message
 
 
 <a name="OpenSessionRequest.Reset"></a>
-### func \(\*OpenSessionRequest\) [Reset](<bonk.pb.go#L36>)
+### func \(\*OpenSessionRequest\) [Reset](<bonk.pb.go#L39>)
 
 ```go
 func (x *OpenSessionRequest) Reset()
@@ -1199,7 +1199,7 @@ func (x *OpenSessionRequest) Reset()
 
 
 <a name="OpenSessionRequest.SetLocal"></a>
-### func \(\*OpenSessionRequest\) [SetLocal](<bonk.pb.go#L105>)
+### func \(\*OpenSessionRequest\) [SetLocal](<bonk.pb.go#L108>)
 
 ```go
 func (x *OpenSessionRequest) SetLocal(v *OpenSessionRequest_WorkspaceDescriptionLocal)
@@ -1208,7 +1208,7 @@ func (x *OpenSessionRequest) SetLocal(v *OpenSessionRequest_WorkspaceDescription
 
 
 <a name="OpenSessionRequest.SetLogStreaming"></a>
-### func \(\*OpenSessionRequest\) [SetLogStreaming](<bonk.pb.go#L101>)
+### func \(\*OpenSessionRequest\) [SetLogStreaming](<bonk.pb.go#L104>)
 
 ```go
 func (x *OpenSessionRequest) SetLogStreaming(v *OpenSessionRequest_LogStreamingOptions)
@@ -1217,7 +1217,7 @@ func (x *OpenSessionRequest) SetLogStreaming(v *OpenSessionRequest_LogStreamingO
 
 
 <a name="OpenSessionRequest.SetSessionId"></a>
-### func \(\*OpenSessionRequest\) [SetSessionId](<bonk.pb.go#L96>)
+### func \(\*OpenSessionRequest\) [SetSessionId](<bonk.pb.go#L99>)
 
 ```go
 func (x *OpenSessionRequest) SetSessionId(v string)
@@ -1226,7 +1226,7 @@ func (x *OpenSessionRequest) SetSessionId(v string)
 
 
 <a name="OpenSessionRequest.SetTest"></a>
-### func \(\*OpenSessionRequest\) [SetTest](<bonk.pb.go#L113>)
+### func \(\*OpenSessionRequest\) [SetTest](<bonk.pb.go#L116>)
 
 ```go
 func (x *OpenSessionRequest) SetTest(v *OpenSessionRequest_WorkspaceDescriptionTest)
@@ -1235,7 +1235,7 @@ func (x *OpenSessionRequest) SetTest(v *OpenSessionRequest_WorkspaceDescriptionT
 
 
 <a name="OpenSessionRequest.String"></a>
-### func \(\*OpenSessionRequest\) [String](<bonk.pb.go#L43>)
+### func \(\*OpenSessionRequest\) [String](<bonk.pb.go#L46>)
 
 ```go
 func (x *OpenSessionRequest) String() string
@@ -1244,7 +1244,7 @@ func (x *OpenSessionRequest) String() string
 
 
 <a name="OpenSessionRequest.WhichWorkspaceDescription"></a>
-### func \(\*OpenSessionRequest\) [WhichWorkspaceDescription](<bonk.pb.go#L187>)
+### func \(\*OpenSessionRequest\) [WhichWorkspaceDescription](<bonk.pb.go#L190>)
 
 ```go
 func (x *OpenSessionRequest) WhichWorkspaceDescription() case_OpenSessionRequest_WorkspaceDescription
@@ -1253,7 +1253,7 @@ func (x *OpenSessionRequest) WhichWorkspaceDescription() case_OpenSessionRequest
 
 
 <a name="OpenSessionRequest_LogStreamingOptions"></a>
-## type [OpenSessionRequest\\\_LogStreamingOptions](<bonk.pb.go#L804-L812>)
+## type [OpenSessionRequest\\\_LogStreamingOptions](<bonk.pb.go#L807-L815>)
 
 
 
@@ -1266,7 +1266,7 @@ type OpenSessionRequest_LogStreamingOptions struct {
 ```
 
 <a name="OpenSessionRequest_LogStreamingOptions.ClearAddSource"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ClearAddSource](<bonk.pb.go#L882>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ClearAddSource](<bonk.pb.go#L885>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) ClearAddSource()
@@ -1275,7 +1275,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) ClearAddSource()
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.ClearLevel"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ClearLevel](<bonk.pb.go#L877>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ClearLevel](<bonk.pb.go#L880>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) ClearLevel()
@@ -1284,7 +1284,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) ClearLevel()
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.GetAddSource"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [GetAddSource](<bonk.pb.go#L846>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [GetAddSource](<bonk.pb.go#L849>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) GetAddSource() bool
@@ -1293,7 +1293,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) GetAddSource() bool
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.GetLevel"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [GetLevel](<bonk.pb.go#L839>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [GetLevel](<bonk.pb.go#L842>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) GetLevel() int64
@@ -1302,7 +1302,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) GetLevel() int64
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.HasAddSource"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [HasAddSource](<bonk.pb.go#L870>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [HasAddSource](<bonk.pb.go#L873>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) HasAddSource() bool
@@ -1311,7 +1311,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) HasAddSource() bool
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.HasLevel"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [HasLevel](<bonk.pb.go#L863>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [HasLevel](<bonk.pb.go#L866>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) HasLevel() bool
@@ -1320,7 +1320,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) HasLevel() bool
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.ProtoMessage"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ProtoMessage](<bonk.pb.go#L825>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ProtoMessage](<bonk.pb.go#L828>)
 
 ```go
 func (*OpenSessionRequest_LogStreamingOptions) ProtoMessage()
@@ -1329,7 +1329,7 @@ func (*OpenSessionRequest_LogStreamingOptions) ProtoMessage()
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.ProtoReflect"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ProtoReflect](<bonk.pb.go#L827>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [ProtoReflect](<bonk.pb.go#L830>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) ProtoReflect() protoreflect.Message
@@ -1338,7 +1338,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) ProtoReflect() protoreflect.Mes
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.Reset"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [Reset](<bonk.pb.go#L814>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [Reset](<bonk.pb.go#L817>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) Reset()
@@ -1347,7 +1347,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) Reset()
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.SetAddSource"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [SetAddSource](<bonk.pb.go#L858>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [SetAddSource](<bonk.pb.go#L861>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) SetAddSource(v bool)
@@ -1356,7 +1356,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) SetAddSource(v bool)
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.SetLevel"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [SetLevel](<bonk.pb.go#L853>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [SetLevel](<bonk.pb.go#L856>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) SetLevel(v int64)
@@ -1365,7 +1365,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) SetLevel(v int64)
 
 
 <a name="OpenSessionRequest_LogStreamingOptions.String"></a>
-### func \(\*OpenSessionRequest\_LogStreamingOptions\) [String](<bonk.pb.go#L821>)
+### func \(\*OpenSessionRequest\_LogStreamingOptions\) [String](<bonk.pb.go#L824>)
 
 ```go
 func (x *OpenSessionRequest_LogStreamingOptions) String() string
@@ -1374,7 +1374,7 @@ func (x *OpenSessionRequest_LogStreamingOptions) String() string
 
 
 <a name="OpenSessionRequest_LogStreamingOptions_builder"></a>
-## type [OpenSessionRequest\\\_LogStreamingOptions\\\_builder](<bonk.pb.go#L887-L892>)
+## type [OpenSessionRequest\\\_LogStreamingOptions\\\_builder](<bonk.pb.go#L890-L895>)
 
 
 
@@ -1387,7 +1387,7 @@ type OpenSessionRequest_LogStreamingOptions_builder struct {
 ```
 
 <a name="OpenSessionRequest_LogStreamingOptions_builder.Build"></a>
-### func \(OpenSessionRequest\_LogStreamingOptions\_builder\) [Build](<bonk.pb.go#L894>)
+### func \(OpenSessionRequest\_LogStreamingOptions\_builder\) [Build](<bonk.pb.go#L897>)
 
 ```go
 func (b0 OpenSessionRequest_LogStreamingOptions_builder) Build() *OpenSessionRequest_LogStreamingOptions
@@ -1396,7 +1396,7 @@ func (b0 OpenSessionRequest_LogStreamingOptions_builder) Build() *OpenSessionReq
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal"></a>
-## type [OpenSessionRequest\\\_WorkspaceDescriptionLocal](<bonk.pb.go#L909-L916>)
+## type [OpenSessionRequest\\\_WorkspaceDescriptionLocal](<bonk.pb.go#L912-L919>)
 
 
 
@@ -1409,7 +1409,7 @@ type OpenSessionRequest_WorkspaceDescriptionLocal struct {
 ```
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.ClearAbsolutePath"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [ClearAbsolutePath](<bonk.pb.go#L965>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [ClearAbsolutePath](<bonk.pb.go#L968>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ClearAbsolutePath()
@@ -1418,7 +1418,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ClearAbsolutePath()
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.GetAbsolutePath"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [GetAbsolutePath](<bonk.pb.go#L943>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [GetAbsolutePath](<bonk.pb.go#L946>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) GetAbsolutePath() string
@@ -1427,7 +1427,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) GetAbsolutePath() string
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.HasAbsolutePath"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [HasAbsolutePath](<bonk.pb.go#L958>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [HasAbsolutePath](<bonk.pb.go#L961>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) HasAbsolutePath() bool
@@ -1436,7 +1436,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) HasAbsolutePath() bool
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.ProtoMessage"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [ProtoMessage](<bonk.pb.go#L929>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [ProtoMessage](<bonk.pb.go#L932>)
 
 ```go
 func (*OpenSessionRequest_WorkspaceDescriptionLocal) ProtoMessage()
@@ -1445,7 +1445,7 @@ func (*OpenSessionRequest_WorkspaceDescriptionLocal) ProtoMessage()
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.ProtoReflect"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [ProtoReflect](<bonk.pb.go#L931>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [ProtoReflect](<bonk.pb.go#L934>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ProtoReflect() protoreflect.Message
@@ -1454,7 +1454,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) ProtoReflect() protorefle
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.Reset"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [Reset](<bonk.pb.go#L918>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [Reset](<bonk.pb.go#L921>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) Reset()
@@ -1463,7 +1463,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) Reset()
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.SetAbsolutePath"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [SetAbsolutePath](<bonk.pb.go#L953>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [SetAbsolutePath](<bonk.pb.go#L956>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) SetAbsolutePath(v string)
@@ -1472,7 +1472,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) SetAbsolutePath(v string)
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal.String"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [String](<bonk.pb.go#L925>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionLocal\) [String](<bonk.pb.go#L928>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionLocal) String() string
@@ -1481,7 +1481,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionLocal) String() string
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal_builder"></a>
-## type [OpenSessionRequest\\\_WorkspaceDescriptionLocal\\\_builder](<bonk.pb.go#L970-L974>)
+## type [OpenSessionRequest\\\_WorkspaceDescriptionLocal\\\_builder](<bonk.pb.go#L973-L977>)
 
 
 
@@ -1493,7 +1493,7 @@ type OpenSessionRequest_WorkspaceDescriptionLocal_builder struct {
 ```
 
 <a name="OpenSessionRequest_WorkspaceDescriptionLocal_builder.Build"></a>
-### func \(OpenSessionRequest\_WorkspaceDescriptionLocal\_builder\) [Build](<bonk.pb.go#L976>)
+### func \(OpenSessionRequest\_WorkspaceDescriptionLocal\_builder\) [Build](<bonk.pb.go#L979>)
 
 ```go
 func (b0 OpenSessionRequest_WorkspaceDescriptionLocal_builder) Build() *OpenSessionRequest_WorkspaceDescriptionLocal
@@ -1502,7 +1502,7 @@ func (b0 OpenSessionRequest_WorkspaceDescriptionLocal_builder) Build() *OpenSess
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest"></a>
-## type [OpenSessionRequest\\\_WorkspaceDescriptionTest](<bonk.pb.go#L987-L991>)
+## type [OpenSessionRequest\\\_WorkspaceDescriptionTest](<bonk.pb.go#L990-L994>)
 
 
 
@@ -1513,7 +1513,7 @@ type OpenSessionRequest_WorkspaceDescriptionTest struct {
 ```
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest.ProtoMessage"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [ProtoMessage](<bonk.pb.go#L1004>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [ProtoMessage](<bonk.pb.go#L1007>)
 
 ```go
 func (*OpenSessionRequest_WorkspaceDescriptionTest) ProtoMessage()
@@ -1522,7 +1522,7 @@ func (*OpenSessionRequest_WorkspaceDescriptionTest) ProtoMessage()
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest.ProtoReflect"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [ProtoReflect](<bonk.pb.go#L1006>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [ProtoReflect](<bonk.pb.go#L1009>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionTest) ProtoReflect() protoreflect.Message
@@ -1531,7 +1531,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionTest) ProtoReflect() protoreflec
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest.Reset"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [Reset](<bonk.pb.go#L993>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [Reset](<bonk.pb.go#L996>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionTest) Reset()
@@ -1540,7 +1540,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionTest) Reset()
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest.String"></a>
-### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [String](<bonk.pb.go#L1000>)
+### func \(\*OpenSessionRequest\_WorkspaceDescriptionTest\) [String](<bonk.pb.go#L1003>)
 
 ```go
 func (x *OpenSessionRequest_WorkspaceDescriptionTest) String() string
@@ -1549,7 +1549,7 @@ func (x *OpenSessionRequest_WorkspaceDescriptionTest) String() string
 
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest_builder"></a>
-## type [OpenSessionRequest\\\_WorkspaceDescriptionTest\\\_builder](<bonk.pb.go#L1018-L1021>)
+## type [OpenSessionRequest\\\_WorkspaceDescriptionTest\\\_builder](<bonk.pb.go#L1021-L1024>)
 
 
 
@@ -1560,7 +1560,7 @@ type OpenSessionRequest_WorkspaceDescriptionTest_builder struct {
 ```
 
 <a name="OpenSessionRequest_WorkspaceDescriptionTest_builder.Build"></a>
-### func \(OpenSessionRequest\_WorkspaceDescriptionTest\_builder\) [Build](<bonk.pb.go#L1023>)
+### func \(OpenSessionRequest\_WorkspaceDescriptionTest\_builder\) [Build](<bonk.pb.go#L1026>)
 
 ```go
 func (b0 OpenSessionRequest_WorkspaceDescriptionTest_builder) Build() *OpenSessionRequest_WorkspaceDescriptionTest
@@ -1569,7 +1569,7 @@ func (b0 OpenSessionRequest_WorkspaceDescriptionTest_builder) Build() *OpenSessi
 
 
 <a name="OpenSessionRequest_builder"></a>
-## type [OpenSessionRequest\\\_builder](<bonk.pb.go#L201-L210>)
+## type [OpenSessionRequest\\\_builder](<bonk.pb.go#L204-L213>)
 
 
 
@@ -1585,7 +1585,7 @@ type OpenSessionRequest_builder struct {
 ```
 
 <a name="OpenSessionRequest_builder.Build"></a>
-### func \(OpenSessionRequest\_builder\) [Build](<bonk.pb.go#L212>)
+### func \(OpenSessionRequest\_builder\) [Build](<bonk.pb.go#L215>)
 
 ```go
 func (b0 OpenSessionRequest_builder) Build() *OpenSessionRequest
@@ -1594,7 +1594,7 @@ func (b0 OpenSessionRequest_builder) Build() *OpenSessionRequest
 
 
 <a name="OpenSessionResponse"></a>
-## type [OpenSessionResponse](<bonk.pb.go#L256-L261>)
+## type [OpenSessionResponse](<bonk.pb.go#L259-L264>)
 
 
 
@@ -1605,7 +1605,7 @@ type OpenSessionResponse struct {
 ```
 
 <a name="OpenSessionResponse.ClearAck"></a>
-### func \(\*OpenSessionResponse\) [ClearAck](<bonk.pb.go#L349>)
+### func \(\*OpenSessionResponse\) [ClearAck](<bonk.pb.go#L352>)
 
 ```go
 func (x *OpenSessionResponse) ClearAck()
@@ -1614,7 +1614,7 @@ func (x *OpenSessionResponse) ClearAck()
 
 
 <a name="OpenSessionResponse.ClearLogRecord"></a>
-### func \(\*OpenSessionResponse\) [ClearLogRecord](<bonk.pb.go#L355>)
+### func \(\*OpenSessionResponse\) [ClearLogRecord](<bonk.pb.go#L358>)
 
 ```go
 func (x *OpenSessionResponse) ClearLogRecord()
@@ -1623,7 +1623,7 @@ func (x *OpenSessionResponse) ClearLogRecord()
 
 
 <a name="OpenSessionResponse.ClearMessage"></a>
-### func \(\*OpenSessionResponse\) [ClearMessage](<bonk.pb.go#L345>)
+### func \(\*OpenSessionResponse\) [ClearMessage](<bonk.pb.go#L348>)
 
 ```go
 func (x *OpenSessionResponse) ClearMessage()
@@ -1632,7 +1632,7 @@ func (x *OpenSessionResponse) ClearMessage()
 
 
 <a name="OpenSessionResponse.GetAck"></a>
-### func \(\*OpenSessionResponse\) [GetAck](<bonk.pb.go#L288>)
+### func \(\*OpenSessionResponse\) [GetAck](<bonk.pb.go#L291>)
 
 ```go
 func (x *OpenSessionResponse) GetAck() *OpenSessionResponse_Ack
@@ -1641,7 +1641,7 @@ func (x *OpenSessionResponse) GetAck() *OpenSessionResponse_Ack
 
 
 <a name="OpenSessionResponse.GetLogRecord"></a>
-### func \(\*OpenSessionResponse\) [GetLogRecord](<bonk.pb.go#L297>)
+### func \(\*OpenSessionResponse\) [GetLogRecord](<bonk.pb.go#L300>)
 
 ```go
 func (x *OpenSessionResponse) GetLogRecord() *OpenSessionResponse_LogRecord
@@ -1650,7 +1650,7 @@ func (x *OpenSessionResponse) GetLogRecord() *OpenSessionResponse_LogRecord
 
 
 <a name="OpenSessionResponse.HasAck"></a>
-### func \(\*OpenSessionResponse\) [HasAck](<bonk.pb.go#L329>)
+### func \(\*OpenSessionResponse\) [HasAck](<bonk.pb.go#L332>)
 
 ```go
 func (x *OpenSessionResponse) HasAck() bool
@@ -1659,7 +1659,7 @@ func (x *OpenSessionResponse) HasAck() bool
 
 
 <a name="OpenSessionResponse.HasLogRecord"></a>
-### func \(\*OpenSessionResponse\) [HasLogRecord](<bonk.pb.go#L337>)
+### func \(\*OpenSessionResponse\) [HasLogRecord](<bonk.pb.go#L340>)
 
 ```go
 func (x *OpenSessionResponse) HasLogRecord() bool
@@ -1668,7 +1668,7 @@ func (x *OpenSessionResponse) HasLogRecord() bool
 
 
 <a name="OpenSessionResponse.HasMessage"></a>
-### func \(\*OpenSessionResponse\) [HasMessage](<bonk.pb.go#L322>)
+### func \(\*OpenSessionResponse\) [HasMessage](<bonk.pb.go#L325>)
 
 ```go
 func (x *OpenSessionResponse) HasMessage() bool
@@ -1677,7 +1677,7 @@ func (x *OpenSessionResponse) HasMessage() bool
 
 
 <a name="OpenSessionResponse.ProtoMessage"></a>
-### func \(\*OpenSessionResponse\) [ProtoMessage](<bonk.pb.go#L274>)
+### func \(\*OpenSessionResponse\) [ProtoMessage](<bonk.pb.go#L277>)
 
 ```go
 func (*OpenSessionResponse) ProtoMessage()
@@ -1686,7 +1686,7 @@ func (*OpenSessionResponse) ProtoMessage()
 
 
 <a name="OpenSessionResponse.ProtoReflect"></a>
-### func \(\*OpenSessionResponse\) [ProtoReflect](<bonk.pb.go#L276>)
+### func \(\*OpenSessionResponse\) [ProtoReflect](<bonk.pb.go#L279>)
 
 ```go
 func (x *OpenSessionResponse) ProtoReflect() protoreflect.Message
@@ -1695,7 +1695,7 @@ func (x *OpenSessionResponse) ProtoReflect() protoreflect.Message
 
 
 <a name="OpenSessionResponse.Reset"></a>
-### func \(\*OpenSessionResponse\) [Reset](<bonk.pb.go#L263>)
+### func \(\*OpenSessionResponse\) [Reset](<bonk.pb.go#L266>)
 
 ```go
 func (x *OpenSessionResponse) Reset()
@@ -1704,7 +1704,7 @@ func (x *OpenSessionResponse) Reset()
 
 
 <a name="OpenSessionResponse.SetAck"></a>
-### func \(\*OpenSessionResponse\) [SetAck](<bonk.pb.go#L306>)
+### func \(\*OpenSessionResponse\) [SetAck](<bonk.pb.go#L309>)
 
 ```go
 func (x *OpenSessionResponse) SetAck(v *OpenSessionResponse_Ack)
@@ -1713,7 +1713,7 @@ func (x *OpenSessionResponse) SetAck(v *OpenSessionResponse_Ack)
 
 
 <a name="OpenSessionResponse.SetLogRecord"></a>
-### func \(\*OpenSessionResponse\) [SetLogRecord](<bonk.pb.go#L314>)
+### func \(\*OpenSessionResponse\) [SetLogRecord](<bonk.pb.go#L317>)
 
 ```go
 func (x *OpenSessionResponse) SetLogRecord(v *OpenSessionResponse_LogRecord)
@@ -1722,7 +1722,7 @@ func (x *OpenSessionResponse) SetLogRecord(v *OpenSessionResponse_LogRecord)
 
 
 <a name="OpenSessionResponse.String"></a>
-### func \(\*OpenSessionResponse\) [String](<bonk.pb.go#L270>)
+### func \(\*OpenSessionResponse\) [String](<bonk.pb.go#L273>)
 
 ```go
 func (x *OpenSessionResponse) String() string
@@ -1731,7 +1731,7 @@ func (x *OpenSessionResponse) String() string
 
 
 <a name="OpenSessionResponse.WhichMessage"></a>
-### func \(\*OpenSessionResponse\) [WhichMessage](<bonk.pb.go#L365>)
+### func \(\*OpenSessionResponse\) [WhichMessage](<bonk.pb.go#L368>)
 
 ```go
 func (x *OpenSessionResponse) WhichMessage() case_OpenSessionResponse_Message
@@ -1740,7 +1740,7 @@ func (x *OpenSessionResponse) WhichMessage() case_OpenSessionResponse_Message
 
 
 <a name="OpenSessionResponse_Ack"></a>
-## type [OpenSessionResponse\\\_Ack](<bonk.pb.go#L1030-L1034>)
+## type [OpenSessionResponse\\\_Ack](<bonk.pb.go#L1033-L1037>)
 
 
 
@@ -1751,7 +1751,7 @@ type OpenSessionResponse_Ack struct {
 ```
 
 <a name="OpenSessionResponse_Ack.ProtoMessage"></a>
-### func \(\*OpenSessionResponse\_Ack\) [ProtoMessage](<bonk.pb.go#L1047>)
+### func \(\*OpenSessionResponse\_Ack\) [ProtoMessage](<bonk.pb.go#L1050>)
 
 ```go
 func (*OpenSessionResponse_Ack) ProtoMessage()
@@ -1760,7 +1760,7 @@ func (*OpenSessionResponse_Ack) ProtoMessage()
 
 
 <a name="OpenSessionResponse_Ack.ProtoReflect"></a>
-### func \(\*OpenSessionResponse\_Ack\) [ProtoReflect](<bonk.pb.go#L1049>)
+### func \(\*OpenSessionResponse\_Ack\) [ProtoReflect](<bonk.pb.go#L1052>)
 
 ```go
 func (x *OpenSessionResponse_Ack) ProtoReflect() protoreflect.Message
@@ -1769,7 +1769,7 @@ func (x *OpenSessionResponse_Ack) ProtoReflect() protoreflect.Message
 
 
 <a name="OpenSessionResponse_Ack.Reset"></a>
-### func \(\*OpenSessionResponse\_Ack\) [Reset](<bonk.pb.go#L1036>)
+### func \(\*OpenSessionResponse\_Ack\) [Reset](<bonk.pb.go#L1039>)
 
 ```go
 func (x *OpenSessionResponse_Ack) Reset()
@@ -1778,7 +1778,7 @@ func (x *OpenSessionResponse_Ack) Reset()
 
 
 <a name="OpenSessionResponse_Ack.String"></a>
-### func \(\*OpenSessionResponse\_Ack\) [String](<bonk.pb.go#L1043>)
+### func \(\*OpenSessionResponse\_Ack\) [String](<bonk.pb.go#L1046>)
 
 ```go
 func (x *OpenSessionResponse_Ack) String() string
@@ -1787,7 +1787,7 @@ func (x *OpenSessionResponse_Ack) String() string
 
 
 <a name="OpenSessionResponse_Ack_builder"></a>
-## type [OpenSessionResponse\\\_Ack\\\_builder](<bonk.pb.go#L1061-L1064>)
+## type [OpenSessionResponse\\\_Ack\\\_builder](<bonk.pb.go#L1064-L1067>)
 
 
 
@@ -1798,7 +1798,7 @@ type OpenSessionResponse_Ack_builder struct {
 ```
 
 <a name="OpenSessionResponse_Ack_builder.Build"></a>
-### func \(OpenSessionResponse\_Ack\_builder\) [Build](<bonk.pb.go#L1066>)
+### func \(OpenSessionResponse\_Ack\_builder\) [Build](<bonk.pb.go#L1069>)
 
 ```go
 func (b0 OpenSessionResponse_Ack_builder) Build() *OpenSessionResponse_Ack
@@ -1807,7 +1807,7 @@ func (b0 OpenSessionResponse_Ack_builder) Build() *OpenSessionResponse_Ack
 
 
 <a name="OpenSessionResponse_LogRecord"></a>
-## type [OpenSessionResponse\\\_LogRecord](<bonk.pb.go#L1074-L1084>)
+## type [OpenSessionResponse\\\_LogRecord](<bonk.pb.go#L1077-L1087>)
 
 This is meant to mirror \[slog.Record\]\(https://pkg.go.dev/log/slog#Record\)
 
@@ -1820,7 +1820,7 @@ type OpenSessionResponse_LogRecord struct {
 ```
 
 <a name="OpenSessionResponse_LogRecord.ClearLevel"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [ClearLevel](<bonk.pb.go#L1190>)
+### func \(\*OpenSessionResponse\_LogRecord\) [ClearLevel](<bonk.pb.go#L1193>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) ClearLevel()
@@ -1829,7 +1829,7 @@ func (x *OpenSessionResponse_LogRecord) ClearLevel()
 
 
 <a name="OpenSessionResponse_LogRecord.ClearMessage"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [ClearMessage](<bonk.pb.go#L1185>)
+### func \(\*OpenSessionResponse\_LogRecord\) [ClearMessage](<bonk.pb.go#L1188>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) ClearMessage()
@@ -1838,7 +1838,7 @@ func (x *OpenSessionResponse_LogRecord) ClearMessage()
 
 
 <a name="OpenSessionResponse_LogRecord.ClearTime"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [ClearTime](<bonk.pb.go#L1181>)
+### func \(\*OpenSessionResponse\_LogRecord\) [ClearTime](<bonk.pb.go#L1184>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) ClearTime()
@@ -1847,7 +1847,7 @@ func (x *OpenSessionResponse_LogRecord) ClearTime()
 
 
 <a name="OpenSessionResponse_LogRecord.GetAttrs"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [GetAttrs](<bonk.pb.go#L1135>)
+### func \(\*OpenSessionResponse\_LogRecord\) [GetAttrs](<bonk.pb.go#L1138>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) GetAttrs() map[string]*structpb.Value
@@ -1856,7 +1856,7 @@ func (x *OpenSessionResponse_LogRecord) GetAttrs() map[string]*structpb.Value
 
 
 <a name="OpenSessionResponse_LogRecord.GetLevel"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [GetLevel](<bonk.pb.go#L1128>)
+### func \(\*OpenSessionResponse\_LogRecord\) [GetLevel](<bonk.pb.go#L1131>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) GetLevel() int64
@@ -1865,7 +1865,7 @@ func (x *OpenSessionResponse_LogRecord) GetLevel() int64
 
 
 <a name="OpenSessionResponse_LogRecord.GetMessage"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [GetMessage](<bonk.pb.go#L1118>)
+### func \(\*OpenSessionResponse\_LogRecord\) [GetMessage](<bonk.pb.go#L1121>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) GetMessage() string
@@ -1874,7 +1874,7 @@ func (x *OpenSessionResponse_LogRecord) GetMessage() string
 
 
 <a name="OpenSessionResponse_LogRecord.GetTime"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [GetTime](<bonk.pb.go#L1111>)
+### func \(\*OpenSessionResponse\_LogRecord\) [GetTime](<bonk.pb.go#L1114>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) GetTime() *timestamppb.Timestamp
@@ -1883,7 +1883,7 @@ func (x *OpenSessionResponse_LogRecord) GetTime() *timestamppb.Timestamp
 
 
 <a name="OpenSessionResponse_LogRecord.HasLevel"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [HasLevel](<bonk.pb.go#L1174>)
+### func \(\*OpenSessionResponse\_LogRecord\) [HasLevel](<bonk.pb.go#L1177>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) HasLevel() bool
@@ -1892,7 +1892,7 @@ func (x *OpenSessionResponse_LogRecord) HasLevel() bool
 
 
 <a name="OpenSessionResponse_LogRecord.HasMessage"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [HasMessage](<bonk.pb.go#L1167>)
+### func \(\*OpenSessionResponse\_LogRecord\) [HasMessage](<bonk.pb.go#L1170>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) HasMessage() bool
@@ -1901,7 +1901,7 @@ func (x *OpenSessionResponse_LogRecord) HasMessage() bool
 
 
 <a name="OpenSessionResponse_LogRecord.HasTime"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [HasTime](<bonk.pb.go#L1160>)
+### func \(\*OpenSessionResponse\_LogRecord\) [HasTime](<bonk.pb.go#L1163>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) HasTime() bool
@@ -1910,7 +1910,7 @@ func (x *OpenSessionResponse_LogRecord) HasTime() bool
 
 
 <a name="OpenSessionResponse_LogRecord.ProtoMessage"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [ProtoMessage](<bonk.pb.go#L1097>)
+### func \(\*OpenSessionResponse\_LogRecord\) [ProtoMessage](<bonk.pb.go#L1100>)
 
 ```go
 func (*OpenSessionResponse_LogRecord) ProtoMessage()
@@ -1919,7 +1919,7 @@ func (*OpenSessionResponse_LogRecord) ProtoMessage()
 
 
 <a name="OpenSessionResponse_LogRecord.ProtoReflect"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [ProtoReflect](<bonk.pb.go#L1099>)
+### func \(\*OpenSessionResponse\_LogRecord\) [ProtoReflect](<bonk.pb.go#L1102>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) ProtoReflect() protoreflect.Message
@@ -1928,7 +1928,7 @@ func (x *OpenSessionResponse_LogRecord) ProtoReflect() protoreflect.Message
 
 
 <a name="OpenSessionResponse_LogRecord.Reset"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [Reset](<bonk.pb.go#L1086>)
+### func \(\*OpenSessionResponse\_LogRecord\) [Reset](<bonk.pb.go#L1089>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) Reset()
@@ -1937,7 +1937,7 @@ func (x *OpenSessionResponse_LogRecord) Reset()
 
 
 <a name="OpenSessionResponse_LogRecord.SetAttrs"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [SetAttrs](<bonk.pb.go#L1156>)
+### func \(\*OpenSessionResponse\_LogRecord\) [SetAttrs](<bonk.pb.go#L1159>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) SetAttrs(v map[string]*structpb.Value)
@@ -1946,7 +1946,7 @@ func (x *OpenSessionResponse_LogRecord) SetAttrs(v map[string]*structpb.Value)
 
 
 <a name="OpenSessionResponse_LogRecord.SetLevel"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [SetLevel](<bonk.pb.go#L1151>)
+### func \(\*OpenSessionResponse\_LogRecord\) [SetLevel](<bonk.pb.go#L1154>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) SetLevel(v int64)
@@ -1955,7 +1955,7 @@ func (x *OpenSessionResponse_LogRecord) SetLevel(v int64)
 
 
 <a name="OpenSessionResponse_LogRecord.SetMessage"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [SetMessage](<bonk.pb.go#L1146>)
+### func \(\*OpenSessionResponse\_LogRecord\) [SetMessage](<bonk.pb.go#L1149>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) SetMessage(v string)
@@ -1964,7 +1964,7 @@ func (x *OpenSessionResponse_LogRecord) SetMessage(v string)
 
 
 <a name="OpenSessionResponse_LogRecord.SetTime"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [SetTime](<bonk.pb.go#L1142>)
+### func \(\*OpenSessionResponse\_LogRecord\) [SetTime](<bonk.pb.go#L1145>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) SetTime(v *timestamppb.Timestamp)
@@ -1973,7 +1973,7 @@ func (x *OpenSessionResponse_LogRecord) SetTime(v *timestamppb.Timestamp)
 
 
 <a name="OpenSessionResponse_LogRecord.String"></a>
-### func \(\*OpenSessionResponse\_LogRecord\) [String](<bonk.pb.go#L1093>)
+### func \(\*OpenSessionResponse\_LogRecord\) [String](<bonk.pb.go#L1096>)
 
 ```go
 func (x *OpenSessionResponse_LogRecord) String() string
@@ -1982,7 +1982,7 @@ func (x *OpenSessionResponse_LogRecord) String() string
 
 
 <a name="OpenSessionResponse_LogRecord_builder"></a>
-## type [OpenSessionResponse\\\_LogRecord\\\_builder](<bonk.pb.go#L1195-L1202>)
+## type [OpenSessionResponse\\\_LogRecord\\\_builder](<bonk.pb.go#L1198-L1205>)
 
 
 
@@ -1997,7 +1997,7 @@ type OpenSessionResponse_LogRecord_builder struct {
 ```
 
 <a name="OpenSessionResponse_LogRecord_builder.Build"></a>
-### func \(OpenSessionResponse\_LogRecord\_builder\) [Build](<bonk.pb.go#L1204>)
+### func \(OpenSessionResponse\_LogRecord\_builder\) [Build](<bonk.pb.go#L1207>)
 
 ```go
 func (b0 OpenSessionResponse_LogRecord_builder) Build() *OpenSessionResponse_LogRecord
@@ -2006,7 +2006,7 @@ func (b0 OpenSessionResponse_LogRecord_builder) Build() *OpenSessionResponse_Log
 
 
 <a name="OpenSessionResponse_builder"></a>
-## type [OpenSessionResponse\\\_builder](<bonk.pb.go#L379-L386>)
+## type [OpenSessionResponse\\\_builder](<bonk.pb.go#L382-L389>)
 
 
 
@@ -2021,7 +2021,7 @@ type OpenSessionResponse_builder struct {
 ```
 
 <a name="OpenSessionResponse_builder.Build"></a>
-### func \(OpenSessionResponse\_builder\) [Build](<bonk.pb.go#L388>)
+### func \(OpenSessionResponse\_builder\) [Build](<bonk.pb.go#L391>)
 
 ```go
 func (b0 OpenSessionResponse_builder) Build() *OpenSessionResponse
@@ -2030,7 +2030,7 @@ func (b0 OpenSessionResponse_builder) Build() *OpenSessionResponse
 
 
 <a name="UnimplementedExecutorServiceServer"></a>
-## type [UnimplementedExecutorServiceServer](<bonk_grpc.pb.go#L102>)
+## type [UnimplementedExecutorServiceServer](<bonk_grpc.pb.go#L105>)
 
 UnimplementedExecutorServiceServer must be embedded to have forward compatible implementations.
 
@@ -2041,7 +2041,7 @@ type UnimplementedExecutorServiceServer struct{}
 ```
 
 <a name="UnimplementedExecutorServiceServer.CloseSession"></a>
-### func \(UnimplementedExecutorServiceServer\) [CloseSession](<bonk_grpc.pb.go#L107>)
+### func \(UnimplementedExecutorServiceServer\) [CloseSession](<bonk_grpc.pb.go#L110>)
 
 ```go
 func (UnimplementedExecutorServiceServer) CloseSession(context.Context, *CloseSessionRequest) (*CloseSessionResponse, error)
@@ -2050,7 +2050,7 @@ func (UnimplementedExecutorServiceServer) CloseSession(context.Context, *CloseSe
 
 
 <a name="UnimplementedExecutorServiceServer.ExecuteTask"></a>
-### func \(UnimplementedExecutorServiceServer\) [ExecuteTask](<bonk_grpc.pb.go#L110>)
+### func \(UnimplementedExecutorServiceServer\) [ExecuteTask](<bonk_grpc.pb.go#L113>)
 
 ```go
 func (UnimplementedExecutorServiceServer) ExecuteTask(context.Context, *ExecuteTaskRequest) (*ExecuteTaskResponse, error)
@@ -2059,7 +2059,7 @@ func (UnimplementedExecutorServiceServer) ExecuteTask(context.Context, *ExecuteT
 
 
 <a name="UnimplementedExecutorServiceServer.OpenSession"></a>
-### func \(UnimplementedExecutorServiceServer\) [OpenSession](<bonk_grpc.pb.go#L104>)
+### func \(UnimplementedExecutorServiceServer\) [OpenSession](<bonk_grpc.pb.go#L107>)
 
 ```go
 func (UnimplementedExecutorServiceServer) OpenSession(*OpenSessionRequest, grpc.ServerStreamingServer[OpenSessionResponse]) error
@@ -2068,7 +2068,7 @@ func (UnimplementedExecutorServiceServer) OpenSession(*OpenSessionRequest, grpc.
 
 
 <a name="UnsafeExecutorServiceServer"></a>
-## type [UnsafeExecutorServiceServer](<bonk_grpc.pb.go#L119-L121>)
+## type [UnsafeExecutorServiceServer](<bonk_grpc.pb.go#L122-L124>)
 
 UnsafeExecutorServiceServer may be embedded to opt out of forward compatibility for this service. Use of this interface is not recommended, as added methods to ExecutorServiceServer will result in compilation errors.
 
