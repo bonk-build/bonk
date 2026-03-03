@@ -16,7 +16,7 @@ require (
 	charm.land/bubbletea/v2 v2.0.0-rc.2
 	charm.land/fang/v2 v2.0.0-20251110204320-f80f0990c76f
 	charm.land/lipgloss/v2 v2.0.0
-	cuelang.org/go v0.15.4
+	cuelang.org/go v0.16.0
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/elliotchance/orderedmap/v3 v3.1.0
@@ -43,7 +43,7 @@ require (
 )
 
 require (
-	cuelabs.dev/go/oci/ociregistry v0.0.0-20250722084951-074d06050084 // indirect
+	cuelabs.dev/go/oci/ociregistry v0.0.0-20251212221603-3adeb8663819 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/ProtonMail/go-crypto v1.3.0 // indirect
@@ -66,7 +66,7 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/cyphar/filepath-securejoin v0.6.0 // indirect
 	github.com/dnephin/pflag v1.0.7 // indirect
-	github.com/emicklei/proto v1.14.2 // indirect
+	github.com/emicklei/proto v1.14.3 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
@@ -118,7 +118,7 @@ require (
 	github.com/pjbgf/sha1cd v0.5.0 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/princjef/mageutil v1.0.0 // indirect
-	github.com/protocolbuffers/txtpbfmt v0.0.0-20251016062345-16587c79cd91 // indirect
+	github.com/protocolbuffers/txtpbfmt v0.0.0-20260217160748-a481f6a22f94 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -132,7 +132,7 @@ require (
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/stretchr/objx v0.5.3 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/tetratelabs/wazero v1.10.1 // indirect
+	github.com/tetratelabs/wazero v1.11.0 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
@@ -143,7 +143,7 @@ require (
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/mod v0.33.0 // indirect
 	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/oauth2 v0.34.0 // indirect
+	golang.org/x/oauth2 v0.35.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 	golang.org/x/term v0.40.0 // indirect
 	golang.org/x/text v0.34.0 // indirect
