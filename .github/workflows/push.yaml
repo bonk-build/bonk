@@ -119,6 +119,9 @@ jobs:
           experimental: true
           cache: false
 
+      - name: install zensical
+        run: pipx install zensical
+
       - name: build docs
         run: zensical build
 

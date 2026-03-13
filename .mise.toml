@@ -7,32 +7,19 @@ all_compile = false
 
 [env]
 CGO_ENABLED = 1
-PRE_COMMIT_HOME = "{{ env.MISE_DATA_DIR | default(value=xdg_data_home ~ '/mise') }}/pre-commit-hooks"
 
 [tools]
-# Languages
+# Build tools
 go = "1.26.1"
-python = "3.14.3"
-uv = "0.10.10"
 buf = "1.65.0"
-# Developer tools
 "github:vektra/mockery" = "3.7.0"
-"github:cli/cli" = "2.88.1"
-"pipx:pre-commit" = "4.5.1"
+# Developer tools
+prek = "0.3.5"
 golangci-lint = "2.11.3"
 "github:korandoru/hawkeye" = "6.5.1"
-"pipx:commitizen" = "4.13.9"
-# Docs
-"pipx:zensical" = "0.0.27"
 
 [tasks]
 generate.run = "go generate ./..."
 build.run = "go build ./..."
 test.run = "go test ./... -race -count 100 -parallel 8"
 lint.run = ["golangci-lint fmt", "golangci-lint run", "hawkeye format"]
-
-[hooks]
-postinstall = [
-  "gh extension install nektos/gh-act",
-  "gh extension install seachicken/gh-poi",
-]
