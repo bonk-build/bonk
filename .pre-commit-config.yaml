@@ -10,6 +10,9 @@ default_install_hook_types:
   - pre-commit
   - pre-push
 
+default_language_version:
+  golang: system # It is expected that the correct version of go is installed by mise
+
 ci:
   autofix_commit_msg: "fix(pre-commit): auto fixes from pre-commit hooks"
   autoupdate_commit_msg: "chore(deps): pre-commit autoupdate"
@@ -70,7 +73,7 @@ repos:
       - id: hawkeye-format
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.11.2
+    rev: v2.11.3
     hooks:
       - id: golangci-lint-config-verify
       - id: golangci-lint-full
