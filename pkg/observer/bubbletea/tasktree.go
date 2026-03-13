@@ -26,8 +26,6 @@ func newTaskTree() taskTree {
 		Tree: *tree.New().
 			Enumerator(tree.RoundedEnumerator).
 			ItemStyleFunc(taskNodeStyle(StatusStyleClear)),
-
-		view: tea.NewView(nil),
 	}
 }
 
@@ -91,7 +89,7 @@ func (t *taskTree) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View implements tea.ViewModel.
 func (t *taskTree) View() tea.View {
-	t.view.SetContent(t)
+	t.view.SetContent(t.String())
 
 	return t.view
 }
