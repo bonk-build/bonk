@@ -32,8 +32,6 @@ func (t *teaModel) Init() tea.Cmd {
 	t.tree = newTaskTree()
 	cmds = append(cmds, t.tree.Init())
 
-	t.view = tea.NewView(nil)
-
 	return tea.Batch(cmds...)
 }
 
