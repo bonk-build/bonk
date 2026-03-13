@@ -174,7 +174,7 @@ func (s *rpcSuite) Test_Followups(t *testing.T) {
 	assert.EqualExportedValues(t, expectedTask.Args, *unboxed)
 }
 
-func TestRPC(t *testing.T) { //nolint:tparallel
+func TestRPC(t *testing.T) {
 	t.Parallel()
 
 	suiteT := reflect.TypeFor[rpcSuite]()

@@ -46,7 +46,6 @@ func (pb *grpcClient) OpenSession(ctx context.Context, session task.Session) err
 		}.Build(),
 	}
 
-	//nolint:staticcheck // This is supported in the next staticcheck version
 	if localSession, ok := session.(task.LocalSession); ok {
 		openSessionRequest.Local = bonkv0.OpenSessionRequest_WorkspaceDescriptionLocal_builder{
 			AbsolutePath: new(localSession.LocalPath()),
