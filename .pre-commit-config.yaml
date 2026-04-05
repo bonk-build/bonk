@@ -80,13 +80,13 @@ repos:
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.66.1
+    rev: v1.67.0
     hooks:
       - id: buf-lint
       - id: buf-format
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.11
+    rev: v1.7.12
     hooks:
       - id: actionlint
 
