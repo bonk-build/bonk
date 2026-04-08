@@ -16,7 +16,7 @@ require (
 	charm.land/bubbletea/v2 v2.0.2
 	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.2
-	cuelang.org/go v0.16.0
+	cuelang.org/go v0.16.1
 	github.com/ValerySidorin/shclog v0.0.1
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/elliotchance/orderedmap/v3 v3.1.0
@@ -143,7 +143,7 @@ require (
 	golang.org/x/exp v0.0.0-20251023183803-a4bb9ffd2546 // indirect
 	golang.org/x/mod v0.34.0 // indirect
 	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/oauth2 v0.35.0 // indirect
+	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/term v0.41.0 // indirect
 	golang.org/x/text v0.35.0 // indirect
