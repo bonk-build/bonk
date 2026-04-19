@@ -80,7 +80,7 @@ repos:
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.67.0
+    rev: v1.68.2
     hooks:
       - id: buf-lint
       - id: buf-format
@@ -91,6 +91,6 @@ repos:
       - id: actionlint
 
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: v1.23.1
+    rev: v1.24.1
     hooks:
       - id: zizmor
