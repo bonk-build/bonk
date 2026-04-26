@@ -80,7 +80,7 @@ repos:
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.68.2
+    rev: v1.68.4
     hooks:
       - id: buf-lint
       - id: buf-format
