@@ -23,7 +23,7 @@ require (
 	github.com/go-viper/mapstructure/v2 v2.5.0
 	github.com/gohugoio/hashstructure v0.6.0
 	github.com/google/uuid v1.6.0
-	github.com/hashicorp/go-plugin v1.7.0
+	github.com/hashicorp/go-plugin v1.8.0
 	github.com/holos-run/holos v0.106.0
 	github.com/princjef/gomarkdoc v1.1.0
 	github.com/samber/slog-multi v1.8.0
