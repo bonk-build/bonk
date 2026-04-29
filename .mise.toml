@@ -14,7 +14,7 @@ go = "1.26.2"
 buf = "1.68.4"
 "github:vektra/mockery" = "3.7.0"
 # Developer tools
-prek = "0.3.5"
+prek = "0.3.11"
 golangci-lint = "2.11.4"
 "github:korandoru/hawkeye" = "6.5.1"
 
