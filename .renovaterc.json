@@ -51,10 +51,8 @@
       ]
     }
   ],
-  "renovate-config-presets": {
-    "managerFilePatterns": [
-      ".renovaterc.json"
-    ]
+  "renovate-config": {
+    "managerFilePatterns": [".renovaterc.json"]
   },
   "mise": {
     "managerFilePatterns": [
