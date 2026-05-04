@@ -60,7 +60,7 @@ repos:
       - id: check-json5
 
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v4.13.10
+    rev: v4.15.0
     hooks:
       - id: commitizen
         stages:
@@ -73,14 +73,14 @@ repos:
       - id: hawkeye-format
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.11.4
+    rev: v2.12.1
     hooks:
       - id: golangci-lint-config-verify
       - id: golangci-lint-full
       - id: golangci-lint-fmt
 
   - repo: https://github.com/bufbuild/buf
-    rev: v1.68.4
+    rev: v1.69.0
     hooks:
       - id: buf-lint
       - id: buf-format
