@@ -51,7 +51,7 @@ type MockTypedExecutor_CloseSession_Call[Params any] struct {
 // CloseSession is a helper method to define mock.On call
 //   - ctx context.Context
 //   - sessionID task.SessionID
-func (_e *MockTypedExecutor_Expecter[Params]) CloseSession(ctx interface{}, sessionID interface{}) *MockTypedExecutor_CloseSession_Call[Params] {
+func (_e *MockTypedExecutor_Expecter[Params]) CloseSession(ctx any, sessionID any) *MockTypedExecutor_CloseSession_Call[Params] {
 	return &MockTypedExecutor_CloseSession_Call[Params]{Call: _e.mock.On("CloseSession", ctx, sessionID)}
 }
 
@@ -111,7 +111,7 @@ type MockTypedExecutor_Execute_Call[Params any] struct {
 //   - tsk *task.Task
 //   - args *Params
 //   - result *task.Result
-func (_e *MockTypedExecutor_Expecter[Params]) Execute(ctx interface{}, session interface{}, tsk interface{}, args interface{}, result interface{}) *MockTypedExecutor_Execute_Call[Params] {
+func (_e *MockTypedExecutor_Expecter[Params]) Execute(ctx any, session any, tsk any, args any, result any) *MockTypedExecutor_Execute_Call[Params] {
 	return &MockTypedExecutor_Execute_Call[Params]{Call: _e.mock.On("Execute", ctx, session, tsk, args, result)}
 }
 
@@ -183,7 +183,7 @@ type MockTypedExecutor_OpenSession_Call[Params any] struct {
 // OpenSession is a helper method to define mock.On call
 //   - ctx context.Context
 //   - session task.Session
-func (_e *MockTypedExecutor_Expecter[Params]) OpenSession(ctx interface{}, session interface{}) *MockTypedExecutor_OpenSession_Call[Params] {
+func (_e *MockTypedExecutor_Expecter[Params]) OpenSession(ctx any, session any) *MockTypedExecutor_OpenSession_Call[Params] {
 	return &MockTypedExecutor_OpenSession_Call[Params]{Call: _e.mock.On("OpenSession", ctx, session)}
 }
 
