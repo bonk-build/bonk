@@ -30,9 +30,9 @@ Package argconv provides an executor for automatically unboxing task parameters.
   - [func \(\_c \*MockTypedExecutor\_Execute\_Call\[Params\]\) Run\(run func\(ctx context.Context, session task.Session, tsk \*task.Task, args \*Params, result \*task.Result\)\) \*MockTypedExecutor\_Execute\_Call\[Params\]](<#MockTypedExecutor_Execute_Call[Params].Run>)
   - [func \(\_c \*MockTypedExecutor\_Execute\_Call\[Params\]\) RunAndReturn\(run func\(ctx context.Context, session task.Session, tsk \*task.Task, args \*Params, result \*task.Result\) error\) \*MockTypedExecutor\_Execute\_Call\[Params\]](<#MockTypedExecutor_Execute_Call[Params].RunAndReturn>)
 - [type MockTypedExecutor\_Expecter](<#MockTypedExecutor_Expecter>)
-  - [func \(\_e \*MockTypedExecutor\_Expecter\[Params\]\) CloseSession\(ctx interface\{\}, sessionID interface\{\}\) \*MockTypedExecutor\_CloseSession\_Call\[Params\]](<#MockTypedExecutor_Expecter[Params].CloseSession>)
-  - [func \(\_e \*MockTypedExecutor\_Expecter\[Params\]\) Execute\(ctx interface\{\}, session interface\{\}, tsk interface\{\}, args interface\{\}, result interface\{\}\) \*MockTypedExecutor\_Execute\_Call\[Params\]](<#MockTypedExecutor_Expecter[Params].Execute>)
-  - [func \(\_e \*MockTypedExecutor\_Expecter\[Params\]\) OpenSession\(ctx interface\{\}, session interface\{\}\) \*MockTypedExecutor\_OpenSession\_Call\[Params\]](<#MockTypedExecutor_Expecter[Params].OpenSession>)
+  - [func \(\_e \*MockTypedExecutor\_Expecter\[Params\]\) CloseSession\(ctx any, sessionID any\) \*MockTypedExecutor\_CloseSession\_Call\[Params\]](<#MockTypedExecutor_Expecter[Params].CloseSession>)
+  - [func \(\_e \*MockTypedExecutor\_Expecter\[Params\]\) Execute\(ctx any, session any, tsk any, args any, result any\) \*MockTypedExecutor\_Execute\_Call\[Params\]](<#MockTypedExecutor_Expecter[Params].Execute>)
+  - [func \(\_e \*MockTypedExecutor\_Expecter\[Params\]\) OpenSession\(ctx any, session any\) \*MockTypedExecutor\_OpenSession\_Call\[Params\]](<#MockTypedExecutor_Expecter[Params].OpenSession>)
 - [type MockTypedExecutor\_OpenSession\_Call](<#MockTypedExecutor_OpenSession_Call>)
   - [func \(\_c \*MockTypedExecutor\_OpenSession\_Call\[Params\]\) Return\(err error\) \*MockTypedExecutor\_OpenSession\_Call\[Params\]](<#MockTypedExecutor_OpenSession_Call[Params].Return>)
   - [func \(\_c \*MockTypedExecutor\_OpenSession\_Call\[Params\]\) Run\(run func\(ctx context.Context, session task.Session\)\) \*MockTypedExecutor\_OpenSession\_Call\[Params\]](<#MockTypedExecutor_OpenSession_Call[Params].Run>)
@@ -208,7 +208,7 @@ type MockTypedExecutor_Expecter[Params any] struct {
 ### func \(\*MockTypedExecutor\_Expecter\[Params\]\) [CloseSession](<typedexecutor.mock.go#L54>)
 
 ```go
-func (_e *MockTypedExecutor_Expecter[Params]) CloseSession(ctx interface{}, sessionID interface{}) *MockTypedExecutor_CloseSession_Call[Params]
+func (_e *MockTypedExecutor_Expecter[Params]) CloseSession(ctx any, sessionID any) *MockTypedExecutor_CloseSession_Call[Params]
 ```
 
 CloseSession is a helper method to define mock.On call
@@ -220,7 +220,7 @@ CloseSession is a helper method to define mock.On call
 ### func \(\*MockTypedExecutor\_Expecter\[Params\]\) [Execute](<typedexecutor.mock.go#L114>)
 
 ```go
-func (_e *MockTypedExecutor_Expecter[Params]) Execute(ctx interface{}, session interface{}, tsk interface{}, args interface{}, result interface{}) *MockTypedExecutor_Execute_Call[Params]
+func (_e *MockTypedExecutor_Expecter[Params]) Execute(ctx any, session any, tsk any, args any, result any) *MockTypedExecutor_Execute_Call[Params]
 ```
 
 Execute is a helper method to define mock.On call
@@ -235,7 +235,7 @@ Execute is a helper method to define mock.On call
 ### func \(\*MockTypedExecutor\_Expecter\[Params\]\) [OpenSession](<typedexecutor.mock.go#L186>)
 
 ```go
-func (_e *MockTypedExecutor_Expecter[Params]) OpenSession(ctx interface{}, session interface{}) *MockTypedExecutor_OpenSession_Call[Params]
+func (_e *MockTypedExecutor_Expecter[Params]) OpenSession(ctx any, session any) *MockTypedExecutor_OpenSession_Call[Params]
 ```
 
 OpenSession is a helper method to define mock.On call
