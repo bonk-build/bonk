@@ -21,7 +21,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/elliotchance/orderedmap/v3 v3.1.1
 	github.com/go-viper/mapstructure/v2 v2.5.0
-	github.com/gohugoio/hashstructure v0.6.0
+	github.com/gohugoio/hashstructure v1.1.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-plugin v1.8.0
 	github.com/holos-run/holos v0.106.0
