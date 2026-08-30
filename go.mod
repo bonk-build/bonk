@@ -13,7 +13,7 @@ tool (
 )
 
 require (
-	charm.land/bubbletea/v2 v2.0.8
+	charm.land/bubbletea/v2 v2.0.9
 	charm.land/fang/v2 v2.0.1
 	charm.land/lipgloss/v2 v2.0.5
 	cuelang.org/go v0.17.1
