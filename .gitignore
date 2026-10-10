@@ -58,3 +58,8 @@ devenv.local.nix
 /site/
 
 .bonk/
+
+
+# Added by cargo
+
+/target

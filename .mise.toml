@@ -5,21 +5,14 @@
 experimental = true
 all_compile = false
 
-[env]
-CGO_ENABLED = 1
-
 [tools]
 # Build tools
-go = "1.26.5"
 buf = "1.72.0"
-"github:vektra/mockery" = "3.7.0"
 # Developer tools
-prek = "0.4.14"
-golangci-lint = "2.12.2"
-"github:korandoru/hawkeye" = "6.5.1"
+"github:korandoru/hawkeye" = "latest"
+"cargo:cargo-nextest" = "latest"
 
 [tasks]
-generate.run = "go generate ./..."
-build.run = "go build ./..."
-test.run = "go test ./... -race -count 100 -parallel 8"
-lint.run = ["golangci-lint fmt", "golangci-lint run", "hawkeye format"]
+build.run = "cargo build"
+test.run = "cargo nextest run"
+lint.run = ["cargo fmt", "cargo clippy", "hawkeye check"]

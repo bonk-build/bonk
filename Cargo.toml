@@ -1,0 +1,22 @@
+# Copyright © 2025 Colden Cullen
+# SPDX-License-Identifier: MIT
+
+[package]
+name = "bonk"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bon = "3.10.2"
+camino = { version = "1.2.6", features = ["serde1"] }
+derive_more = { version = "2.1.1", features = ["display", "debug", "from", "eq"] }
+fnv = { version = "1.0.7", default-features = false }
+lazy_errors = { version = "0.10.1", features = ["std"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+thiserror = "2.0.21"
+uuid = { version = "1.27.0", features = ["serde", "v7"] }
+vfs = "0.13.0"
+
+[dev-dependencies]
+mockall = "0.15.0"

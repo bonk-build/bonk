@@ -7,28 +7,6 @@ on:
 permissions: {}
 
 jobs:
-  generate:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-        with:
-          persist-credentials: true
-      - uses: fregante/setup-git-user@024bc0b8e177d7e77203b48dab6fb45666854b35 # v2.0.2
-      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
-        with:
-          experimental: true
-
-      - run: go generate ./...
-
-      - name: commit changed files
-        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
-        with:
-          commit_message: "chore: run go-generate"
-          add_options: --all
-        if: always()
-
   lint:
     runs-on: ubuntu-latest
     permissions:
@@ -56,12 +34,6 @@ jobs:
           format: true
           push: false
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
-        with:
-          install-mode: none
-          only-new-issues: true
-
       - name: zizmor
         uses: zizmorcore/zizmor-action@629d5d01fe5939a6aeae25c1bd1acd2cfa28e9b2
 
@@ -77,28 +49,18 @@ jobs:
         with:
           experimental: true
 
-      - name: go mod tidy
-        run: go mod tidy -diff
-
-      - name: go build
-        run: go build ./...
+      - name: build
+        run: mise run build
 
       - name: go test
         run: 'go tool gotestsum
-                --packages="./..."
-                --junitfile junit.xml
-                --jsonfile gotest.json
-                --
-                  -coverprofile=coverage.txt
-                  -race
-                  -count 100
-                  -parallel "$(nproc)"'
-
-      - name: process results for summary
-        if: ${{ !cancelled() }}
-        uses: robherley/go-test-action@2f859e0c8769d755d3174eecb9af8f64660827f3 # v1.1.0
-        with:
-          fromJSONFile: gotest.json
+          --packages="./..."
+          --junitfile junit.xml
+          --
+          -coverprofile=coverage.txt
+          -race
+          -count 100
+          -parallel "$(nproc)"'
 
       - name: upload coverage reports to Codecov
         if: ${{ !cancelled() }}

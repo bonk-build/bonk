@@ -1,7 +1,7 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-package bonk
-
-// Generate proto code
-//go:generate buf generate
+mod argconv;
+pub mod observable;
+mod router;
+mod statecheck;
