@@ -40,7 +40,7 @@ mod tests {
     use crate::TaskId;
     use std::assert_matches;
 
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize)]
     struct Args {
         val1: &'static str,
         val2: i32,
