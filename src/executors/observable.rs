@@ -85,7 +85,7 @@ impl Executor for Observable<'_> {
 
 #[cfg(test)]
 mod tests {
-    use std::{assert_matches, ops::AddAssign, sync::Arc};
+    use std::{assert_matches, ops::AddAssign};
 
     use mockall::predicate::eq;
 

@@ -4,11 +4,13 @@
 //! `task` contains the core structures needed define a bonk pipeline.
 //! For more information, see [Task], and [Executor].
 
-use std::{any::Any, borrow::Borrow, ops::Deref};
+use std::hash::Hash;
 
 use camino::Utf8PathBuf;
 use derive_more::{Debug, Display, From};
 use serde::{Deserialize, Serialize};
+
+use crate::Argument;
 
 #[derive(PartialEq, Eq, Hash, From, Debug, Display, Clone, Serialize, Deserialize)]
 #[debug("{_0:?}")]
@@ -47,11 +49,9 @@ impl TaskId {
     }
 }
 
-pub type Argument = dyn Any;
-
 // Task represents a unit of work to be executed.
 #[non_exhaustive]
-#[derive(Debug, bon::Builder, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Debug, Hash, bon::Builder, Serialize, Deserialize)]
 #[builder(on(Vec<_>, into))]
 #[debug("{id:?}")]
 pub struct Task {
@@ -61,31 +61,13 @@ pub struct Task {
 
     /// Describes any files that may be consumed by this task (relative to [Session.SourceFS]).
     #[builder(default)]
-    inputs: Vec<String>, // `json:"inputs,omitempty"`
+    inputs: Vec<String>,
     /// A list of tasks which must be completed before this task can run.
     #[builder(default)]
-    dependencies: Vec<TaskId>, // `json:"dependencies,omitempty"`
+    dependencies: Vec<TaskId>,
     /// Any arguments that may be passed to the executor.
     #[serde(skip)]
-    args: Option<Box<Argument>>,
-}
-
-impl PartialEq for Task {
-    fn eq(&self, other: &Self) -> bool {
-        // @TODO: args
-        self.id == other.id
-            && self.inputs == other.inputs
-            && self.dependencies == other.dependencies
-    }
-}
-
-impl std::hash::Hash for Task {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.id.hash(state);
-        self.inputs.hash(state);
-        self.dependencies.hash(state);
-        // self.args.hash(state); @TODO
-    }
+    args: Option<Box<dyn Argument>>,
 }
 
 impl Task {
@@ -106,7 +88,7 @@ impl Task {
         self.dependencies.as_slice()
     }
 
-    pub fn args(&self) -> Option<&dyn Any> {
+    pub fn args(&self) -> Option<&dyn Argument> {
         self.args.as_deref()
     }
 }
@@ -181,12 +163,12 @@ mod tests {
     #[test]
     fn new_with_args() {
         let task = Task::builder(TaskId::new(&["root", "child"]))
-            .args(Box::<i8>::new(5))
+            .args(Box::new(5i8))
             .build();
 
         assert_eq!(task.id, TaskId::new(&["root/child"]));
         assert!(task.inputs.is_empty());
         assert!(task.dependencies.is_empty());
-        assert_eq!(*task.args.unwrap().deref().downcast_ref::<i8>().unwrap(), 5);
+        assert_eq!(*task.args.unwrap().downcast_ref::<i8>().unwrap(), 5);
     }
 }

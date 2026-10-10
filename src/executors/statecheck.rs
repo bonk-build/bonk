@@ -3,7 +3,7 @@
 
 use std::{
     collections::HashSet,
-    hash::Hasher,
+    hash::{Hash, Hasher},
 };
 
 use fnv::FnvHasher;
@@ -104,8 +104,7 @@ impl TaskState {
         let output_fs = session.output_fs(task.id());
         output_fs.create_dir_all().unwrap();
 
-        // @TODO: needs hashable argument
-        let arguments_checksum = 0;
+        let arguments_checksum = task.args().map_or(0, hash_object);
 
         let inputs_checksum = hash_files(session.input_fs(), task.inputs())
             .ok_or(lazy_errors::err!("failed to hash input files"))?;
@@ -156,8 +155,9 @@ impl TaskState {
             .ok_or(TaskStateMismatch::Executor)
             .or_stash(&mut mismatches);
 
-        // @TODO: args
-        0.eq(&saved.arguments_checksum)
+        task.args()
+            .map_or(0, hash_object)
+            .eq(&saved.arguments_checksum)
             .ok_or(TaskStateMismatch::Argumnets)
             .or_stash(&mut mismatches);
 
@@ -173,6 +173,13 @@ impl TaskState {
 
         mismatches.into_result().map(|()| saved_value)
     }
+}
+
+#[must_use]
+fn hash_object<T: Hash + ?Sized>(obj: &T) -> u64 {
+    let mut hasher = FnvHasher::default();
+    obj.hash(&mut hasher);
+    return hasher.finish();
 }
 
 #[must_use]
@@ -323,7 +330,6 @@ mod tests {
         );
     }
 
-    // @TODO: args
     const INPUT_FILE_NAME: &str = "input-file";
 
     #[test]
@@ -417,6 +423,32 @@ mod tests {
         assert_matches!(
             mismatches[0].downcast_ref::<TaskStateMismatch>().unwrap(),
             TaskStateMismatch::Executor
+        );
+    }
+
+    #[test]
+    fn state_mismatches_arguments() {
+        let session = Session::for_testing();
+        let exec = ExecutorId::from("exec/1");
+        let task = Task::new(TaskId::for_testing());
+        let output = TaskOutput::default();
+
+        let res = TaskState::save(&session, &exec, &task, &output);
+        assert_matches!(res, Ok(()));
+
+        let res = TaskState::load_and_check(&session, &exec, &task);
+        assert_matches!(res, Ok(_));
+
+        let task = Task::builder(task.id().clone()).args(Box::new(12)).build();
+
+        let res = TaskState::load_and_check(&session, &exec, &task);
+        assert_matches!(res, Err(_));
+        let unwrap_err = res.unwrap_err();
+        let mismatches = unwrap_err.children();
+        assert_eq!(mismatches.len(), 1);
+        assert_matches!(
+            mismatches[0].downcast_ref::<TaskStateMismatch>().unwrap(),
+            TaskStateMismatch::Argumnets
         );
     }
 }
