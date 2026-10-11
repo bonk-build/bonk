@@ -59,6 +59,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9
         with:
+          version: 2.12.2
           install-mode: none
           only-new-issues: true
 
@@ -85,14 +86,14 @@ jobs:
 
       - name: go test
         run: 'go tool gotestsum
-                --packages="./..."
-                --junitfile junit.xml
-                --jsonfile gotest.json
-                --
-                  -coverprofile=coverage.txt
-                  -race
-                  -count 100
-                  -parallel "$(nproc)"'
+          --packages="./..."
+          --junitfile junit.xml
+          --jsonfile gotest.json
+          --
+          -coverprofile=coverage.txt
+          -race
+          -count 100
+          -parallel "$(nproc)"'
 
       - name: process results for summary
         if: ${{ !cancelled() }}
