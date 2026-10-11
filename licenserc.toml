@@ -1,15 +1,17 @@
 # Copyright © 2025 Colden Cullen
 # SPDX-License-Identifier: MIT
 
-inlineHeader = """Copyright © 2025 Colden Cullen
+[header]
+text = """Copyright © {{ props.inception_year }} {{ props.copyright_owner }}
 SPDX-License-Identifier: MIT"""
+
+[files]
 excludes = ["*.lock", "*.sum", "*.pb.go", "*.mock.go"]
 
-[mapping.DOUBLESLASH_STYLE]
+[props]
+inception_year = 2025
+copyright_owner = "Colden Cullen"
+
+[[rules]]
 extensions = ["go", "cue", "proto"]
-
-[mapping.SCRIPT_STYLE]
-extensions = ["nix"]
-
-[properties]
-inceptionYear = 2025
+style_out = "doubleslash"

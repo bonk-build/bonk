@@ -67,8 +67,8 @@ repos:
           - commit-msg
           - manual
 
-  - repo: https://github.com/korandoru/hawkeye
-    rev: v6.5.1
+  - repo: https://github.com/fast/hawkeye
+    rev: v7.2.0
     hooks:
       - id: hawkeye-format
 
