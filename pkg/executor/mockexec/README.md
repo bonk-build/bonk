@@ -26,9 +26,9 @@ import "go.bonk.build/pkg/executor/mockexec"
   - [func \(\_c \*MockExecutor\_Execute\_Call\) Run\(run func\(ctx context.Context, session task.Session, tsk \*task.Task, result \*task.Result\)\) \*MockExecutor\_Execute\_Call](<#MockExecutor_Execute_Call.Run>)
   - [func \(\_c \*MockExecutor\_Execute\_Call\) RunAndReturn\(run func\(ctx context.Context, session task.Session, tsk \*task.Task, result \*task.Result\) error\) \*MockExecutor\_Execute\_Call](<#MockExecutor_Execute_Call.RunAndReturn>)
 - [type MockExecutor\_Expecter](<#MockExecutor_Expecter>)
-  - [func \(\_e \*MockExecutor\_Expecter\) CloseSession\(ctx interface\{\}, sessionID interface\{\}\) \*MockExecutor\_CloseSession\_Call](<#MockExecutor_Expecter.CloseSession>)
-  - [func \(\_e \*MockExecutor\_Expecter\) Execute\(ctx interface\{\}, session interface\{\}, tsk interface\{\}, result interface\{\}\) \*MockExecutor\_Execute\_Call](<#MockExecutor_Expecter.Execute>)
-  - [func \(\_e \*MockExecutor\_Expecter\) OpenSession\(ctx interface\{\}, session interface\{\}\) \*MockExecutor\_OpenSession\_Call](<#MockExecutor_Expecter.OpenSession>)
+  - [func \(\_e \*MockExecutor\_Expecter\) CloseSession\(ctx any, sessionID any\) \*MockExecutor\_CloseSession\_Call](<#MockExecutor_Expecter.CloseSession>)
+  - [func \(\_e \*MockExecutor\_Expecter\) Execute\(ctx any, session any, tsk any, result any\) \*MockExecutor\_Execute\_Call](<#MockExecutor_Expecter.Execute>)
+  - [func \(\_e \*MockExecutor\_Expecter\) OpenSession\(ctx any, session any\) \*MockExecutor\_OpenSession\_Call](<#MockExecutor_Expecter.OpenSession>)
 - [type MockExecutor\_OpenSession\_Call](<#MockExecutor_OpenSession_Call>)
   - [func \(\_c \*MockExecutor\_OpenSession\_Call\) Return\(err error\) \*MockExecutor\_OpenSession\_Call](<#MockExecutor_OpenSession_Call.Return>)
   - [func \(\_c \*MockExecutor\_OpenSession\_Call\) Run\(run func\(ctx context.Context, session task.Session\)\) \*MockExecutor\_OpenSession\_Call](<#MockExecutor_OpenSession_Call.Run>)
@@ -185,7 +185,7 @@ type MockExecutor_Expecter struct {
 ### func \(\*MockExecutor\_Expecter\) [CloseSession](<executor.mock.go#L54>)
 
 ```go
-func (_e *MockExecutor_Expecter) CloseSession(ctx interface{}, sessionID interface{}) *MockExecutor_CloseSession_Call
+func (_e *MockExecutor_Expecter) CloseSession(ctx any, sessionID any) *MockExecutor_CloseSession_Call
 ```
 
 CloseSession is a helper method to define mock.On call
@@ -197,7 +197,7 @@ CloseSession is a helper method to define mock.On call
 ### func \(\*MockExecutor\_Expecter\) [Execute](<executor.mock.go#L113>)
 
 ```go
-func (_e *MockExecutor_Expecter) Execute(ctx interface{}, session interface{}, tsk interface{}, result interface{}) *MockExecutor_Execute_Call
+func (_e *MockExecutor_Expecter) Execute(ctx any, session any, tsk any, result any) *MockExecutor_Execute_Call
 ```
 
 Execute is a helper method to define mock.On call
@@ -211,7 +211,7 @@ Execute is a helper method to define mock.On call
 ### func \(\*MockExecutor\_Expecter\) [OpenSession](<executor.mock.go#L180>)
 
 ```go
-func (_e *MockExecutor_Expecter) OpenSession(ctx interface{}, session interface{}) *MockExecutor_OpenSession_Call
+func (_e *MockExecutor_Expecter) OpenSession(ctx any, session any) *MockExecutor_OpenSession_Call
 ```
 
 OpenSession is a helper method to define mock.On call
