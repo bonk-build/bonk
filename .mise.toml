@@ -12,7 +12,7 @@ CGO_ENABLED = 1
 # Build tools
 go = "1.26.5"
 buf = "1.73.0"
-"github:vektra/mockery" = "3.7.1"
+"github:vektra/mockery" = "3.8.0"
 # Developer tools
 golangci-lint = "2.12.2"
 "github:fast/hawkeye" = "latest"
