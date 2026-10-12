@@ -9,8 +9,7 @@ use std::hash::Hash;
 use camino::Utf8PathBuf;
 use derive_more::{Debug, Display, From};
 use serde::{Deserialize, Serialize};
-
-use crate::Argument;
+use super_any::SuperAny;
 
 #[derive(PartialEq, Eq, Hash, From, Debug, Display, Clone, Serialize, Deserialize)]
 #[debug("{_0:?}")]
@@ -67,7 +66,7 @@ pub struct Task {
     dependencies: Vec<TaskId>,
     /// Any arguments that may be passed to the executor.
     #[serde(skip)]
-    args: Option<Box<dyn Argument>>,
+    args: Option<Box<dyn SuperAny>>,
 }
 
 impl Task {
@@ -88,7 +87,7 @@ impl Task {
         self.dependencies.as_slice()
     }
 
-    pub fn args(&self) -> Option<&dyn Argument> {
+    pub fn args(&self) -> Option<&dyn SuperAny> {
         self.args.as_deref()
     }
 }
