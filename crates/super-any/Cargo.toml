@@ -11,12 +11,15 @@ dyn-eq = { version = "0.1", optional = true }
 dyn-hash = { version = "1", optional = true }
 serde = { version = "1", optional = true }
 erased-serde = { version = "0.4", optional = true }
+serde_json = { version = "1", optional = true }
 
 [features]
-default = ["eq", "hash", "serde-ser"]
+default = ["eq", "hash", "serde-ser", "serde-de-json"]
 eq = ["dep:dyn-eq"]
 hash = ["dep:dyn-hash"]
 serde-ser = ["dep:serde", "dep:erased-serde"]
+serde-de = ["dep:serde"]
+serde-de-json = ["serde-de", "dep:serde_json"]
 
 [dev-dependencies]
 serde_json = "1"

@@ -1,8 +1,6 @@
 // Copyright © 2025 Colden Cullen
 // SPDX-License-Identifier: MIT
 
-#![allow(unused_imports)]
-
 use std::any::Any;
 use std::fmt::Debug;
 
@@ -60,16 +58,95 @@ where
 
 // Implement some necessary forwards to Any
 impl dyn SuperAny {
-    pub fn is<T: Any>(&self) -> bool {
+    pub fn is<T>(&self) -> bool
+    where
+        T: SuperAny,
+    {
         <dyn Any>::is::<T>(self)
     }
-    pub fn downcast_ref<T: Any>(&self) -> Option<&T> {
+
+    pub fn downcast_ref<T>(&self) -> Option<&T>
+    where
+        T: SuperAny + serde::de::DeserializeOwned,
+    {
+        #[cfg(feature = "serde-de")]
+        if let Some(deferred) = <dyn Any>::downcast_ref::<serde_de::DeferredDeserialize>(self) {
+            return deferred.deserialize();
+        }
+
         <dyn Any>::downcast_ref(self)
     }
-    pub fn downcast_mut<T: Any>(&mut self) -> Option<&mut T> {
+
+    pub fn downcast_mut<T>(&mut self) -> Option<&mut T>
+    where
+        T: SuperAny,
+    {
         <dyn Any>::downcast_mut(self)
     }
 }
+
+#[cfg(feature = "serde-de")]
+mod serde_de {
+    use std::cell::OnceCell;
+
+    use super::*;
+
+    #[derive(Debug)]
+    #[cfg_attr(feature = "eq", derive(PartialEq, Eq))]
+    #[cfg_attr(feature = "hash", derive(Hash))]
+    #[cfg_attr(feature = "serde-ser", derive(serde::Serialize))]
+    enum Format {
+        #[cfg(feature = "serde-de-json")]
+        Json(serde_json::Value),
+    }
+
+    #[derive(Debug)]
+    #[cfg_attr(feature = "eq", derive(PartialEq, Eq))]
+    #[cfg_attr(feature = "serde-ser", derive(serde::Serialize))]
+    pub struct DeferredDeserialize(Format, #[serde(skip)] OnceCell<Box<dyn SuperAny>>);
+
+    #[cfg(feature = "hash")]
+    impl std::hash::Hash for DeferredDeserialize {
+        fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+            if let Some(de) = self.1.get() {
+                de.hash(state);
+            } else {
+                self.0.hash(state);
+            }
+        }
+    }
+
+    impl DeferredDeserialize {
+        pub fn deserialize<T>(&self) -> Option<&T>
+        where
+            T: SuperAny + serde::de::DeserializeOwned,
+        {
+            self.1
+                .get_or_init(|| {
+                    let result: T = match self.0 {
+                        #[cfg(feature = "serde-de-json")]
+                        Format::Json(ref value) => serde_json::from_value(value.clone()).unwrap(),
+
+                        #[allow(unreachable_patterns)]
+                        _ => panic!(),
+                    };
+
+                    Box::new(result)
+                })
+                .downcast_ref()
+        }
+    }
+
+    #[cfg(feature = "serde-de-json")]
+    impl From<serde_json::Value> for DeferredDeserialize {
+        fn from(value: serde_json::Value) -> Self {
+            Self(Format::Json(value), OnceCell::new())
+        }
+    }
+}
+
+#[cfg(feature = "serde-de")]
+pub use serde_de::*;
 
 #[cfg(test)]
 mod tests {
@@ -163,5 +240,15 @@ mod tests {
 
         let other_json = serde_json::to_string(&7).unwrap();
         assert_ne!(other_json, any_json);
+    }
+
+    #[cfg(feature = "serde-de-json")]
+    #[test]
+    fn serde_json() {
+        let val = 8i8;
+        let json = serde_json::to_value(val).unwrap();
+        let any = &DeferredDeserialize::from(json) as &dyn SuperAny;
+
+        assert_eq!(&val, any.downcast_ref::<i8>().unwrap());
     }
 }
