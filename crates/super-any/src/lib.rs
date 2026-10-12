@@ -78,6 +78,22 @@ mod tests {
     use super::*;
 
     #[test]
+    fn type_id() {
+        let val = 8i8;
+        let any = &val as &dyn SuperAny;
+
+        assert_eq!(val.type_id(), any.type_id());
+    }
+
+    #[test]
+    fn is() {
+        let val = 8i8;
+        let any = &val as &dyn SuperAny;
+
+        assert!(any.is::<i8>());
+    }
+
+    #[test]
     fn downcast() {
         let val = 8i8;
         let any = &val as &dyn SuperAny;
