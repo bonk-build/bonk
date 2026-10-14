@@ -12,19 +12,19 @@ use serde::{Deserialize, Serialize};
 use vfs::VfsPath;
 
 use crate::{
-    Executor, ExecutorId, Session, SessionHandler, SessionId, SessionResult, Task, TaskOutput,
-    TaskResult,
+    Executor, ExecutorId, ExecutorRef, Session, SessionHandler, SessionId, SessionResult, Task,
+    TaskOutput, TaskResult,
 };
 
 /// An executor that avoids re-running tasks if they are already up to date.
-pub struct StateChecker<'child> {
-    child: &'child mut dyn Executor,
+pub struct StateChecker {
+    child: ExecutorRef,
 
     sessions: HashSet<Session>,
 }
 
-impl<'child> StateChecker<'child> {
-    fn new(child: &'child mut dyn Executor) -> Self {
+impl StateChecker {
+    fn new(child: ExecutorRef) -> Self {
         Self {
             child,
             sessions: Default::default(),
@@ -32,7 +32,7 @@ impl<'child> StateChecker<'child> {
     }
 }
 
-impl Executor for StateChecker<'_> {
+impl Executor for StateChecker {
     fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult {
         let session = self
             .sessions
@@ -44,13 +44,15 @@ impl Executor for StateChecker<'_> {
             Ok(cached_output)
         } else {
             self.child
+                .lock()
+                .unwrap()
                 .execute(session.id(), task.clone()) // @TODO: don't clone?
                 .and_then(|output| TaskState::save(session, &task, &output).map(|()| output))
         }
     }
 }
 
-impl SessionHandler for StateChecker<'_> {
+impl SessionHandler for StateChecker {
     fn open_session(&mut self, session: &Session) -> SessionResult {
         self.sessions.insert(session.clone());
 
@@ -213,7 +215,7 @@ mod tests {
             .once()
             .return_once_st(|_, _| Ok(TaskOutput::default()));
 
-        let mut checker = StateChecker::new(&mut exec);
+        let mut checker = StateChecker::new(exec.into_ref());
         let session = Session::for_testing();
         let executor = ExecutorId::from("exec");
         let task = Task::new(TaskId::for_testing(), executor.clone());
@@ -246,7 +248,7 @@ mod tests {
             .once()
             .return_once_st(|_, _| Err(lazy_errors::err!("test error")));
 
-        let mut checker = StateChecker::new(&mut exec);
+        let mut checker = StateChecker::new(exec.into_ref());
         let session = Session::for_testing();
         let task_id = TaskId::for_testing();
         let task = Task::new(task_id.clone(), ExecutorId::from("exec"));
@@ -273,7 +275,7 @@ mod tests {
             .times(2)
             .returning_st(|_, _| Ok(TaskOutput::default()));
 
-        let mut checker = StateChecker::new(&mut exec);
+        let mut checker = StateChecker::new(exec.into_ref());
         let session = Session::for_testing();
         let task_id = TaskId::for_testing();
         let task = Task::builder(task_id.clone(), ExecutorId::from("exec/1"))

@@ -4,7 +4,7 @@
 use derive_more::Debug;
 use lazy_errors::prelude::Error;
 
-use crate::{Executor, SessionId, Task, TaskId, TaskResult};
+use crate::{Executor, ExecutorRef, SessionId, Task, TaskId, TaskResult};
 
 /// Describes the new status of a task.
 #[derive(Debug)]
@@ -28,15 +28,15 @@ pub struct TaskStatusMsg<'msg> {
 pub type Observer = Box<dyn FnMut(&TaskStatusMsg)>;
 
 /// Executor which forwards events to a child and emits events about status changes.
-pub struct Observable<'child> {
-    child: &'child mut dyn Executor,
+pub struct Observable {
+    child: ExecutorRef,
 
     listeners: Vec<Observer>,
 }
 
-impl<'child> Observable<'child> {
+impl Observable {
     /// Create a new Observable exector.
-    pub fn new(child: &'child mut dyn Executor) -> Self {
+    pub fn new(child: ExecutorRef) -> Self {
         Self {
             child,
             listeners: Default::default(),
@@ -54,7 +54,7 @@ impl<'child> Observable<'child> {
     }
 }
 
-impl Executor for Observable<'_> {
+impl Executor for Observable {
     fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult {
         let task_id = task.id().clone();
         self.broadcast(&TaskStatusMsg {
@@ -62,7 +62,7 @@ impl Executor for Observable<'_> {
             status: TaskStatus::Running,
         });
 
-        let result = self.child.execute(session, task);
+        let result = self.child.lock().unwrap().execute(session, task);
 
         match result {
             Ok(_) => self.broadcast(&TaskStatusMsg {
@@ -101,7 +101,7 @@ mod tests {
             .with(eq(session.id().clone()), has_id(task_id.clone()))
             .return_once(|_, _| Ok(TaskOutput::default()));
 
-        let mut obs = Observable::new(&mut exec);
+        let mut obs = Observable::new(exec.into_ref());
 
         let mut call_count = 0;
         let listener_task_id = task_id.clone();
@@ -132,7 +132,7 @@ mod tests {
             .with(eq(session.id().clone()), has_id(task_id.clone()))
             .return_once(|_, _| Err(lazy_errors::err!("test error")));
 
-        let mut obs = Observable::new(&mut exec);
+        let mut obs = Observable::new(exec.into_ref());
 
         let mut call_count = 0;
         let listener_task_id = task_id.clone();

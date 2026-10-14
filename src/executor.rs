@@ -7,13 +7,16 @@
 //! Each package exports just a few objects conforming to the [Executor] interface,
 //! and optionally a few helpers.
 
+use std::sync::{Arc, Mutex};
+
 use camino::Utf8PathBuf;
-use derive_more::From;
+use derive_more::{Debug, From};
 use serde::{Deserialize, Serialize};
 
 use crate::{SessionId, Task, TaskResult};
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug, From, Serialize, Deserialize)]
+#[debug("{_0:?}")]
 #[from(forward)]
 pub struct ExecutorId(Utf8PathBuf);
 
@@ -36,8 +39,25 @@ impl ExecutorId {
 }
 
 /// Executor is the trait required to execute tasks.
-#[cfg_attr(test, mockall::automock)]
-pub trait Executor {
+pub trait Executor: std::any::Any {
     /// Execute is given a task to execute and expected to populate result with the outcome.
     fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult;
+
+    /// Helper to create a handle.
+    fn into_ref(self) -> ExecutorRef<Self>
+    where
+        Self: Sized + 'static,
+    {
+        Arc::new(Mutex::new(self))
+    }
 }
+
+#[cfg(test)]
+mockall::mock!(
+    pub Executor {}
+    impl crate::Executor for Executor {
+        fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult;
+    }
+);
+
+pub type ExecutorRef<E = dyn Executor> = Arc<Mutex<E>>;
