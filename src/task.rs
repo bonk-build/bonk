@@ -54,7 +54,7 @@ impl TaskId {
 #[non_exhaustive]
 #[derive(PartialEq, Eq, Clone, Hash, Debug, bon::Builder, Serialize, Deserialize)]
 #[builder(on(Vec<_>, into))]
-#[debug("{id:?}")]
+#[debug("Task({id:?} -> {executor:?})")]
 pub struct Task {
     /// Describes how this task is addressed.
     #[builder(start_fn)]
@@ -85,6 +85,13 @@ impl Task {
 
     pub fn executor(&self) -> &ExecutorId {
         &self.executor
+    }
+
+    pub fn with_executor(self, exec: ExecutorId) -> Self {
+        Self {
+            executor: exec,
+            ..self.clone()
+        }
     }
 
     pub fn inputs(&self) -> &[String] {
