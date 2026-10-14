@@ -39,5 +39,5 @@ impl ExecutorId {
 #[cfg_attr(test, mockall::automock)]
 pub trait Executor {
     /// Execute is given a task to execute and expected to populate result with the outcome.
-    fn execute(&mut self, session: &SessionId, executor: &ExecutorId, task: &Task) -> TaskResult;
+    fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult;
 }

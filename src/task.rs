@@ -11,6 +11,8 @@ use derive_more::{Debug, Display, From};
 use serde::{Deserialize, Serialize};
 use super_any::SuperAny;
 
+use crate::ExecutorId;
+
 #[derive(PartialEq, Eq, Hash, From, Debug, Display, Clone, Serialize, Deserialize)]
 #[debug("{_0:?}")]
 #[display("{_0}")]
@@ -50,13 +52,15 @@ impl TaskId {
 
 // Task represents a unit of work to be executed.
 #[non_exhaustive]
-#[derive(PartialEq, Eq, Debug, Hash, bon::Builder, Serialize, Deserialize)]
+#[derive(PartialEq, Eq, Clone, Hash, Debug, bon::Builder, Serialize, Deserialize)]
 #[builder(on(Vec<_>, into))]
 #[debug("{id:?}")]
 pub struct Task {
     /// Describes how this task is addressed.
     #[builder(start_fn)]
     id: TaskId,
+    #[builder(start_fn)]
+    executor: ExecutorId,
 
     /// Describes any files that may be consumed by this task (relative to [Session.SourceFS]).
     #[builder(default)]
@@ -71,12 +75,16 @@ pub struct Task {
 
 impl Task {
     #[inline]
-    pub fn new(id: TaskId) -> Self {
-        Self::builder(id).build()
+    pub fn new(id: TaskId, exec: ExecutorId) -> Self {
+        Self::builder(id, exec).build()
     }
 
     pub fn id(&self) -> &TaskId {
         &self.id
+    }
+
+    pub fn executor(&self) -> &ExecutorId {
+        &self.executor
     }
 
     pub fn inputs(&self) -> &[String] {
@@ -125,9 +133,10 @@ mod tests {
     use super::*;
     #[test]
     fn new() {
-        let task = Task::builder(TaskId::new(&["root", "child"])).build();
+        let task = Task::new(TaskId::new(&["root", "child"]), ExecutorId::from("exec"));
 
-        assert_eq!(task.id, TaskId::new(&["root/child"]));
+        assert_eq!(task.id, TaskId::from("root/child"));
+        assert_eq!(task.executor, ExecutorId::from("exec"));
         assert!(task.inputs.is_empty());
         assert!(task.dependencies.is_empty());
         assert!(task.args.is_none());
@@ -135,11 +144,12 @@ mod tests {
 
     #[test]
     fn new_with_inputs() {
-        let task = Task::builder(TaskId::new(&["root", "child"]))
+        let task = Task::builder(TaskId::new(&["root", "child"]), ExecutorId::from("exec"))
             .inputs(["InputA".to_owned()])
             .build();
 
         assert_eq!(task.id, TaskId::new(&["root/child"]));
+        assert_eq!(task.executor, ExecutorId::from("exec"));
         assert_eq!(task.inputs.len(), 1);
         assert_eq!(task.inputs[0], "InputA");
         assert!(task.dependencies.is_empty());
@@ -148,11 +158,12 @@ mod tests {
 
     #[test]
     fn new_with_dependencies() {
-        let task = Task::builder(TaskId::new(&["root", "child"]))
+        let task = Task::builder(TaskId::new(&["root", "child"]), ExecutorId::from("exec"))
             .dependencies(&[TaskId::new(&["root", "sibling"])])
             .build();
 
         assert_eq!(task.id, TaskId::new(&["root/child"]));
+        assert_eq!(task.executor, ExecutorId::from("exec"));
         assert!(task.inputs.is_empty());
         assert_eq!(task.dependencies.len(), 1);
         assert_eq!(task.dependencies[0], TaskId::new(&["root/sibling"]));
@@ -161,11 +172,12 @@ mod tests {
 
     #[test]
     fn new_with_args() {
-        let task = Task::builder(TaskId::new(&["root", "child"]))
+        let task = Task::builder(TaskId::new(&["root", "child"]), ExecutorId::from("exec"))
             .args(Box::new(5i8))
             .build();
 
         assert_eq!(task.id, TaskId::new(&["root/child"]));
+        assert_eq!(task.executor, ExecutorId::from("exec"));
         assert!(task.inputs.is_empty());
         assert!(task.dependencies.is_empty());
         assert_eq!(*task.args.unwrap().downcast_ref::<i8>().unwrap(), 5);

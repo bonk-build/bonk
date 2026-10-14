@@ -33,21 +33,19 @@ impl<'child> StateChecker<'child> {
 }
 
 impl Executor for StateChecker<'_> {
-    fn execute(&mut self, session: &SessionId, executor: &ExecutorId, task: &Task) -> TaskResult {
+    fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult {
         let session = self
             .sessions
             .get(session)
             .ok_or(lazy_errors::err!("session not opened"))?;
-        let cached_output = TaskState::load_and_check(session, executor, task);
+        let cached_output = TaskState::load_and_check(session, &task);
 
         if let Ok(cached_output) = cached_output {
             Ok(cached_output)
         } else {
             self.child
-                .execute(session.id(), executor, task)
-                .and_then(|output| {
-                    TaskState::save(session, executor, task, &output).map(|()| output)
-                })
+                .execute(session.id(), task.clone()) // @TODO: don't clone?
+                .and_then(|output| TaskState::save(session, &task, &output).map(|()| output))
         }
     }
 }
@@ -95,12 +93,7 @@ struct TaskState {
 }
 
 impl TaskState {
-    fn save(
-        session: &Session,
-        executor: &ExecutorId,
-        task: &Task,
-        output: &TaskOutput,
-    ) -> lazy_errors::Result<()> {
+    fn save(session: &Session, task: &Task, output: &TaskOutput) -> lazy_errors::Result<()> {
         let output_fs = session.output_fs(task.id());
         output_fs.create_dir_all().unwrap();
 
@@ -112,7 +105,7 @@ impl TaskState {
             .ok_or(lazy_errors::err!("failed to hash output files"))?;
 
         let state = Self {
-            executor: executor.clone(),
+            executor: task.executor().clone(),
             output: serde_json::to_value(output).or_wrap()?,
 
             arguments_checksum,
@@ -131,11 +124,7 @@ impl TaskState {
         Ok(())
     }
 
-    fn load_and_check(
-        session: &Session,
-        executor: &ExecutorId,
-        task: &Task,
-    ) -> lazy_errors::Result<TaskOutput> {
+    fn load_and_check(session: &Session, task: &Task) -> lazy_errors::Result<TaskOutput> {
         let output_fs = session.output_fs(task.id());
 
         let saved = output_fs
@@ -150,7 +139,7 @@ impl TaskState {
 
         let mut mismatches = ErrorStash::new(|| "cached task state doesn't match incoming state");
 
-        executor
+        task.executor()
             .eq(&saved.executor)
             .ok_or(TaskStateMismatch::Executor)
             .or_stash(&mut mismatches);
@@ -222,16 +211,16 @@ mod tests {
         let mut exec = MockExecutor::new();
         exec.expect_execute()
             .once()
-            .return_once_st(|_, _, _| Ok(TaskOutput::default()));
+            .return_once_st(|_, _| Ok(TaskOutput::default()));
 
         let mut checker = StateChecker::new(&mut exec);
         let session = Session::for_testing();
         let executor = ExecutorId::from("exec");
-        let task = Task::new(TaskId::for_testing());
+        let task = Task::new(TaskId::for_testing(), executor.clone());
 
         checker.open_session(&session).unwrap();
 
-        let res1 = checker.execute(session.id(), &executor, &task);
+        let res1 = checker.execute(session.id(), task.clone());
         assert_matches!(res1, Ok(_));
 
         assert!(
@@ -243,7 +232,7 @@ mod tests {
                 .unwrap()
         );
 
-        let res2 = checker.execute(session.id(), &executor, &task);
+        let res2 = checker.execute(session.id(), task);
         assert_matches!(res2, Ok(_));
         assert_eq!(res1.unwrap(), res2.unwrap());
 
@@ -255,20 +244,21 @@ mod tests {
         let mut exec = MockExecutor::new();
         exec.expect_execute()
             .once()
-            .return_once_st(|_, _, _| Err(lazy_errors::err!("test error")));
+            .return_once_st(|_, _| Err(lazy_errors::err!("test error")));
 
         let mut checker = StateChecker::new(&mut exec);
         let session = Session::for_testing();
-        let task = Task::new(TaskId::for_testing());
+        let task_id = TaskId::for_testing();
+        let task = Task::new(task_id.clone(), ExecutorId::from("exec"));
 
         checker.open_session(&session).unwrap();
 
-        let res1 = checker.execute(session.id(), &ExecutorId::from("exec"), &task);
+        let res1 = checker.execute(session.id(), task);
         assert_matches!(res1, Err(_));
 
         assert!(
             !session
-                .output_fs(task.id())
+                .output_fs(&task_id)
                 .join(STATE_FILE)
                 .unwrap()
                 .exists()
@@ -281,29 +271,34 @@ mod tests {
         let mut exec = MockExecutor::new();
         exec.expect_execute()
             .times(2)
-            .returning_st(|_, _, _| Ok(TaskOutput::default()));
+            .returning_st(|_, _| Ok(TaskOutput::default()));
 
         let mut checker = StateChecker::new(&mut exec);
         let session = Session::for_testing();
-        let task = Task::builder(TaskId::for_testing())
+        let task_id = TaskId::for_testing();
+        let task = Task::builder(task_id.clone(), ExecutorId::from("exec/1"))
             .args(Box::new(12))
             .build();
 
         checker.open_session(&session).unwrap();
 
-        let res1 = checker.execute(session.id(), &ExecutorId::from("exec/1"), &task);
+        let res1 = checker.execute(session.id(), task.clone());
         assert_matches!(res1, Ok(_));
 
         assert!(
             session
-                .output_fs(task.id())
+                .output_fs(&task_id)
                 .join(STATE_FILE)
                 .unwrap()
                 .is_file()
                 .unwrap()
         );
 
-        let res2 = checker.execute(session.id(), &ExecutorId::from("exec/2"), &task);
+        let task = Task::builder(task_id.clone(), ExecutorId::from("exec/2"))
+            .args(Box::new(12))
+            .build();
+
+        let res2 = checker.execute(session.id(), task);
         assert_matches!(res2, Ok(_));
         assert_eq!(res1.unwrap(), res2.unwrap());
 
@@ -314,10 +309,10 @@ mod tests {
     fn state_save() {
         let session = Session::for_testing();
         let exec = ExecutorId::from("exec");
-        let task = Task::new(TaskId::for_testing());
+        let task = Task::new(TaskId::for_testing(), exec.clone());
         let output = TaskOutput::default();
 
-        let res = TaskState::save(&session, &exec, &task, &output);
+        let res = TaskState::save(&session, &task, &output);
         assert_matches!(res, Ok(()));
 
         assert!(
@@ -336,20 +331,20 @@ mod tests {
     fn state_mismatches_inputs() {
         let session = Session::for_testing();
         let exec = ExecutorId::from("exec");
-        let task = Task::new(TaskId::for_testing());
+        let task = Task::new(TaskId::for_testing(), exec.clone());
         let output = TaskOutput::default();
 
-        let res = TaskState::save(&session, &exec, &task, &output);
+        let res = TaskState::save(&session, &task, &output);
         assert_matches!(res, Ok(()));
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Ok(_));
 
-        let task = Task::builder(task.id().clone())
+        let task = Task::builder(task.id().clone(), exec)
             .inputs([INPUT_FILE_NAME.into()])
             .build();
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Err(_));
         let unwrap_err = res.unwrap_err();
         let mismatches = unwrap_err.children();
@@ -366,7 +361,7 @@ mod tests {
         const INPUT_FILE_CONTENTS2: &str = "This if the second iteration of the file";
         let session = Session::for_testing();
         let exec = ExecutorId::from("exec");
-        let task = Task::builder(TaskId::for_testing())
+        let task = Task::builder(TaskId::for_testing(), exec)
             .inputs([INPUT_FILE_NAME.into()])
             .build();
         let output = TaskOutput::default();
@@ -379,10 +374,10 @@ mod tests {
             .unwrap();
         input_file.flush().unwrap();
 
-        let res = TaskState::save(&session, &exec, &task, &output);
+        let res = TaskState::save(&session, &task, &output);
         assert_matches!(res, Ok(()));
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Ok(_));
 
         let mut input_file = input_file_path.create_file().unwrap();
@@ -391,7 +386,7 @@ mod tests {
             .unwrap();
         input_file.flush().unwrap();
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Err(_));
         let unwrap_err = res.unwrap_err();
         let mismatches = unwrap_err.children();
@@ -405,17 +400,19 @@ mod tests {
     #[test]
     fn state_mismatches_executor() {
         let session = Session::for_testing();
-        let exec = ExecutorId::from("exec/1");
-        let task = Task::new(TaskId::for_testing());
+        let task_id = TaskId::for_testing();
+        let task = Task::new(task_id.clone(), ExecutorId::from("exec/1"));
         let output = TaskOutput::default();
 
-        let res = TaskState::save(&session, &exec, &task, &output);
+        let res = TaskState::save(&session, &task, &output);
         assert_matches!(res, Ok(()));
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Ok(_));
 
-        let res = TaskState::load_and_check(&session, &ExecutorId::from("exec/2"), &task);
+        let task = Task::new(task_id, ExecutorId::from("exec/2"));
+
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Err(_));
         let unwrap_err = res.unwrap_err();
         let mismatches = unwrap_err.children();
@@ -429,19 +426,20 @@ mod tests {
     #[test]
     fn state_mismatches_arguments() {
         let session = Session::for_testing();
-        let exec = ExecutorId::from("exec/1");
-        let task = Task::new(TaskId::for_testing());
+        let task = Task::new(TaskId::for_testing(), ExecutorId::from("exec/1"));
         let output = TaskOutput::default();
 
-        let res = TaskState::save(&session, &exec, &task, &output);
+        let res = TaskState::save(&session, &task, &output);
         assert_matches!(res, Ok(()));
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Ok(_));
 
-        let task = Task::builder(task.id().clone()).args(Box::new(12)).build();
+        let task = Task::builder(task.id().clone(), task.executor().clone())
+            .args(Box::new(12))
+            .build();
 
-        let res = TaskState::load_and_check(&session, &exec, &task);
+        let res = TaskState::load_and_check(&session, &task);
         assert_matches!(res, Err(_));
         let unwrap_err = res.unwrap_err();
         let mismatches = unwrap_err.children();

@@ -4,7 +4,7 @@
 use derive_more::Debug;
 use lazy_errors::prelude::Error;
 
-use crate::{Executor, ExecutorId, SessionId, TaskId, TaskResult};
+use crate::{Executor, SessionId, Task, TaskId, TaskResult};
 
 /// Describes the new status of a task.
 #[derive(Debug)]
@@ -55,26 +55,22 @@ impl<'child> Observable<'child> {
 }
 
 impl Executor for Observable<'_> {
-    fn execute(
-        &mut self,
-        session: &SessionId,
-        executor: &ExecutorId,
-        task: &crate::Task,
-    ) -> TaskResult {
+    fn execute(&mut self, session: &SessionId, task: Task) -> TaskResult {
+        let task_id = task.id().clone();
         self.broadcast(&TaskStatusMsg {
-            task_id: task.id(),
+            task_id: &task_id,
             status: TaskStatus::Running,
         });
 
-        let result = self.child.execute(session, executor, task);
+        let result = self.child.execute(session, task);
 
         match result {
             Ok(_) => self.broadcast(&TaskStatusMsg {
-                task_id: task.id(),
+                task_id: &task_id,
                 status: TaskStatus::Success,
             }),
             Err(ref err) => self.broadcast(&TaskStatusMsg {
-                task_id: task.id(),
+                task_id: &task_id,
                 status: TaskStatus::Error(err),
             }),
         }
@@ -90,7 +86,7 @@ mod tests {
     use mockall::predicate::eq;
 
     use super::*;
-    use crate::{MockExecutor, Session, Task, TaskOutput};
+    use crate::{ExecutorId, MockExecutor, Session, Task, TaskOutput, has_id};
 
     #[test]
     fn pass() {
@@ -102,12 +98,8 @@ mod tests {
 
         exec.expect_execute()
             .once()
-            .with(
-                eq(session.id().clone()),
-                eq(exec_id.clone()),
-                crate::has_id(task_id.clone()),
-            )
-            .return_once(|_, _, _| Ok(TaskOutput::default()));
+            .with(eq(session.id().clone()), has_id(task_id.clone()))
+            .return_once(|_, _| Ok(TaskOutput::default()));
 
         let mut obs = Observable::new(&mut exec);
 
@@ -123,11 +115,7 @@ mod tests {
             }
         }));
 
-        let res = obs.execute(
-            session.id(),
-            &exec_id,
-            &Task::builder(task_id.clone()).build(),
-        );
+        let res = obs.execute(session.id(), Task::new(task_id.clone(), exec_id.clone()));
         assert_matches!(res, Ok(_));
     }
 
@@ -141,12 +129,8 @@ mod tests {
 
         exec.expect_execute()
             .once()
-            .with(
-                eq(session.id().clone()),
-                eq(exec_id.clone()),
-                crate::has_id(task_id.clone()),
-            )
-            .return_once(|_, _, _| Err(lazy_errors::err!("test error")));
+            .with(eq(session.id().clone()), has_id(task_id.clone()))
+            .return_once(|_, _| Err(lazy_errors::err!("test error")));
 
         let mut obs = Observable::new(&mut exec);
 
@@ -162,11 +146,7 @@ mod tests {
             }
         }));
 
-        let res = obs.execute(
-            session.id(),
-            &exec_id,
-            &Task::builder(task_id.clone()).build(),
-        );
+        let res = obs.execute(session.id(), Task::new(task_id.clone(), exec_id));
         assert_matches!(res, Err(_));
     }
 }
