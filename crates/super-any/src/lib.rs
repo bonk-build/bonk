@@ -4,15 +4,17 @@
 use std::any::Any;
 use std::fmt::Debug;
 
+#[cfg(feature = "clone")]
+use dyn_clone::DynClone;
 #[cfg(feature = "eq")]
 use dyn_eq::DynEq;
 #[cfg(feature = "hash")]
 use dyn_hash::DynHash;
 
 cfg_select! {
-    all(feature = "eq", feature = "hash", feature = "serde-ser") => {
-        pub trait SuperAny: Any + Debug + DynEq + DynHash + erased_serde::Serialize {}
-        impl<T> SuperAny for T where T: Any + Debug + DynEq + DynHash + erased_serde::Serialize {}
+    all(feature = "clone", feature = "eq", feature = "hash", feature = "serde-ser") => {
+        pub trait SuperAny: Any + Debug + DynClone + DynEq + DynHash + erased_serde::Serialize {}
+        impl<T> SuperAny for T where T: Any + Debug + DynClone + DynEq + DynHash + erased_serde::Serialize {}
     }
 
     all(feature = "eq", feature = "hash") => {
@@ -35,6 +37,9 @@ cfg_select! {
         impl<T> SuperAny for T where T: Any {}
     }
 }
+
+#[cfg(feature = "clone")]
+dyn_clone::clone_trait_object!(SuperAny);
 
 #[cfg(feature = "eq")]
 dyn_eq::eq_trait_object!(SuperAny);
@@ -92,6 +97,7 @@ mod serde_de {
     use super::*;
 
     #[derive(Debug)]
+    #[cfg_attr(feature = "clone", derive(Clone))]
     #[cfg_attr(feature = "eq", derive(PartialEq, Eq))]
     #[cfg_attr(feature = "hash", derive(Hash))]
     #[cfg_attr(feature = "serde-ser", derive(serde::Serialize))]
@@ -101,6 +107,7 @@ mod serde_de {
     }
 
     #[derive(Debug)]
+    #[cfg_attr(feature = "clone", derive(Clone))]
     #[cfg_attr(feature = "eq", derive(PartialEq, Eq))]
     #[cfg_attr(feature = "serde-ser", derive(serde::Serialize))]
     pub struct DeferredDeserialize(Format, #[serde(skip)] OnceCell<Box<dyn SuperAny>>);
@@ -197,6 +204,17 @@ mod tests {
         let any = &val as &dyn SuperAny;
 
         assert_eq!(format!("{val:?}"), format!("{any:?}"));
+    }
+
+    #[cfg(feature = "clone")]
+    #[test]
+    fn clone() {
+        let val = 8;
+        let any: Box<dyn SuperAny> = Box::new(val);
+        let any = any.clone();
+
+        assert_eq!(*any, val);
+        assert_ne!(*any, 7);
     }
 
     #[cfg(feature = "eq")]

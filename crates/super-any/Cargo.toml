@@ -7,14 +7,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+dyn-clone = { version = "1", optional = true }
 dyn-eq = { version = "0.1", optional = true }
 dyn-hash = { version = "1", optional = true }
-serde = { version = "1", optional = true }
+serde = { version = "1", features = ["derive"], optional = true }
 erased-serde = { version = "0.4", optional = true }
 serde_json = { version = "1", optional = true }
 
 [features]
-default = ["eq", "hash", "serde-ser", "serde-de-json"]
+default = ["clone", "eq", "hash", "serde-ser", "serde-de-json"]
+clone = ["dep:dyn-clone"]
 eq = ["dep:dyn-eq"]
 hash = ["dep:dyn-hash"]
 serde-ser = ["dep:serde", "dep:erased-serde"]
