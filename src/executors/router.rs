@@ -67,7 +67,7 @@ impl Router {
                 && let Some(rest) = rest
             {
                 child.remove_child(&rest);
-                child.children.len() == 0
+                child.children.is_empty()
             } else {
                 true
             }

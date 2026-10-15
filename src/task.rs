@@ -90,7 +90,7 @@ impl Task {
     pub fn with_executor(self, exec: ExecutorId) -> Self {
         Self {
             executor: exec,
-            ..self.clone()
+            ..self
         }
     }
 

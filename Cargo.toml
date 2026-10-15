@@ -4,6 +4,14 @@
 [workspace]
 members = [".", "crates/super-any"]
 
+[workspace.lints.clippy]
+# Groups
+correctness = { level = "deny", priority = -1 }
+suspicious = { level = "deny", priority = -1 }
+style = { level = "deny", priority = -1 }
+complexity = { level = "deny", priority = -1 }
+perf = { level = "deny", priority = -1 }
+
 [package]
 name = "bonk"
 version = "0.1.0"
@@ -25,3 +33,6 @@ vfs = "0.13"
 
 [dev-dependencies]
 mockall = "0.15"
+
+[lints]
+workspace = true

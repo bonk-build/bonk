@@ -170,7 +170,7 @@ impl TaskState {
 fn hash_object<T: Hash + ?Sized>(obj: &T) -> u64 {
     let mut hasher = FnvHasher::default();
     obj.hash(&mut hasher);
-    return hasher.finish();
+    hasher.finish()
 }
 
 #[must_use]
