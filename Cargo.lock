@@ -50,6 +50,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "build-rs"
+version = "0.3.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87a490fb7ec2896b97a4c721c03a2b2dc5c2b9b75b2a57ca396db4470dea0381"
+dependencies = [
+ "unicode-ident",
+]
+
+[[package]]
 name = "bumpalo"
 version = "3.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -450,6 +459,7 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 name = "super-any"
 version = "0.1.0"
 dependencies = [
+ "build-rs",
  "dyn-clone",
  "dyn-eq",
  "dyn-hash",

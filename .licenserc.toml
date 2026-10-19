@@ -5,12 +5,12 @@
 text = """Copyright © {{ props.inception_year }} {{ props.copyright_owner }}
 SPDX-License-Identifier: MIT"""
 
-[files]
-excludes = ["*.lock", "*.sum", "*.pb.go", "*.mock.go"]
-
 [props]
 inception_year = 2025
 copyright_owner = "Colden Cullen"
+
+[files]
+excludes = ["*.pb.go", "*.mock.go"]
 
 [[rules]]
 extensions = ["go", "cue", "proto"]

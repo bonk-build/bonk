@@ -4,62 +4,51 @@
 use std::any::Any;
 use std::fmt::Debug;
 
-#[cfg(feature = "clone")]
-use dyn_clone::DynClone;
-#[cfg(feature = "eq")]
-use dyn_eq::DynEq;
-#[cfg(feature = "hash")]
-use dyn_hash::DynHash;
+macro_rules! maybe_trait {
+    {#[cfg($meta:meta)] pub trait $trait:ident: $requirement:path {}} => {
+        #[cfg(not($meta))]
+        pub trait $trait: std::any::Any {}
+        #[cfg($meta)]
+        pub trait $trait: $requirement {}
 
-cfg_select! {
-    all(feature = "clone", feature = "eq", feature = "hash", feature = "serde-ser") => {
-        pub trait SuperAny: Any + Debug + DynClone + DynEq + DynHash + erased_serde::Serialize {}
-        impl<T> SuperAny for T where T: Any + Debug + DynClone + DynEq + DynHash + erased_serde::Serialize {}
-    }
-
-    all(feature = "eq", feature = "hash") => {
-        pub trait SuperAny: Any + Debug + DynHash + DynEq {}
-        impl<T> SuperAny for T where T: Any + Debug + DynHash + DynEq {}
-    }
-
-    all(feature = "eq") => {
-        pub trait SuperAny: Any + Debug + DynEq {}
-        impl<T> SuperAny for T where T: Any + Debug + DynEq {}
-    }
-
-    all(feature = "hash") => {
-        pub trait SuperAny: Any + Debug + DynHash {}
-        impl<T> SuperAny for T where T: Any + Debug + DynHash {}
-    }
-
-    _ => {
-        pub trait SuperAny: Any {}
-        impl<T> SuperAny for T where T: Any {}
-    }
+        #[cfg(not($meta))]
+        impl<T: std::any::Any> $trait for T {}
+        #[cfg($meta)]
+        impl<T: $requirement> $trait for T {}
+    };
 }
 
-#[cfg(feature = "clone")]
-dyn_clone::clone_trait_object!(SuperAny);
+maybe_trait! {
+    #[cfg(feature = "clone")]
+    pub trait MaybeClone: dyn_clone::DynClone {}
+}
 
-#[cfg(feature = "eq")]
-dyn_eq::eq_trait_object!(SuperAny);
+maybe_trait! {
+    #[cfg(feature = "eq")]
+    pub trait MaybeEq: dyn_eq::DynEq {}
+}
 
-#[cfg(feature = "hash")]
-dyn_hash::hash_trait_object!(SuperAny);
+maybe_trait! {
+    #[cfg(feature = "hash")]
+    pub trait MaybeHash: dyn_hash::DynHash {}
+}
 
-#[cfg(feature = "serde-ser")]
-erased_serde::serialize_trait_object!(SuperAny);
+maybe_trait! {
+    #[cfg(feature = "serde-ser")]
+    pub trait MaybeSerialize: erased_serde::Serialize {}
+}
 
-/// Forwarding impl for types that implement SuperAny
-#[cfg(feature = "eq")]
-impl<T> PartialEq<T> for dyn SuperAny
+maybe_trait! {
+    #[cfg(feature = "serde-de")]
+    pub trait MaybeDeerialize: serde::de::DeserializeOwned {}
+}
+
+pub trait SuperAny
 where
-    T: SuperAny + 'static,
+    Self: Any + Debug + MaybeClone + MaybeEq + MaybeHash + MaybeSerialize,
 {
-    fn eq(&self, other: &T) -> bool {
-        self.eq(other as &dyn SuperAny)
-    }
 }
+impl<T> SuperAny for T where T: Any + Debug + MaybeClone + MaybeEq + MaybeHash + MaybeSerialize {}
 
 // Implement some necessary forwards to Any
 impl dyn SuperAny {
@@ -72,7 +61,7 @@ impl dyn SuperAny {
 
     pub fn downcast_ref<T>(&self) -> Option<&T>
     where
-        T: SuperAny + serde::de::DeserializeOwned,
+        T: SuperAny + MaybeDeerialize,
     {
         #[cfg(feature = "serde-de")]
         if let Some(deferred) = <dyn Any>::downcast_ref::<serde_de::DeferredDeserialize>(self) {
@@ -89,6 +78,33 @@ impl dyn SuperAny {
         <dyn Any>::downcast_mut(self)
     }
 }
+
+#[cfg(feature = "clone")]
+dyn_clone::clone_trait_object!(SuperAny);
+
+#[cfg(feature = "eq")]
+mod eq {
+    use super::*;
+    use dyn_eq::DynEq;
+
+    dyn_eq::eq_trait_object!(SuperAny);
+
+    /// Forwarding impl for types that implement SuperAny
+    impl<T> PartialEq<T> for dyn SuperAny
+    where
+        T: SuperAny + 'static,
+    {
+        fn eq(&self, other: &T) -> bool {
+            self.eq(other as &dyn SuperAny)
+        }
+    }
+}
+
+#[cfg(feature = "hash")]
+dyn_hash::hash_trait_object!(SuperAny);
+
+#[cfg(feature = "serde-ser")]
+erased_serde::serialize_trait_object!(SuperAny);
 
 #[cfg(feature = "serde-de")]
 mod serde_de {
@@ -110,7 +126,10 @@ mod serde_de {
     #[cfg_attr(feature = "clone", derive(Clone))]
     #[cfg_attr(feature = "eq", derive(PartialEq, Eq))]
     #[cfg_attr(feature = "serde-ser", derive(serde::Serialize))]
-    pub struct DeferredDeserialize(Format, #[serde(skip)] OnceCell<Box<dyn SuperAny>>);
+    pub struct DeferredDeserialize(
+        Format,
+        #[cfg_attr(feature = "serde-ser", serde(skip))] OnceCell<Box<dyn SuperAny>>,
+    );
 
     #[cfg(feature = "hash")]
     impl std::hash::Hash for DeferredDeserialize {
@@ -130,15 +149,10 @@ mod serde_de {
         {
             self.1
                 .get_or_init(|| {
-                    let result: T = match self.0 {
+                    Box::<T>::new(match self.0 {
                         #[cfg(feature = "serde-de-json")]
                         Format::Json(ref value) => serde_json::from_value(value.clone()).unwrap(),
-
-                        #[allow(unreachable_patterns)]
-                        _ => panic!(),
-                    };
-
-                    Box::new(result)
+                    })
                 })
                 .downcast_ref()
         }
@@ -157,9 +171,8 @@ pub use serde_de::*;
 
 #[cfg(test)]
 mod tests {
-    use std::ops::AddAssign;
-
     use super::*;
+    use std::ops::AddAssign;
 
     #[test]
     fn type_id() {
@@ -209,12 +222,12 @@ mod tests {
     #[cfg(feature = "clone")]
     #[test]
     fn clone() {
-        let val = 8;
+        let val = 8i8;
         let any: Box<dyn SuperAny> = Box::new(val);
         let any = any.clone();
 
-        assert_eq!(*any, val);
-        assert_ne!(*any, 7);
+        assert_eq!(*any.downcast_ref::<i8>().unwrap(), val);
+        assert_ne!(*any.downcast_ref::<i8>().unwrap(), 7);
     }
 
     #[cfg(feature = "eq")]
@@ -227,7 +240,7 @@ mod tests {
         assert_ne!(any, &7);
     }
 
-    #[cfg(feature = "eq")]
+    #[cfg(feature = "hash")]
     #[test]
     fn hash() {
         fn hash_object<T: std::hash::Hash>(val: &T) -> u64 {
