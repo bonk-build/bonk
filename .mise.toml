@@ -10,7 +10,7 @@ CGO_ENABLED = 1
 
 [tools]
 # Build tools
-go = "1.26.5"
+go = "1.27.3"
 buf = "1.74.0"
 "github:vektra/mockery" = "3.7.1"
 # Developer tools
